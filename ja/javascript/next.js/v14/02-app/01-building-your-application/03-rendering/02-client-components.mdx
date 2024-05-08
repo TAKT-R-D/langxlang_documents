@@ -7,16 +7,16 @@ org_path: /docs/app/building-your-application/rendering/client-components
 is_empty: false
 ---
 
-Client Componentsは、clientでrequest時間にレンダリングできる対話型UIを書くことを可能にします。Next.jsでは、clientレンダリングは**任意参加**で、つまり何のComponentがReactによってclient上でrenderされるべきかを明示的に決定する必要があります。
+Client Components は、client で request 時間にレンダリングできる対話型 UI を書くことを可能にします。Next.js では、client レンダリングは**任意参加**で、つまり何の Component が React によって client 上で render されるべきかを明示的に決定する必要があります。
 
-このページでは、Client Componentsの動作方法、レンダリングの仕方、そしてそれらをいつ使用するかについて説明します。
+このページでは、Client Components の動作方法、レンダリングの仕方、そしてそれらをいつ使用するかについて説明します。
 
 ## Benefits of Client Rendering
 
-clientでレンダリング作業を行うことにはいくつかの利点があります。これには以下のようなものがあります：
+client でレンダリング作業を行うことにはいくつかの利点があります。これには以下のようなものがあります：
 
-- **対話性**: Client Components は状態、エフェクト、イベントリスナーを使用でき、これによりユーザーに対して即座のフィードバックを提供し、UIを更新することができます。
-- **ブラウザAPI**: Client Components は、[ジオロケーション](https://developer.mozilla.org/docs/Web/API/Geolocation_API)や[ローカルストレージ](https://developer.mozilla.org/docs/Web/API/Window/localStorage)などのブラウザAPIにアクセスでき、特定のユースケースのためのUIを build できます。
+- **対話性**: Client Components は状態、エフェクト、イベントリスナーを使用でき、これによりユーザーに対して即座のフィードバックを提供し、UI を更新することができます。
+- **ブラウザ API**: Client Components は、[ジオロケーション](https://developer.mozilla.org/docs/Web/API/Geolocation_API)や[ローカルストレージ](https://developer.mozilla.org/docs/Web/API/Window/localStorage)などのブラウザ API にアクセスでき、特定のユースケースのための UI を build できます。
 
 ## Using Client Components in Next.js
 
@@ -58,7 +58,7 @@ export default function Counter() {
 }
 ```
 
-以下の図は、ネストされた「component」(`toggle.js`)で`onClick`と`useState`を使用すると、`"use client"`ディレクティブが定義されていない場合、「error」が発生することを示しています。これは、defaultでは、componentが「サーバ」上でrenderingされ、これらのAPIが利用できないからです。`toggle.js`内に`"use client"`ディレクティブを定義することで、「React」に「client」上で「component」とその「子」を「rendering」するよう指示することができ、そこではAPIが利用可能です。
+以下の図は、ネストされた「component」(`toggle.js`)で`onClick`と`useState`を使用すると、`"use client"`ディレクティブが定義されていない場合、「error」が発生することを示しています。これは、default では、component が「サーバ」上で rendering され、これらの API が利用できないからです。`toggle.js`内に`"use client"`ディレクティブを定義することで、「React」に「client」上で「component」とその「子」を「rendering」するよう指示することができ、そこでは API が利用可能です。
 
 <Image
   alt="Use Client Directive and Network Boundary"
@@ -70,41 +70,41 @@ export default function Counter() {
 
 > **複数の`use client`エントリーポイントを定義する:**
 >
-> あなたはReact Componentツリー内で複数の"use client"エントリーポイントを定義することができます。これにより、アプリケーションを複数のclientバンドル(またはブランチ)に分割することができます。
+> あなたは React Component ツリー内で複数の"use client"エントリーポイントを定義することができます。これにより、アプリケーションを複数の client バンドル(またはブランチ)に分割することができます。
 >
 > ただし、`"use client"`は、 client 上でレンダリングする必要があるすべての component で定義する必要はありません。一度境界を定義すると、それにインポートされたすべての子コンポーネントと modules は、 client バンドルの一部と見なされます。
 
 ## How are Client Components Rendered?
 
-Next.jsでは、requestが全ページのロード(初回訪問やブラウザのrefreshによるページ再読み込み)の一部かどうかにより、Client Componentsが異なる形でレンダリングされます。これは後続のナビゲーションの場合も同じです。
+Next.js では、request が全ページのロード(初回訪問やブラウザの refresh によるページ再読み込み)の一部かどうかにより、Client Components が異なる形でレンダリングされます。これは後続のナビゲーションの場合も同じです。
 
 ### フルページのロード
 
-初期ページのロードを最適化するために、Next.jsは、ReactのAPIを使用して、ClientおよびServer Componentsの両方に対して、静的なHTML previewをserver上でrenderします。これは、ユーザーが最初にアプリケーションを訪れたときに、clientがClient Component JavaScriptバンドルをダウンロード、解析、実行するのを待つことなく、すぐにページの内容を表示できることを意味します。
+初期ページのロードを最適化するために、Next.js は、React の API を使用して、Client および Server Components の両方に対して、静的な HTML preview を server 上で render します。これは、ユーザーが最初にアプリケーションを訪れたときに、client が Client Component JavaScript バンドルをダウンロード、解析、実行するのを待つことなく、すぐにページの内容を表示できることを意味します。
 
-server上で：
+server 上で：
 
-1. Reactは、**React Server Component Payload (RSC Payload)**と呼ばれる特別なデータ形式に、Server Componentsをレンダリングします。これにはClient Componentsへの参照が含まれています。
-2. Next.jsはRSC PayloadとClient Component JavaScriptの指示を使用して、server上のrouteに対する**HTML**をrenderします。
+1. React は、**React Server Component Payload (RSC Payload)**と呼ばれる特別なデータ形式に、Server Components をレンダリングします。これには Client Components への参照が含まれています。
+2. Next.js は RSC Payload と Client Component JavaScript の指示を使用して、server 上の route に対する**HTML**を render します。
 
-Then, on the client:
+次に、クライアントで:
 
-1. HTMLは、すぐに高速で非対話的な最初のpreviewをrouteの表示するために使用されます。
+1. HTML は、すぐに高速で非対話的な最初の preview を route の表示するために使用されます。
 2. The React Server Components Payload is used to reconcile the Client and Server Component trees, and update the DOM.
-3. JavaScriptの指示は、[hydrate](https://react.dev/reference/react-dom/client/hydrateRoot)するために使われ、Client Componentsを活性化させ、そのUIをインタラクティブにします。
+3. JavaScript の指示は、[hydrate](https://react.dev/reference/react-dom/client/hydrateRoot)するために使われ、Client Components を活性化させ、その UI をインタラクティブにします。
 
 > **ハイドレーションとは何ですか？**
 >
-> Hydrationは、静的なHTMLをインタラクティブにするために、イベントリスナーをDOMにアタッチするプロセスです。裏側では、hydrationは[`hydrateRoot`](https://react.dev/reference/react-dom/client/hydrateRoot) React API を使用して行われます。
+> Hydration は、静的な HTML をインタラクティブにするために、イベントリスナーを DOM にアタッチするプロセスです。裏側では、hydration は[`hydrateRoot`](https://react.dev/reference/react-dom/client/hydrateRoot) React API を使用して行われます。
 
 ### その後のナビゲーション
 
-次回のナビゲーション以降では、Client Componentsはすべてclient上でレンダリングされ、serverレンダリングのHTMLなしで表示されます。
+次回のナビゲーション以降では、Client Components はすべて client 上でレンダリングされ、server レンダリングの HTML なしで表示されます。
 
-これは、Client Component JavaScriptバンドルがダウンロードされ、解析されることを意味します。バンドルが準備完了したら、ReactはRSC Payloadを利用して、ClientとServer Componentのツリーを調整し、DOMを更新します。
+これは、Client Component JavaScript バンドルがダウンロードされ、解析されることを意味します。バンドルが準備完了したら、React は RSC Payload を利用して、Client と Server Component のツリーを調整し、DOM を更新します。
 
 ## Going back to the Server Environment
 
-時々、`"use client"`の境界を宣言した後で、serverの環境に戻りたい場合があります。例えば、clientバンドルのsizeを減らしたい、server上でデータをfetchしたい、またはserver上でのみ利用可能なAPIを使用したい場合などです。
+時々、`"use client"`の境界を宣言した後で、server の環境に戻りたい場合があります。例えば、client バンドルの size を減らしたい、server 上でデータを fetch したい、または server 上でのみ利用可能な API を使用したい場合などです。
 
-Y理論的にはClient Componentsの中にネストしているとしても、ClientとServer Componentsを交互に配置することにより、codeをserverに保持することができます。詳細については、[Composition Patterns](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/03-composition-patterns)ページと[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)をご覧ください。
+理論的には Client Components の中にネストしているとしても、Client と Server Components を交互に配置することにより、code を server に保持することができます。詳細については、[Composition Patterns](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/03-composition-patterns)ページと[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)をご覧ください。
