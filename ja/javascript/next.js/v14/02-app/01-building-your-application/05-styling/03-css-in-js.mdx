@@ -11,11 +11,11 @@ is_empty: false
 
 <AppOnly>
 
-> **警告:** 現在、実行時のJavaScriptが必要なCSS-in-JSライブラリは、Server Componentsでサポートされていません。新しいReactの機能であるServer ComponentsやストリーミングでCSS-in-JSを使用するには、[並行rendering](https://react.dev/blog/2022/03/29/react-v18#what-is-concurrent-react)を含む最新のReactのversionをライブラリの作者がサポートする必要があります。
+> **警告:** 現在、実行時の JavaScript が必要な CSS-in-JS ライブラリは、Server Components でサポートされていません。新しい React の機能である Server Components やストリーミングで CSS-in-JS を使用するには、[並行 rendering](https://react.dev/blog/2022/03/29/react-v18#what-is-concurrent-react)を含む最新の React の version をライブラリの作者がサポートする必要があります。
 >
-> 私たちは React チームと協力して、上流APIを使って CSS と JavaScript のアセットを処理し、 React Server Components とStreamingアーキテクチャをサポートしています。
+> 私たちは React チームと協力して、上流 API を使って CSS と JavaScript のアセットを処理し、 React Server Components と Streaming アーキテクチャをサポートしています。
 
-次のライブラリは`app`ディレクトリのClient Componentsでサポートされています(アルファベット順)：
+次のライブラリは`app`ディレクトリの Client Components でサポートされています(アルファベット順)：
 
 - [`chakra-ui`](https://chakra-ui.com/getting-started/nextjs-app-guide)
 - [`kuma-ui`](https://kuma-ui.com)
@@ -32,21 +32,21 @@ is_empty: false
 
 - [`emotion`](https://github.com/emotion-js/emotion/issues/2928)
 
-> **Good to know**: 私たちはさまざまなCSS-in-JSライブラリを試用していて、 React 18の機能をサポートするライブラリや、`app`ディレクトリに対応するライブラリの例を増やしていきます。
+> **Good to know**: 私たちはさまざまな CSS-in-JS ライブラリを試用していて、 React 18 の機能をサポートするライブラリや、`app`ディレクトリに対応するライブラリの例を増やしていきます。
 
-style Server Componentsを使用したい場合は、CSSファイルを出力する他のソリューション、PostCSSや[Tailwind CSS](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/02-tailwind-css)などと同様に、[CSS Modules](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules)の使用をお勧めします。
+style Server Components を使用したい場合は、CSS ファイルを出力する他のソリューション、PostCSS や[Tailwind CSS](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/02-tailwind-css)などと同様に、[CSS Modules](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules)の使用をお勧めします。
 
 ## Configuring CSS-in-JS in `app`
 
-CSS-in-JSの設定は、次のような3ステップのオプトインプロセスを含みます：
+CSS-in-JS の設定は、次のような 3 ステップのオプトインプロセスを含みます：
 
-1. 全てのCSSルールをrenderに収集するための **style registry**。
-2. 新しい`useServerInsertedHTML` hookは、それらを使用する可能性のあるコンテンツの前にルールを注入するためのものです。
-3. 初期のserver-side renderingの間にあなたのappをstyleレジストリで包み込むClient Component。
+1. 全ての CSS ルールを render に収集するための **style registry**。
+2. 新しい`useServerInsertedHTML` hook は、それらを使用する可能性のあるコンテンツの前にルールを注入するためのものです。
+3. 初期の server-side rendering の間にあなたの app を style レジストリで包み込む Client Component。
 
 ### `styled-jsx`
 
-`styled-jsx`を Client Componentsで使用するには、`v5.1.0`が必要です。まず、新しいレジストリを作成します：
+`styled-jsx`を Client Components で使用するには、`v5.1.0`が必要です。まず、新しいレジストリを作成します：
 
 ```tsx:app/registry.tsx
 'use client'
@@ -134,9 +134,9 @@ export default function RootLayout({ children }) {
 
 ### Styled Components
 
-以下は、`styled-components@6`またはそれ以降のVersionの設定方法の一例です：
+以下は、`styled-components@6`またはそれ以降の Version の設定方法の一例です：
 
-まず、`next.config.js`でstyled-componentsを有効にしてください。
+まず、`next.config.js`で styled-components を有効にしてください。
 
 ```js:next.config.js
 module.exports = {
@@ -146,7 +146,7 @@ module.exports = {
 }
 ```
 
-次に、`styled-components`のAPIを使用してグローバルレジストリのcomponentを作成し、rendering中に生成されたすべてのCSSスタイルルールを収集し、それらのルールを返す関数を作成します。次に、`useServerInsertedHTML`のhookを使用して、レジストリに収集されたstylesを、rootlayoutの`<head>`のHTMLタグに挿入します。
+次に、`styled-components`の API を使用してグローバルレジストリの component を作成し、rendering 中に生成されたすべての CSS スタイルルールを収集し、それらのルールを返す関数を作成します。次に、`useServerInsertedHTML`の hook を使用して、レジストリに収集された styles を、rootlayout の`<head>`の HTML タグに挿入します。
 
 ```tsx:lib/registry.tsx
 'use client'
@@ -208,7 +208,7 @@ export default function StyledComponentsRegistry({ children }) {
 }
 ```
 
-`children`の root layoutをstyle registry componentでラップしてください：
+`children`の root layout を style registry component でラップしてください：
 
 ```tsx:app/layout.tsx
 import StyledComponentsRegistry from './lib/registry'
@@ -246,10 +246,10 @@ export default function RootLayout({ children }) {
 
 > **Good to know**:
 >
-> - server rendering中に、 style はグローバルレジストリに抽出され、あなたの HTML の`<head>`にフラッシュされます。これにより、 styles のルールがそれを使用する可能性があるコンテンツの前に配置されることが保証されます。将来的には、これから登場する React の機能を用いて、 styles を注入する位置を決定するかもしれません。
+> - server rendering 中に、 style はグローバルレジストリに抽出され、あなたの HTML の`<head>`にフラッシュされます。これにより、 styles のルールがそれを使用する可能性があるコンテンツの前に配置されることが保証されます。将来的には、これから登場する React の機能を用いて、 styles を注入する位置を決定するかもしれません。
 > - ストリーミング中、各チャンクの styles が収集され、既存の styles に追加されます。クライアントサイドのハイドレーションが完了した後、`styled-components`は通常通りに引き続き、任意の dynamic styles を注入します。
 > - 我々は特に Client Component をツリーのトップレベルで style レジストリに使用しています。なぜなら、この方法で CSS ルールを抽出する方が効率的だからです。それは styles を後続の server レンダリングで再生成するのを避け、それらが Server Component のペイロードで送信されるのを防ぎます。
-> - 詳細な使用例で、styled-componentsのコンパイルの個々のプロパティを設定する必要がある場合は、詳しくは当社の[Next.js styled-components API reference](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler#styled-components)をご覧ください。
+> - 詳細な使用例で、styled-components のコンパイルの個々のプロパティを設定する必要がある場合は、詳しくは当社の[Next.js styled-components API reference](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler#styled-components)をご覧ください。
 
 </AppOnly>
 
@@ -269,21 +269,21 @@ export default function RootLayout({ children }) {
 
 </details>
 
-既存のCSS-in-JSソリューションを利用することが可能です。最もシンプルなものはinline stylesです:
+既存の CSS-in-JS ソリューションを利用することが可能です。最もシンプルなものは inline styles です:
 
 ```jsx
 function HiThere() {
-  return <p style={{ color: 'red' }}>hi there</p>
+  return <p style={{ color: "red" }}>hi there</p>;
 }
 
-export default HiThere
+export default HiThere;
 ```
 
-私たちは [styled-jsx](https://github.com/vercel/styled-jsx) をバンドルして、孤立したスコープの CSS をサポートします。目指しているのは、Web Components のような "shadow CSS" をサポートすることで、残念ながら [servers側でのrenderingをサポートせず、JavaScript のみで動く](https://github.com/w3c/webcomponents/issues/71) ことをサポートしていません。
+私たちは [styled-jsx](https://github.com/vercel/styled-jsx) をバンドルして、孤立したスコープの CSS をサポートします。目指しているのは、Web Components のような "shadow CSS" をサポートすることで、残念ながら [servers 側での rendering をサポートせず、JavaScript のみで動く](https://github.com/w3c/webcomponents/issues/71) ことをサポートしていません。
 
-上記の例を参照して、他の人気のあるCSS-in-JSソリューション(例えば、Styled Componentsのような)を確認してください。
+上記の例を参照して、他の人気のある CSS-in-JS ソリューション(例えば、Styled Components のような)を確認してください。
 
-`styled-jsx`を使用したcomponentは次のようになります：
+`styled-jsx`を使用した component は次のようになります：
 
 ```jsx
 function HelloWorld() {
@@ -310,16 +310,16 @@ function HelloWorld() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
-export default HelloWorld
+export default HelloWorld;
 ```
 
-より多くの例については、[styled-jsxドキュメンテーション](https://github.com/vercel/styled-jsx)をご参照ください。
+より多くの例については、[styled-jsx ドキュメンテーション](https://github.com/vercel/styled-jsx)をご参照ください。
 
 ### JavaScript を無効にする
 
-はい、JavaScriptを無効にしても、CSSはproduction build(`next start`)で引き続きロードされます。 developmentの際には、[FastRefresh](https://nextjs.org/blog/next-9-4#fast-refresh)による最適な開発者体験を提供するために、require JavaScriptを有効にする必要があります。
+はい、JavaScript を無効にしても、CSS は production build(`next start`)で引き続きロードされます。 development の際には、[FastRefresh](https://nextjs.org/blog/next-9-4#fast-refresh)による最適な開発者体験を提供するために、require JavaScript を有効にする必要があります。
 
 </PagesOnly>

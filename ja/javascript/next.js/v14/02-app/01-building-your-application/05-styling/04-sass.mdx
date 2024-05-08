@@ -9,7 +9,7 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.jsは、パッケージが`.scss`および`.sass`拡張子を使用してインストールされた後、Sassとの統合を内蔵サポートしています。 CSS Modulesや`.module.scss`、`.module.sass`拡張子を通じてComponentレベルのSassを使用することができます。
+Next.js は、パッケージが`.scss`および`.sass`拡張子を使用してインストールされた後、Sass との統合を内蔵サポートしています。 CSS Modules や`.module.scss`、`.module.sass`拡張子を通じて Component レベルの Sass を使用することができます。
 
 まず、[`sass`](https://github.com/sass/sass)をインストールしてください：
 
@@ -19,16 +19,16 @@ npm install --save-dev sass
 
 > **Good to know**:
 >
-> Sassは[2つの異なる構文](https://sass-lang.com/documentation/syntax)をサポートしており、それぞれが独自の拡張子を持っています。
+> Sass は[2 つの異なる構文](https://sass-lang.com/documentation/syntax)をサポートしており、それぞれが独自の拡張子を持っています。
 > `.scss`拡張子は、[SCSS syntax](https://sass-lang.com/documentation/syntax#scss)を使用することを必要とします。
 > `.sass` 拡弽子を使用する場合は、[インデントされた Syntax ("Sass")](https://sass-lang.com/documentation/syntax#the-indented-syntax)を使用する必要があります。
 >
 > どれを選ぶべきかわからない場合は、 start を `.scss` 拡張子で始めてみてください。これは CSS のスーパーセットで、 require があなたにそれを学ぶことを必要としません
-> インデントされたSyntax ("Sass")。
+> インデントされた Syntax ("Sass")。
 
-### SassOptionsのカスタマイズ
+### SassOptions のカスタマイズ
 
-Sass compilerを設定したい場合は、`next.config.js`の`sassOptions`を使用してください。
+Sass compiler を設定したい場合は、`next.config.js`の`sassOptions`を使用してください。
 
 ```js:next.config.js
 const path = require('path')
@@ -40,11 +40,11 @@ module.exports = {
 }
 ```
 
-### Sass変数
+### Sass 変数
 
-Next.jsは、CSSモジュールファイルからexportされたSass変数をサポートします。
+Next.js は、CSS モジュールファイルから export された Sass 変数をサポートします。
 
-たとえば、exportされた `primaryColor` Sassのvariableを使用すると：
+たとえば、export された `primaryColor` Sass の variable を使用すると：
 
 ```scss:app/variables.module.scss
 $primary-color: #64ff00;

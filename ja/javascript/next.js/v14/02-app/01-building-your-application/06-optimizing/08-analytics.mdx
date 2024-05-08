@@ -9,7 +9,7 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.jsは、パフォーマンス指標を測定し報告するための組み込みサポートを持っています。自分で報告を管理するために `useReportWebVitals` hookを使用するか、または、Vercelは[マネージドサービス](https://vercel.com/analytics?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)を提供して自動的に指標を収集し視覚化します。
+Next.js は、パフォーマンス指標を測定し報告するための組み込みサポートを持っています。自分で報告を管理するために `useReportWebVitals` hook を使用するか、または、Vercel は[マネージドサービス](https://vercel.com/analytics?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)を提供して自動的に指標を収集し視覚化します。
 
 ## Build Your Own
 
@@ -60,7 +60,7 @@ export default function Layout({ children }) {
 }
 ```
 
-> "`useReportWebVitals`hookは"`"use client"`" ディレクティブを必要とするため、最もパフォーマンスの高いアプローチはroot layoutがインポートする別のcomponentを作成することです。これにより、"`WebVitals`componentに対するclientの境界を排他的に制限します。
+> "`useReportWebVitals`hook は"`"use client"`" ディレクティブを必要とするため、最もパフォーマンスの高いアプローチは root layout がインポートする別の component を作成することです。これにより、"`WebVitals`component に対する client の境界を排他的に制限します。
 
 詳細については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-report-web-vitals)をご覧ください。
 
@@ -75,7 +75,7 @@ export default function Layout({ children }) {
 - [Largest Contentful Paint](https://web.dev/lcp/) (LCP)
 - [First Input Delay](https://web.dev/fid/) (FID)
 - [累積 Layout シフト](https://web.dev/cls/) (CLS)
-- [Next Paintへのやり取り](https://web.dev/inp/) (INP)
+- [Next Paint へのやり取り](https://web.dev/inp/) (INP)
 
 これらの指標の結果はすべて、`name`プロパティを使用して処理できます。
 
@@ -153,26 +153,26 @@ export function WebVitals() {
 
 上記のコアメトリクスに加えて、ページがハイドレートし、 render するまでの時間を測定する追加のカスタムメトリクスがあります。
 
-- `Next.js-hydration`：ページがstartし、ハイドレートを完了するまでの時間の長さ(ms単位)
-- `Next.js-route-change-to-render`: route が変更されてからページが start という状態までのrenderingにかかる時間(ミリ秒単位)
-- `Next.js-render`：route変更後にページがrenderを完了するまでの時間(ms)
+- `Next.js-hydration`：ページが start し、ハイドレートを完了するまでの時間の長さ(ms 単位)
+- `Next.js-route-change-to-render`: route が変更されてからページが start という状態までの rendering にかかる時間(ミリ秒単位)
+- `Next.js-render`：route 変更後にページが render を完了するまでの時間(ms)
 
 これらのメトリクスの結果はすべて個別に処理できます：
 
 ```js
 export function reportWebVitals(metric) {
   switch (metric.name) {
-    case 'Next.js-hydration':
+    case "Next.js-hydration":
       // handle hydration results
-      break
-    case 'Next.js-route-change-to-render':
+      break;
+    case "Next.js-route-change-to-render":
       // handle route-change to render results
-      break
-    case 'Next.js-render':
+      break;
+    case "Next.js-render":
       // handle render results
-      break
+      break;
     default:
-      break
+      break;
   }
 }
 ```
@@ -187,34 +187,34 @@ export function reportWebVitals(metric) {
 
 ```js
 useReportWebVitals((metric) => {
-  const body = JSON.stringify(metric)
-  const url = 'https://example.com/analytics'
+  const body = JSON.stringify(metric);
+  const url = "https://example.com/analytics";
 
   // Use `navigator.sendBeacon()` if available, falling back to `fetch()`.
   if (navigator.sendBeacon) {
-    navigator.sendBeacon(url, body)
+    navigator.sendBeacon(url, body);
   } else {
-    fetch(url, { body, method: 'POST', keepalive: true })
+    fetch(url, { body, method: "POST", keepalive: true });
   }
-})
+});
 ```
 
 > **Good to know**: もし[Google Analytics](https://analytics.google.com/analytics/web/)を使用しているなら、この
-> `id`valueを使うと、手動でメトリック分布を構築することができます(パーセンタイルを計算するためなどに、)。
+> `id`value を使うと、手動でメトリック分布を構築することができます(パーセンタイルを計算するためなどに、)。
 > etc.)
 
-> `js
+> ```js
 > useReportWebVitals((metric) => {
-> // この例のようにGoogle Analytics を初期化した場合は、`window.gtag`を使用してください:
-> // https://github.com/vercel/next.js/blob/canary/examples/with-google-analytics/pages/_app.js
-> window.gtag('event', metric.name, {.
-> value : Math.round(
-> metric.name === 'CLS' ? metric.value * 1000 : metric.value
-> ), // 値は整数でなければなりません
-> event_label: metric.id, // 現在のページ読み込みにユニークなid
-> non_interaction: true ，// バウンス率に影響を与えないようにします。
+>   // この例のようにGoogle Analytics を初期化した場合は、`window.gtag`を使用してください:
+>   // https://github.com/vercel/next.js/blob/canary/examples/with-google-analytics/pages/_app.js
+>   window.gtag('event', metric.name, {.
+>     value : Math.round(
+>       metric.name === 'CLS' ? metric.value * 1000 : metric.value
+>     ), // 値は整数でなければなりません
+>     event_label: metric.id, // 現在のページ読み込みにユニークなid
+>     non_interaction: true ，// バウンス率に影響を与えないようにします。
+>   })
 > })
-> })
-> `
+> ```
 >
 > Google Analytics への結果送信について[詳しく読む](https://github.com/GoogleChrome/web-vitals#send-the-results-to-google-analytics)。

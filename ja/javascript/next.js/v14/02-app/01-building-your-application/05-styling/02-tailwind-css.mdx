@@ -20,11 +20,11 @@ is_empty: false
 
 </PagesOnly>
 
-[Tailwind CSS](https://tailwindcss.com/)は、ユーティリティ最優先のCSSフレームワークで、特にNext.jsと非常によく機能します。
+[Tailwind CSS](https://tailwindcss.com/)は、ユーティリティ最優先の CSS フレームワークで、特に Next.js と非常によく機能します。
 
 ## Installing Tailwind
 
-Tailwind CSSパッケージをインストールし、`init` コマンドを実行して、`tailwind.config.js` と `postcss.config.js` の両方のファイルを生成します:
+Tailwind CSS パッケージをインストールし、`init` コマンドを実行して、`tailwind.config.js` と `postcss.config.js` の両方のファイルを生成します:
 
 ```bash:Terminal
 npm install -D tailwindcss postcss autoprefixer
@@ -33,7 +33,7 @@ npx tailwindcss init -p
 
 ## Configuring Tailwind
 
-`tailwind.config.js`の中に、Tailwind CSSクラス名を使用するファイルにpathsを追加します:
+`tailwind.config.js`の中に、Tailwind CSS クラス名を使用するファイルに paths を追加します:
 
 ```js:tailwind.config.js
 /** @type {import('tailwindcss').Config} */
@@ -59,7 +59,7 @@ module.exports = {
 
 ## Importing Styles
 
-アプリケーションの[Global stylesheet](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules#global-styles)に、例えば、Tailwindが生成したstylesを注入するために使う[Tailwind CSS のディレクティブ](https://tailwindcss.com/docs/functions-and-directives#directives)を追加してください。例：
+アプリケーションの[Global stylesheet](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules#global-styles)に、例えば、Tailwind が生成した styles を注入するために使う[Tailwind CSS のディレクティブ](https://tailwindcss.com/docs/functions-and-directives#directives)を追加してください。例：
 
 ```css:app/globals.css
 @tailwind base;
@@ -113,7 +113,7 @@ export default function RootLayout({ children }) {
 
 ## Using Classes
 
- Tailwind CSS をインストールしてグローバルな styles を追加した後、あなたのアプリケーションでTailwindのユーティリティクラスを使用することができます。
+Tailwind CSS をインストールしてグローバルな styles を追加した後、あなたのアプリケーションで Tailwind のユーティリティクラスを使用することができます。
 
 ```tsx:app/page.tsx
 export default function Page() {
@@ -133,7 +133,7 @@ export default function Page() {
 
 ## Importing Styles
 
-アプリケーションの [Global stylesheet](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling/01-css-modules#global-styles) に、たとえば、Tailwindが生成したスタイルを注入するために使用する[Tailwind CSS ディレクティブ](https://tailwindcss.com/docs/functions-and-directives#directives)を追加します：
+アプリケーションの [Global stylesheet](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling/01-css-modules#global-styles) に、たとえば、Tailwind が生成したスタイルを注入するために使用する[Tailwind CSS ディレクティブ](https://tailwindcss.com/docs/functions-and-directives#directives)を追加します：
 
 ```css:styles/globals.css
 @tailwind base;
@@ -164,7 +164,7 @@ export default function App({ Component, pageProps }) {
 
 ## Using Classes
 
- Tailwind CSS をインストールし、グローバルな styles を追加した後、アプリケーションでTailwindのユーティリティクラスを使用することができます。
+Tailwind CSS をインストールし、グローバルな styles を追加した後、アプリケーションで Tailwind のユーティリティクラスを使用することができます。
 
 ```tsx:pages/index.tsx
 export default function Page() {
@@ -182,4 +182,4 @@ export default function Page() {
 
 ## Usage with Turbopack
 
-ANext.js 13.1時点で、“Tailwind CSSと“PostCSSは[Turbopack](https://turbo.build/pack/docs/features/css#tailwind-css)でサポートされています。
+Next.js 13.1 時点で、“Tailwind CSS と“PostCSS は[Turbopack](https://turbo.build/pack/docs/features/css#tailwind-css)でサポートされています。

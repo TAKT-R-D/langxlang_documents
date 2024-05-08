@@ -11,14 +11,14 @@ is_empty: false
 
 [Lazy loading](https://developer.mozilla.org/docs/Web/Performance/Lazy_loading) は、 Next.js において、最初の loading 性能を向上させるために、 route を render するのに必要な JavaScript の量を減らすのに役立ちます。
 
-それにより、**Client Components**やインポートされたライブラリのloadingを延期し、それらが必要となったときにだけclientバンドルに含めることが可能になります。例えば、ユーザーがそれを開くためにクリックするまでモーダルのloadingを延期することができるでしょう。
+それにより、**Client Components**やインポートされたライブラリの loading を延期し、それらが必要となったときにだけ client バンドルに含めることが可能になります。例えば、ユーザーがそれを開くためにクリックするまでモーダルの loading を延期することができるでしょう。
 
-あなたがNext.jsでlazy loadingを実装できる2つの方法があります:
+あなたが Next.js で lazy loading を実装できる 2 つの方法があります:
 
 1. [Dynamic Imports](#nextdynamic)を`next/dynamic`で使用する
 2. [`React.lazy()`](https://react.dev/reference/react/lazy) を [Suspense](https://react.dev/reference/react/Suspense)と共に使用する
 
-defaultでは、Server Componentsは自動的に[code split](https://developer.mozilla.org/docs/Glossary/Code_splitting)され、[streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を使用してUIの一部をserverからclientに順次送信できます。Lazy loadingは、Client Componentsに適用されます。
+default では、Server Components は自動的に[code split](https://developer.mozilla.org/docs/Glossary/Code_splitting)され、[streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を使用して UI の一部を server から client に順次送信できます。Lazy loading は、Client Components に適用されます。
 
 ## `next/dynamic`
 
@@ -59,19 +59,19 @@ export default function ClientComponentExample() {
 }
 ```
 
-### SSRをスキップ
+### SSR をスキップ
 
 `React.lazy()` と Suspense を使用すると、 Client Components は default により、事前に描画( SSR )されます。
 
-もしClient Componentのプレレンダリングを無効にしたい場合、`ssr`オプションを`false`に設定して使用することができます：
+もし Client Component のプレレンダリングを無効にしたい場合、`ssr`オプションを`false`に設定して使用することができます：
 
 ```jsx
-const ComponentC = dynamic(() => import('../components/C'), { ssr: false })
+const ComponentC = dynamic(() => import("../components/C"), { ssr: false });
 ```
 
-### Server Componentsのインポート
+### Server Components のインポート
 
-Server Componentを動的にimportすると、Server ComponentのchildrenであるClient Componentsのみが遅延ロードされます - Server Component自体はロードされません。
+Server Component を動的に import すると、Server Component の children である Client Components のみが遅延ロードされます - Server Component 自体はロードされません。
 
 ```jsx:app/page.js
 import dynamic from 'next/dynamic'
@@ -90,7 +90,7 @@ export default function ServerComponentExample() {
 
 ### Loading 外部ライブラリの読み込み
 
-外部ライブラリは、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import)関数を使用して必要に応じてロードすることができます。この例では、曖昧検索のための外部のlibrary `fuse.js`を使用しています。モジュールは、ユーザーが検索入力を入力した後でのみclient上にロードされます。
+外部ライブラリは、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import)関数を使用して必要に応じてロードすることができます。この例では、曖昧検索のための外部の library `fuse.js`を使用しています。モジュールは、ユーザーが検索入力を入力した後でのみ client 上にロードされます。
 
 ```jsx:app/page.js
 'use client'
@@ -144,9 +144,9 @@ export default function Page() {
 }
 ```
 
-### 名前付きexportのインポート
+### 名前付き export のインポート
 
-動的に import を実行し、名前付きの export を取り込むには、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import)関数によって返されるPromiseからそれを返すことができます。
+動的に import を実行し、名前付きの export を取り込むには、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import)関数によって返される Promise からそれを返すことができます。
 
 ```jsx:components/hello.js
 'use client'
@@ -171,18 +171,18 @@ const ClientComponent = dynamic(() =>
 `next/dynamic`を使用することにより、 header component はページの初期の JavaScript バンドルに含まれません。ページは、まず Suspense の`fallback`を render し、次に`Suspense`境界が解決されたときに`Header` component を表示します。
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const DynamicHeader = dynamic(() => import('../components/header'), {
+const DynamicHeader = dynamic(() => import("../components/header"), {
   loading: () => <p>Loading...</p>,
-})
+});
 
 export default function Home() {
-  return <DynamicHeader />
+  return <DynamicHeader />;
 }
 ```
 
-> **Good to know**: `import('path/to/component')`の中のpathは明示的に書かなければなりません。 テンプレートstringやvariableにすることはできません。さらに、`import()`は、Next.jsがwebpackバンドル／モジュールIDを特定の`dynamic()`呼び出しにマッチさせ、rendering前にプリロードするために、`dynamic()`呼び出しの中になければなりません。`dynamic()`は、プリロードが機能するためにはモジュールのトップレベルでマークされる必要があり、`React.lazy`と同様、Reactのrenderingの中で使うことはできません。
+> **Good to know**: `import('path/to/component')`の中の path は明示的に書かなければなりません。 テンプレート string や variable にすることはできません。さらに、`import()`は、Next.js が webpack バンドル／モジュール ID を特定の`dynamic()`呼び出しにマッチさせ、rendering 前にプリロードするために、`dynamic()`呼び出しの中になければなりません。`dynamic()`は、プリロードが機能するためにはモジュールのトップレベルでマークされる必要があり、`React.lazy`と同様、React の rendering の中で使うことはできません。
 
 ## With named exports
 
@@ -203,27 +203,27 @@ const DynamicComponent = dynamic(() =>
 
 ## With no SSR
 
-Dynamicにcomponentをclientサイドでロードするには、`ssr`オプションを使用してserverレンダリングを無効にすることができます。これは、外部依存関係やcomponentが`window`のようなブラウザAPIに依存している場合に便利です。
+Dynamic に component を client サイドでロードするには、`ssr`オプションを使用して server レンダリングを無効にすることができます。これは、外部依存関係や component が`window`のようなブラウザ API に依存している場合に便利です。
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const DynamicHeader = dynamic(() => import('../components/header'), {
+const DynamicHeader = dynamic(() => import("../components/header"), {
   ssr: false,
-})
+});
 ```
 
 ## With external libraries
 
-この例では、曖昧な検索のための外部のlibrary `fuse.js`を使用しています。このモジュールは、ユーザーが検索入力欄に文字を入力した後でのみブラウザーに読み込まれます。
+この例では、曖昧な検索のための外部の library `fuse.js`を使用しています。このモジュールは、ユーザーが検索入力欄に文字を入力した後でのみブラウザーに読み込まれます。
 
 ```jsx
-import { useState } from 'react'
+import { useState } from "react";
 
-const names = ['Tim', 'Joe', 'Bel', 'Lee']
+const names = ["Tim", "Joe", "Bel", "Lee"];
 
 export default function Page() {
-  const [results, setResults] = useState()
+  const [results, setResults] = useState();
 
   return (
     <div>
@@ -231,17 +231,17 @@ export default function Page() {
         type="text"
         placeholder="Search"
         onChange={async (e) => {
-          const { value } = e.currentTarget
+          const { value } = e.currentTarget;
           // Dynamically load fuse.js
-          const Fuse = (await import('fuse.js')).default
-          const fuse = new Fuse(names)
+          const Fuse = (await import("fuse.js")).default;
+          const fuse = new Fuse(names);
 
-          setResults(fuse.search(value))
+          setResults(fuse.search(value));
         }}
       />
       <pre>Results: {JSON.stringify(results, null, 2)}</pre>
     </div>
-  )
+  );
 }
 ```
 

@@ -10,17 +10,17 @@ nav_title: Fonts
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-[**`next/font`**](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font)は、あなたのフォント(カスタムフォントを含む)を自動的に最適化し、プライバシーとパフォーマンスの向上のために外部ネットワークRequestを削除します。
+[**`next/font`**](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font)は、あなたのフォント(カスタムフォントを含む)を自動的に最適化し、プライバシーとパフォーマンスの向上のために外部ネットワーク Request を削除します。
 
-> **🎥 視聴：** `next/font` の使用について詳しく学びましょう → [YouTube (6分間)](https://www.youtube.com/watch?v=L8_98i_bMMA)。
+> **🎥 視聴：** `next/font` の使用について詳しく学びましょう → [YouTube (6 分間)](https://www.youtube.com/watch?v=L8_98i_bMMA)。
 
-`next/font` は _すぐにでも_ フォントファイル用の**組み込み自動自己ホスティング**を含みます。これは、基礎となるCSSの `size-adjust` プロパティのおかげで、最適にウェブフォントをロードし、layout シフトをゼロにすることができるということを意味します。
+`next/font` は _すぐにでも_ フォントファイル用の**組み込み自動自己ホスティング**を含みます。これは、基礎となる CSS の `size-adjust` プロパティのおかげで、最適にウェブフォントをロードし、layout シフトをゼロにすることができるということを意味します。
 
-この新しいフォントシステムは、パフォーマンスとプライバシーを考慮して、すべてのGoogle Fontsを便利に使用することが可能です。CSSとフォントファイルはbuildの時間にダウンロードされ、他の静的アセットと一緒に自己ホストされます。**ブラウザからGoogleへのRequestは送信されません。**
+この新しいフォントシステムは、パフォーマンスとプライバシーを考慮して、すべての Google Fonts を便利に使用することが可能です。CSS とフォントファイルは build の時間にダウンロードされ、他の静的アセットと一緒に自己ホストされます。**ブラウザから Google への Request は送信されません。**
 
 ## Google Fonts
 
-Google Fontを自動的に自己ホスティングします。フォントはデプロイメントに含まれ、デプロイメントと同じドメインから提供されます。**ブラウザからGoogleに対するRequestは送信されません。**
+Google Font を自動的に自己ホスティングします。フォントはデプロイメントに含まれ、デプロイメントと同じドメインから提供されます。**ブラウザから Google に対する Request は送信されません。**
 
 `next/font/google`から使用したいフォントを関数としてインポートして始めてください。最高のパフォーマンスと柔軟性を得るために、[variable fonts](https://fonts.google.com/variablefonts)の使用をお勧めします。
 
@@ -66,7 +66,7 @@ export default function RootLayout({ children }) {
 }
 ```
 
-あなたがvariableフォントを使えない場合、**weightを指定する必要があります**：
+あなたが variable フォントを使えない場合、**weight を指定する必要があります**：
 
 ```tsx:app/layout.tsx
 import { Roboto } from 'next/font/google'
@@ -129,7 +129,7 @@ export default function MyApp({ Component, pageProps }) {
 }
 ```
 
-あなたがvariableフォントを使えない場合、**weightを指定する必要があります**：
+あなたが variable フォントを使えない場合、**weight を指定する必要があります**：
 
 ```jsx:pages/_app.js
 import { Roboto } from 'next/font/google'
@@ -210,7 +210,7 @@ export default function Home() {
 
 ### サブセットの指定
 
-Google Fontsは自動的に[subset](https://fonts.google.com/knowledge/glossary/subsetting)されます。これにより、 size のフォントファイルが縮小され、パフォーマンスが向上します。これらの subsets の中から、どれを preload するかを定義する必要があります。[`preload`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font#preload)が`true`であるにも関わらず、任意の subsets を指定しないと、警告が表示されます。
+Google Fonts は自動的に[subset](https://fonts.google.com/knowledge/glossary/subsetting)されます。これにより、 size のフォントファイルが縮小され、パフォーマンスが向上します。これらの subsets の中から、どれを preload するかを定義する必要があります。[`preload`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font#preload)が`true`であるにも関わらず、任意の subsets を指定しないと、警告が表示されます。
 
 これは、それを関数呼び出しに追加することによって実行できます：
 
@@ -238,9 +238,9 @@ const inter = Inter({ subsets: ['latin'] })
 
 ### 複数のフォントを使用する
 
-あなたはアプリケーションで複数のフォントをimportして使用することができます。取れるアプローチは2つあります。
+あなたはアプリケーションで複数のフォントを import して使用することができます。取れるアプローチは 2 つあります。
 
-最初のアプローチは、フォントをexportし、インポートし、必要な場所でその`className`を適用するユーティリティ関数を作成することです。これにより、フォントはレンダリングされたときだけ事前にロードされることが確保されます：
+最初のアプローチは、フォントを export し、インポートし、必要な場所でその`className`を適用するユーティリティ関数を作成することです。これにより、フォントはレンダリングされたときだけ事前にロードされることが確保されます：
 
 ```ts:app/fonts.ts
 import { Inter, Roboto_Mono } from 'next/font/google'
@@ -328,7 +328,7 @@ export default function Page() {
 
 上記の例では、`Inter`はグローバルに適用され、`Roboto Mono`は必要に応じてインポートして適用することができます。
 
-あるいは、[CSS variable](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font#variable)を作成し、ご自身が好むCSSソリューションと一緒に使用することもできます：
+あるいは、[CSS variable](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font#variable)を作成し、ご自身が好む CSS ソリューションと一緒に使用することもできます：
 
 <AppOnly>
 
@@ -480,27 +480,27 @@ export default function MyApp({ Component, pageProps }) {
 const roboto = localFont({
   src: [
     {
-      path: './Roboto-Regular.woff2',
-      weight: '400',
-      style: 'normal',
+      path: "./Roboto-Regular.woff2",
+      weight: "400",
+      style: "normal",
     },
     {
-      path: './Roboto-Italic.woff2',
-      weight: '400',
-      style: 'italic',
+      path: "./Roboto-Italic.woff2",
+      weight: "400",
+      style: "italic",
     },
     {
-      path: './Roboto-Bold.woff2',
-      weight: '700',
-      style: 'normal',
+      path: "./Roboto-Bold.woff2",
+      weight: "700",
+      style: "normal",
     },
     {
-      path: './Roboto-BoldItalic.woff2',
-      weight: '700',
-      style: 'italic',
+      path: "./Roboto-BoldItalic.woff2",
+      weight: "700",
+      style: "italic",
     },
   ],
-})
+});
 ```
 
 詳細については、[Font API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font)をご覧ください。
@@ -509,7 +509,7 @@ const roboto = localFont({
 
 `next/font`は、[Tailwind CSS](https://tailwindcss.com/)と[CSS variable](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/font#css-variables)を経由して使用することができます。
 
-以下の例では、`next/font/google`からフォント`Inter`を使用しています(Googleまたはローカルフォントから任意のフォントを使用できます)。 CSS variable の名前を定義し、それを`inter`に割り当てるために、`variable`オプションを使用してフォントをロードします。その後、`inter.variable`を使用して、 CSS variable を HTML document に追加します。
+以下の例では、`next/font/google`からフォント`Inter`を使用しています(Google またはローカルフォントから任意のフォントを使用できます)。 CSS variable の名前を定義し、それを`inter`に割り当てるために、`variable`オプションを使用してフォントをロードします。その後、`inter.variable`を使用して、 CSS variable を HTML document に追加します。
 
 <AppOnly>
 
@@ -588,7 +588,7 @@ export default function MyApp({ Component, pageProps }) {
 
 </PagesOnly>
 
-最後に、CSS variableを [[Tailwind CSS config](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/02-tailwind-css#configuring-tailwind)]に追加してください：
+最後に、CSS variable を [[Tailwind CSS config](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/02-tailwind-css#configuring-tailwind)]に追加してください：
 
 ```js:tailwind.config.js
 /** @type {import('tailwindcss').Config} */
@@ -617,25 +617,25 @@ module.exports = {
 <AppOnly>
 あなたのサイトのページでフォント機能が呼び出されると、それはすべての routes で全体的に利用可能で事前に読み込まれるわけではありません。むしろ、それは使用されるファイルの type に基づいて関連する routes でのみ事前に読み込まれます:
 
-- もしそれが[ユニークなページ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)であれば、そのページのためのユニークなrouteに先読みされます。
-- もし、それが[layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)であれば、そのlayoutで包まれた全てのroutesにあらかじめロードされています。
-- それが[root layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)であるなら、すべてのroutesに先行読み込みされます。
+- もしそれが[ユニークなページ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)であれば、そのページのためのユニークな route に先読みされます。
+- もし、それが[layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)であれば、その layout で包まれた全ての routes にあらかじめロードされています。
+- それが[root layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)であるなら、すべての routes に先行読み込みされます。
 
 </AppOnly>
 
 <PagesOnly>
 
-あなたのサイトのページでフォント機能が呼び出されると、それはすべてのroutesでグローバルに利用可能でプリロードされるわけではありません。むしろ、フォントはそれが使用されるファイルのtypeに基づいて関連するルート/ルートでのみプリロードされます。
+あなたのサイトのページでフォント機能が呼び出されると、それはすべての routes でグローバルに利用可能でプリロードされるわけではありません。むしろ、フォントはそれが使用されるファイルの type に基づいて関連するルート/ルートでのみプリロードされます。
 
-- それが[unique page](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts)なら、そのページのためのユニークなrouteに予め読み込まれています
-- それが[custom App](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)にある場合、すべてのroutesのサイトの `/pages` 以下に事前に読み込まれています。
+- それが[unique page](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts)なら、そのページのためのユニークな route に予め読み込まれています
+- それが[custom App](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)にある場合、すべての routes のサイトの `/pages` 以下に事前に読み込まれています。
 
 </PagesOnly>
 
 ## Reusing fonts
 
-`localFont`またはGoogleフォント機能を呼び出すたびに、そのフォントはあなたのアプリケーションで1つのインスタンスとしてホストされます。したがって、同じフォント機能を複数のファイルでロードすると、同じフォントの複数のインスタンスがホストされます。この状況では、以下のことを推奨します：
+`localFont`または Google フォント機能を呼び出すたびに、そのフォントはあなたのアプリケーションで 1 つのインスタンスとしてホストされます。したがって、同じフォント機能を複数のファイルでロードすると、同じフォントの複数のインスタンスがホストされます。この状況では、以下のことを推奨します：
 
-- 共有ファイルの中でフォントのloader関数を呼び出す
-- それをExportとして定数で出力します
-- Iこのフォントを使用したい各ファイルでImport 定数をインポートしてください
+- 共有ファイルの中でフォントの loader 関数を呼び出す
+- それを Export として定数で出力します
+- このフォントを使用したい各ファイルで Import 定数をインポートしてください

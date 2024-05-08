@@ -20,9 +20,9 @@ is_empty: false
 
 </PagesOnly>
 
-Next.jsは、`.module.css`拡弽子を使用したCSS Modulesの組み込みサポートを持っています。
+Next.js は、`.module.css`拡弽子を使用した CSS Modules の組み込みサポートを持っています。
 
-CSS Modulesは、ユニークなクラス名を自動的に作成することで、scope CSSをローカルにします。これにより、衝突を心配することなく、異なるファイルで同じクラス名を使用することができます。この振る舞いは、CSS ModulesをComponentレベルのCSSを含める理想的な方法にしています。
+CSS Modules は、ユニークなクラス名を自動的に作成することで、scope CSS をローカルにします。これにより、衝突を心配することなく、異なるファイルで同じクラス名を使用することができます。この振る舞いは、CSS Modules を Component レベルの CSS を含める理想的な方法にしています。
 
 ## Example
 
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }) {
 
 <PagesOnly>
 
-例えば、`components/` フォルダ内の再利用可能な `Button` componentを考えてみましょう：
+例えば、`components/` フォルダ内の再利用可能な `Button` component を考えてみましょう：
 
 まず、次の内容で`components/Button.module.css`を作成してください：
 
@@ -74,7 +74,7 @@ You do not need to worry about .error {} colliding with any other `.css` or
 }
 ```
 
-次に、`components/Button.js`を作成し、上記のCSSファイルをインポートして使用します：
+次に、`components/Button.js`を作成し、上記の CSS ファイルをインポートして使用します：
 
 ```jsx:components/Button.js
 import styles from './Button.module.css'
@@ -95,9 +95,9 @@ export function Button() {
 
 </PagesOnly>
 
- CSS Modules は、_オプション機能_であり、**`.module.css`拡張子を持つファイルのみ有効になります**。通常の`<link>`スタイルシートとグローバルな CSS ファイルも引き続きサポートされています。
+CSS Modules は、*オプション機能*であり、**`.module.css`拡張子を持つファイルのみ有効になります**。通常の`<link>`スタイルシートとグローバルな CSS ファイルも引き続きサポートされています。
 
- production では、すべての CSS モジュールファイルが自動的に**多くの圧縮され、コード分割された** `.css`ファイルに結合されます。これらの`.css`ファイルは、あなたのアプリケーションの中で熱い実行 paths を表し、アプリケーションの描画に必要な CSS が最小限になるように保証します。
+production では、すべての CSS モジュールファイルが自動的に**多くの圧縮され、コード分割された** `.css`ファイルに結合されます。これらの`.css`ファイルは、あなたのアプリケーションの中で熱い実行 paths を表し、アプリケーションの描画に必要な CSS が最小限になるように保証します。
 
 ## Global Styles
 
@@ -116,7 +116,7 @@ body {
 }
 ```
 
- root layout ( `app/layout.js` )の中に、 import を使って `global.css` スタイルシートをインポートし、アプリケーション内の全ての route に styles を適用します:
+root layout ( `app/layout.js` )の中に、 import を使って `global.css` スタイルシートをインポートし、アプリケーション内の全ての route に styles を適用します:
 
 ```tsx:app/layout.tsx
 // These styles apply to every route in the application
@@ -179,22 +179,22 @@ export default function MyApp({ Component, pageProps }) {
 
 これらの styles (`styles.css`)は、アプリケーション内のすべてのページとコンポーネントに適用されます。スタイルシートのグローバルな性質と、コンフリクトを避けるために、**[`pages/_app.js`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)** 内部で** import することのみ可能**です。
 
-developmentにおいて、このようにstylesシートを表現することで、stylesはあなたがそれらを編集するにつれてホットリロードされることができます。つまり、アプリケーションの状態を維持することができます。
+development において、このように styles シートを表現することで、styles はあなたがそれらを編集するにつれてホットリロードされることができます。つまり、アプリケーションの状態を維持することができます。
 
-productionにおいて、全てのmodulesファイルは自動的に一つの最小化された`.css`ファイルに結合されます。 CSSが結合される順序は、 `_app.js` ファイルにCSSがインポートされる順序と一致します。JSモジュールが独自のCSSを含むことに特別な注意を払ってください。JSモジュールのCSSは、インポートされたCSSファイルと同じ順序ルールに従って結合されます。例えば：
+production において、全ての modules ファイルは自動的に一つの最小化された`.css`ファイルに結合されます。 CSS が結合される順序は、 `_app.js` ファイルに CSS がインポートされる順序と一致します。JS モジュールが独自の CSS を含むことに特別な注意を払ってください。JS モジュールの CSS は、インポートされた CSS ファイルと同じ順序ルールに従って結合されます。例えば：
 
 ```jsx
-import '../styles.css'
+import "../styles.css";
 // The CSS in ErrorBoundary depends on the global CSS in styles.css,
 // so we import it after styles.css.
-import ErrorBoundary from '../components/ErrorBoundary'
+import ErrorBoundary from "../components/ErrorBoundary";
 
 export default function MyApp({ Component, pageProps }) {
   return (
     <ErrorBoundary>
       <Component {...pageProps} />
     </ErrorBoundary>
-  )
+  );
 }
 ```
 
@@ -204,7 +204,7 @@ export default function MyApp({ Component, pageProps }) {
 
 <AppOnly>
 
-外部パッケージによって公開されたスタイルシートは、`app`ディレクトリのどこでも、コロケーションされたComponentを含むものでも、インポートすることができます：
+外部パッケージによって公開されたスタイルシートは、`app`ディレクトリのどこでも、コロケーションされた Component を含むものでも、インポートすることができます：
 
 ```tsx:app/layout.tsx
 import 'bootstrap/dist/css/bootstrap.css'
@@ -240,11 +240,11 @@ export default function RootLayout({ children }) {
 
 <PagesOnly>
 
- Next.js は、 JavaScript ファイルから import CSS ファイルを可能にします。これは、 Next.js が[`import`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/import)の概念を JavaScript を超えて拡張しているためです。
+Next.js は、 JavaScript ファイルから import CSS ファイルを可能にします。これは、 Next.js が[`import`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/import)の概念を JavaScript を超えて拡張しているためです。
 
 ### `node_modules`から Import styles をインポートする
 
-Next.jsの **9.5.4** から、`node_modules`からCSSファイルをアプリケーションの任意の場所でインポートすることが許可されています。
+Next.js の **9.5.4** から、`node_modules`から CSS ファイルをアプリケーションの任意の場所でインポートすることが許可されています。
 
 グローバルなスタイルシート、例えば `bootstrap` や `nprogress` のようなものについては、ファイルを `pages/_app.js` 内に import するべきです。例えば：
 
@@ -256,7 +256,7 @@ export default function MyApp({ Component, pageProps }) {
 }
 ```
 
-サードパーティのcomponentが必要とするCSSをインポートするためには、あなたのcomponentでそれを行うことができます。例えば：
+サードパーティの component が必要とする CSS をインポートするためには、あなたの component でそれを行うことができます。例えば：
 
 ```jsx:components/example-dialog.js
 import { useState } from 'react'
@@ -288,8 +288,8 @@ function ExampleDialog(props) {
 
 ## Additional Features
 
- Next.js は、 styles を追加するための作成体験を改善する追加機能を含んでいます：
+Next.js は、 styles を追加するための作成体験を改善する追加機能を含んでいます：
 
-- `next dev`を使ってローコールで実行する場合、ローカルのスタイルシート(グローバルかCSS modulesのいずれか)は[Fast Refresh](/ja/javascript/next.js/v14/04-architecture/fast-refresh)を利用して、編集が保存されるとすぐに変更が反映されます。
+- `next dev`を使ってローコールで実行する場合、ローカルのスタイルシート(グローバルか CSS modules のいずれか)は[Fast Refresh](/ja/javascript/next.js/v14/04-architecture/fast-refresh)を利用して、編集が保存されるとすぐに変更が反映されます。
 - `next build` で production の number を行うとき、 CSS ファイルは、より少ない `.css` ファイルにまとめて縮小され、 styles を取得するために必要なネットワーク要求の数を減らします。
 - JavaScript を無効にすると、 production build (`next start`)でも styles は読み込まれます。しかし、[Fast Refresh](/ja/javascript/next.js/v14/04-architecture/fast-refresh)を有効にするためには、`next dev` では依然として JavaScript が必要です。
