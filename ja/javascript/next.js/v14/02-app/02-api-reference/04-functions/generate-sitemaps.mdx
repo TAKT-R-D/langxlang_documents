@@ -1,0 +1,73 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/generate-sitemaps.mdx
+title: generateSitemaps
+description: Learn how to use the generateSiteMaps function to create multiple sitemaps for your application.
+org_title: generateSitemaps
+org_path: /docs/app/api-reference/functions/generate-sitemaps
+is_empty: false
+nav_title: generateSitemaps
+---
+
+`generateSitemaps`関数を使用して、アプリケーションの複数のサイトマップを生成することができます。
+
+## Returns
+
+`generateSitemaps`は、`id`プロパティを持つObjectの配列を返します。
+
+## URLs
+
+In production, your generated sitemaps will be available at `/.../sitemap/[id].xml`. For example, `/product/sitemap/1.xml`.
+
+In development, you can view the generated sitemap on `/.../sitemap.xml/[id]`. For example, `/product/sitemap.xml/1`. This difference is temporary and will follow the production format.
+
+## Example
+
+For example, to split a sitemap using `generateSitemaps`, return an array of objects with the sitemap `id`. Then, use the `id` to generate the unique sitemaps.
+
+```ts:app/product/sitemap.ts
+import { BASE_URL } from '@/app/lib/constants'
+
+export async function generateSitemaps() {
+  // Fetch the total number of products and calculate the number of sitemaps needed
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
+}
+
+export default async function sitemap({
+  id,
+}: {
+  id: number
+}): MetadataRoute.Sitemap {
+  // Google's limit is 50,000 URLs per sitemap
+  const start = id * 50000
+  const end = start + 50000
+  const products = await getProducts(
+    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`
+  )
+  return products.map((product) => ({
+    url: `${BASE_URL}/product/${product.id}`
+    lastModified: product.date,
+  }))
+}
+```
+
+```js:app/product/sitemap.js
+import { BASE_URL } from '@/app/lib/constants'
+
+export async function generateSitemaps() {
+  // Fetch the total number of products and calculate the number of sitemaps needed
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
+}
+
+export default async function sitemap({ id }) {
+  // Google's limit is 50,000 URLs per sitemap
+  const start = id * 50000
+  const end = start + 50000
+  const products = await getProducts(
+    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`
+  )
+  return products.map((product) => ({
+    url: `${BASE_URL}/product/${id}`,
+    lastModified: product.date,
+  }))
+}
+```

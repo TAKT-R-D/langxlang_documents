@@ -1,0 +1,227 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/route-segment-config.mdx
+title: Route Segment Config
+description: Learn about how to configure options for Next.js route segments.
+org_title: Route Segment Config
+org_path: /docs/app/api-reference/file-conventions/route-segment-config
+is_empty: false
+---
+
+Routeセグメントのoptionsは、以下の変数を直接exportすることにより、[Page](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)、[Layout](/docs/app/building-your-application/routing/pages-and-layouts)、または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)の動作を設定することができます：
+
+| Option | Type | Default |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [`dynamic`](#dynamic) | `'auto' \| 'force-dynamic' \| 'error' \| 'force-static'` | `'auto'` |
+| [`dynamicParams`](#dynamicparams) | `boolean` | `true` |
+| [`revalidate`](#revalidate) | `false \| 0 \| number` | `false` |
+| [`fetchCache`](#fetchcache) | `'auto' \| 'default-cache' \| 'only-cache' \| 'force-cache' \| 'force-no-store' \| 'default-no-store' \| 'only-no-store'` | `'auto'` |
+| [`runtime`](#runtime) | `'nodejs' \| 'edge'` | `'nodejs'` |
+| [`preferredRegion`](#preferredregion) | `'auto' \| 'global' \| 'home' \| string \| string[]` | `'auto'` |
+| [`maxDuration`](#maxduration) | `number` | デプロイメントプラットフォームによって設定されます |
+
+```tsx:layout.tsx
+export const dynamic = 'auto'
+export const dynamicParams = true
+export const revalidate = false
+export const fetchCache = 'auto'
+export const runtime = 'nodejs'
+export const preferredRegion = 'auto'
+export const maxDuration = 5
+
+export default function MyComponent() {}
+```
+
+```jsx:layout.js
+export const dynamic = 'auto'
+export const dynamicParams = true
+export const revalidate = false
+export const fetchCache = 'auto'
+export const runtime = 'nodejs'
+export const preferredRegion = 'auto'
+export const maxDuration = 5
+
+export default function MyComponent() {}
+```
+
+> **Good to know**:
+>
+> - 現在、config optionsの値は静的に解析可能である必要があります。例えば、`revalidate = 600`は有効ですが、`revalidate = 60 * 10`は無効です。
+
+## Options
+
+### `dynamic`
+
+layoutまたはページのdynamic行動を完全に静的または完全にdynamicに変更します。
+
+```tsx:layout.tsx
+export const dynamic = 'auto'
+// 'auto' | 'force-dynamic' | 'error' | 'force-static'
+```
+
+```js:layout.js
+export const dynamic = 'auto'
+// 'auto' | 'force-dynamic' | 'error' | 'force-static'
+```
+
+> **Good to know**: `app`ディレクトリの新モデルは、`pages`ディレクトリのページレベルでの`getServerSideProps`や`getStaticProps`による binary な全てか無かのモデルよりも、`fetch`の request レベルでの細かいキャッシング制御を優先します。 `dynamic`オプションは、以前のモデルに便利に戻るための方法であり、より簡単な移行の path を提供します。
+
+- **`'auto'`** ( default )：可能な限り多くの cache を行いつつ、どのcomponentsも dynamic な動作を選択できるようにする default のオプション。
+- **`'force-dynamic'`**: フォース[dynamic rendering](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)により、ユーザーごとに routes が request 時間にレンダリングされます。このオプションは `pages` ディレクトリの `getServerSideProps()` と同等です。
+
+- **`'error'`**: 静的renderingを強制し、 layout やページのデータを cache することで、[dynamic 関数](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-#dynamic-functions)やキャッシュされていないデータを使用するcomponentsがある場合には error を引き起こします。このオプションは次に等しいです：
+  - `pages`ディレクトリの`getStaticProps()`。
+- すべての`fetch()`の request を、 layout またはページに`{ cache: 'force-cache' }`として設定する。
+- セグメントconfigを `fetchCache = 'only-cache', dynamicParams = false` に設定します。
+- `dynamic = 'error'`は、`dynamicParams`のdefaultを`true`から`false`に変更します。`generateStaticParams`によって生成されなかったdynamic paramsのページを動的にレンダリングするためには、手動で`dynamicParams = true`を設定することで再オプトインすることができます。
+- **`'force-static'`**: 静的renderingを強制し、[`cookies()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)、[`headers()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)、[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params)が empty のvaluesを返すよう強制することで、 layout またはページのデータを cache します。
+
+> **Good to know**:
+>
+> - `getServerSideProps`および`getStaticProps`から`dynamic: 'force-dynamic'`および`dynamic: 'error'`への[移行方法](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration#step-6-migrating-data-fetching-methods)の手順については、 [アップグレードガイド](/docs/app/building-your-application/upgrading/app-router-migration#step-6-migrating-data-fetching-methods)で確認できます。
+
+### `dynamicParams`
+
+[generateStaticParams](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)で生成されなかったdynamicセグメントが閲覧された時に何が起こるかを制御します。
+
+```tsx:layout.tsx
+export const dynamicParams = true // true | false,
+```
+
+```js:layout.js
+export const dynamicParams = true // true | false,
+```
+
+- **`true`** ( default )：`generateStaticParams`に含まれていない Dynamic セグメントは、要求に応じて生成されます。
+- **`false`**: Dynamic segments not included in `generateStaticParams` will return a 404.
+
+> **Good to know**:
+>
+> - このオプションは、`pages`ディレクトリの`getStaticPaths`の`fallback: true | false | blocking`オプションを置き換えます。
+> - `dynamicParams = true`の場合、セグメントは [Streaming Server Rendering](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#streaming-with-suspense)を使用します。
+> - `dynamic = 'error'`と`dynamic = 'force-static'`が使われる場合、`dynamicParams`のdefaultは`false`に変わります。
+
+### `revalidate`
+
+layoutまたはページのdefaultの再認証時間を設定します。このオプションは、個々の`fetch`Requestによって設定された`revalidate`のvalueを上書きしません。
+
+```tsx:layout.tsx
+export const revalidate = false
+// false | 0 | number
+```
+
+```js:layout.js
+export const revalidate = false
+// false | 0 | number
+```
+
+- **`false`**:(default)defaultのヒューリスティックは、`cache`オプションを`'force-cache'`に設定した`fetch`requestsや、[動的関数](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)が使用される前に発見されたものをcacheします。これは`revalidate: Infinity`と意味的に等しく、リソースが無制限にキャッシュされることを意味します。それでも、個々の`fetch`requestsが`cache: 'no-store'`を使用するか、`revalidate: 0`を使用してキャッシュを避け、routeを動的にrenderingすることが可能です。または、リヴァリデーションの頻度を増やすために、`revalidate`をルートdefaultよりも低い正の数valuesに設定します。
+- **`0`**: dynamic 関数やキャッシュされていないデータフェッチが見つからなくても、 layout またはページが常に[動的にレンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)されるようにします。このオプションは、`cache`オプションを設定していない`fetch`リクエストの default を`'no-store'`に変更しますが、`'force-cache'`を適用したり、`revalidate`を正に設定した`fetch`リクエストについてはそのままです。
+- **`number`**: (秒単位) layout またはページの default 再検証頻度を `n` 秒に設定します。
+
+> **Good to know**: `revalidate`オプションは、[Node.js Runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#nodejs-runtime)を使用している場合にのみ利用可能です。つまり、`runtime = 'edge'`と共に`revalidate`オプションを使用することはできません。
+
+#### 再検証の頻度
+
+- 単一の route の各 layout とページごとの最低の `revalidate` が、 _全体の_ route の再検証頻度を決定します。これにより、子ページが親レイアウトと同じ頻度で再検証されることが保証されます。
+- 個別の`fetch`リクエストでは、ルートの default の`revalidate`よりも低い`revalidate`を設定して、全体の route の再検証頻度を上げることができます。これにより、一部の基準に基づいて特定の routes でより頻繁な再検証を選択することができます。
+
+### `fetchCache`
+
+<details>
+  <summary>This is an advanced option that should only be used if you specifically need to override the default behavior.</summary>
+
+defaultでは、`fetch()`requestsは、[dynamic関数](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)が使用される**前に**到達可能なものすべてが**cacheされ**、dynamic関数が使用される**後に**発見された `fetch` requestsは **cacheされません**。
+
+`fetchCache`は、すべての`fetch`Requestのdefaultの`cache`オプションを、layoutまたはページで上書きすることができます。
+
+```tsx:layout.tsx
+export const fetchCache = 'auto'
+// 'auto' | 'default-cache' | 'only-cache'
+// 'force-cache' | 'force-no-store' | 'default-no-store' | 'only-no-store'
+```
+
+```js:layout.js
+export const fetchCache = 'auto'
+// 'auto' | 'default-cache' | 'only-cache'
+// 'force-cache' | 'force-no-store' | 'default-no-store' | 'only-no-store'
+```
+
+- **`'auto'`** ( default ) - `fetch`requestsを cache するための default オプションは、`cache`オプションが提供する前に dynamic 機能と共に行い、 dynamic 関数の後で `fetch`requestsを cache しません。
+- **`'default-cache'`**: 任意の`cache`オプションを`fetch`に渡すことを許可しますが、オプションが提供されていない場合は、`cache`オプションを`'force-cache'`に設定します。これは、 dynamic 関数の後にも`fetch`リクエストが静的とみなされることを意味します。
+- **`'only-cache'`**: すべての `fetch` リクエストでキャッシングを選択するようにし、 default を `cache: 'force-cache'` に変更し、オプションが提供されていない場合や、`fetch` リクエストで `cache: 'no-store'` を使用すると error を引き起こします。
+- **`'force-cache'`**: すべての `fetch` リクエストがキャッシュに適用されるように、すべての `fetch` リクエストの `cache` オプションを `'force-cache'` に設定します。
+- **`'default-no-store'`**: 任意の`cache`オプションを`fetch`に渡すことができますが、オプションが提供されていない場合は、`cache`オプションを`'no-store'`に設定します。つまり、 dynamic 関数の前の`fetch`リクエストでさえも、 dynamic と見なされます。
+- **`'only-no-store'`**: すべての`fetch`リクエストがキャッシングをオプトアウトするように保証し、オプションが提供されない場合は default を`cache: 'no-store'`に変更し、`fetch`リクエストが`cache: 'force-cache'`を使用すると error が発生します
+- **`'force-no-store'`**: すべての`fetch`リクエストの`cache`オプションを`'no-store'`に設定することで、キャッシングからのオプトアウトを保証します。これにより、`'force-cache'`オプションが提供されていても、すべての`fetch`リクエストが毎回 request ごとに再フェッチされることを強制します。
+
+#### クロスルートセグメントの振る舞い
+
+- 単一のrouteの各layoutやページで設定された全てのoptionsは、互いに互換性を持つ必要があります。
+  - `'only-cache'`と`'force-cache'`の両方が提供された場合、`'force-cache'`が勝つ。`'only-no-store'`と`'force-no-store'`の両方が提供された場合、`'force-no-store'`が勝つ。forceオプションはroute全体の振る舞いを変えるため、`'force-*'`の一つのセグメントは`'only-*'`によって引き起こされるerrorを防ぎます。
+- `'only-*'`および`force-*'`の options の意図は、全体の route が完全に静的であるか、または完全に dynamic であることを保証することです。つまり：
+  - `'only-cache'`と`'only-no-store'`の組み合わせは単一のrouteでは許可されていません。
+  - `'force-cache'` と `'force-no-store'`の組み合わせは、単一のrouteでは許可されていません。
+- 親は、子が`'auto'`または`'*-cache'`を提供する場合、`'default-no-store'`を提供することはできません。なぜなら、それは同じfetchが異なる振る舞いをする可能性があるからです。
+- 一般的には、共有親Layoutを`'auto'`のままにし、子セグメントが分岐する場所でoptionsをカスタマイズすることを推奨します。
+
+</details>
+
+### `runtime`
+
+```tsx:layout.tsx
+export const runtime = 'nodejs'
+// 'edge' | 'nodejs'
+```
+
+```js:layout.js
+export const runtime = 'nodejs'
+// 'edge' | 'nodejs'
+```
+
+- **`nodejs`** ( default )
+- **`edge`**
+
+[EdgeやNode.js ランタイム](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)について詳しく学びましょう。
+
+### `preferredRegion`
+
+```tsx:layout.tsx
+export const preferredRegion = 'auto'
+// 'auto' | 'global' | 'home' | ['iad1', 'sfo1']
+```
+
+```js:layout.js
+export const preferredRegion = 'auto'
+// 'auto' | 'global' | 'home' | ['iad1', 'sfo1']
+```
+
+`preferredRegion`のサポート、およびサポートされている地域は、あなたのデプロイメントプラットフォームに依存します。
+
+> **Good to know**:
+>
+> - `preferredRegion`が指定されていない場合、最も近い親のlayoutのオプションを継承します。
+> - root layoutはdefaultで`all`リージョンに設定されています。
+
+### `maxDuration`
+
+ default では、 Next.js build は server-side ロジック(ページのrenderingや API の処理)の実行を制限しません。デプロイメントプラットフォームは、 Next.js buildの出力から`maxDuration`を使用して特定の実行制限を追加できます。例えば、[Vercel](https://vercel.com/docs/functions/serverless-functions/runtimes#max-duration)などです。
+
+**注釈**: この settings は Next.js のバージョン `13.4.10` 以上が必要です。
+
+```tsx:layout.tsx
+export const maxDuration = 5
+```
+
+```js:layout.js
+export const maxDuration = 5
+```
+
+> **Good to know**:
+>
+> - [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)を使用する場合、ページレベルで`maxDuration`を設定して、ページで使用されるすべてのServer Actionsのdefaultタイムアウトを変更します。
+
+### `generateStaticParams`
+
+`generateStaticParams`関数は、[dynamic route segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)と組み合わせて使用でき、build時に静的に生成されるrouteセグメントパラメータのリストを定義するのに使用できます。これは、request時にオンデマンドで生成されるのではなく。
+
+S詳細については、[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)をご覧ください。

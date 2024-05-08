@@ -1,0 +1,82 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/11-intercepting-routes.mdx
+title: Intercepting Routes
+description: Use intercepting routes to load a new route within the current layout while masking the browser URL, useful for advanced routing patterns such as modals.
+org_title: Intercepting Routes
+org_path: /docs/app/building-your-application/routing/intercepting-routes
+is_empty: false
+---
+
+routes をインターセプトすることで、現在の layout 内でアプリケーションの別の部分から route を読み込むことができます。このルーティングパラダイムは、ユーザーが異なる context に切り替えることなく route の内容を display したい場合に役立ちます。
+
+例えば、フィード内の写真をクリックすると、その写真をモーダルで display し、フィードをオーバーレイすることができます。この場合、 Next.js が `/photo/123` route をインターセプトし、 URL をマスクし、それを `/feed` 上にオーバーレイします。
+
+<Image
+  alt="Intercepting routes soft navigation"
+  srcLight="/docs/light/intercepting-routes-soft-navigate.png"
+  srcDark="/docs/dark/intercepting-routes-soft-navigate.png"
+  width="1600"
+  height="617"
+/>
+
+しかし、共有可能な URL をクリックして写真へ移動したり、ページを更新したりすると、モーダルの代わりに写真全体のページが render されるべきです。 route の妨害は発生しないはずです。
+
+<Image
+  alt="Intercepting routes hard navigation"
+  srcLight="/docs/light/intercepting-routes-hard-navigate.png"
+  srcDark="/docs/dark/intercepting-routes-hard-navigate.png"
+  width="1600"
+  height="604"
+/>
+
+## Convention
+
+`(..)`規則を用いて、 routes を傍受することが定義できます。これは相対的な path 規則である`../`と似ていますが、これはセグメント用です。
+
+あなたは次を使用できます：
+
+- `(.)`は**同じレベル**のセグメントにマッチします。
+- `(..)`は **一つ上のレベル** のセグメントにマッチする
+- `(..)(..)`は、**二つ上のレベル**のセグメントに一致します
+- `(...)`は、**root** `app` ディレクトリからのセグメントに一致します
+
+例えば、`(..)photo`ディレクトリを作成することにより、`feed`セグメント内から`photo`セグメントを傍受することができます。
+
+<Image
+  alt="Intercepting routes folder structure"
+  srcLight="/docs/light/intercepted-routes-files.png"
+  srcDark="/docs/dark/intercepted-routes-files.png"
+  width="1600"
+  height="604"
+/>
+
+> (`(..)`)規約は、ファイルシステムではなく、_route セグメント_に基づいていることに注意してください。
+
+## Examples
+
+### Modals
+
+Routesをインターセプトすることは、モーダルを作成するために[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)と一緒に使用することができます。これにより、モーダルを作成する際によく遭遇する問題を解決できます。例えば：
+
+- Making the modal content **shareable through a URL**.
+- **Preserving context** when the page is refreshed, instead of closing the modal.
+- **Closing the modal on backwards navigation** rather than going to the previous route.
+- **Reopening the modal on forwards navigation**.
+
+次のUIパターンを考えてみてください。ユーザーは、Client側のナビゲーションを使用してギャラリーからフォトモーダルを開くことができます。または、共有可能なURLから直接フォトページに移動することもできます。
+
+<Image
+  alt="Intercepting routes modal example"
+  srcLight="/docs/light/intercepted-routes-modal-example.png"
+  srcDark="/docs/dark/intercepted-routes-modal-example.png"
+  width="1600"
+  height="976"
+/>
+
+上記の例では、`photo`セグメントへのpathは、`@modal`がスロットであり、セグメントでは**ない**ため、`(..)`のmatcherを使用できます。これは、`photo`のrouteが2つのファイルシステムレベルよりも高いにもかかわらず、1つのセグメントレベルだけ高いことを意味します。
+
+[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#modals)のドキュメンテーションを参照して、ステップバイステップの例をご覧いただくか、または[imageギャラリーの例](https://github.com/vercel-labs/nextgram)をご覧ください。
+
+> **Good to know:**
+>
+> - O他の例としては、トップナビゲーションバーでログインモーダルを開きながら、専用の`/login`ページを持つことや、サイドモーダルでショッピングカートを開くことなどがあります。

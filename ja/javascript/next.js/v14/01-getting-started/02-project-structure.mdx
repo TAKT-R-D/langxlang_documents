@@ -1,0 +1,171 @@
+---
+filePath: source/next.js/docs/01-getting-started/02-project-structure.mdx
+title: Next.js Project Structure
+description: A list of folders and files conventions in a Next.js project
+org_title: Next.js Project Structure
+org_path: /docs/getting-started/project-structure
+is_empty: false
+nav_title: Project Structure
+---
+
+このページでは、Next.jsアプリケーションのプロジェクト構造の概要を提供しています。最上位のファイルやフォルダ、設定ファイル、そして `app` および `pages` ディレクトリ内のルーティング規則について説明します。
+
+ファイルやフォルダの名前をクリックして、各規約について詳しく学びましょう。
+
+## Top-level folders
+
+トップレベルのフォルダは、アプリケーションのcodeと静的アセットを整理するために使用されます。
+
+<Image
+  alt="Route segments to path segments"
+  srcLight="/docs/light/top-level-folders.png"
+  srcDark="/docs/dark/top-level-folders.png"
+  width="1600"
+  height="525"
+/>
+
+| | |
+| ------------------------------------------------------------------------ | ---------------------------------- |
+| [`app`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing) | App Router |
+| [`pages`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing) | Pages Router |
+| [`public`](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/11-static-assets) | 提供される静的アセット |
+| [`src`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/06-src-directory) | 任意のアプリケーション source フォルダ |
+
+## Top-level files
+
+トップレベルのファイルは、アプリケーションの設定、依存関係の管理、middlewareの実行、監視ツールの統合、およびenvironment variablesの定義に使用されます。
+
+| | |
+| ------------------------------------------------------------------------------------------- | --------------------------------------- |
+| **Next.js** | |
+| [`next.config.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js) | Next.js の設定ファイル |
+| [`package.json`](/ja/javascript/next.js/v14/01-getting-started/01-installation#manual-installation) | プロジェクトの依存関係と scripts |
+| [`instrumentation.ts`](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/09-instrumentation) | OpenTelemetryと Instrumentation ファイル |
+| [`middleware.ts`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware) | Next.js request middleware |
+| [`.env`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/03-environment-variables) | Environment variables |
+| [`.env.local`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/03-environment-variables) | ローカルの environment variables |
+| [`.env.production`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/03-environment-variables) | Production environment variables |
+| [`.env.development`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/03-environment-variables) | Development environment variables |
+| [`.eslintrc.json`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/02-eslint) | ESLint の設定ファイル |
+| `.gitignore` | 無視するGitファイルやフォルダ |
+| `next-env.d.ts` | Next.js のための TypeScript declaration ファイル |
+| `tsconfig.json` | TypeScript の設定ファイル |
+| `jsconfig.json` | JavaScript の設定ファイル |
+
+## `app` Routing Conventions
+
+次のファイル規則は、[`app` router](/ja/javascript/next.js/v14/02-app)でroutesを定義し、metadataを処理するために使用されます。
+
+### ルーティングファイル
+
+| | | |
+| ------------------------------------------------------------------------------- | ------------------- | ---------------------------- |
+| [`layout`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout) | `.js` `.jsx` `.tsx` | Layout |
+| [`page`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page) | `.js` `.jsx` `.tsx` | ページ |
+| [`loading`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/loading) | `.js` `.jsx` `.tsx` | Loading UI |
+| [`not-found`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found) | `.js` `.jsx` `.tsx` | UIが見つかりません |
+| [`error`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/error) | `.js` `.jsx` `.tsx` | Error UI |
+| [`global-error`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/error#global-errorjs) | `.js` `.jsx` `.tsx` | グローバル error UI |
+| [`route`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route) | `.js` `.ts` | API エンドポイント |
+| [`template`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/template) | `.js` `.jsx` `.tsx` | layout を再レンダリング |
+| [`default`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/default) | `.js` `.jsx` `.tsx` | Parallel route fallback ページ |
+
+### ネストされたRoutes
+
+| | |
+| ---------------------------------------------------------------------------- | -------------------- |
+| [`folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#route-segments) | Route セグメント |
+| [`folder/folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#nested-routes) | ネストされた route セグメント |
+
+### Dynamic Routes
+
+| | |
+| --------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| [`[folder]`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes#convention) | Dynamic route セグメント |
+| [`[...folder]`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes#catch-all-segments) | Catch-all route セグメント |
+| [`[[...folder]]`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes#optional-catch-all-segments) | 任意のcatch-all routeセグメント |
+
+### Route グループとプライベートフォルダ
+
+| | |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------ |
+| [`(folder)`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups#convention) | ルーティングに影響を与えずに routes をグループ化する |
+| [`_folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/08-colocation#private-folders) | ルーティングからOptフォルダとすべての子セグメントを除外する |
+
+### Parallel と Intercepted Routes
+
+| | |
+| ---------------------------------------------------------------------------------------------- | -------------------------- |
+| [`@folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#slots) | 名前付きスロット |
+| [`(.)folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes#convention) | 同一レベルをインターセプト |
+| [`(..)folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes#convention) | 一つ上のレベルをインターセプト |
+| [`(..)(..)folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes#convention) | 二つ上のレベルをインターセプト |
+| [`(...)folder`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes#convention) | root からのインターセプト |
+
+### Metadata ファイルの規約
+
+#### App アイコン
+
+| | | |
+| --------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------ |
+| [`favicon`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#favicon) | `.ico` | Favicon ファイル |
+| [`icon`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#icon) | `.ico` `.jpg` `.jpeg` `.png` `.svg` | App Icon ファイル |
+| [`icon`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#generate-icons-using-code-js-ts-tsx) | `.js` `.ts` `.tsx` | 生成された App Icon |
+| [`apple-icon`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#apple-icon) | `.jpg` `.jpeg`, `.png` | Apple App Icon ファイル |
+| [`apple-icon`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#generate-icons-using-code-js-ts-tsx) | `.js` `.ts` `.tsx` | Apple App Icon を生成しました |
+
+#### Open Graph と Twitter 画像
+
+| | | |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | -------------------------- |
+| [`opengraph-image`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image#opengraph-image) | `.jpg` `.jpeg` `.png` `.gif` | Open Graph image ファイル |
+| [`opengraph-image`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image#generate-images-using-code-js-ts-tsx) | `.js` `.ts` `.tsx` | 生成された Open Graph image |
+| [`twitter-image`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image#twitter-image) | `.jpg` `.jpeg` `.png` `.gif` | Twitter image ファイル |
+| [`twitter-image`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image#generate-images-using-code-js-ts-tsx) | `.js` `.ts` `.tsx` | 生成された Twitter image |
+
+#### SEO
+
+| | | |
+| ------------------------------------------------------------------------------------------------------------ | ----------- | --------------------- |
+| [`sitemap`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/sitemap#sitemap-files-xml) | `.xml` | Sitemap ファイル |
+| [`sitemap`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/sitemap#generating-a-sitemap-using-code-js-ts) | `.js` `.ts` | 生成された Sitemap |
+| [`robots`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/robots#static-robotstxt) | `.txt` | Robots ファイル |
+| [`robots`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/robots#generate-a-robots-file) | `.js` `.ts` | 生成された Robots ファイル |
+
+## `pages` Routing Conventions
+
+以下のファイル規則は、[`pages` router](/ja/javascript/next.js/v14/03-pages)でroutesを定義するために使用されます。
+
+### 特別なファイル
+
+| | | |
+| ----------------------------------------------------------------------------------------------------------- | ------------------- | ----------------- |
+| [`_app`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app) | `.js` `.jsx` `.tsx` | カスタム App |
+| [`_document`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/06-custom-document) | `.js` `.jsx` `.tsx` | カスタム Document |
+| [`_error`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#more-advanced-error-page-customizing) | `.js` `.jsx` `.tsx` | カスタム Error Page |
+| [`404`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#404-page) | `.js` `.jsx` `.tsx` | 404 Error Page |
+| [`500`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#500-page) | `.js` `.jsx` `.tsx` | 500 Error Page |
+
+### Routes
+
+| | | |
+| ---------------------------------------------------------------------------------------------- | ------------------- | ----------- |
+| **フォルダの規則** | | |
+| [`index`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#index-routes) | `.js` `.jsx` `.tsx` | ホームページ |
+| [`folder/index`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#index-routes) | `.js` `.jsx` `.tsx` | ネストされたページ |
+| **ファイル規約** | | |
+| [`index`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#index-routes) | `.js` `.jsx` `.tsx` | ホームページ |
+| [`file`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts) | `.js` `.jsx` `.tsx` | ネストされたページ |
+
+### Dynamic Routes
+
+| | | |
+| ----------------------------------------------------------------------------------------------------------------- | ------------------- | -------------------------------- |
+| **フォルダーの規則** | | |
+| [`[folder]/index`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes) | `.js` `.jsx` `.tsx` | Dynamic route セグメント |
+| [`[...folder]/index`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#catch-all-segments) | `.js` `.jsx` `.tsx` | Catch-all route セグメント |
+| [`[[...folder]]/index`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#optional-catch-all-segments) | `.js` `.jsx` `.tsx` | 任意のcatch-all routeセグメント |
+| **ファイル規約** | | |
+| [`[file]`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes) | `.js` `.jsx` `.tsx` | Dynamic route セグメント |
+| [`[...file]`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#catch-all-segments) | `.js` `.jsx` `.tsx` | Catch-all route セグメント |
+| [`[[...file]]`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#optional-catch-all-segments) | `.js` `.jsx` `.tsx` | オプションの catch-all route セグメント |

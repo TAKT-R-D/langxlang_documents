@@ -1,0 +1,236 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/10-upgrading/10-version-9.mdx
+title: Upgrading to Version 9
+description: Upgrade your Next.js Application from Version 8 to Version 9.
+org_title: Upgrading to Version 9
+org_path: /docs/pages/building-your-application/upgrading/version-9
+is_empty: false
+nav_title: Version 9
+---
+
+version 9にアップグレードするには、次のコマンドを実行してください：
+
+```bash:Terminal
+npm i next@9
+```
+
+```bash:Terminal
+yarn add next@9
+```
+
+```bash:Terminal
+pnpm up next@9
+```
+
+```bash:Terminal
+bun add next@9
+```
+
+> **知っておくべきこと:** TypeScript を使用している場合は、`@types/react`と`@types/react-dom`も対応するバージョンにアップグレードすることを確認してください。
+
+## Production Deployment on Vercel
+
+もし以前に `routes` を `vercel.json` ファイルで設定して dynamic routes を使用していた場合、これらのルールは Next.js 9 の新しい[Dynamic ルーティング機能](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を利用するときに削除できます。
+
+Next.js 9のdynamic routesは、[Vercel](https://vercel.com/)で**自動的に設定され、`vercel.json`のカスタマイズをrequireする必要はありません。
+
+ここで[Dynamicルーティングについての詳細](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を読むことができます。
+
+## Check your Custom App File (`pages/_app.js`)
+
+以前に[Custom `<App>`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)の例をコピーした場合、`getInitialProps`を削除することができるかもしれません。
+
+`getInitialProps`を`pages/_app.js`から削除すること(可能な場合)は、新しいNext.jsの機能を活用するために重要です！
+
+次の `getInitialProps` は何も行わず、削除しても問題ありません：
+
+```js
+class MyApp extends App {
+  // Remove me, I do nothing!
+  static async getInitialProps({ Component, ctx }) {
+    let pageProps = {}
+
+    if (Component.getInitialProps) {
+      pageProps = await Component.getInitialProps(ctx)
+    }
+
+    return { pageProps }
+  }
+
+  render() {
+    // ... etc
+  }
+}
+```
+
+## Breaking Changes
+
+### `@zeit/next-typescript`はもう必要ありません
+
+Next.jsは今後、`@zeit/next-typescript`の使用を無視し、それを削除するように警告します。`next.config.js`からこのpluginを削除してください。
+
+あなたのカスタム `.babelrc` から `@zeit/next-typescript/babel` への参照を削除します(存在する場合)。
+
+あなたの`next.config.js`から[`fork-ts-checker-webpack-plugin`](https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues)の使用も削除するべきです。
+
+TypeScriptの定義は`next`パッケージで公開されているため、競合すると困るので`@types/next`をアンインストールする必要があります。
+
+次のtypeは異なります：
+
+> このリストは、コミュニティによって作成され、あなたがアップグレードするのを助けるためのものです。他の違いを見つけた場合は、他のユーザーを助けるために、このリストにpull-requestを送信してください。
+
+From:
+
+```tsx
+import { NextContext } from 'next'
+import { NextAppContext, DefaultAppIProps } from 'next/app'
+import { NextDocumentContext, DefaultDocumentIProps } from 'next/document'
+```
+
+to
+
+```tsx
+import { NextPageContext } from 'next'
+import { AppContext, AppInitialProps } from 'next/app'
+import { DocumentContext, DocumentInitialProps } from 'next/document'
+```
+
+### `config`キーは現在、ページ上の export になりました
+
+あなたはもはやカスタムのvariableである `config`をページからexportできなくなりました(つまり、`export { config }` / `export const config ...`)。このエクスポートされたvariableは、今ではOpt-in AMPやAPI RouteなどのページレベルのNext.jsの設定を指定するために使用されています。
+
+あなたは、Next.jsに特化していない`config`のexportを別のものに名前を変更する必要があります。
+
+### `next/dynamic`は、 default で " loading ..." と表示することがなくなりました
+
+ Dynamic コンポーネントは、 loading している間、 default では何も render しません。ただし、`loading`プロパティを設定することで、この動作をカスタマイズすることができます：
+
+```jsx
+import dynamic from 'next/dynamic'
+
+const DynamicComponentWithCustomLoading = dynamic(
+  () => import('../components/hello2'),
+  {
+    loading: () => <p>Loading</p>,
+  }
+)
+```
+
+### `withAmp`は、exportされた設定objectを優先して削除されました
+
+Next.jsは現在、ページレベルの設定の概念を持つようになったので、一貫性のために`withAmp`の上位componentが削除されました。
+
+この変更は、あなたのNext.jsプロジェクトのrootで以下のコマンドを実行することにより**自動的に移行することができます：**
+
+```bash:Terminal
+curl -L https://github.com/vercel/next-codemod/archive/master.tar.gz | tar -xz --strip=2 next-codemod-master/transforms/withamp-to-config.js npx jscodeshift -t ./withamp-to-config.js pages/**/*.js
+```
+
+このマイグレーションを手動で実行するか、またはcodemodが生成する内容を表示するには、以下を参照してください：
+
+**Before**
+
+```jsx
+import { withAmp } from 'next/amp'
+
+function Home() {
+  return <h1>My AMP Page</h1>
+}
+
+export default withAmp(Home)
+// or
+export default withAmp(Home, { hybrid: true })
+```
+
+**After**
+
+```jsx
+export default function Home() {
+  return <h1>My AMP Page</h1>
+}
+
+export const config = {
+  amp: true,
+  // or
+  amp: 'hybrid',
+}
+```
+
+### `next export`はもうページを`index.html`としてexportしません
+
+以前は、`pages/about.js`をexportすると`out/about/index.html`が生成されました。この挙動は変更され、`out/about.html`が生成されるようになりました。
+
+以下の内容で`next.config.js`を作成することで、以前の動作に戻すことができます：
+
+```js:next.config.js
+module.exports = {
+  trailingSlash: true,
+}
+```
+
+### `pages/api/`は異なる方法で扱われます
+
+`pages/api/`内のページは現在、[API Routes](https://nextjs.org/blog/next-9#api-routes)と見なされています。このディレクトリ内のページには、クライアントサイドのバンドルが含まれなくなりました。
+
+## Deprecated Features
+
+### `next/dynamic`は、一度に複数の modules を““ loading することを非推奨としています
+
+`next/dynamic`では、Reactの実装(`React.lazy`および`Suspense`)に近づけるため、複数のmodulesを一度にロードする機能が非推奨となりました。
+
+この振る舞いに依存するcodeの更新は比較的簡単です！ あなたのアプリケーションの移行を助けるために、前後の例を提供しました：
+
+**Before**
+
+```jsx
+import dynamic from 'next/dynamic'
+
+const HelloBundle = dynamic({
+  modules: () => {
+    const components = {
+      Hello1: () => import('../components/hello1').then((m) => m.default),
+      Hello2: () => import('../components/hello2').then((m) => m.default),
+    }
+
+    return components
+  },
+  render: (props, { Hello1, Hello2 }) => (
+    <div>
+      <h1>{props.title}</h1>
+      <Hello1 />
+      <Hello2 />
+    </div>
+  ),
+})
+
+function DynamicBundle() {
+  return <HelloBundle title="Dynamic Bundle" />
+}
+
+export default DynamicBundle
+```
+
+**After**
+
+```jsx
+import dynamic from 'next/dynamic'
+
+const Hello1 = dynamic(() => import('../components/hello1'))
+const Hello2 = dynamic(() => import('../components/hello2'))
+
+function HelloBundle({ title }) {
+  return (
+    <div>
+      <h1>{title}</h1>
+      <Hello1 />
+      <Hello2 />
+    </div>
+  )
+}
+
+function DynamicBundle() {
+  return <HelloBundle title="Dynamic Bundle" />
+}
+
+export default DynamicBundle
+```

@@ -1,0 +1,15 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/01-metadata/index.mdx
+title: Metadata Files API Reference
+description: API documentation for the metadata file conventions.
+org_title: Metadata Files API Reference
+org_path: /docs/app/api-reference/file-conventions/metadata
+is_empty: false
+nav_title: Metadata Files
+---
+
+このドキュメントのセクションでは、**Metadataファイルの規約**について説明します。ファイルベースのmetadataは、特別なmetadataファイルをrouteセグメントに追加することで定義できます。
+
+それぞれのファイル規約は、静的なファイル(例：`opengraph-image.jpg`)を使用して定義することができます、またはdynamicなバリアントを使用し、codeでファイルを生成する(例：`opengraph-image.js`)。
+
+Oファイルが定義されると、Next.jsは自動的にファイルを配信し(productionにはキャッシュのためのハッシュ付き)、関連するhead要素を正しいmetadata(例えば、アセットのURL、ファイルのtype、そしてimage size)で更新します。

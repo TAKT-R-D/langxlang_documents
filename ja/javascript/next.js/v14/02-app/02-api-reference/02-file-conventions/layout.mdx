@@ -1,0 +1,135 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/layout.mdx
+title: layout.js
+description: API reference for the layout.js file.
+org_title: layout.js
+org_path: /docs/app/api-reference/file-conventions/layout
+is_empty: false
+---
+
+**layout**は、**routes** の間で共有されるUIです。
+
+```tsx:app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <section>{children}</section>
+}
+```
+
+```jsx:app/dashboard/layout.js
+export default function DashboardLayout({ children }) {
+  return <section>{children}</section>
+}
+```
+
+**root layout**は、`app` ディレクトリの最上位の layout です。これは `<html>` タグや `<body>` タグなど、グローバルに共有されるUIを定義するために使用されます。
+
+```tsx:app/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+```jsx:app/layout.js
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+## Props
+
+### `children` (必須)
+
+`children`プロパティを受け入れ、使用する必要があるlayout コンポーネント。レンダリング中に`children`は route セグメントで埋められ、その layout がラップしています。これらは主に子の [Layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages) (存在する場合)や [Page](/docs/app/building-your-application/routing/pages-and-layouts#pages)の component になりますが、適用可能な場合は [Loading](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming) や [Error](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling) などの特別なファイルもある場合があります。
+
+### `params` (optional)
+
+その[dynamic route parameters](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)から root セグメントからその layout までの object 。
+
+| Example | URL | `params` |
+| --------------------------------- | -------------- | ------------------------- |
+| `app/dashboard/[team]/layout.js` | `/dashboard/1` | `{ team: '1' }` |
+| `app/shop/[tag]/[item]/layout.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
+| `app/blog/[...slug]/layout.js` | `/blog/1/2` | `{ slug: ['1', '2'] }` |
+
+For example:
+
+```tsx:app/shop/[tag]/[item]/layout.tsx
+export default function ShopLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: {
+    tag: string
+    item: string
+  }
+}) {
+  // URL -> /shop/shoes/nike-air-max-97
+  // `params` -> { tag: 'shoes', item: 'nike-air-max-97' }
+  return <section>{children}</section>
+}
+```
+
+```jsx:app/shop/[tag]/[item]/layout.js
+export default function ShopLayout({ children, params }) {
+  // URL -> /shop/shoes/nike-air-max-97
+  // `params` -> { tag: 'shoes', item: 'nike-air-max-97' }
+  return <section>{children}</section>
+}
+```
+
+## Good to know
+
+### Layoutは `searchParams` を受け取りません
+
+[Pages](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)とは異なり、LayoutComponentは `searchParams` プロップを**受け取りません**。これは、共有のlayoutが[ナビゲーション中に再レンダリングされない](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)ためで、ナビゲーション間でstaleな `searchParams` が生じる可能性があるからです。
+
+Clientサイドのナビゲーションを使用するとき、Next.jsは自動的に、二つのroutesの間の共通のlayout以下のページの部分だけをレンダリングします。
+
+例えば、以下のディレクトリ構造において、`dashboard/layout.tsx` は、`/dashboard/settings` と `/dashboard/analytics` の共通のlayoutとなります。
+
+<Image
+  alt="File structure showing a dashboard folder nesting a layout.tsx file, and settings and analytics folders with their own pages"
+  srcLight="/docs/light/shared-dashboard-layout.png"
+  srcDark="/docs/dark/shared-dashboard-layout.png"
+  width="1600"
+  height="687"
+/>
+
+`/dashboard/settings`から`/dashboard/analytics`へ移動するとき、`/dashboard/analytics`の中の`page.tsx`はserver上で再レンダリングされますが、`dashboard/layout.tsx`は再レンダリング**されません**。なぜなら、それは二つのroutes間で共有される共通のUIだからです。
+
+このパフォーマンス最適化により、 layout を共有するページ間の移動がより迅速になります。なぜならページのデータ取得とレンダリングのみが実行され、共有レイアウトを含む可能性のある全体の route が実行される代わりに、それぞれが独自のデータを fetch する必要がないからです。
+
+`dashboard/layout.tsx`が再レンダリングされないため、layout Server Componentの中の`searchParams`プロップは、ナビゲーション後に**stale**になる可能性があります。
+
+- それでは、Page [`searchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page#searchparams-optional) propまたは[`useSearchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) hook を使用してください。これは最新の `searchParams` で client 上で再レンダリングされる Client Components です。
+
+### Root Layout
+
+- `app` ディレクトリには、必ず root `app/layout.js`を含める必要があります。
+- root layoutは、`<html>` と `<body>` タグを**必ず**定義しなければなりません。
+- あなたは**手動で**`<head>`タグ、例えば`<title>`や`<meta>`を root のレイアウトに追加**すべきではありません**。代わりに、ストリーミングや重複した`<head>`要素の解消などの高度な要件を自動的に処理する[Metadata API](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)を使用すべきです。
+- [route groups](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups)を使用して複数のrootLayoutを作成することができます。
+  - 複数の root Layoutを**跨いでナビゲート**すると、**フルページのロード**が起こります(Clientサイドのナビゲーションとは対照的に)。例えば、 `app/(shop)/layout.js` を使用する `/cart` から `app/(marketing)/layout.js` を使用する `/blog` に移動すると、フルページのロードが起こります。これは、複数の root Layoutに**のみ**適用されます。
+
+## Version History
+
+| Version | Changes |
+| --------- | -------------------- |
+| `v13.0.0` | `layout` 導入されました。|

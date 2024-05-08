@@ -1,0 +1,520 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/02-functions/use-router.mdx
+title: useRouter
+description: Learn more about the API of the Next.js Router, and access the router instance in your page with the useRouter hook.
+org_title: useRouter
+org_path: /docs/pages/api-reference/functions/use-router
+is_empty: false
+---
+
+あなたが app 内の任意の component 内で[`router` object](#router-object)にアクセスしたい場合、`useRouter` hook を使用することができます。以下の例をご覧ください:
+
+```jsx
+import { useRouter } from 'next/router'
+
+function ActiveLink({ children, href }) {
+  const router = useRouter()
+  const style = {
+    marginRight: 10,
+    color: router.asPath === href ? 'red' : 'black',
+  }
+
+  const handleClick = (e) => {
+    e.preventDefault()
+    router.push(href)
+  }
+
+  return (
+    <a href={href} onClick={handleClick} style={style}>
+      {children}
+    </a>
+  )
+}
+
+export default ActiveLink
+```
+
+> `useRouter`は[React Hook](https://react.dev/learn#using-hooks)であり、それはクラスの中で使用することはできません。あなたは[withRouter](#withrouter)を使用するか、クラスをcomponentの関数内に置くことができます。
+
+## `router` object
+
+以下は、[`useRouter`](#top)と[`withRouter`](#withrouter)の両方が返す`router` objectの定義です：
+
+- `pathname`: `String` - 現在のrouteファイルのpathで、`/pages`の後に来ます。したがって、`basePath`、`locale`および末尾のスラッシュ(`trailingSlash: true`)は含まれていません。
+- `query`: `Object` - クエリーstringがobjectにパースされ、[dynamic route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)のパラメータを含みます。ページが[Server-side Rendering](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)を使用していない場合、プレrendering中に空のオブジェクトになります。`{}`がdefaultです。
+- `asPath`: `String` - ブラウザで表示されるpathで、検索paramsを含み、`trailingSlash`設定を尊重しています。 `basePath`と`locale`は含まれていません。
+- `isFallback`: `boolean` - 現在のページが[fallback mode](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true)にあるかどうか。
+- `basePath`: `String` - アクティブな[basePath](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/basePath)(有効な場合)。
+- `locale`: `String` - アクティブな locale (有効な場合)。
+- `locales`: `String[]` - 有効にした場合、すべてのサポートされている locales 。
+- `defaultLocale`: `String` - 現在のdefault locale(有効な場合)。
+- `domainLocales`: `Array<{domain, defaultLocale, locales}>` - 任意の設定されたドメイン locales。
+- `isReady`: `boolean` - routerのフィールドがClient側で更新され、使用可能になっているかどうか。 `useEffect`Method内でのみ使用すべきであり、serverで条件付きレンダリングには使用しないでください。[自動的に静的に最適化されたページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)の使用例に関する関連ドキュメントを参照してください。
+- `isPreview`: `boolean` - アプリケーションが現在[previewモード](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)にあるかどうか。
+
+> `asPath`フィールドを使用すると、ページがserver-side renderingまたは[automatic static optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)を使用してレンダリングされる場合、clientとserverの間に不一致が生じる可能性があります。 `isReady`フィールドが`true`になるまで`asPath`の使用を避けてください。
+
+次のMethodは`router`内に含まれています：
+
+### router.push
+
+Client側の遷移を処理し、このmethodは[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)が十分でない場合に役立ちます。
+
+```js
+router.push(url, as, options)
+```
+
+- `url`: `UrlObject | String` - ナビゲートする URL (`UrlObject`プロパティについては[Node.JS URL モジュールのドキュメンテーション](https://nodejs.org/api/url.html#legacy-urlobject)を参照してください)。
+- `as`: `UrlObject | String` - ブラウザのURLバーに表示されるpathのオプションのデコレータ。 Next.js 9.5.3より前では、これはdynamic routesに使用されていました。
+- `options` - 以下の設定 options を持つ任意の object :
+- `scroll` - オプションの boolean で、ナビゲーション後にページのトップまでスクロールするかどうかを制御します。defaultは`true`です。
+  - [`shallow`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/03-linking-and-navigating#shallow-routing)：現在のページの path を更新しますが、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、または [`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)を再実行せずに行います。defaultは`false`です。
+- `locale` - 任意の string で、新しいページの locale を示します
+
+> 外部のURLには`router.push`を使う必要はありません。そのような場合には、[window.location](https://developer.mozilla.org/docs/Web/API/Window/location)の方が適しています。
+
+`pages/about.js`に移動します。これは定義済みのrouteです：
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.push('/about')}>
+      Click me
+    </button>
+  )
+}
+```
+
+`pages/post/[pid].js`を操作する、これはdynamic routeです：
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.push('/post/abc')}>
+      Click me
+    </button>
+  )
+}
+```
+
+ユーザーを `pages/login.js` にRedirectする、[認証](/ja/javascript/next.js/v14/03-pages/01-building-your-application/08-authentication)の背後にあるページに便利：
+
+```jsx
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+// Here you would fetch and return the user
+const useUser = () => ({ user: null, loading: false })
+
+export default function Page() {
+  const { user, loading } = useUser()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!(user || loading)) {
+      router.push('/login')
+    }
+  }, [user, loading])
+
+  return <p>Redirecting...</p>
+}
+```
+
+#### ナビゲーション後の状態のリセット
+
+Next.jsで同じページに移動するとき、ページの状態はdefaultではリセットされ**ません**。なぜならReactは親のcomponentが変更されない限りアンマウントされないからです。
+
+```jsx:pages/[slug].js
+import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+
+export default function Page(props) {
+  const router = useRouter()
+  const [count, setCount] = useState(0)
+  return (
+    <div>
+      <h1>Page: {router.query.slug}</h1>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increase count</button>
+      <Link href="/one">one</Link> <Link href="/two">two</Link>
+    </div>
+  )
+}
+```
+
+上記の例では、`/one`と`/two`の間を移動してもカウントはリセット**されません**。上位レベルのReact componentである`Page`が同じであるため、`useState`はレンダリング間で維持されます。
+
+この動作を望まない場合、いくつかのoptionsがあります：
+
+- `useEffect`を使用して各状態が更新されるよう手動で確認します。上記の例では、以下のようになる可能性があります。
+
+  ```jsx
+  useEffect(() => {
+    setCount(0)
+  }, [router.query.slug])
+  ```
+
+- Reactの`key`を使って[Reactにcomponentを再マウントさせること](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key)を伝えます。すべてのページでこれを行うために、カスタムのappを使用することができます。
+
+  ```jsx filename="pages/_app.js"
+  import { useRouter } from 'next/router'
+
+  export default function MyApp({ Component, pageProps }) {
+    const router = useRouter()
+    return <Component key={router.asPath} {...pageProps} />
+  }
+  ```
+
+#### URL objectと共に
+
+[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link#with-url-object) を使用するのと同じ方法で URL objectを使用することができます。これは、`url`と`as`の両方のパラメータに対して機能します。
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function ReadMore({ post }) {
+  const router = useRouter()
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        router.push({
+          pathname: '/post/[pid]',
+          query: { pid: post.id },
+        })
+      }}
+    >
+      Click here to read more
+    </button>
+  )
+}
+```
+
+### router.replace
+
+`replace` propと同様に[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)で、`router.replace`は新しいURLエントリを`history` stackに追加することを防ぎます。
+
+```js
+router.replace(url, as, options)
+```
+
+- `router.replace`のためのAPIは、[`router.push`](#routerpush)のAPIとまったく同じです。
+
+Take a look at the following example:
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.replace('/home')}>
+      Click me
+    </button>
+  )
+}
+```
+
+### router.prefetch
+
+Clientサイドの遷移を速くするために、Prefetchページ。このmethodは、[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)がないナビゲーションにのみ役立ちます。なぜなら、`next/link`は自動的にページをプリフェッチします。
+
+> これは production 専用の機能です。Next.jsは development中に prefetchページを行いません。
+
+```js
+router.prefetch(url, as, options)
+```
+
+- `url` - URL は prefetch するためのもので、明示的な routes (例：`/dashboard`)や dynamic routes (例：`/product/[id]`)を含みます。
+- `as` - `url`用のオプションのデコレーターです。Next.js 9.5.3より前には、これがprefetch dynamic routesに使用されていました。
+- `options` - 以下の許可されたフィールドを持つオプションのobject：
+- `locale` - アクティブな locale とは異なる locale を提供することができます。`false`の場合は、localeがアクティブな locale として使用されないため、`url`にlocaleを含める必要があります。
+
+あなたがログインページを持っていて、ログイン後、ユーザーをdashboardにredirectします。その場合、次の例のように、より速い遷移を実現するために、dashboardをprefetchできます。
+
+```jsx
+import { useCallback, useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+export default function Login() {
+  const router = useRouter()
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault()
+
+    fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        /* Form data */
+      }),
+    }).then((res) => {
+      // Do a fast client-side transition to the already prefetched dashboard page
+      if (res.ok) router.push('/dashboard')
+    })
+  }, [])
+
+  useEffect(() => {
+    // Prefetch the dashboard page
+    router.prefetch('/dashboard')
+  }, [router])
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+      <button type="submit">Login</button>
+    </form>
+  )
+}
+```
+
+### router.beforePopState
+
+一部のケース(たとえば、[Custom Server](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server)を使用する場合など)では、[popstate](https://developer.mozilla.org/docs/Web/Events/popstate)を聞き、routerがそれに対して行動する前に何かを行いたいかもしれません。
+
+```js
+router.beforePopState(cb)
+```
+
+- `cb` - 入ってくる `popstate` イベントで実行する関数。この関数は、次の propsを含むobjectとしてイベントの状態を受け取ります：
+  - `url`: `String` - 新しい状態のための route。これは通常、`page`の名前です。
+  - `as`: `String` - ブラウザに表示されるurl
+- `options`: `Object` - [router.push](#routerpush)によって送信される追加の options
+
+`cb`が`false`を返す場合、Next.js routerは`popstate`を処理せず、その場合はあなたがそれを処理する責任があります。[ファイルシステムルーティングの無効化](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server#disabling-file-system-routing)を参照してください。
+
+`beforePopState`を使用して request を操作したり、以下の例のように SSR refresh を強制することができます：
+
+```jsx
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+
+  useEffect(() => {
+    router.beforePopState(({ url, as, options }) => {
+      // I only want to allow these two routes!
+      if (as !== '/' && as !== '/other') {
+        // Have SSR render bad routes as a 404.
+        window.location.href = as
+        return false
+      }
+
+      return true
+    })
+  }, [router])
+
+  return <p>Welcome to the page</p>
+}
+```
+
+### router.back
+
+履歴に戻ります。これはブラウザの戻るボタンをクリックするのと同等です。`window.history.back()`を実行します。
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.back()}>
+      Click here to go back
+    </button>
+  )
+}
+```
+
+### router.reload
+
+現在のURLを再読み込みします。これはブラウザのrefreshボタンをクリックするのと同等です。`window.location.reload()`を実行します。
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.reload()}>
+      Click here to reload
+    </button>
+  )
+}
+```
+
+### router.events
+
+あなたは、Next.js Router内部で起こる異なるイベントを聞くことができます。以下はサポートされているイベントの一覧です：
+
+- `routeChangeStart(url, { shallow })` - routeが変更を開始するときに発火します
+- `routeChangeComplete(url, { shallow })` - routeが完全に変更されたときに発火します
+- `routeChangeError(err, url, { shallow })` - routesの変更中にerrorが発生した場合、またはrouteの読み込みがキャンセルされた場合に発火します。
+  - `err.cancelled` - ナビゲーションがキャンセルされたかどうかを示します
+- `beforeHistoryChange(url, { shallow })` - ブラウザの履歴を変更する前に発火します
+- `hashChangeStart(url, { shallow })` - ハッシュが変更されるがページは変更されない時に発火します
+- `hashChangeComplete(url, { shallow })` - ハッシュが変更されたがページは変更されていないときに発火します
+
+> **Good to know**: ここで `url`はブラウザに表示される URL を含み、[`basePath`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/basePath)も含みます。
+
+たとえば、routerイベントの`routeChangeStart`を聞くには、`pages/_app.js`を開いたり作成したりして、以下のようにイベントを購読します。
+
+```jsx
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+export default function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+
+  useEffect(() => {
+    const handleRouteChange = (url, { shallow }) => {
+      console.log(
+        `App is changing to ${url} ${
+          shallow ? 'with' : 'without'
+        } shallow routing`
+      )
+    }
+
+    router.events.on('routeChangeStart', handleRouteChange)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange)
+    }
+  }, [router])
+
+  return <Component {...pageProps} />
+}
+```
+
+> この例では、ページのナビゲーションでアンマウントされないため、[Custom App](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app) (`pages/_app.js`)を使用してイベントを購読しますが、アプリケーション内の任意のcomponentでrouterイベントを購読することも可能です。
+
+Router イベントは component がマウントされる時([useEffect](https://react.dev/reference/react/useEffect) または [componentDidMount](https://react.dev/reference/react/Component#componentdidmount) / [componentWillUnmount](https://react.dev/reference/react/Component#componentwillunmount))や、イベントが発生した時に命令的に登録するべきです。
+
+もしrouteのロードがキャンセルされる(例えば、短時間で二つのリンクを連続でクリックするなど)場合、`routeChangeError`が発火します。そして渡される`err`には、次の例のように`cancelled`プロパティが`true`に設定されます：
+
+```jsx
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+export default function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+
+  useEffect(() => {
+    const handleRouteChangeError = (err, url) => {
+      if (err.cancelled) {
+        console.log(`Route to ${url} was cancelled!`)
+      }
+    }
+
+    router.events.on('routeChangeError', handleRouteChangeError)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off('routeChangeError', handleRouteChangeError)
+    }
+  }, [router])
+
+  return <Component {...pageProps} />
+}
+```
+
+## Potential ESLint errors
+
+`router`objectで利用できる特定の方法はPromiseを返します。もしESLintルール、[no-floating-promises](https://typescript-eslint.io/rules/no-floating-promises)が有効になっている場合は、それを全体的に無効にするか、影響を受ける行に対して無効にすることを検討してください。
+
+あなたのアプリケーションがこのルールを必要とする場合、`void`でPromiseを無効にするか、`async`関数を使用して、Promiseを`await`し、その後関数の呼び出しを無効にします。**これは、methodが`onClick`のhandler内から呼び出される場合には適用されません。**
+
+影響を受ける方法は次の通りです：
+
+- `router.push`
+- `router.replace`
+- `router.prefetch`
+
+### 可能な解決策
+
+```jsx
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+// Here you would fetch and return the user
+const useUser = () => ({ user: null, loading: false })
+
+export default function Page() {
+  const { user, loading } = useUser()
+  const router = useRouter()
+
+  useEffect(() => {
+    // disable the linting on the next line - This is the cleanest solution
+    // eslint-disable-next-line no-floating-promises
+    router.push('/login')
+
+    // void the Promise returned by router.push
+    if (!(user || loading)) {
+      void router.push('/login')
+    }
+    // or use an async function, await the Promise, then void the function call
+    async function handleRouteChange() {
+      if (!(user || loading)) {
+        await router.push('/login')
+      }
+    }
+    void handleRouteChange()
+  }, [user, loading])
+
+  return <p>Redirecting...</p>
+}
+```
+
+## withRouter
+
+もし、[`useRouter`](#router-object)があなたに最適ではない場合、`withRouter`も同じ[`router` object](#router-object)を任意のcomponentに追加することができます。
+
+### Usage
+
+```jsx
+import { withRouter } from 'next/router'
+
+function Page({ router }) {
+  return <p>{router.pathname}</p>
+}
+
+export default withRouter(Page)
+```
+
+### TypeScript
+
+`withRouter`でクラスコンポーネントを使用するには、 component が router プロップを受け入れる必要があります：
+
+```tsx
+import React from 'react'
+import { withRouter, NextRouter } from 'next/router'
+
+interface WithRouterProps {
+  router: NextRouter
+}
+
+interface MyComponentProps extends WithRouterProps {}
+
+class MyComponent extends React.Component<MyComponentProps> {
+  render() {
+    return <p>{this.props.router.pathname}</p>
+  }
+}
+
+export default withRouter(MyComponent)
+```

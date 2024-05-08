@@ -1,0 +1,77 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/use-params.mdx
+title: useParams
+description: API Reference for the useParams hook.
+org_title: useParams
+org_path: /docs/app/api-reference/functions/use-params
+is_empty: false
+---
+
+`useParams`は、現在の URL によって記入された[dynamic params](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を読み取ることができる**Client Component**の hook です。
+
+```tsx:app/example-client-component.tsx
+'use client'
+
+import { useParams } from 'next/navigation'
+
+export default function ExampleClientComponent() {
+  const params = useParams<{ tag: string; item: string }>()
+
+  // Route -> /shop/[tag]/[item]
+  // URL -> /shop/shoes/nike-air-max-97
+  // `params` -> { tag: 'shoes', item: 'nike-air-max-97' }
+  console.log(params)
+
+  return <></>
+}
+```
+
+```jsx:app/example-client-component.js
+'use client'
+
+import { useParams } from 'next/navigation'
+
+export default function ExampleClientComponent() {
+  const params = useParams()
+
+  // Route -> /shop/[tag]/[item]
+  // URL -> /shop/shoes/nike-air-max-97
+  // `params` -> { tag: 'shoes', item: 'nike-air-max-97' }
+  console.log(params)
+
+  return <></>
+}
+```
+
+## Parameters
+
+```tsx
+const params = useParams()
+```
+
+`useParams`はパラメータを取りません。
+
+## Returns
+
+`useParams`は現在のルートの[dynamic パラメーター](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を埋めたobjectを返します。
+
+- object内の各プロパティはアクティブなdynamicセグメントです。
+- プロパティの名前はセグメントの名前であり、プロパティのvalueは、そのセグメントが何で埋められているかです。
+- プロパティの value は、[type の dynamic セグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)によって、`string` または `string` の配列のどちらかになります。
+- もしrouteがdynamicパラメーターを含まない場合、`useParams`はempty objectを返します。
+- Pages Routerで使用された場合、`useParams`は初期のrender時に`null`を返し、上記のルールに従ったプロパティでrouterが準備ができたら更新します。
+
+For example:
+
+| Route | URL | `useParams()` |
+| ------------------------------- | ----------- | ------------------------- |
+| `app/shop/page.js` | `/shop` | `{}` |
+| `app/shop/[slug]/page.js` | `/shop/1` | `{ slug: '1' }` |
+| `app/shop/[tag]/[item]/page.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
+| `app/shop/[...slug]/page.js` | `/shop/1/2` | `{ slug: ['1', '2'] }` |
+
+## Version History
+
+| Version | Changes |
+| --------- | ----------------------- |
+| `v13.3.0` | `useParams` 導入されました。|

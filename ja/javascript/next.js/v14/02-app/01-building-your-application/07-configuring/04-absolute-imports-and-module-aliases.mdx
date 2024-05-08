@@ -1,0 +1,169 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/07-configuring/04-absolute-imports-and-module-aliases.mdx
+title: Absolute Imports and Module Path Aliases
+description: Configure module path aliases that allow you to remap certain import paths.
+org_title: Absolute Imports and Module Path Aliases
+org_path: /docs/app/building-your-application/configuring/absolute-imports-and-module-aliases
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+<details>
+  <summary>Examples</summary>
+
+- [絶対インポートとエイリアス](https://github.com/vercel/next.js/tree/canary/examples/with-absolute-imports)
+
+</details>
+
+Next.jsは、`tsconfig.json`および`jsconfig.json`ファイルの`"paths"`および`"baseUrl"`の optionsを組み込みでサポートしています。"
+
+これらのoptionsを使用すると、プロジェクトのディレクトリを絶対pathsにエイリアス設定でき、import modulesを容易にします。例えば:
+
+```tsx
+// before
+import { Button } from '../../../components/button'
+
+// after
+import { Button } from '@/components/button'
+```
+
+> **Good to know**: `create-next-app`は、これらの options を設定するように prompt します。
+
+## Absolute Imports
+
+`baseUrl`設定オプションは、プロジェクトのrootから直接importすることを可能にします。
+
+この設定の一例：
+
+```json:tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": "."
+  }
+}
+```
+
+```tsx:components/button.tsx
+export default function Button() {
+  return <button>Click me</button>
+}
+```
+
+```jsx:components/button.js
+export default function Button() {
+  return <button>Click me</button>
+}
+```
+
+```tsx:app/page.tsx
+import Button from 'components/button'
+
+export default function HomePage() {
+  return (
+    <>
+      <h1>Hello World</h1>
+      <Button />
+    </>
+  )
+}
+```
+
+```jsx:app/page.js
+import Button from 'components/button'
+
+export default function HomePage() {
+  return (
+    <>
+      <h1>Hello World</h1>
+      <Button />
+    </>
+  )
+}
+```
+
+## Module Aliases
+
+`baseUrl` path の設定に加えて、`"paths"`オプションを使用してモジュールの paths を「エイリアス」にすることができます。
+
+たとえば、以下の設定では、`@/components/*` を `components/*`にマッピングします：
+
+```json:tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["components/*"]
+    }
+  }
+}
+```
+
+```tsx:components/button.tsx
+export default function Button() {
+  return <button>Click me</button>
+}
+```
+
+```jsx:components/button.js
+export default function Button() {
+  return <button>Click me</button>
+}
+```
+
+```tsx:app/page.tsx
+import Button from '@/components/button'
+
+export default function HomePage() {
+  return (
+    <>
+      <h1>Hello World</h1>
+      <Button />
+    </>
+  )
+}
+```
+
+```jsx:app/page.js
+import Button from '@/components/button'
+
+export default function HomePage() {
+  return (
+    <>
+      <h1>Hello World</h1>
+      <Button />
+    </>
+  )
+}
+```
+
+"`"paths"`"のそれぞれは、`baseUrl`の位置に対して相対的になっています。例えば：
+
+```json
+// tsconfig.json or jsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": "src/",
+    "paths": {
+      "@/styles/*": ["styles/*"],
+      "@/components/*": ["components/*"]
+    }
+  }
+}
+```
+
+```jsx
+// pages/index.js
+import Button from '@/components/button'
+import '@/styles/styles.css'
+import Helper from 'utils/helper'
+
+export default function HomePage() {
+  return (
+    <Helper>
+      <h1>Hello World</h1>
+      <Button />
+    </Helper>
+  )
+}
+```

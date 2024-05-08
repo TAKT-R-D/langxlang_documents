@@ -1,0 +1,25 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/onDemandEntries.mdx
+title: onDemandEntries
+description: Configure how Next.js will dispose and keep in memory pages created in development.
+org_title: onDemandEntries
+org_path: /docs/app/api-reference/next-config-js/onDemandEntries
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+ Next.js は、 development 中に server がbuildされたページをどのように処分するか、またはメモリに保持するかの一部の制御を可能にするいくつかの options を公開します。
+
+defaultを変更するには、`next.config.js`を開き、`onDemandEntries`のconfigを追加してください。
+
+```js:next.config.js
+module.exports = {
+  onDemandEntries: {
+    // period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 25 * 1000,
+    // number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 2,
+  },
+}
+```

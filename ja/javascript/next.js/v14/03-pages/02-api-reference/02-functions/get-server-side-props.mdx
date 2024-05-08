@@ -1,0 +1,144 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/02-functions/get-server-side-props.mdx
+title: getServerSideProps
+description: API reference for 'getServerSideProps'. Learn how to fetch data on each request with Next.js.
+org_title: getServerSideProps
+org_path: /docs/pages/api-reference/functions/get-server-side-props
+is_empty: false
+---
+
+ページから`getServerSideProps`という関数をexportするとき(Server-Side Rendering)、Next.jsは各requestでこのページを`getServerSideProps`によって返されたデータを使用して事前にレンダリングします。これは、頻繁に変更されるデータをfetchしたい場合や、最新のデータを表示するようにページを更新したい場合に便利です。
+
+```tsx:pages/index.tsx
+import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
+
+type Repo = {
+  name: string
+  stargazers_count: number
+}
+
+export const getServerSideProps = (async () => {
+  // Fetch data from external API
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo: Repo = await res.json()
+  // Pass data to the page via props
+  return { props: { repo } }
+}) satisfies GetServerSideProps<{ repo: Repo }>
+
+export default function Page({
+  repo,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  return (
+    <main>
+      <p>{repo.stargazers_count}</p>
+    </main>
+  )
+}
+```
+
+```jsx:pages/index.js
+export async function getServerSideProps() {
+  // Fetch data from external API
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo = await res.json()
+  // Pass data to the page via props
+  return { props: { repo } }
+}
+
+export default function Page({ repo }) {
+  return (
+    <main>
+      <p>{repo.stargazers_count}</p>
+    </main>
+  )
+}
+```
+
+あなたは `getServerSideProps`で使用するために、トップレベルのscopeでimport modulesを行うことができます。使用されるインポートは**Clientサイドにバンドルされません**。これは、**server-side codeを `getServerSideProps`**に直接書くことができることを意味します。これには、データベースからのデータの取得も含まれます。
+
+## Context parameter
+
+`context`パラメータは、次のキーを含むobjectです：
+
+| Name | Description |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `params` | このページが[dynamic route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を使用している場合、 `params`には route パラメータが含まれます。ページ名が`[id].js`の場合、`params`は `{ id: ... }`のようになります。|
+| `req` | [`HTTP` IncomingMessage object](https://nodejs.org/api/http.html#http_class_http_incomingmessage)で、追加の`cookies`プロパティがあり、それは cookies の string valuesにマッピングする string キーを持つ object です。 |
+| `res` | [`HTTP` response object](https://nodejs.org/api/http.html#http_class_http_serverresponse)。|
+| `query` | query string を含む、 dynamic route パラメータを表す object 。|
+| `preview` | (`draftMode`に非推奨) ページが[Preview Mode](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)にある場合、`preview`は`true`となり、それ以外の場合は`false`となります。|
+| `previewData` | (`draftMode`用に非推奨) `setPreviewData` によって設定された[preview](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)データセット。|
+| `draftMode` | ページが[ドラフトモード](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/11-draft-mode)にある場合、`draftMode`は`true`となり、そうでない場合は`false`となります。|
+| `resolvedUrl` | `_next/data` プレフィックスを削除し、client が遷移するための request `URL` の正規化された version であり、元の クエリ のvaluesが含まれています。|
+| `locale` | アクティブな locale (有効になっている場合)。|
+| `locales` | 有効になっている場合、すべてのサポートされている locales を含みます。|
+| `defaultLocale` | 設定された default locale を含む(有効な場合)。|
+
+## getServerSideProps return values
+
+`getServerSideProps`関数は、**以下のいずれかのプロパティ**を持つobjectを返すべきです：
+
+### `props`
+
+`props`はキーと object のペアで、各 value はページ component によって受け取られます。これは、渡されたどんな props も [`JSON.stringify`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) でシリアライズできるように、[シリアライズ可能な object](https://developer.mozilla.org/docs/Glossary/Serialization)であるべきです。
+
+```jsx
+export async function getServerSideProps(context) {
+  return {
+    props: { message: `Next.js is awesome` }, // will be passed to the page component as props
+  }
+}
+```
+
+### `notFound`
+
+`notFound` boolean は、ページが`404`ステータスと[404ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#404-page)を返すことを可能にします。 `notFound: true`とすると、以前に成功したページが作成されていても、ページは`404`を返します。これは、ユーザーが生成したコンテンツがその作者によって削除されるなどのユースケースをサポートするためのものです。
+
+```js
+export async function getServerSideProps(context) {
+  const res = await fetch(`https://.../data`)
+  const data = await res.json()
+
+  if (!data) {
+    return {
+      notFound: true,
+    }
+  }
+
+  return {
+    props: { data }, // will be passed to the page component as props
+  }
+}
+```
+
+### `redirect`
+
+`redirect` object は、内部および外部のリソースにリダイレクトすることを可能にします。`{ destination: string, permanent: boolean }`の形状と一致するべきです。まれに、古い`HTTP`clientsが適切に redirect するためにカスタムのステータス code を割り当てる必要があるかもしれません。これらの場合、`permanent`プロパティの代わりに`statusCode`プロパティを使用できますが、両方を使用することはできません。
+
+```js
+export async function getServerSideProps(context) {
+  const res = await fetch(`https://.../data`)
+  const data = await res.json()
+
+  if (!data) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {}, // will be passed to the page component as props
+  }
+}
+```
+
+## Version History
+
+| Version | Changes |
+| --------- | ----------------------------------------------------------------------------------------------------------- |
+| `v13.4.0` | [App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)は、データ取得が簡素化されて安定しています |
+| `v10.0.0` | `locale`、`locales`、`defaultLocale`、そして`notFound`の options が追加されました。|
+| `v9.3.0` | `getServerSideProps` 導入されました。|

@@ -1,0 +1,168 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/07-edge.mdx
+title: Edge Runtime
+description: API Reference for the Edge Runtime.
+org_title: Edge Runtime
+org_path: /docs/app/api-reference/edge
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Next.js Edge Runtimeは標準的なWeb APIに基づいており、次のAPIをサポートしています：
+
+## Network APIs
+
+| API | Description |
+| ------------------------------------------------------------------------------- | --------------------------------- |
+| [`Blob`](https://developer.mozilla.org/docs/Web/API/Blob) | blob を表す |
+| [`fetch`](https://developer.mozilla.org/docs/Web/API/Fetch_API) | リソースを取得します |
+| [`FetchEvent`](https://developer.mozilla.org/docs/Web/API/FetchEvent) | fetch イベントを表します |
+| [`File`](https://developer.mozilla.org/docs/Web/API/File) | ファイルを表します |
+| [`FormData`](https://developer.mozilla.org/docs/Web/API/FormData) | フォームデータを表す |
+| [`Headers`](https://developer.mozilla.org/docs/Web/API/Headers) | HTTP headers を表します |
+| [`Request`](https://developer.mozilla.org/docs/Web/API/Request) | HTTP request を表す |
+| [`Response`](https://developer.mozilla.org/docs/Web/API/Response) | HTTP response を表します |
+| [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams) | URL の検索パラメータを表します |
+| [`WebSocket`](https://developer.mozilla.org/docs/Web/API/WebSocket) | ウェブソケット接続を表現します |
+
+## Encoding APIs
+
+| API | Description |
+| ----------------------------------------------------------------------------------- | ---------------------------------- |
+| [`atob`](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/atob) | base-64エンコードされた string をデコードします |
+| [`btoa`](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/btoa) | string をベース64でエンコードします |
+| [`TextDecoder`](https://developer.mozilla.org/docs/Web/API/TextDecoder) | Uint8Arrayを string にデコードします |
+| [`TextDecoderStream`](https://developer.mozilla.org/docs/Web/API/TextDecoderStream) | ストリーム用のチェーン可能なデコーダー |
+| [`TextEncoder`](https://developer.mozilla.org/docs/Web/API/TextEncoder) | string をUint8Arrayにエンコードします |
+| [`TextEncoderStream`](https://developer.mozilla.org/docs/Web/API/TextEncoderStream) | ストリーム用のチェーン可能なエンコーダー |
+
+## Stream APIs
+
+| API | Description |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| [`ReadableStream`](https://developer.mozilla.org/docs/Web/API/ReadableStream) | 読み取り可能なストリームを表します |
+| [`ReadableStreamBYOBReader`](https://developer.mozilla.org/docs/Web/API/ReadableStreamBYOBReader) | ReadableStream のリーダーを表します |
+| [`ReadableStreamDefaultReader`](https://developer.mozilla.org/docs/Web/API/ReadableStreamDefaultReader) | ReadableStreamのリーダーを表す |
+| [`TransformStream`](https://developer.mozilla.org/docs/Web/API/TransformStream) | transform ストリームを表します |
+| [`WritableStream`](https://developer.mozilla.org/docs/Web/API/WritableStream) | 書き込み可能なストリームを表す |
+| [`WritableStreamDefaultWriter`](https://developer.mozilla.org/docs/Web/API/WritableStreamDefaultWriter) | これはWritableStreamのライターを表します |
+
+## Crypto APIs
+
+| API | Description |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [`crypto`](https://developer.mozilla.org/docs/Web/API/Window/crypto) | プラットフォームの暗号機能へのアクセスを提供します |
+| [`CryptoKey`](https://developer.mozilla.org/docs/Web/API/CryptoKey) | 暗号化キーを表します |
+| [`SubtleCrypto`](https://developer.mozilla.org/docs/Web/API/SubtleCrypto) | ハッシング、署名、暗号化または復号化などの一般的な暗号プリミティブへのアクセスを提供します |
+
+## Web Standard APIs
+
+| API | Description |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`AbortController`](https://developer.mozilla.org/docs/Web/API/AbortController) | 望むときに1つまたは複数のDOMリクエストを中止できます |
+| [`Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array) | 値の配列を表します |
+| [`ArrayBuffer`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) | 一般的で固定長の生の binary データバッファを表現します |
+| [`Atomics`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Atomics) | 静的メソッドとしてアトミック操作を提供します |
+| [`BigInt`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/BigInt) | 任意の精度で表現される number 全体を表します |
+| [`BigInt64Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array) | 64ビット符号付き整数のタイプ配列を表現します |
+| [`BigUint64Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/BigUint64Array) | 64ビット符号なし整数の型付き配列を表現します |
+| [`Boolean`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | 論理エンティティを表し、`true`と`false`の二つの値を持つことができます |
+| [`clearInterval`](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/clearInterval) | `setInterval()`によって以前に設定された定時的かつ繰り返しのアクションをキャンセルします |
+| [`clearTimeout`](https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/clearTimeout) | `setTimeout()`によって以前に設定された、時間制御の繰り返しアクションをキャンセルします |
+| [`console`](https://developer.mozilla.org/docs/Web/API/Console) | ブラウザの debugging コンソールへのアクセスを提供します |
+| [`DataView`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DataView) | `ArrayBuffer`の汎用ビューを表します |
+| [`Date`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date) | プラットフォームに依存しない形式での単一の瞬間を表します |
+| [`decodeURI`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/decodeURI) | `encodeURI`または類似のルーチンによって以前に作成されたUniform Resource Identifier(URI)をデコードします |
+| [`decodeURIComponent`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent) | `encodeURIComponent`または同様のルーチンで以前に作成されたUniform Resource Identifier (URI)の component をデコードします |
+| [`DOMException`](https://developer.mozilla.org/docs/Web/API/DOMException) | DOMで発生する error を表します |
+| [`encodeURI`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/encodeURI) | 一定の文字の各インスタンスを、その文字のUTF-8エンコーディングを表す一つ、二つ、三つ、または四つのエスケープシーケンスに置き換えることで、統一リソース識別子(URI)をエンコードします |
+| [`encodeURIComponent`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent) | 一定の文字の各インスタンスを、その文字のUTF-8エンコーディングを表す1つ、2つ、3つ、または4つのエスケープシーケンスに置き換えることで、Uniform Resource Identifier (URI) componentをエンCodeします |
+| [`Error`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error) | ステートメントの実行やプロパティのアクセス時に error が発生することを表します。|
+| [`EvalError`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/EvalError) | グローバル関数 `eval()` に関連する error を表します |
+| [`Float32Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Float32Array) | 32ビット浮動小数点数のタイプ配列を表現します |
+| [`Float64Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Float64Array) | 64ビット浮動小数点数の型付き配列を表します |
+| [`Function`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Function) | 関数を表現します |
+| [`Infinity`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Infinity) | 数学的な無限大の'' value ''を表現します |
+| [`Int8Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Int8Array) | 8ビット符号付き整数の型付き配列を表します |
+| [`Int16Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Int16Array) | 16ビット符号付き整数の型付き配列を表す |
+| [`Int32Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Int32Array) | 32ビット符号付き整数の型付き配列を表す |
+| [`Intl`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl) | 国際化とローカライゼーション機能へのアクセスを提供します |
+| [`isFinite`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/isFinite) | value が有限の number であるかどうかを判断します |
+| [`isNaN`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/isNaN) | value が`NaN`かどうかを判断します |
+| [`JSON`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/JSON) | JavaScript の値を JSON 形式に変換したり，その逆を行ったりする機能を提供します |
+| [`Map`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map) | 各々の value が一度だけ発生可能な値の集合を表します |
+| [`Math`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Math) | 数学的な関数や定数にアクセスを提供します |
+| [`Number`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number) | 数値の value を表す |
+| [`Object`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object) | それはすべての' JavaScript 'オブジェクトの基礎となる' object 'を表します |
+| [`parseFloat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/parseFloat) | string 引数を解析し、浮動小数点の number を返します |
+| [`parseInt`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/parseInt) | 指定された基数の整数を返す、 string 引数を解析します |
+| [`Promise`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) | 非同期操作の最終的な完了(または失敗)と、その結果の value を表します |
+| [`Proxy`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy) | 基本的な操作(たとえば、プロパティの検索、割り当て、列挙、関数呼び出しなど)のカスタム動作を定義するために使用される object を表します |
+| [`queueMicrotask`](https://developer.mozilla.org/docs/Web/API/queueMicrotask) | マイクロタスクを実行するためのキューを作成します |
+| [`RangeError`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RangeError) | value が許可されたセットまたは範囲内にないときの error を表します |
+| [`ReferenceError`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError) | 存在しない variable を参照したときの error を表します |
+| [`Reflect`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Reflect) | JavaScript 操作を妨げるメソッドを提供します |
+| [`RegExp`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp) | 文字の組み合わせを一致させることを可能にする正規表現を表します |
+| [`Set`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Set) | 各々の value が一度しか発生しない値のコレクションを表します |
+| [`setInterval`](https://developer.mozilla.org/docs/Web/API/setInterval) | 特定の関数を一定の時間間隔で繰り返し呼び出します |
+| [`setTimeout`](https://developer.mozilla.org/docs/Web/API/setTimeout) | 指定した number ミリ秒後に関数を呼び出すか、式を評価します |
+| [`SharedArrayBuffer`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer) | 一般的で固定長の生の binary データバッファを表現します |
+| [`String`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String) | 文字の並びを表します |
+| [`structuredClone`](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) | value のディープコピーを作成します |
+| [`Symbol`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Symbol) | object のプロパティのキーとして使用されるユニークで不変なデータの type を表します |
+| [`SyntaxError`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError) | 文法的に無効な code を解釈しようとしたときの error を表します |
+| [`TypeError`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/TypeError) | value が予想された type ではないときの error を表します |
+| [`Uint8Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) | 8ビット符号なし整数の型付き配列を表します |
+| [`Uint8ClampedArray`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray) | 0-255にクランプされた8ビット符号なし整数の型付き配列を表します |
+| [`Uint32Array`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array) | 32ビット符号なし整数の型付き配列を表します |
+| [`URIError`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/URIError) | グローバルURI処理関数が誤った方法で使用されたときの error を表します |
+| [`URL`](https://developer.mozilla.org/docs/Web/API/URL) | object の URL を作成するために使用される静的メソッドを提供する object を表します |
+| [`URLPattern`](https://developer.mozilla.org/docs/Web/API/URLPattern) | URL パターンを表現します |
+| [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams) | キー/値のペアの集合を表現します |
+| [`WeakMap`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) | キーが弱参照されるキー/値のペアのコレクションを表します |
+| [`WeakSet`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakSet) | 各々の object が一度だけ出現する可能性のあるオブジェクトのコレクションを表す |
+| [`WebAssembly`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) | WebAssembly へのアクセスを提供します |
+
+## Next.js Specific Polyfills
+
+- [`AsyncLocalStorage`](https://nodejs.org/api/async_context.html#class-asynclocalstorage)
+
+## Environment Variables
+
+`process.env`を使用して、`next dev`と`next build`の両方に対する[Environment Variables](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/03-environment-variables)にアクセスできます。
+
+## Unsupported APIs
+
+Edge Runtimeには、以下を含むいくつかの制限があります：
+
+- ネイティブのNode.js APIは**サポートされていません**。たとえば、ファイルシステムに読み書きすることはできません。
+- `node_modules`は、ES Modulesを実装し、ネイティブの Node.js APIを使用しない限り、使用できます。
+- `require`を直接呼び出すことは**許されていません**。代わりにES Modulesを使用してください。
+
+次のJavaScript言語の機能は無効化されており、**動作しません：**
+
+| API | Description |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [`eval`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/eval) | string として表現される JavaScript code を評価します |
+| [`new Function(evalString)`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Function) | 引数として提供された code を使用して新しい関数を作成します |
+| [`WebAssembly.compile`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/compile) | バッファの source からWebAssemblyモジュールをコンパイルします |
+| [`WebAssembly.instantiate`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiate) | バッファのsourceからWebAssemblyモジュールをコンパイルし、インスタンス化します。|
+
+まれなケースでは、あなたの code が(または import が)いくつかの dynamic code 評価ステートメントを含んでいる可能性があり、それらは runtime で到達できない_ また、treeshakingによって削除することもできません。あなたの Middleware または Edge API Route のエクスポートされた設定で特定のファイルを許可するチェックを緩和することができます。
+
+```javascript
+export const config = {
+  runtime: 'edge', // for Edge API Routes only
+  unstable_allowDynamic: [
+    // allows a single file
+    '/lib/utilities.js',
+    // use a glob to allow anything in the function-bind 3rd party module
+    '/node_modules/function-bind/**',
+  ],
+}
+```
+
+`unstable_allowDynamic`は[glob](https://github.com/micromatch/micromatch#matching-features)、またはglobの配列で、特定のファイルのdynamic code評価を無視します。これらのglobは、アプリケーションのrootフォルダーに相対的です。
+
+BこれらのステートメントがEdge上で実行されると、_それらはスローし、runtime errorを引き起こす_ことに注意してください。

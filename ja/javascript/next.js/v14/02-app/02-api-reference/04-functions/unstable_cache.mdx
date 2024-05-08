@@ -1,0 +1,52 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/unstable_cache.mdx
+title: unstable_cache
+description: API Reference for the unstable_cache function.
+org_title: unstable_cache
+org_path: /docs/app/api-reference/functions/unstable_cache
+is_empty: false
+---
+
+`unstable_cache`は、データベースのクエリなどの高費用の操作の結果をcacheし、それらを複数のRequestで再利用することを可能にします。
+
+```jsx
+import { getUser } from './data';
+import { unstable_cache } from 'next/cache';
+
+const getCachedUser = unstable_cache(
+  async (id) => getUser(id),
+  ['my-app-user']
+);
+
+export default async function Component({ userID }) {
+  const user = await getCachedUser(userID);
+  ...
+}
+```
+
+> **Good to know**:
+> `headers` や `cookies` などの dynamic データソースに cache scope 内でアクセスすることはサポートされていません。キャッシュされた関数内でこのデータが必要な場合は、キャッシュされた関数の外部で `headers` を使用し、必要な dynamic データを引数として渡してください。
+
+> **警告**：この API は不安定で、将来的に変更される可能性があります。この API が安定するときに必要に応じて、移行ドキュメントとcodemodsを提供します。
+
+## Parameters
+
+```jsx
+const data = unstable_cache(fetchData, keyParts, options)()
+```
+
+- `fetchData`：これは、cacheしたいデータを取得する非同期関数です。これは`Promise`を返す関数でなければなりません。
+- `keyParts`：これはキャッシュされたキーを識別する配列です。これは、キャッシュされたデータのキーを識別するために、全世界で一意の値を含んでいなければなりません。cacheキーには、関数に渡された引数も含まれます。
+- `options`：これはcacheの動作を制御するobjectです。次のプロパティを含むことができます：
+  - `tags`：cacheの無効化を制御するために使用できるタグの配列。
+- `revalidate`: cache が再検証されるべき秒数の number 。
+
+## Returns
+
+`unstable_cache`は、呼び出すと、キャッシュされたデータへの解決を約束する関数を返します。データがcache内にない場合、提供された関数が呼び出され、その結果がキャッシュされて返されます。
+
+## Version History
+
+| Version | Changes |
+| --------- | ---------------------------- |
+| `v14.0.0` | `unstable_cache` 導入されました。|

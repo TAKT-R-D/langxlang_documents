@@ -1,0 +1,82 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/revalidateTag.mdx
+title: revalidateTag
+description: API Reference for the revalidateTag function.
+org_title: revalidateTag
+org_path: /docs/app/api-reference/functions/revalidateTag
+is_empty: false
+---
+
+`revalidateTag`は、特定の cache タグの[キャッシュデータ](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)をオンデマンドでパージすることを可能にします。
+
+> **Good to know**:
+>
+> - `revalidateTag`は、[Node.jsと Edge runtimes](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)の両方で利用可能です。
+> - `revalidateTag`は、 path が next 訪れたときにのみ、 cache を無効化します。これは、`revalidateTag`を dynamic route セグメントで呼び出すと、すぐに多くの再検証が一度にトリガーされないことを意味します。無効化は、 path が next 訪れたときにのみ発生します。
+
+## Parameters
+
+```tsx
+revalidateTag(tag: string): void;
+```
+
+- `tag`：あなたがrevalidateしたいデータに関連付けられたcacheタグを表すstring。256文字以下でなければなりません。このvalueは大文字と小文字を区別します。
+
+`fetch`に以下のようにタグを追加することができます：
+
+```tsx
+fetch(url, { next: { tags: [...] } });
+```
+
+## Returns
+
+`revalidateTag`は何もvalueを返しません。
+
+## Examples
+
+### Server Action
+
+```ts:app/actions.ts
+'use server'
+
+import { revalidateTag } from 'next/cache'
+
+export default async function submit() {
+  await addPost()
+  revalidateTag('posts')
+}
+```
+
+```js:app/actions.js
+'use server'
+
+import { revalidateTag } from 'next/cache'
+
+export default async function submit() {
+  await addPost()
+  revalidateTag('posts')
+}
+```
+
+### Route Handler
+
+```ts:app/api/revalidate/route.ts
+import { NextRequest } from 'next/server'
+import { revalidateTag } from 'next/cache'
+
+export async function GET(request: NextRequest) {
+  const tag = request.nextUrl.searchParams.get('tag')
+  revalidateTag(tag)
+  return Response.json({ revalidated: true, now: Date.now() })
+}
+```
+
+```js:app/api/revalidate/route.js
+import { revalidateTag } from 'next/cache'
+
+export async function GET(request) {
+  const tag = request.nextUrl.searchParams.get('tag')
+  revalidateTag(tag)
+  return Response.json({ revalidated: true, now: Date.now() })
+}
+```

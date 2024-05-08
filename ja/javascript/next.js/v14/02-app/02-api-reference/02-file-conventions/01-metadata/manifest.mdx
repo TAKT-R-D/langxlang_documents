@@ -1,0 +1,74 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/01-metadata/manifest.mdx
+title: manifest.json
+description: API Reference for manifest.json file.
+org_title: manifest.json
+org_path: /docs/app/api-reference/file-conventions/metadata/manifest
+is_empty: false
+---
+
+あなたのウェブアプリケーションに関する情報をブラウザに提供するために、`app`ディレクトリの**root**に一致する[Web Manifest Specification](https://developer.mozilla.org/docs/Web/Manifest)の`manifest.(json|webmanifest)`ファイルを追加または生成してください。
+
+## Static Manifest file
+
+```json:app/manifest.json
+{
+  "name": "My Next.js Application",
+  "short_name": "Next.js App",
+  "description": "An application built with Next.js",
+  "start_url": "/"
+  // ...
+}
+```
+
+## Generate a Manifest file
+
+`manifest.js`または`manifest.ts`ファイルを追加し、[`Manifest` object](#manifest-object)を返すようにします。
+
+```ts:app/manifest.ts
+import { MetadataRoute } from 'next'
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: 'Next.js App',
+    short_name: 'Next.js App',
+    description: 'Next.js App',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#fff',
+    theme_color: '#fff',
+    icons: [
+      {
+        src: '/favicon.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
+      },
+    ],
+  }
+}
+```
+
+```js:app/manifest.js
+export default function manifest() {
+  return {
+    name: 'Next.js App',
+    short_name: 'Next.js App',
+    description: 'Next.js App',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#fff',
+    theme_color: '#fff',
+    icons: [
+      {
+        src: '/favicon.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
+      },
+    ],
+  }
+}
+```
+
+### マニフェスト Object
+
+Tそのマニフェスト objectには、新しいウェブ規格により更新される可能性がある optionsの広範なリストが含まれています。現在の optionsについての全情報は、 `MetadataRoute.Manifest` type をあなたの code 編集器で参照してください。[TypeScript](https://nextjs.org/docs/app/building-your-application/configuring/typescript#typescript-plugin) を使用している場合や、[MDN](https://developer.mozilla.org/docs/Web/Manifest) のドキュメントをご覧ください。

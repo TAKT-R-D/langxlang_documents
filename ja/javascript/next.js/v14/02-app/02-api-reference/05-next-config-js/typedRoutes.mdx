@@ -1,0 +1,22 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/typedRoutes.mdx
+title: typedRoutes (experimental)
+description: Enable experimental support for statically typed links.
+org_title: typedRoutes (experimental)
+org_path: /docs/app/api-reference/next-config-js/typedRoutes
+is_empty: false
+nav_title: typedRoutes
+---
+
+[静的に型付けされたリンク](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript#statically-typed-links)の実験的なサポート。この機能を使用するには、プロジェクトでApp RouterとTypeScriptを使用する必要があります。
+
+```js:next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    typedRoutes: true,
+  },
+}
+
+module.exports = nextConfig
+```

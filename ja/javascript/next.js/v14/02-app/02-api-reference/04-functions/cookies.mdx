@@ -1,0 +1,156 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/cookies.mdx
+title: cookies
+description: API Reference for the cookies function.
+org_title: cookies
+org_path: /docs/app/api-reference/functions/cookies
+is_empty: false
+---
+
+`cookies`関数は、[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)からの HTTP の着信 request cookies を読み取るか、または[Server Action](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)で発信の request cookies を書き込むことができます。
+
+> **Good to know**: `cookies()`は、返される値を事前に知ることができない**[Dynamic Function](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)** です。これを layout やページで使用すると、 route が request 時に**[dynamic rendering](/docs/app/building-your-application/rendering/server-components#dynamic-rendering)** を選択します。
+
+## `cookies().get(name)`
+
+cookie の名前を受け取り、名前と value を含む object を返す method です。`name` という名前の cookie が見つからない場合は、`undefined` を返します。複数の cookies が一致する場合は、最初に一致したもののみを返します。
+
+```jsx:app/page.js
+import { cookies } from 'next/headers'
+
+export default function Page() {
+  const cookieStore = cookies()
+  const theme = cookieStore.get('theme')
+  return '...'
+}
+```
+
+## `cookies().getAll()`
+
+`get`に似た method で、一致する`name`を持つすべての cookies のリストを返します。`name`が指定されていない場合、利用可能なすべての cookies を返します。
+
+```jsx:app/page.js
+import { cookies } from 'next/headers'
+
+export default function Page() {
+  const cookieStore = cookies()
+  return cookieStore.getAll().map((cookie) => (
+    <div key={cookie.name}>
+      <p>Name: {cookie.name}</p>
+      <p>Value: {cookie.value}</p>
+    </div>
+  ))
+}
+```
+
+## `cookies().has(name)`
+
+cookieの名前を入力し、cookieが存在する(`true`)か否か(`false`)に基づいて`boolean`を返すmethod。
+
+```jsx:app/page.js
+import { cookies } from 'next/headers'
+
+export default function Page() {
+  const cookiesList = cookies()
+  const hasCookie = cookiesList.has('theme')
+  return '...'
+}
+```
+
+## `cookies().set(name, value, options)`
+
+cookie名、value、およびoptionsを取り、出力用のrequest cookieを設定するmethod。
+
+> **Good to know**: HTTP はストリーミングが開始した後に cookies を設定することは許可していませんので、[Server Action](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)で`.set()`を使用する必要があります。
+
+```js:app/actions.js
+'use server'
+
+import { cookies } from 'next/headers'
+
+async function create(data) {
+  cookies().set('name', 'lee')
+  // or
+  cookies().set('name', 'lee', { secure: true })
+  // or
+  cookies().set({
+    name: 'name',
+    value: 'lee',
+    httpOnly: true,
+    path: '/',
+  })
+}
+```
+
+## Deleting cookies
+
+> **Good to know**: [Server Action](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)でのみ delete cookies を行うことができます。
+
+cookieを削除するためのいくつかのoptionsがあります：
+
+### `cookies().delete(name)`
+
+あなたは特定の名前のcookieを明示的にdeleteすることができます。
+
+```js:app/actions.js
+'use server'
+
+import { cookies } from 'next/headers'
+
+async function delete(data) {
+  cookies().delete('name')
+}
+```
+
+### `cookies().set(name, '')`
+
+あるいは、同じ名前とempty valueを持つ新しいcookieを設定することもできます。
+
+```js:app/actions.js
+'use server'
+
+import { cookies } from 'next/headers'
+
+async function delete(data) {
+  cookies().set('name', '')
+}
+```
+
+> **Good to know**: `.set()`は、[Server Action](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)でのみ利用可能です。
+
+### `cookies().set(name, value, { maxAge: 0 })`
+
+`maxAge`を0に設定すると、cookieはすぐに期限切れになります。
+
+```js:app/actions.js
+'use server'
+
+import { cookies } from 'next/headers'
+
+async function delete(data) {
+  cookies().set('name', 'value', { maxAge: 0 })
+}
+```
+
+### `cookies().set(name, value, { expires: timestamp })`
+
+`expires`を過去のvalueに設定すると、cookieはすぐに期限切れになります。
+
+```js:app/actions.js
+'use server'
+
+import { cookies } from 'next/headers'
+
+async function delete(data) {
+  const oneDay = 24 * 60 * 60 * 1000
+  cookies().set('name', 'value', { expires: Date.now() - oneDay })
+}
+```
+
+> **Good to know**： `.set()`が呼び出された同じドメインが所持している delete cookies のみを削除することができます。さらに、 code は、削除する cookie と同じプロトコル( delete または HTTP S)上で実行されなければなりません。
+
+## Version History
+
+| Version | Changes |
+| --------- | --------------------- |
+| `v13.0.0` | `cookies` が導入されました。|

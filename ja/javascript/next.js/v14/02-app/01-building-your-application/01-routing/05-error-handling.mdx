@@ -1,0 +1,227 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/05-error-handling.mdx
+title: Error Handling
+description: Handle runtime errors by automatically wrapping route segments and their nested children in a React Error Boundary.
+org_title: Error Handling
+org_path: /docs/app/building-your-application/routing/error-handling
+is_empty: false
+---
+
+`error.js`ファイルの規約により、[ネストされたroutes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#nested-routes)の予期しないruntimeerrorをスムーズに処理することが可能になります。
+
+- routeセグメントとそのネストされたchildrenを自動的に[React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)で包みます。
+- ファイルシステム階層を使用して粒度を調整し、特定のセグメントに合わせたerrorUIを作成します。
+- errorを影響を受けたセグメントに分離し、アプリケーションの残りの部分を機能的に保持します。
+- 完全なページの再読み込みなしで、errorから復旧しようとする機能を追加してください。
+
+`error.js` ファイルを route セグメント内に追加し、React component をexportすることで、error UIを作成します。
+
+<Image
+  alt="error.js special file"
+  srcLight="/docs/light/error-special-file.png"
+  srcDark="/docs/dark/error-special-file.png"
+  width="1600"
+  height="606"
+/>
+
+```tsx:app/dashboard/error.tsx
+'use client' // Error components must be Client Components
+
+import { useEffect } from 'react'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error(error)
+  }, [error])
+
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button
+        onClick={
+          // Attempt to recover by trying to re-render the segment
+          () => reset()
+        }
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+```
+
+```jsx:app/dashboard/error.js
+'use client' // Error components must be Client Components
+
+import { useEffect } from 'react'
+
+export default function Error({ error, reset }) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error(error)
+  }, [error])
+
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button
+        onClick={
+          // Attempt to recover by trying to re-render the segment
+          () => reset()
+        }
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+```
+
+### `error.js`の仕組み
+
+<Image
+  alt="How error.js works"
+  srcLight="/docs/light/error-overview.png"
+  srcDark="/docs/dark/error-overview.png"
+  width="1600"
+  height="903"
+/>
+
+- `error.js`は自動的に[React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)を作成し、ネストされた子セグメントまたは`page.js`のcomponentを**包み込みます**。
+- `error.js`ファイルからexportされたReact componentは、**fallback** componentとして使用されます。
+- errorがerror境界内でスローされると、そのerrorは**格納され**、fallback componentは**レンダリングされます**。
+- fallback error component がアクティブになっている場合、 error の境界**上**のレイアウトはその状態を**維持**し、インタラクティブに**残り**ます。また、 error component は error から回復するための機能を display できます。
+
+### errorからの復旧
+
+errorの原因は時折一時的なものであることがあります。これらの場合、単純にもう一度試すだけで問題が解決するかもしれません。
+
+error componentは、`reset()`関数を使用してユーザーにErrorから復旧を試みるようpromptすることができます。実行すると、この関数はerrorバウンダリの内容を再レンダリングしようとします。成功すれば、fallback error componentは再レンダリングの結果に置き換えられます。
+
+```tsx:app/dashboard/error.tsx
+'use client'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={() => reset()}>Try again</button>
+    </div>
+  )
+}
+```
+
+```jsx:app/dashboard/error.js
+'use client'
+
+export default function Error({ error, reset }) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={() => reset()}>Try again</button>
+    </div>
+  )
+}
+```
+
+### Nested Routes
+
+ReactComponentは[特別なファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)を通じて作成され、[特定のネストされた階層構造](/docs/app/building-your-application/routing#component-hierarchy)でレンダリングされます。
+
+たとえば、`layout.js` と `error.js` ファイルを両方含む2つのセグメントで構成されるネストされたrouteは、次のように _単純化された_ componentの階層でレンダリングされます:
+
+<Image
+  alt="Nested Error Component Hierarchy"
+  srcLight="/docs/light/nested-error-component-hierarchy.png"
+  srcDark="/docs/dark/nested-error-component-hierarchy.png"
+  width="1600"
+  height="687"
+/>
+
+ネストされたcomponent階層は、ネストされたrouteを通じての`error.js`ファイルの振る舞いに影響を与えます：
+
+- エラーは最も近い親の error 境界までバブルアップします。これは、`error.js`ファイルがそれにネストされた子セグメントすべてのエラーを処理することを意味します。 より粒度の高いまたは低い error UIは、`error.js`ファイルを route のネストされたフォルダの異なるレベルに配置することで実現できます。
+- `error.js` 境界は、**同じ**セグメント内の `layout.js` component でスローされたエラーを処理**しません**。なぜなら、そのlayoutの component の**内部**に error の境界がネストされているからです。
+
+### Layoutでのerror処理
+
+`error.js`の境界は、**同じセグメント**の`layout.js`または`template.js`componentsでスローされるエラーを**捕捉しません**。この[意図的な階層性](#nested-routes)は、 error が発生した際に、兄弟 routes (ナビゲーションなど)間で共有される重要なUIが可視化され、機能します。
+
+特定の layout または template 内のエラーを処理するには、レイアウトの親セグメントに`error.js`ファイルを配置してください。
+
+root layoutやtemplate内のerrorを処理するには、`error.js`のバリエーションである`global-error.js`を使用します。
+
+### Root Layoutでのerror処理
+
+root`app/error.js`の境界は、root`app/layout.js`や`app/template.js`componentでスロー(発生)されたerrorを**キャッチしません**。
+
+これらのrootComponentにおけるerrorを特定して処理するために、`error.js`のバリエーションである`app/global-error.js`を使用します。これはroot `app`ディレクトリに位置しています。
+
+`error.js`のようなrootではなく、`global-error.js`のerror境界は**全体**のアプリケーションを包み、アクティブ時にはそのfallback componentがroot layoutを置き換えます。これがため、`global-error.js`は自身の`<html>`タグと`<body>`タグを**必ず**定義しなければならないという点を重要視する必要があります。
+
+"`global-error.js`は最も粒子の細かさがなく、全体のアプリケーションに対する"キャッチオール"のerrorハンドリングと考えることができます。rootのComponentが通常、dynamicなものではないため、頻繁にトリガーされることはありません。他の`error.js`の境界線がほとんどのerrorをキャッチします。
+
+`global-error.js`が定義されているとしても、グローバルに共有されたUIとブランドを含むroot layoutの**内部**で描画されるfallback componentがあるroot `error.js` を定義することを推奨します。
+
+```tsx:app/global-error.tsx
+'use client'
+
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+        <button onClick={() => reset()}>Try again</button>
+      </body>
+    </html>
+  )
+}
+```
+
+```jsx:app/global-error.js
+'use client'
+
+export default function GlobalError({ error, reset }) {
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+        <button onClick={() => reset()}>Try again</button>
+      </body>
+    </html>
+  )
+}
+```
+
+### Servererrorの処理
+
+もし error が Server Component 内部で投げられた場合、 Next.js はその `Error` object ( production では機密性の高い error 情報が削除されている)を、最も近い`error.js`ファイルへ `error` プロップとして転送します。
+
+#### 機密性の高いError情報の保護
+
+production中、`Error` objectはclientに対して一般的な`message`と`digest`のプロパティのみを転送します。
+
+これは、clientにerrorの中に含まれる潜在的に敏感な詳細を漏らさないようにするためのセキュリティ対策です。
+
+`message` プロパティには、一般的な error についての message が含まれており、`digest` プロパティには、 error の自動生成されたハッシュが含まれており、 server-side のログで対応する error をマッチさせるために使用することができます。
+
+development中、`Error` objectはclientに転送され、元のerrorの`message`を含むようにシリアライズされます。これによって デバッグが容易になります。

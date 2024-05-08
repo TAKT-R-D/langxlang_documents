@@ -1,0 +1,36 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/02-rendering/01-server-side-rendering.mdx
+title: Server-side Rendering (SSR)
+description: Use Server-side Rendering to render pages on each request.
+org_title: Server-side Rendering (SSR)
+org_path: /docs/pages/building-your-application/rendering/server-side-rendering
+is_empty: false
+---
+
+> 「SSR」または「Dynamicレンダリング」とも呼ばれます。
+
+ページが**Server-side Rendering**を利用している場合、そのページのHTMLは**毎回のrequest**ごとに生成されます。
+
+ページでServer-side Renderingを使用するには、`getServerSideProps`と呼ばれる`async`関数を`export`する必要があります。この関数は、serverによって毎回requestで呼び出されます。
+
+例えば、あなたのページが頻繁に更新されるデータ(外部のAPIから取得)を事前にレンダリングする必要があるとします。このデータを取得し、以下のように`Page`に渡す`getServerSideProps`を書くことができます。
+
+```jsx
+export default function Page({ data }) {
+  // Render data...
+}
+
+// This gets called on every request
+export async function getServerSideProps() {
+  // Fetch data from external API
+  const res = await fetch(`https://.../data`)
+  const data = await res.json()
+
+  // Pass data to the page via props
+  return { props: { data } }
+}
+```
+
+ご覧の通り、`getServerSideProps`は`getStaticProps`に似ていますが、違いは`getServerSideProps`がrequestごとに実行されるのに対し、build時ではないことです。
+
+T`getServerSideProps`がどのように動作するかを詳しく知りたい場合は、[Data Fetching documentation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)をご覧ください。

@@ -1,0 +1,145 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/output.mdx
+title: output
+description: Next.js automatically traces which files are needed by each page to allow for easy deployment of your application. Learn how it works here.
+org_title: output
+org_path: /docs/app/api-reference/next-config-js/output
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+buildの間に、Next.jsは各ページとその依存関係を自動的に追跡し、アプリケーションのproduction versionをデプロイするために必要なすべてのファイルを決定します。
+
+この機能は、size、つまりデプロイメントのサイズを大幅に削減します。以前は、Dockerでデプロイする際には、`dependencies`のすべてのファイルをインストールして`next start`を実行する必要がありました。しかし、Next.js12からは、`.next/`ディレクトリのOutput File Tracingを活用して、必要なファイルのみを含めることができます。
+
+さらに、これにより非推奨の `serverless` targetが必要なくなり、さまざまな問題を引き起こしたり、不必要な重複を作り出したりすることを防ぎます。
+
+## How it Works
+
+`next build`の間に、Next.jsは[`@vercel/nft`](https://github.com/vercel/nft)を使って`import`、`require`、そして`fs`の使用を静的に分析し、ページが読み込み可能な全ファイルを特定します。
+
+Next.jsのproduction serverもその必要なファイルのために追跡され、`.next/next-server.js.nft.json`で出力されます。これはproductionで活用できます。
+
+`.nft.json`ファイルが`.next`出力ディレクトリに出力されるのを利用するには、各トレースで`.nft.json`ファイルに相対的なファイルのリストを読み込み、それらをあなたのデプロイメント位置にコピーすることができます。
+
+## Automatically Copying Traced Files
+
+Next.jsは、`node_modules`内の選択されたファイルを含むproductionデプロイメントのための必要なファイルのみをコピーする`standalone`フォルダを自動的に作成することができます。
+
+この自動コピーツールを活用するために、あなたの`next.config.js`でそれを有効にすることができます：
+
+```js:next.config.js
+module.exports = {
+  output: 'standalone',
+}
+```
+
+これにより、`.next/standalone` にフォルダが作成され、`node_modules` をインストールせずに単体でデプロイすることができます。
+
+さらに、最小限の`server.js`ファイルも出力されます。これは`next start`の代わりに使用することができます。この最小限のserverは、通常これらはCDNによって処理されるべきであるため、`public`や`.next/static`フォルダをdefaultでコピーしません。ただし、これらのフォルダは`standalone/public`および`standalone/.next/static`フォルダに手動でコピーすることができ、その後`server.js`ファイルはこれらを自動的に提供します。
+
+<AppOnly>
+
+> **Good to know**:
+>
+> - もしプロジェクトが特定の port または hostname をlistenする必要がある場合、`server.js`を実行する前に`PORT`または`HOSTNAME`の environment variables を定義できます。例えば、`http://0.0.0.0:8080`上で server を start するには、`PORT=8080 HOSTNAME=0.0.0.0 node server.js`を実行します。
+> - あなたのプロジェクトが[Image Optimization](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images)をdefaultの`loader`として使用している場合、依存関係として`sharp`をインストールする必要があります。
+
+</AppOnly>
+
+<PagesOnly>
+
+> **Good to know**:
+>
+> - `next.config.js`は`next build`の間に読み込まれ、`server.js`出力ファイルにシリアライズされます。もし、古い[`serverRuntimeConfig`または`publicRuntimeConfig`options](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/runtime-configuration)が使用されている場合、その値はbuild時の値に固有のものとなります。
+> - プロジェクトが特定のportやhostnameを監視する必要がある場合、`server.js`を実行する前に`PORT`または`HOSTNAME`といったenvironment variablesを定義できます。例えば、`http://0.0.0.0:8080`上でserverをstartするためには、`PORT=8080 HOSTNAME=0.0.0.0 node server.js`を実行します。
+> - あなたのプロジェクトが[Image Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images)をdefaultの`loader`で使用している場合、依存性として`sharp`をインストールする必要があります:
+
+</PagesOnly>
+
+```bash:Terminal
+npm i sharp
+```
+
+```bash:Terminal
+yarn add sharp
+```
+
+```bash:Terminal
+pnpm add sharp
+```
+
+```bash:Terminal
+bun add sharp
+```
+
+## Caveats
+
+- モノレポのセットアップでトレースを行う際には、プロジェクトディレクトリがdefaultとしてトレースに使用されます。 `next build packages/web-app`の場合、`packages/web-app`がトレースのrootとなり、そのフォルダの外側のファイルは含まれません。このフォルダの外側のファイルを含めるためには、 `next.config.js`内で`experimental.outputFileTracingRoot`を設定できます。
+
+```js:packages/web-app/next.config.js
+module.exports = {
+  experimental: {
+    // this includes files from the monorepo base two directories up
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  },
+}
+```
+
+- Next.jsが必要なファイルを含めることができない場合や、不要なファイルを誤って含める可能性がある場合があります。そのような場合には、`next.config.js`の中でそれぞれ`experimental.outputFileTracingExcludes`と`experimental.outputFileTracingIncludes`を活用できます。各configには、特定のページを一致させるためのキーを持つ[minimatch globs](https://www.npmjs.com/package/minimatch)のobjectを受け入れ、トレースの中で含めるか除外するかを指定するプロジェクトのrootに対する相対的なglobsの配列のvalueを受け入れます。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    outputFileTracingExcludes: {
+      '/api/hello': ['./un-necessary-folder/**/*'],
+    },
+    outputFileTracingIncludes: {
+      '/api/another': ['./necessary-folder/**/*'],
+    },
+  },
+}
+```
+
+- 現在、Next.jsは発行された `.nft.json`ファイルを操作しません。これらのファイルは、例えば[Vercel](https://vercel.com)などのデプロイメントプラットフォームで読み込む必要があり、最小のデプロイメントを作成します。将来のリリースでは、これらの `.nft.json` ファイルを利用する新しいコマンドが計画されています。
+
+## Experimental `turbotrace`
+
+依存関係の追跡は、非常に複雑な計算や分析を必要とするため、遅くなることがあります。我々は、JavaScriptの実装に対するより速く、より賢い代替手段として、Rustで`turbotrace`を作成しました。
+
+それを有効にするために、次の設定を`next.config.js`に追加することができます：
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    turbotrace: {
+      // control the log level of the turbotrace, default is `error`
+      logLevel?:
+      | 'bug'
+      | 'fatal'
+      | 'error'
+      | 'warning'
+      | 'hint'
+      | 'note'
+      | 'suggestions'
+      | 'info',
+      // control if the log of turbotrace should contain the details of the analysis, default is `false`
+      logDetail?: boolean
+      // show all log messages without limit
+      // turbotrace only show 1 log message for each categories by default
+      logAll?: boolean
+      // control the context directory of the turbotrace
+      // files outside of the context directory will not be traced
+      // set the `experimental.outputFileTracingRoot` has the same effect
+      // if the `experimental.outputFileTracingRoot` and this option are both set, the `experimental.turbotrace.contextDirectory` will be used
+      contextDirectory?: string
+      // if there is `process.cwd()` expression in your code, you can set this option to tell `turbotrace` the value of `process.cwd()` while tracing.
+      // for example the require(process.cwd() + '/package.json') will be traced as require('/path/to/cwd/package.json')
+      processCwd?: string
+      // control the maximum memory usage of the `turbotrace`, in `MB`, default is `6000`.
+      memoryLimit?: number
+    },
+  },
+}
+```

@@ -1,0 +1,164 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/index.mdx
+title: Routing Fundamentals
+description: Learn the fundamentals of routing for front-end applications.
+org_title: Routing Fundamentals
+org_path: /docs/app/building-your-application/routing
+is_empty: false
+nav_title: Routing
+---
+
+すべてのアプリケーションの骨組みはルーティングです。このページでは、webのルーティングについての**基本的な概念**と、Next.jsでのルーティングの取り扱い方を紹介します。
+
+## Terminology
+
+まず、これらの用語がドキュメンテーション全体で使用されているのを見るでしょう。ここに簡単な参考を紹介します：
+
+<Image
+  alt="Terminology for Component Tree"
+  srcLight="/docs/light/terminology-component-tree.png"
+  srcDark="/docs/dark/terminology-component-tree.png"
+  width="1600"
+  height="832"
+/>
+
+- **Tree:** 階層構造を視覚化するための慣習。例えば、親と children コンポーネントを持つ component ツリー、フォルダ構造など。
+- **部分木:** ツリーの一部で、新しい root (最初)から始まり、葉(最後)で終わる。
+- **Root**: ツリーまたはサブツリーの最初のノードで、たとえば root layout のようなもの。
+- **Leaf(葉):** URLpathの最終セグメントのように、部分木内で子がないノード。
+
+<Image
+  alt="Terminology for URL Anatomy"
+  srcLight="/docs/light/terminology-url-anatomy.png"
+  srcDark="/docs/dark/terminology-url-anatomy.png"
+  width="1600"
+  height="371"
+/>
+
+- ** URL セグメント:** スラッシュで区切られた URL path の一部。
+- ** URL Path ：** ドメインの後に続く URL の一部(セグメントで構成)。
+
+## The `app` Router
+
+'' version '' 13で、'' Next.js ''は新しい **'' App Router ''** を導入しました。これは ['' React Server Components ''](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)を基盤としており、共有レイアウト、ネスト化されたルーティング、'' loading ''の状態、'' error ''の処理などをサポートしています。
+
+App Router は `app` という新しいディレクトリで動作します。`app` ディレクトリは `pages` ディレクトリと並行して動作し、段階的な採用を可能にします。これにより、アプリケーションの一部の routes を新しい動作に適応させることができ、他の routes は以前の動作のために `pages` ディレクトリに保持することができます。もしアプリケーションが `pages` ディレクトリを使用している場合は、[Pages Router]((/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing)のドキュメントもご覧ください。
+
+> **Good to know**: App Router は Pages Router よりも priority を優先します。ディレクトリ間の Routes は同じ URL path に解決するべきではなく、競合を防ぐためにbuild時に error が発生します。
+
+<Image
+  alt="Next.js App Directory"
+  srcLight="/docs/light/next-router-directories.png"
+  srcDark="/docs/dark/next-router-directories.png"
+  width="1600"
+  height="444"
+/>
+
+defaultにより、`app`内のComponentは[React Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)です。これはパフォーマンスの最適化であり、簡単に採用でき、また[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)も使用できます。
+
+> **おすすめ:** Server Components に慣れていない場合は、[Server](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)ページをご覧ください。
+
+## Roles of Folders and Files
+
+Next.jsは、ファイルシステムベースのrouterを使用します。具体的には、
+
+- **フォルダー**は Routes を定義するために使用されます。 route は、** root フォルダー**から最終的な**leaf folder**までのファイルシステムの階層に従った一連の path で、`page.js`ファイルを含みます。[routes の定義](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)を参照してください。
+- **ファイル**は、 route セグメントに表示されるUIを作成するために使用されます。[特別なファイル](#file-conventions)を参照してください。
+
+## Route Segments
+
+ route 内の各フォルダは**route segment**を表します。 各 route segmentは**セグメント**として** URL path**に対応してマッピングされます。
+
+<Image
+  alt="How Route Segments Map to URL Segments"
+  srcLight="/docs/light/route-segments-to-path-segments.png"
+  srcDark="/docs/dark/route-segments-to-path-segments.png"
+  width="1600"
+  height="594"
+/>
+
+## Nested Routes
+
+ネストされたrouteを作成するには、フォルダを互いにネストさせることができます。例えば、新しい`/dashboard/settings`のrouteを追加するためには、`app`ディレクトリに2つの新しいフォルダをネストさせることができます。
+
+`/dashboard/settings`routeは3つのセグメントで構成されています：
+
+- `/` (Root セグメント)
+- `dashboard`(セグメント)
+- `settings`(リーフセグメント)
+
+## File Conventions
+
+Next.jsは、ネストされたroutes内で特定の動作を持つUIを作成するための特別なファイルセットを提供します：
+
+| | |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [`layout`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts) | セグメントとその children の共有UI |
+| [`page`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages) | ユニークなUIを持つ route を作り、 routes を公開アクセス可能にします |
+| [`loading`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming) | セグメントおよびその子のロード中UI |
+| [`not-found`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found) | セグメントとその children のUIが見つかりませんでした |
+| [`error`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling) | Error UIはセグメントとその children に対して |
+| [`global-error`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling) | グローバル Error UI |
+| [`route`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) | Server-side API エンドポイント |
+| [`template`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#templates) | Layout UIを特化して再レンダリング |
+| [`default`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/default) | [Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)の Fallback UI |
+
+> **Good to know**: `.js`, `.jsx`, or `.tsx` file extensions can be used for special files.
+
+## Component Hierarchy
+
+routeセグメントの特別なファイルで定義されたReactComponentは、特定の階層でレンダリングされます：
+
+- `layout.js`
+- `template.js`
+- `error.js`(React error バウンダリー)
+- `loading.js`(React suspense バウンダリ)
+- `not-found.js`(React error バウンダリ)
+- `page.js`またはネストされた`layout.js`
+
+<Image
+  alt="Component Hierarchy for File Conventions"
+  srcLight="/docs/light/file-conventions-component-hierarchy.png"
+  srcDark="/docs/dark/file-conventions-component-hierarchy.png"
+  width="1600"
+  height="643"
+/>
+
+ネストされたrouteでは、セグメントのComponentはその親セグメントのComponentの**内部**にネストされます。
+
+<Image
+  alt="Nested File Conventions Component Hierarchy"
+  srcLight="/docs/light/nested-file-conventions-component-hierarchy.png"
+  srcDark="/docs/dark/nested-file-conventions-component-hierarchy.png"
+  width="1600"
+  height="863"
+/>
+
+## Colocation
+
+特別なファイルに加えて、自分のファイル(例えばコンポーネント、 styles 、テストなど)を`app`ディレクトリ内のフォルダに配置するオプションを持っています。
+
+これは、フォルダがroutesを定義する一方で、`page.js`または`route.js`によって返される内容だけが公にアドレス指定可能だからです。
+
+<Image
+  alt="An example folder structure with colocated files"
+  srcLight="/docs/light/project-organization-colocation.png"
+  srcDark="/docs/dark/project-organization-colocation.png"
+  width="1600"
+  height="1011"
+/>
+
+[Project Organization and Colocation](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/08-colocation)についてもっと学びましょう。
+
+## Advanced Routing Patterns
+
+App Routerは、より高度なルーティングパターンを実装するための一連の規則も提供しています。これには以下のものが含まれます:
+
+- [Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)：同時に2つ以上のページを同一のビューで表示でき、それぞれが独立して操作できるようにします。それらは独自のサブナビゲーションを持つ分割ビューに使用できます。例えば、Dashboards。
+- [Intercepting Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes): それが別のrouteのcontextで表示されるように、routeをインターセプトします。現在のページのcontextが重要であるときにこれらを使用できます。例えば、タスクの編集中にすべてのタスクを表示するか、フィードで写真を拡大するなどです。
+
+これらのパターンを使用すると、小規模チームや個々の開発者が実装するのが従来複雑だった機能を民主化し、より豊かで複雑なUIをbuildすることができます。
+
+## Next Steps
+
+NあなたがNext.jsのルーティングの基本を理解したので、以下のリンクをたどって初めてのroutesを作成してみてください。

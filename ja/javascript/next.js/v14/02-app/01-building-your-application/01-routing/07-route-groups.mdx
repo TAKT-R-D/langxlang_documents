@@ -1,0 +1,83 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/07-route-groups.mdx
+title: Route Groups
+description: Route Groups can be used to partition your Next.js application into different sections.
+org_title: Route Groups
+org_path: /docs/app/building-your-application/routing/route-groups
+is_empty: false
+---
+
+`app`ディレクトリでは、通常、ネストされたフォルダはURL pathsにマップされます。しかし、フォルダを**Route Group**としてマークすることで、そのフォルダがルートのURL pathに含まれるのを防ぐことができます。
+
+これにより、あなたはrouteセグメントとプロジェクトファイルを、URL path構造に影響を与えずに論理的なグループに整理することができます。
+
+Routeグループは以下の用途に役立ちます：
+
+- [サイトセクション、目的、またはチーム別などによる、 routes をグループ化する](#organize-routes-without-affecting-the-url-path)
+- 同じrouteセグメントレベルで[nested layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)を有効にする:
+  - [同じセグメントで複数のネストされたLayoutを作成すること、複数のrootLayoutを含む](#creating-multiple-root-layouts)
+  - [共通セグメントのroutesの一部にlayoutを追加する](#opting-specific-segments-into-a-layout)
+
+## Convention
+
+route グループは、フォルダ名を括弧で囲むことにより作成できます：`(folderName)`
+
+## Examples
+
+### URL pathに影響を与えずに、routesを整理する
+
+URLに影響を与えずにroutesを整理するために、関連するroutesをまとめてグループを作成します。括弧内のフォルダはURLから省略されます(例：`(marketing)`や`(shop)`)。
+
+<Image
+  alt="Organizing Routes with Route Groups"
+  srcLight="/docs/light/route-group-organisation.png"
+  srcDark="/docs/dark/route-group-organisation.png"
+  width="1600"
+  height="930"
+/>
+
+`(marketing)` や `(shop)` 内の routesは同じ URL 階層を共有していますが、それぞれのフォルダ内に `layout.js` ファイルを追加することで、各グループに異なる layout を作成することができます。
+
+<Image
+  alt="Route Groups with Multiple Layouts"
+  srcLight="/docs/light/route-group-multiple-layouts.png"
+  srcDark="/docs/dark/route-group-multiple-layouts.png"
+  width="1600"
+  height="768"
+/>
+
+### 特定のセグメントをlayoutにオプトインする
+
+特定の routes を layout に組み込むには、新しい route グループ(例えば `(shop)`)を作成し、同じ layout を共有する routes をグループに移動します(例えば `account` や `cart`)。 グループ外の routes は layout を共有しません(例えば `checkout`)。
+
+<Image
+  alt="Route Groups with Opt-in Layouts"
+  srcLight="/docs/light/route-group-opt-in-layouts.png"
+  srcDark="/docs/dark/route-group-opt-in-layouts.png"
+  width="1600"
+  height="930"
+/>
+
+### 複数のrootLayoutを作成する
+
+複数の[roots](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)を作成するには、トップレベルの `layout.js` ファイルを削除し、各 route グループの中に `layout.js` ファイルを追加します。これは、アプリケーションを完全に異なるUIまたは体験を持つセクションに分割するのに便利です。 `<html>` タグと `<body>` タグは、各 root layout に追加する必要があります。
+
+<Image
+  alt="Route Groups with Multiple Root Layouts"
+  srcLight="/docs/light/route-group-multiple-root-layouts.png"
+  srcDark="/docs/dark/route-group-multiple-root-layouts.png"
+  width="1600"
+  height="687"
+/>
+
+上記の例では、`(marketing)`と`(shop)`の両方が自身のroot layoutを持っています。
+
+---
+
+> **Good to know**:
+>
+> - route グループの命名には、組織化以外に特別な意味はありません。それらは URL path に影響を与えません。
+> - routesには、同じURLパスを他のroutesと解決しては**いけません**。例えば、routeグループはURLの構造に影響を与えないため、`(marketing)/about/page.js`と`(shop)/about/page.js`の両方が`/about`に解決し、errorを引き起こします。
+> - 複数の root レイアウトをトップレベルの`layout.js` ファイルなしで使用する場合、ホームの`page.js` ファイルは、 route グループのいずれかで定義する必要があります。例えば： `app/(marketing)/page.js`のようになります。
+
+> - **複数の root レイアウト**と移動すると、**フルページの読み込み**が発生します(クライアントサイドのナビゲーションとは異なります)。例えば、`app/(shop)/layout.js`を使用する`/cart`から`app/(marketing)/layout.js`を使用する`/blog`に移動すると、フルページの読み込みが発生します。これは**唯一**複数の root レイアウトに適用されます。

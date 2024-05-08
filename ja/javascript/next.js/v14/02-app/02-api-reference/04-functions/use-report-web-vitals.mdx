@@ -1,0 +1,228 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/use-report-web-vitals.mdx
+title: useReportWebVitals
+description: API Reference for the useReportWebVitals function.
+org_title: useReportWebVitals
+org_path: /docs/app/api-reference/functions/use-report-web-vitals
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+`useReportWebVitals`hookは、[Core Web Vitals](https://web.dev/vitals/)を報告するのに使用でき、あなたのanalyticsサービスと組み合わせて使用することができます。
+
+<PagesOnly>
+
+```jsx:pages/_app.js
+import { useReportWebVitals } from 'next/web-vitals'
+
+function MyApp({ Component, pageProps }) {
+  useReportWebVitals((metric) => {
+    console.log(metric)
+  })
+
+  return <Component {...pageProps} />
+}
+```
+
+</PagesOnly>
+
+<AppOnly>
+
+```jsx:app/_components/web-vitals.js
+'use client'
+
+import { useReportWebVitals } from 'next/web-vitals'
+
+export function WebVitals() {
+  useReportWebVitals((metric) => {
+    console.log(metric)
+  })
+}
+```
+
+```jsx:app/layout.js
+import { WebVitals } from './_components/web-vitals'
+
+export default function Layout({ children }) {
+  return (
+    <html>
+      <body>
+        <WebVitals />
+        {children}
+      </body>
+    </html>
+  )
+}
+```
+
+> Since the `useReportWebVitals` hook requires the `"use client"` directive, the most performant approach is to create a separate component that the root layout imports. This confines the client boundary exclusively to the `WebVitals` component.
+
+</AppOnly>
+
+## useReportWebVitals
+
+hookの引数として渡される`metric` objectは、いくつかのnumberのプロパティで構成されています：
+
+- `id`：現在のページ読み込みの context における、メトリックの一意の識別子
+- `name`：パフォーマンス指標の名前。可能な値には、Webアプリケーション特有の[Web Vitals](#web-vitals)メトリクス(TTFB、FCP、LCP、FID、CLS)の名前が含まれます。
+- `delta`：指標の現在のvalueと前回のvalueとの差。 valueは通常ミリ秒単位で、指標のvalueが時間経過とともにどのように変化したかを示します。
+- `entries`: このメトリックに関連付けられた[Performance Entries](https://developer.mozilla.org/docs/Web/API/PerformanceEntry)の配列です。これらのエントリは、メトリックに関連するパフォーマンスイベントの詳細情報を提供します。
+- "`navigationType`: これは、メトリックスの収集を引き起こす[type of navigation](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/type)を示します。可能な値には`"navigate"`、`"reload"`、`"back_forward"`、`"prerender"`が含まれます。
+- "`rating`：メトリックのvalueを評価する定性的な評価。可能な値は、`"good"`、`"needs-improvement"`、および`"poor"`です。評価は通常、メトリックのvalueをあらかじめ定義されたしきい値と比較することで決定され、これによりパフォーマンスが許容可能か、あるいは最適でないかを示します。
+- `value`: パフォーマンスエントリの実際の value または期間で、通常はミリ秒単位です。 value は、メトリックが追跡しているパフォーマンスの側面を定量的に測定します。 source の value は、測定されている特定のメトリックによりますし、さまざまな[Performance API](https://developer.mozilla.org/docs/Web/API/Performance_API)から得られます。
+
+## Web Vitals
+
+[Web Vitals](https://web.dev/vitals/)は、ウェブページのユーザーエクスペリエンスをとらえることを目指す一連の有用な指標です。以下のWeb Vitalsがすべて含まれています：
+
+- [Time to First Byte](https://developer.mozilla.org/docs/Glossary/Time_to_first_byte) (TTFB)
+- [First Contentful Paint](https://developer.mozilla.org/docs/Glossary/First_contentful_paint) (FCP)
+- [Largest Contentful Paint](https://web.dev/lcp/) (LCP)
+- [First Input Delay](https://web.dev/fid/) (FID)
+- [Cumulative Layout Shift](https://web.dev/cls/) (CLS)
+- [Interaction to Next Paint](https://web.dev/inp/) (INP)
+
+You can handle all the results of these metrics using the `name` property.
+
+<PagesOnly>
+
+```jsx:pages/_app.js
+import { useReportWebVitals } from 'next/web-vitals'
+
+function MyApp({ Component, pageProps }) {
+  useReportWebVitals((metric) => {
+    switch (metric.name) {
+      case 'FCP': {
+        // handle FCP results
+      }
+      case 'LCP': {
+        // handle LCP results
+      }
+      // ...
+    }
+  })
+
+  return <Component {...pageProps} />
+}
+```
+
+</PagesOnly>
+
+<AppOnly>
+
+```tsx:app/components/web-vitals.tsx
+'use client'
+
+import { useReportWebVitals } from 'next/web-vitals'
+
+export function WebVitals() {
+  useReportWebVitals((metric) => {
+    switch (metric.name) {
+      case 'FCP': {
+        // handle FCP results
+      }
+      case 'LCP': {
+        // handle LCP results
+      }
+      // ...
+    }
+  })
+}
+```
+
+```jsx:app/components/web-vitals.js
+'use client'
+
+import { useReportWebVitals } from 'next/web-vitals'
+
+export function WebVitals() {
+  useReportWebVitals((metric) => {
+    switch (metric.name) {
+      case 'FCP': {
+        // handle FCP results
+      }
+      case 'LCP': {
+        // handle LCP results
+      }
+      // ...
+    }
+  })
+}
+```
+
+</AppOnly>
+
+<PagesOnly>
+
+## Custom Metrics
+
+上記のコアメトリクスに加えて、ページがハイドレート(hydrate)し、 render するまでの時間を測定する追加のカスタムメトリクスがいくつかあります。
+
+- `Next.js-hydration`: Length of time it takes for the page to start and finish hydrating (in ms)
+- `Next.js-route-change-to-render`: route 変更後にページが start renderingを開始するまでの時間(ミリ秒単位)
+- `Next.js-render`: Length of time it takes for a page to finish render after a route change (in ms)
+
+You can handle all the results of these metrics separately:
+
+```js
+export function reportWebVitals(metric) {
+  switch (metric.name) {
+    case 'Next.js-hydration':
+      // handle hydration results
+      break
+    case 'Next.js-route-change-to-render':
+      // handle route-change to render results
+      break
+    case 'Next.js-render':
+      // handle render results
+      break
+    default:
+      break
+  }
+}
+```
+
+These metrics work in all browsers that support the [User Timing API](https://caniuse.com/#feat=user-timing).
+
+</PagesOnly>
+
+## Usage on Vercel
+
+[Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) はVercelのデプロイに自動的に設定されており、`useReportWebVitals`の使用をrequireする必要はありません。このhookはローカルのdevelopmentや、別のanalyticsサービスを使用している場合に便利です。
+
+## Sending results to external systems
+
+You can send results to any endpoint to measure and track real user performance on your site. For example:
+
+```js
+useReportWebVitals((metric) => {
+  const body = JSON.stringify(metric)
+  const url = 'https://example.com/analytics'
+
+  // Use `navigator.sendBeacon()` if available, falling back to `fetch()`.
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(url, body)
+  } else {
+    fetch(url, { body, method: 'POST', keepalive: true })
+  }
+})
+```
+
+> **Good to know**: If you use [Google Analytics](https://analytics.google.com/analytics/web/), using the
+> `id` value can allow you to construct metric distributions manually (to calculate percentiles,
+> etc.)
+
+> ```js
+> useReportWebVitals(metric => { 
+>   // Use `window.gtag` if you initialized Google Analytics as this example:
+>   // https://github.com/vercel/next.js/blob/canary/examples/with-google-analytics/pages/_app.js
+>   window.gtag('event', metric.name, {
+>     value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value), // valueは整数でなければなりません
+>     event_label: metric.id, // id unique to current page load
+>     non_interaction: true, // avoids affecting bounce rate.
+> });
+> }
+> ```
+>
+> Read more about [sending results to Google Analytics](https://github.com/GoogleChrome/web-vitals#send-the-results-to-google-analytics).

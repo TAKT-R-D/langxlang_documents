@@ -1,0 +1,50 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/optimizePackageImports.mdx
+title: optimizePackageImports
+description: API Reference for optmizedPackageImports Next.js Config Option
+org_title: optimizePackageImports
+org_path: /docs/app/api-reference/next-config-js/optimizePackageImports
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+一部のパッケージでは、何百もの、あるいは何千もの modules を export することができ、これが development や production でパフォーマンスの問題を引き起こすことがあります。
+
+`experimental.optimizePackageImports`にパッケージを追加すると、実際に使用しているmodulesのみがロードされ、多数の名前付きexportでimportステートメントを書く便利さを保ちながらも、ロードされます。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    optimizePackageImports: ['package-name'],
+  },
+}
+```
+
+次のライブラリはdefaultにより最適化されています：
+
+- `lucide-react`
+- `date-fns`
+- `lodash-es`
+- `ramda`
+- `antd`
+- `react-bootstrap`
+- `ahooks`
+- `@ant-design/icons`
+- `@headlessui/react`
+- `@headlessui-float/react`
+- `@heroicons/react/20/solid`
+- `@heroicons/react/24/solid`
+- `@heroicons/react/24/outline`
+- `@visx/visx`
+- `@tremor/react`
+- `rxjs`
+- `@mui/material`
+- `@mui/icons-material`
+- `recharts`
+- `react-use`
+- `@material-ui/core`
+- `@material-ui/icons`
+- `@tabler/icons-react`
+- `mui-core`
+- `react-icons/*`

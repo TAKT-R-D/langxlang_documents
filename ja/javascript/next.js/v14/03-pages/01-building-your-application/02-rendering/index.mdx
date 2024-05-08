@@ -1,0 +1,25 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/02-rendering/index.mdx
+title: Rendering
+description: Learn the fundamentals of rendering in React and Next.js.
+org_title: Rendering
+org_path: /docs/pages/building-your-application/rendering
+is_empty: false
+---
+
+defaultで、Next.jsはすべてのページを**事前にレンダリング**します。これは、Next.jsが各ページのHTMLをあらかじめ生成し、それがすべてClientサイドのJavaScriptによって行われるのではないことを意味します。事前レンダリングは、パフォーマンスとSEOの向上につながる可能性があります。
+
+それぞれ生成されたHTMLは、そのページに必要な最小限のJavaScript codeと関連付けられています。ページがブラウザによって読み込まれると、そのJavaScript codeが実行され、ページを完全に対話型にします(このプロセスはReactでは[hydration](https://react.dev/reference/react-dom/client/hydrateRoot)と呼ばれています)。
+
+### Pre-rendering
+
+ Next.js は、事前レンダリングに2つの形式があります： **静的生成**と ** Server-side Rendering**。違いは、ページの HTML を**いつ**生成するかにあります。
+
+- 静的生成: HTMLは**build時**に生成され、各requestで再利用されます。
+- Server-side Rendering : **各々の request **において、 HTML が生成されます。
+
+重要な点として、Next.jsは各ページで使用したいプレレンダリング形式を選択できます。ほとんどのページで静的生成を使用し、他のページでServer-side Renderingを使用することで、"ハイブリッド"のNext.js appを作成することができます。
+
+パフォーマンスの観点から、Server-side RenderingよりもStatic Generationの使用を推奨します。静的に生成されたページは、パフォーマンスを向上させるためにCDNにより追加の設定なしでキャッシュできます。ただし、一部のケースでは、Server-side Renderingが唯一の選択肢になるかもしれません。
+
+Yまた、静的生成やServer-side RenderingとともにClient側データ取得を使用することもできます。つまり、ページの一部はClient側のJavaScriptによって完全にレンダリングできるということです。詳しくは、[Data Fetching](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/05-client-side)のドキュメンテーションをご覧ください。

@@ -1,0 +1,217 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/01-routing/01-pages-and-layouts.mdx
+title: Pages and Layouts
+description: Create your first page and shared layout with the Pages Router.
+org_title: Pages and Layouts
+org_path: /docs/pages/building-your-application/routing/pages-and-layouts
+is_empty: false
+---
+
+Pages Routerは、ページの概念に基づいて構築されたファイルシステムベースのrouterを持っています。
+
+ファイルが `pages` ディレクトリに追加されると、それは自動的に routeとして利用できます。
+
+ Next.js では、**ページ**は、`pages` ディレクトリの `.js`、`.jsx`、`.ts`、または `.tsx` ファイルからエクスポートされる[React Component](https://react.dev/learn/your-first-component)です。各ページは、そのファイル名に基づいた route に関連付けられています。
+
+**例**: 下記のような React component をエクスポートする `pages/about.js` を作成すると、`/about` でアクセス可能になります。
+
+```jsx
+export default function About() {
+  return <div>About</div>
+}
+```
+
+## Index routes
+
+routerは、`index`と名付けられたファイルをディレクトリのrootに自動的にrouteします。
+
+- `pages/index.js` → `/`
+- `pages/blog/index.js` → `/blog`
+
+## Nested routes
+
+このrouterはネストされたファイルをサポートしています。ネストされたフォルダ構造を作成すると、ファイルは自動的に同じようにルーティングされます。
+
+- `pages/blog/first-post.js` → `/blog/first-post`
+- `pages/dashboard/settings/username.js` → `/dashboard/settings/username`
+
+## Pages with Dynamic Routes
+
+Next.jsは、dynamic routesを含むページをサポートします。たとえば、`pages/posts/[id].js`というファイルを作成すると、`posts/1`、`posts/2`などでアクセスできます。
+
+> 詳しくはDynamicルーティングについては、[dynamic Routing documentation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)をご覧ください。
+
+## Layout Pattern
+
+Reactモデルでは、[page](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts)を一連のComponentに分解することが可能です。これらのComponentの多くは、ページ間で頻繁に再利用されます。例えば、すべてのページで同じナビゲーションバーとフッターを使用する可能性があります。
+
+```jsx:components/layout.js
+import Navbar from './navbar'
+import Footer from './footer'
+
+export default function Layout({ children }) {
+  return (
+    <>
+      <Navbar />
+      <main>{children}</main>
+      <Footer />
+    </>
+  )
+}
+```
+
+## Examples
+
+### シングル共有のLayoutとカスタムのApp
+
+あなたがアプリケーション全体で1つだけのlayoutを持っている場合、[Custom App](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を作成し、そのアプリケーションをlayoutで包むことができます。 `<Layout />` componentはページを変更するときに再利用されるため、そのcomponentの状態は保持されます(例：入力値)。
+
+```jsx:pages/_app.js
+import Layout from '../components/layout'
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  )
+}
+```
+
+### ページごとのLayout
+
+複数のレイアウトが必要な場合は、`getLayout`プロパティをページに追加して、 React component を layout として返すことができます。これにより、_ページごとの基準_で layout を定義することができます。関数を返しているので、必要に応じて複雑なネスティングされたレイアウトを持つことができます。
+
+```jsx:pages/index.js
+
+import Layout from '../components/layout'
+import NestedLayout from '../components/nested-layout'
+
+export default function Page() {
+  return (
+    /** Your content */
+  )
+}
+
+Page.getLayout = function getLayout(page) {
+  return (
+    <Layout>
+      <NestedLayout>{page}</NestedLayout>
+    </Layout>
+  )
+}
+```
+
+```jsx:pages/_app.js
+export default function MyApp({ Component, pageProps }) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout ?? ((page) => page)
+
+  return getLayout(<Component {...pageProps} />)
+}
+```
+
+ページ間を移動する際には、シングルページアプリケーション(SPA)の経験のために、ページの状態(入力値、scrollの位置、など)を_persist_したいと考えています。
+
+このlayoutパターンは、ページの遷移間でReact componentツリーが維持されるため、状態の持続性を可能にします。 componentツリーにより、Reactはどの要素が変更されたかを理解し、状態を保持することができます。
+
+> **Good to know**: このプロセスは[調整](https://react.dev/learn/preserving-and-resetting-state)と呼ばれ、これが React がどの要素が変更されたかを理解する方法です。
+
+### TypeScriptと一緒に
+
+TypeScriptを使用するとき、まず`getLayout`関数を含むあなたのページの新しいtypeを作成する必要があります。次に、先ず作成したtypeを使用するために、あなたの `AppProps`の新しい type を作成して `Component`プロパティをオーバーライドする必要があります。
+
+```tsx:pages/index.tsx
+import type { ReactElement } from 'react'
+import Layout from '../components/layout'
+import NestedLayout from '../components/nested-layout'
+import type { NextPageWithLayout } from './_app'
+
+const Page: NextPageWithLayout = () => {
+  return <p>hello world</p>
+}
+
+Page.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <Layout>
+      <NestedLayout>{page}</NestedLayout>
+    </Layout>
+  )
+}
+
+export default Page
+```
+
+```jsx:pages/index.js
+import Layout from '../components/layout'
+import NestedLayout from '../components/nested-layout'
+
+const Page = () => {
+  return <p>hello world</p>
+}
+
+Page.getLayout = function getLayout(page) {
+  return (
+    <Layout>
+      <NestedLayout>{page}</NestedLayout>
+    </Layout>
+  )
+}
+
+export default Page
+```
+
+```tsx:pages/_app.tsx
+import type { ReactElement, ReactNode } from 'react'
+import type { NextPage } from 'next'
+import type { AppProps } from 'next/app'
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout ?? ((page) => page)
+
+  return getLayout(<Component {...pageProps} />)
+}
+```
+
+```jsx:pages/_app.js
+export default function MyApp({ Component, pageProps }) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout ?? ((page) => page)
+
+  return getLayout(<Component {...pageProps} />)
+}
+```
+
+### データ取得
+
+あなたの layout の中で、`useEffect`を使用するか、[SWR](https://swr.vercel.app/)のような library を使ってクライアントサイドでデータを fetch することができます。このファイルは[Page](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts)ではないため、現在`getStaticProps`や`getServerSideProps`は使うことができません。
+
+```jsx:components/layout.js
+import useSWR from 'swr'
+import Navbar from './navbar'
+import Footer from './footer'
+
+export default function Layout({ children }) {
+  const { data, error } = useSWR('/api/navigation', fetcher)
+
+  if (error) return <div>Failed to load</div>
+  if (!data) return <div>Loading...</div>
+
+  return (
+    <>
+      <Navbar links={data.links} />
+      <main>{children}</main>
+      <Footer />
+    </>
+  )
+}
+```

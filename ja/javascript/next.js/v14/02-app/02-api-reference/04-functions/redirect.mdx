@@ -1,0 +1,144 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/redirect.mdx
+title: redirect
+description: API Reference for the redirect function.
+org_title: redirect
+org_path: /docs/app/api-reference/functions/redirect
+is_empty: false
+---
+
+`redirect`関数により、ユーザーを他の URL に redirect することができます。 `redirect`は、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Route](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、および[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で使用することができます。
+
+[Streamingのcontext](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#what-is-streaming)で使用すると、これはclient側でredirectを発生させるmetaタグを挿入します。 server actionで使用すると、呼び出し元に対して303のHTTP redirect responseを提供します。それ以外の場合、呼び出し元に対して307のHTTP redirect responseを提供します。
+
+If a resource doesn't exist, you can use the [`notFound` function](/docs/app/api-reference/functions/not-found) instead.
+
+> **Good to know**:
+>
+> - Server ActionsとRouteハンドラーにおいて、`redirect`は`try/catch`ブロックの後で呼び出されるべきです。
+> - もし307(一時的)ではなく、308(Permanent)のHTTP redirectを返すことを好む場合は、代わりに[`permanentRedirect`関数](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)を使用できます。
+
+## Parameters
+
+`redirect` 関数は2つの引数を受け入れます：
+
+```js
+redirect(path, type)
+```
+
+| パラメータ | Type | Description |
+| --------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
+| `path` | `string` | redirect 先の URL 。相対パスまたは絶対 path を指定できます。|
+| `type` | `'replace'` ( default ) または `'push'` ( Server Actions での default ) | 実行する redirect の type 。|
+
+ default では、`redirect`は`push`(ブラウザの履歴 stack に新しいエントリを追加する)を [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で、そして`replace`(ブラウザの履歴 stack の現在の URL を置き換える)をそれ以外の所有所で使用します。この挙動は`type`パラメータを指定することで上書きできます。
+
+The `type` parameter has no effect when used in Server Components.
+
+## Returns
+
+`redirect`はどんなvalueも返しません。
+
+## Example
+
+### Server Component
+
+`redirect()`関数を呼び出すと、`NEXT_REDIRECT`errorがスローされて、スローされたrouteセグメントのレンダリングが終了します。
+
+```jsx:app/team/[id]/page.js
+import { redirect } from 'next/navigation'
+
+async function fetchTeam(id) {
+  const res = await fetch('https://...')
+  if (!res.ok) return undefined
+  return res.json()
+}
+
+export default async function Profile({ params }) {
+  const team = await fetchTeam(params.id)
+  if (!team) {
+    redirect('/login')
+  }
+
+  // ...
+}
+```
+
+> **良いことに気がついた**: `redirect`は、必要としません `return redirect()`の使用に対して、それはTypeScript [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) typeを使います。
+
+### Client Component
+
+`redirect`は、 Client Component を通じて Server Action で使用できます。イベント handler を使ってユーザーを redirect する必要がある場合、[`useRouter`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router) hook を使用できます。
+
+```tsx:app/client-redirect.tsx
+'use client'
+
+import { navigate } from './actions'
+
+export function ClientRedirect() {
+  return (
+    <form action={navigate}>
+      <input type="text" name="id" />
+      <button>Submit</button>
+    </form>
+  )
+}
+```
+
+```jsx:app/client-redirect.jsx
+'use client'
+
+import { navigate } from './actions'
+
+export function ClientRedirect() {
+  return (
+    <form action={navigate}>
+      <input type="text" name="id" />
+      <button>Submit</button>
+    </form>
+  )
+}
+```
+
+```ts:app/actions.ts
+'use server'
+
+import { redirect } from 'next/navigation'
+
+export async function navigate(data: FormData) {
+  redirect(`/posts/${data.get('id')}`)
+}
+```
+
+```js:app/actions.js
+'use server'
+
+import { redirect } from 'next/navigation'
+
+export async function navigate(data) {
+  redirect(`/posts/${data.get('id')}`)
+}
+```
+
+## FAQ
+
+### なぜ `redirect` は 307 と 308 を使用するのですか？
+
+`redirect()`を使用すると、一時的な redirect には`307`が使用され、 permanent redirect には`308`が使用されることに気づくかもしれません。伝統的には、一時的な redirect には`302`が、 permanent redirect には`301`が使用されていましたが、多くのブラウザは redirect の request method を、元の request method に関係なく、`302`を使用するときに`POST`から`GET` request に変更しました。
+
+次の `/users` から `/people` への redirect の例を考えてみましょう。新しいユーザーを作成するために `/users` に `POST` request を行い、 `302` の一時的な redirect に準拠していると、 request method は `POST` から `GET` request に変更されます。しかしこれは理にかなっていません。新しいユーザーを作成するには、 `/people` に対して `POST` request を行うべきであり、 `GET` request は行うべきではありません。
+
+`307`ステータスの導入は、request methodが`POST`として保持されることを意味します。
+
+- `302` - 一時的なredirectは、request methodを `POST` から `GET` に変更します
+- `307` - 一時的な redirect で、 request method を `POST` のまま保存します
+
+`redirect()` methodは、`302`の一時的なredirectではなく、defaultで`307`を使用します。これは、あなたのRequestが常に`POST`Requestとして保持されることを意味します。
+
+[Learn more](https://developer.mozilla.org/docs/Web/HTTP/Redirections)についてHTTP Redirectsを学びましょう。
+
+## Version History
+
+| Version | Changes |
+| --------- | ---------------------- |
+| `v13.0.0` | `redirect`が導入されました。|

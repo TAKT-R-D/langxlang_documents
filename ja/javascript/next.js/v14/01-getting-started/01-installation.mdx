@@ -1,0 +1,193 @@
+---
+filePath: source/next.js/docs/01-getting-started/01-installation.mdx
+title: Installation
+description: Create a new Next.js application with 'create-next-app'. Set up TypeScript, styles, and configure your 'next.config.js' file.
+org_title: Installation
+org_path: /docs/getting-started/installation
+is_empty: false
+---
+
+システム要件:
+
+- [Node.js 18.17](https://nodejs.org/) またはそれ以降。
+- macOS、Windows(WSLを含む)、およびLinuxがサポートされています。
+
+## Automatic Installation
+
+私たちは、あなたのために全てを自動的に設定する[`create-next-app`](/ja/javascript/next.js/v14/02-app/02-api-reference/06-create-next-app)を使用して新しいNext.js appを開始することをお勧めします。プロジェクトを作成するには、次の操作を実行してください：
+
+```bash:Terminal
+npx create-next-app@latest
+```
+
+インストール時に、次のプロンプトが表示されます：
+
+```txt:Terminal
+What is your project named? my-app
+Would you like to use TypeScript? No / Yes
+Would you like to use ESLint? No / Yes
+Would you like to use Tailwind CSS? No / Yes
+Would you like to use `src/` directory? No / Yes
+Would you like to use App Router? (recommended) No / Yes
+Would you like to customize the default import alias (@/*)? No / Yes
+What import alias would you like configured? @/*
+```
+
+プロンプトの後で、`create-next-app`はプロジェクト名のフォルダを作成し、必要な依存関係をインストールします。
+
+もしNext.jsに初めて取り組むなら、全ての可能なファイルやフォルダーについての概観を得るために、[プロジェクトの構造](/ja/javascript/next.js/v14/01-getting-started/02-project-structure)のドキュメントをご覧ください。
+
+> **Good to know**:
+>
+> - Next.jsは現在、[TypeScript](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript)、[ESLint](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/02-eslint)、そして[Tailwind CSS](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/02-tailwind-css)の設定をdefaultで提供しています。
+> - あなたは、プロジェクトのroot内に [`src` directory](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/06-src-directory)をオプションで使用して、アプリケーションのcodeを設定ファイルから分離することができます。
+
+## Manual Installation
+
+手動で新しいNext.js appを作成するには、必要なパッケージをインストールしてください:
+
+```bash:Terminal
+npm install next@latest react@latest react-dom@latest
+```
+
+あなたの`package.json`ファイルを開き、以下の`scripts`を追加してください：
+
+```json:package.json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  }
+}
+```
+
+これらのscriptsは、アプリケーションを開発するさまざまなステージを指しています：
+
+- `dev`: [`next dev`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#development) を実行し、 start Next.js を development モードで起動します。
+- `build`: は、 production 用途のアプリケーションを build するために[`next build`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#build)を実行します。
+- `start`： start として[`next start`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#production)を実行し、 Next.js production server を起動します。
+- `lint`: [`next lint`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#lint)を実行して、 Next.jsの組み込みの ESLint 設定をセットアップします。
+
+### ディレクトリの作成
+
+Next.jsはファイルシステムルーティングを使用しており、これはアプリケーション内のroutesがあなたがファイルを構造化する方法によって決定されることを意味します。
+
+#### `app`ディレクトリ
+
+新しいアプリケーションについては、[App Router](/ja/javascript/next.js/v14/02-app)の使用をお勧めします。このrouterを使用することで、Reactの最新の機能を使用することができ、[Pages Router](/ja/javascript/next.js/v14/03-pages)の進化版であり、コミュニティのフィードバックに基づいています。
+
+`app/` フォルダを作成し、その後 `layout.tsx` と `page.tsx` ファイルを追加してください。これらは、ユーザーがアプリケーションのroot(`/`)を訪れたときにレンダリングされます。
+
+<Image
+  alt="App Folder Structure"
+  srcLight="/docs/light/app-getting-started.png"
+  srcDark="/docs/dark/app-getting-started.png"
+  width="1600"
+  height="363"
+/>
+
+`app/layout.tsx`の中に必要な`<html>`と`<body>`タグを持つ[root layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)を作成してください。
+
+```tsx:app/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+```jsx:app/layout.js
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+最後に、初期コンテンツを含むホームページ `app/page.tsx` を作成してください：
+
+```tsx:app/page.tsx
+export default function Page() {
+  return <h1>Hello, Next.js!</h1>
+}
+```
+
+```jsx:app/page.js
+export default function Page() {
+  return <h1>Hello, Next.js!</h1>
+}
+```
+
+> **Good to know**: もし`layout.tsx`を作成し忘れた場合、 Next.js は`next dev`で development server を実行するときに自動的にこのファイルを作成します。
+
+[App Routerの使用方法](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)について詳しく学びましょう。
+
+#### `pages` ディレクトリ(オプション)
+
+App Routerの代わりにPages Routerを使用することを選好するなら、プロジェクトのrootに`pages/`ディレクトリを作成することができます。
+
+次に、`pages`フォルダの中に`index.tsx`ファイルを追加します。これがホームページ(`/`)になります：
+
+```tsx:pages/index.tsx
+export default function Page() {
+  return <h1>Hello, Next.js!</h1>
+}
+```
+
+次に、グローバルなlayoutを定義するために、`pages/`内に`_app.tsx`ファイルを追加します。[カスタム App ファイル](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)について詳しくはこちら。
+
+```tsx:pages/_app.tsx
+import type { AppProps } from 'next/app'
+
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />
+}
+```
+
+```jsx:pages/_app.js
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />
+}
+```
+
+最後に、`pages/`内に`_document.tsx`ファイルを追加して、serverからの初期のresponseを制御します。[カスタムのDocumentファイル](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/06-custom-document)についてもっと学びましょう。
+
+```tsx:pages/_document.tsx
+import { Html, Head, Main, NextScript } from 'next/document'
+
+export default function Document() {
+  return (
+    <Html>
+      <Head />
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  )
+}
+```
+
+[Pages Routerの使用](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts)についてもっと学びましょう。
+
+> **Good to know**: 同じプロジェクトで両方のルーターを使えるとはいえ、`app`の中の routes は`pages`よりも優先されます。混乱を避けるため、新しいプロジェクトでは一つの router だけを使用することをお勧めします。
+
+#### `public`フォルダ(オプショナル)
+
+`public`フォルダを作成して、画像やフォントなどの静的なアセットを保存します。`public`ディレクトリ内のファイルは、ベースのURL (`/`)から始まるあなたのcodeで参照することができます。
+
+## Run the Development Server
+
+1. `npm run dev`を実行してdevelopment serverをstartしてください。
+2. あなたのアプリケーションを表示するには、`http://localhost:3000`を訪問してください。
+3. E`app/page.tsx`(または`pages/index.tsx`)ファイルを編集し、それを保存すると、ブラウザで更新結果を確認することができます。

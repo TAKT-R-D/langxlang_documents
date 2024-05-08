@@ -1,0 +1,62 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/01-routing/02-dynamic-routes.mdx
+title: Dynamic Routes
+description: Dynamic Routes are pages that allow you to add custom params to your URLs. Start creating Dynamic Routes and learn more here.
+org_title: Dynamic Routes
+org_path: /docs/pages/building-your-application/routing/dynamic-routes
+is_empty: false
+---
+
+あらかじめ正確なセグメント名を知らない場合や、routesをDynamicデータから作成したい場合は、dynamic Segmentsを使用して、request時に入力したり、build時に[prerendered](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)したりできます。
+
+## Convention
+
+Dynamicセグメントは、ファイル名やフォルダ名を角括弧で囲むことで作成できます：`[segmentName]`。例えば、`[id]`や`[slug]`のようになります。
+
+Dynamicセグメントは、[`useRouter`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)からアクセスできます。
+
+## Example
+
+たとえば、ブログには次のようなroute`pages/blog/[slug].js`が含まれることがあります。ここで、`[slug]`はブログ投稿のためのDynamicセグメントです。
+
+```jsx
+import { useRouter } from 'next/router'
+
+export default function Page() {
+  const router = useRouter()
+  return <p>Post: {router.query.slug}</p>
+}
+```
+
+| Route | Example URL | `params` |
+| ---------------------- | ----------- | --------------- |
+| `pages/blog/[slug].js` | `/blog/a` | `{ slug: 'a' }` |
+| `pages/blog/[slug].js` | `/blog/b` | `{ slug: 'b' }` |
+| `pages/blog/[slug].js` | `/blog/c` | `{ slug: 'c' }` |
+
+## Catch-all Segments
+
+Dynamicセグメントは、ブラケット内に省略記号を追加することで、後続のセグメントをすべて**catch-all**できるように拡張できます。`[...segmentName]`。
+
+例えば、`pages/shop/[...slug].js`は`/shop/clothes`に一致しますが、`/shop/clothes/tops`、`/shop/clothes/tops/t-shirts`なども一致します。
+
+| Route | Example URL | `params` |
+| ------------------------- | ------------- | --------------------------- |
+| `pages/shop/[...slug].js` | `/shop/a` | `{ slug: ['a'] }` |
+| `pages/shop/[...slug].js` | `/shop/a/b` | `{ slug: ['a', 'b'] }` |
+| `pages/shop/[...slug].js` | `/shop/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |
+
+## Optional Catch-all Segments
+
+Catch-allセグメントはダブルスクエアブラケット内にパラメータを含めることで**オプショナル**にすることができます：`[[...segmentName]]`。
+
+たとえば、`pages/shop/[[...slug]].js`は、`/shop/clothes`、`/shop/clothes/tops`、`/shop/clothes/tops/t-shirts`に加えて、`/shop`と**も**一致します。
+
+The difference between **catch-all**and**optional catch-all** segments is that with optional, the route without the parameter is also matched (`/shop` in the example above).
+
+| Route | Example URL | `params` |
+| --------------------------- | ------------- | --------------------------- |
+| `pages/shop/[[...slug]].js` | `/shop` | `{ slug: [] }` |
+| `pages/shop/[[...slug]].js` | `/shop/a` | `{ slug: ['a'] }` |
+| `pages/shop/[[...slug]].js` | `/shop/a/b` | `{ slug: ['a', 'b'] }` |
+| `pages/shop/[[...slug]].js` | `/shop/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |

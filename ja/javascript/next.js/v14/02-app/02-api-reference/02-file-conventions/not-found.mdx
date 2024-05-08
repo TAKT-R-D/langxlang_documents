@@ -1,0 +1,97 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/not-found.mdx
+title: not-found.js
+description: API reference for the not-found.js file.
+org_title: not-found.js
+org_path: /docs/app/api-reference/file-conventions/not-found
+is_empty: false
+---
+
+**not-found** ファイルは、[`notFound`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found) 関数が route セグメント内でスローされた時、UIをrenderするために使用されます。カスタムUIを提供するとともに、Next.jsは、ストリーム化された応答に対しては `200` のHTTPステータスcodeを、ストリーム化されていない応答に対しては `404` を返します。
+
+```tsx:app/not-found.tsx
+import Link from 'next/link'
+
+export default function NotFound() {
+  return (
+    <div>
+      <h2>Not Found</h2>
+      <p>Could not find requested resource</p>
+      <Link href="/">Return Home</Link>
+    </div>
+  )
+}
+```
+
+```jsx:app/blog/not-found.js
+import Link from 'next/link'
+
+export default function NotFound() {
+  return (
+    <div>
+      <h2>Not Found</h2>
+      <p>Could not find requested resource</p>
+      <Link href="/">Return Home</Link>
+    </div>
+  )
+}
+```
+
+> **Good to know**: 期待される `notFound()` errorの捕捉に加えて、 root `app/not-found.js` ファイルは、アプリケーション全体に対する一致しない app も処理します。つまり、ユーザーがアプリが処理していない URL を訪れると、`app/not-found.js` ファイルでエクスポートされたUIが表示されます。
+
+## Props
+
+`not-found.js`Componentは、どんなpropsも受け入れません。
+
+## Data Fetching
+
+defaultによると、`not-found`はServer Componentです。それを`async`としてマークして、フェッチしてディスプレイするデータ:
+
+```tsx:app/not-found.tsx
+import Link from 'next/link'
+import { headers } from 'next/headers'
+
+export default async function NotFound() {
+  const headersList = headers()
+  const domain = headersList.get('host')
+  const data = await getSiteData(domain)
+  return (
+    <div>
+      <h2>Not Found: {data.name}</h2>
+      <p>Could not find requested resource</p>
+      <p>
+        View <Link href="/blog">all posts</Link>
+      </p>
+    </div>
+  )
+}
+```
+
+```jsx:app/not-found.jsx
+import Link from 'next/link'
+import { headers } from 'next/headers'
+
+export default async function NotFound() {
+  const headersList = headers()
+  const domain = headersList.get('host')
+  const data = await getSiteData(domain)
+  return (
+    <div>
+      <h2>Not Found: {data.name}</h2>
+      <p>Could not find requested resource</p>
+      <p>
+        View <Link href="/blog">all posts</Link>
+      </p>
+    </div>
+  )
+}
+```
+
+`usePathname`のような Client Component フックを使って path に基づいた内容を display する必要がある場合、クライアント側でデータを fetch する必要があります。
+
+## Version History
+
+| Version | Changes |
+| --------- | --------------------------------------------------- |
+| `v13.3.0` | Root はグローバルに一致しないURLを処理する `app/not-found` 。|
+| `v13.0.0` | `not-found` 導入されました。|

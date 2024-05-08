@@ -1,0 +1,156 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/10-upgrading/07-version-12.mdx
+title: Version 12
+description: Upgrade your Next.js Application from Version 11 to Version 12.
+org_title: Version 12
+org_path: /docs/pages/building-your-application/upgrading/version-12
+is_empty: false
+---
+
+version 12にアップグレードするには、次のコマンドを実行します：
+
+```bash:Terminal
+npm i next@12 react@17 react-dom@17 eslint-config-next@12
+```
+
+```bash:Terminal
+yarn add next@12 react@17 react-dom@17 eslint-config-next@12
+```
+
+```bash:Terminal
+pnpm up next@12 react@17 react-dom@17 eslint-config-next@12
+```
+
+```bash:Terminal
+bun add next@12 react@17 react-dom@17 eslint-config-next@12
+```
+
+> **知っておくべきこと：** TypeScript を使用している場合、`@types/react`と`@types/react-dom`もそれぞれ対応するバージョンにアップグレードしてください。
+
+### 12.2へのアップグレード
+
+[Middleware](/docs/messages/middleware-upgrade-guide) - もし`12.2`より前にMiddlewareを使用していた場合、詳細な情報については[アップグレードガイド](/docs/messages/middleware-upgrade-guide)をご覧ください。
+
+### 12.0へのアップグレード
+
+[最低の Node.js Version](https://nodejs.org/en/) - 最低 Node.js version は`12.0.0`から`12.22.0`に引き上げられました。これがネイティブES Modules サポートを持つ最初の version の Node.js です。
+
+[最低限必要なReact Version](https://reactjs.org/docs/add-react-to-a-website.html) - 最低限必要なReact versionは `17.0.2`です。アップグレードするためには、ターミナルで以下のコマンドを実行できます。
+
+```bash:Terminal
+npm install react@latest react-dom@latest
+
+yarn add react@latest react-dom@latest
+
+pnpm update react@latest react-dom@latest
+
+bun add react@latest react-dom@latest
+```
+
+#### SWCがBabelを置き換える
+
+Next.jsは現在、JavaScript/TypeScriptをコンパイルするためにRustベースのcompiler[SWC](https://swc.rs/)を使用しています。この新しいcompilerは、個々のファイルをコンパイルする際にBabelよりも最大17倍高速で、FastRefreshに対しては最大5倍高速です。
+
+Next.jsは、[カスタムのBabel設定](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/08-babel)を持つアプリケーションと完全に後方互換性を提供します。`getStaticProps` / `getStaticPaths` / `getServerSideProps`のstyled-jsxやtree-shakingのように Next.jsが defaultで扱うすべての変換はRustに移植されています。
+
+アプリケーションがカスタムの Babel 設定を持っている場合、Next.js は自動的に SWC の使用をオプトアウトし、Javascript / Typescriptのコンパイルに Babel を同じように使用するように Next.js 11で使用されていました。
+
+現在、Babelのカスタム変換を必要とする多くの外部ライブラリとの統合は、近い将来、RustベースのSWC変換に移植される予定です。これには以下が含まれますが、それに限定されません：
+
+- Styled Components
+- Emotion
+- Relay
+
+SWCを採用するのに役立つ変換を優先するために、あなたの `.babelrc` を[このフィードバック thread](https://github.com/vercel/next.js/discussions/30174)に提供してください。
+
+#### SWCがminificationのためのTerserを置き換え
+
+`next.config.js`のフラグを使用して、Terserを SWC に置き換えて、 JavaScript を最大7倍速く最小化するオプトインが可能です：
+
+```js:next.config.js
+module.exports = {
+  swcMinify: true,
+}
+```
+
+SWCを使用したMinificationは、それがNext.js12.1でdefaultになる前に、より多くの実際のNext.jsアプリケーションでテストできるように、オプトインフラグです。minificationに関するフィードバックがある場合は、[このフィードバックのthread](https://github.com/vercel/next.js/discussions/30237)にコメントを残してください。
+
+#### styled-jsx CSS 解析の改善
+
+我々はRustベースのcompilerの上に、styled-jsx Babel transformのために使用されるものに基づく新たなCSSパーサーを実装しました。この新パーサーはCSSの取り扱いを改善し、以前は見逃されがちだった無効なCSSの使用に対してerrorを出すようになり、予期しない挙動を引き起こすことがありました。
+
+この変更のため、無効なCSSは、developmentと`next build`の間にerrorをスローします。この変更は、styled-jsxの使用にのみ影響を与えます。
+
+#### `next/image` はラッピング要素を変更しました
+
+`next/image`は今、`<img>`を`<div>`の代わりに`<span>`内でレンダリングします。
+
+もしもあなたのアプリケーションが、`.container span`のような特定のCSSをターゲットにしている場合、Next.js 12にアップグレードすると、`<Image>` component内のラッピング要素が誤ってマッチする可能性があります。これを避けるには、セレクタを `.container span.item` のように特定のクラスに限定し、関連する component をその className で更新することで対処できます。たとえば、`<span className="item" />` のようにします。
+
+あなたのアプリケーションが特定のCSSを `next/image` `<div>` タグに適用している場合、たとえば `.container div` など、それはもう一致しないかもしれません。セレクター `.container span` を更新するか、できれば、新しい `<div className="wrapper">` を `<Image>` componentに追加して、その代わりに targetを設定してみてください。たとえば `.container .wrapper` のような形になります。
+
+`className`プロップは変更されておらず、基本となる`<img>`要素に引き続き渡されます。
+
+詳細については、[ドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#styling)をご覧ください。
+
+#### HMR接続は現在、WebSocketを使用しています
+
+以前、Next.jsは、HMRイベントを受信するために[server-sent events](https://developer.mozilla.org/docs/Web/API/Server-sent_events)接続を使用していました。Next.js12は現在、WebSocket接続を使用しています。
+
+一部のケースでは、 Next.js dev server へのリクエストをプロキシする際に、 request のアップグレードが正しく処理されることを確認する必要があります。たとえば、`nginx`では次の構成を追加する必要があります：
+
+```nginx
+location /_next/webpack-hmr {
+    proxy_pass http://localhost:3000/_next/webpack-hmr;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+```
+
+もしApache(2.x)を使っているなら、以下の設定を追加することで、serverにウェブソケットを有効にすることができます。port、hostの名前、そしてserverの名前を確認してください。
+
+```
+<VirtualHost *:443>
+ # ServerName yourwebsite.local
+ ServerName "${WEBSITE_SERVER_NAME}"
+ ProxyPass / http://localhost:3000/
+ ProxyPassReverse / http://localhost:3000/
+ # Next.js 12 uses websocket
+ <Location /_next/webpack-hmr>
+    RewriteEngine On
+    RewriteCond %{QUERY_STRING} transport=websocket [NC]
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule /(.*) ws://localhost:3000/_next/webpack-hmr/$1 [P,L]
+    ProxyPass ws://localhost:3000/_next/webpack-hmr retry=0 timeout=30
+    ProxyPassReverse ws://localhost:3000/_next/webpack-hmr
+ </Location>
+</VirtualHost>
+```
+
+カスタムserverの場合、例えば`express`のようなものでは、requestが正しく渡されることを確保するために、`app.all`を使用する必要があるかもしれません。例えば：
+
+```js
+app.all('/_next/webpack-hmr', (req, res) => {
+  nextjsRequestHandler(req, res)
+})
+```
+
+#### Webpack 4のサポートは削除されました
+
+すでにwebpack5を使用している場合は、このセクションをスキップできます。
+
+Next.jsは、Next.js11のコンパイルのためのdefaultとしてwebpack5を採用しました。[webpack 5 のアップグレードドキュメンテーション](/docs/messages/webpack5)で伝えられた通り、Next.js 12はwebpack 4のサポートを削除します。
+
+あなたのアプリケーションがまだwebpack 4をopt-outフラグを使って使用している場合、今後、errorが表示され、[webpack 5のアップグレードドキュメンテーション](/docs/messages/webpack5)へのリンクが表示されます。
+
+#### `target` オプションは廃止予定です
+
+`next.config.js`に`target`がない場合、このセクションをスキップすることができます。
+
+targetオプションは、ページの実行に必要な依存関係を追跡するための組み込みサポートを優先するため、非推奨となりました。
+
+`next build`の間に、Next.jsは自動的に各ページとその依存関係を追跡し、アプリケーションのproduction versionをデプロイするために必要なすべてのファイルを決定します。
+
+Iあなたが現在 `target` オプションを `serverless` に設定して使っている場合は、[新しいアウトプットを活用する方法についての文書](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/output)をご覧ください。

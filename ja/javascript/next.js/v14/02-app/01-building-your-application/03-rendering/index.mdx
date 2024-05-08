@@ -1,0 +1,82 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/03-rendering/index.mdx
+title: Rendering
+description: Learn the differences between Next.js rendering environments, strategies, and runtimes.
+org_title: Rendering
+org_path: /docs/app/building-your-application/rendering
+is_empty: false
+---
+
+レンダリングは、あなたが書いたcodeをユーザーインターフェースに変換します。ReactとNext.jsは、あなたのcodeの一部をserverまたはclient上でレンダリングできるハイブリッドなWebアプリケーションを作成することを可能にします。このセクションでは、これらのレンダリング環境、戦略、そしてruntimesについての違いを理解するのに役立ちます。
+
+## Fundamentals
+
+startと始めるにあたり、3つの基本的なウェブコンセプトに精通していると役立ちます：
+
+- あなたのアプリケーションのcodeが実行できる[Environments](#rendering-environments)： serverと clientです。
+- ユーザーがアプリケーションを訪問または操作すると開始される[Request-Response Lifecycle](#request-response-lifecycle)。
+- server と client code を分ける[ネットワーク境界](#network-boundary)。
+
+### レンダリング環境
+
+ウェブアプリケーションをレンダリングできる環境は二つあります： client と server。
+
+<Image
+  alt="Client and Server Environments"
+  srcLight="/docs/light/client-and-server-environments.png"
+  srcDark="/docs/dark/client-and-server-environments.png"
+  width="1600"
+  height="672"
+/>
+
+- **client**は、ユーザーのデバイス上のブラウザを指し、あなたのアプリケーションのcode用にserverへrequestを送ります。それから、serverからのresponseをユーザーインターフェースに変換します。
+- **server**は、あなたのアプリケーションのcodeを保存し、clientからのRequestを受け取り、適切なresponseを送り返すデータセンター内のコンピュータを指します。
+
+歴史的に、development者はserverやclientでコードを書く際に、異なる言語(例えばJavaScriptやPHP)やフレームワークを使用せざるを得ませんでした。Reactを使うことにより、development者は**同一の言語**(JavaScript)と**同一のフレームワーク**(例えばNext.jsや任意のフレームワーク)を使用することができます。この柔軟性により、コンテキストスイッチングなしで両方の環境でコードをシームレスに書くことが可能になります。
+
+しかし、各環境には自身の機能と制約があります。したがって、serverやclientに書くcodeは常に同じではありません。特定の操作(たとえば、データの取得やユーザー状態の管理)は、ある環境よりも他の環境の方が適していることがあります。
+
+これらの違いを理解することは、ReactとNext.jsを効果的に使うための鍵となります。詳細な違いと使用例については、[Server](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)と[Client](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)Componentページで詳しく説明しますが、今はまず私たちの基礎を築き上げることに焦点を当てましょう。
+
+### Request-Responseライフサイクル
+
+大まかに言えば、すべてのウェブサイトは同じ**Request-Response Lifecycle**に従います：
+
+1. **ユーザーアクション：** ユーザーはウェブアプリケーションと対話します。これは link をクリックしたり、フォームを送信したり、ブラウザのアドレスバーに直接 URL を入力したりすることが含まれます。
+2. ** HTTP Request ：** client は、要求されているリソースについての必要な情報、使用されている method (例：`GET`、`POST`)、および必要に応じて追加のデータを含む、[HTTP](https://developer.mozilla.org/docs/Web/HTTP) request を server に送信します。
+3. **server:** serverはrequestを処理し、適切なリソースで応答します。このプロセスにはルーティング、データの取得など、いくつかのステップが必要かもしれません。
+4. **HTTP response:** requestの処理後、serverはHTTPレスポンスをclientに送り返します。このresponseには、ステータスコード(requestが成功したかどうかをclientに伝えます)と要求されたリソース(例えば、HTML、CSS、JavaScript、静的アセットなど)が含まれています。
+5. **クライアント：** client はリソースを解析して、ユーザーインターフェースを render します。
+6. **ユーザーアクション:** ユーザーインターフェースがレンダリングされると、ユーザーはそれと対話することができ、全体のプロセスが再び始まります。
+
+ハイブリッドWebアプリケーションを構築する主要な部分の一つは、ライフサイクル内で作業をどのように分割し、Network Boundaryをどこに配置するかを決定することです。
+
+### ネットワーク境界
+
+ウェブのdevelopmentにおいて、**Network Boundary**は異なる環境を分離する概念的なラインです。たとえば、clientとserver、またはserverとデータストアの間などです。
+
+{/* Diagram: Network Boundary */}
+
+Reactでは、最も意味のある場所にClient-serverネットワークの境界を設定することを選びます。
+
+舞台裏では、作業は二つに分けられます：**client モジュールグラフ**と**server モジュールグラフ**です。 server モジュールグラフには、server上でレンダリングされる全てのComponentが含まれており、client モジュールグラフには、client上でレンダリングされる全てのComponentが含まれています。
+
+{/* Diagram: Client and Server Module Graphs */}
+
+あなたのアプリケーション内のファイルが互いにどのように依存しているかの視覚的表現としてmodule graphsを考えると役立つかもしれません。
+
+{/* For example, if you have a file called `Page.jsx` that imports a file called `Button.jsx` on the server, the module graph would look something like this: - Diagram - */}
+
+あなたは、境界を定義するために React の`"use client"`の規約を使用することができます。また、`"use server"`の規約もあり、これは React に server でいくつかの計算作業を行うように指示します。
+
+## Building Hybrid Applications
+
+これらの環境で働く際には、あなたのアプリケーションのcodeの流れを**unidirectional**、つまり一方向的と考えることが有効です。つまり、responseの間、あなたのアプリケーションのcodeは一方向に流れます：serverからclientへ。
+
+{/* Diagram: Response flow */}
+
+clientからserverにアクセスする必要がある場合、同じrequestを再利用するのではなく、**新しい**requestをserverに送信します。これにより、Componentをどこにrenderするべきか、また、ネットワーク境界をどこに設定すべきかを理解しやすくなります。
+
+実際には、このモデルは開発者に対し、結果をclientに送信しアプリケーションをインタラクティブにする前に、最初にserver上で実行したいことを考えるように奨励しています。
+
+Tこの概念は、同じcomponentツリー内であなたが[clientとserver componentsを交互に配置する](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/03-composition-patterns)方法を見るときに、より明確になります。

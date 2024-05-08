@@ -1,0 +1,24 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/mdxRs.mdx
+title: mdxRs
+description: Use the new Rust compiler to compile MDX files in the App Router.
+org_title: mdxRs
+org_path: /docs/app/api-reference/next-config-js/mdxRs
+is_empty: false
+---
+
+`@next/mdx`で使用するためのもの。新しいRustのcompilerを使ってMDXファイルをコンパイルします。
+
+```js:next.config.js
+const withMDX = require('@next/mdx')()
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  pageExtensions: ['ts', 'tsx', 'mdx'],
+  experimental: {
+    mdxRs: true,
+  },
+}
+
+module.exports = withMDX(nextConfig)
+```

@@ -1,0 +1,371 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/use-search-params.mdx
+title: useSearchParams
+description: API Reference for the useSearchParams hook.
+org_title: useSearchParams
+org_path: /docs/app/api-reference/functions/use-search-params
+is_empty: false
+---
+
+`useSearchParams`は、現在のURLの**query string**を読み取ることができる**Client Component**のhookです。
+
+`useSearchParams`は、[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)インターフェースの**読み取り専用**のversionを返します。
+
+```tsx:app/dashboard/search-bar.tsx
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function SearchBar() {
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search')
+
+  // URL -> `/dashboard?search=my-project`
+  // `search` -> 'my-project'
+  return <>Search: {search}</>
+}
+```
+
+```jsx:app/dashboard/search-bar.js
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function SearchBar() {
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search')
+
+  // URL -> `/dashboard?search=my-project`
+  // `search` -> 'my-project'
+  return <>Search: {search}</>
+}
+```
+
+## Parameters
+
+```tsx
+const searchParams = useSearchParams()
+```
+
+`useSearchParams`はパラメータを取りません。
+
+## Returns
+
+`useSearchParams`は、URLのquery stringを読み取るためのユーティリティMethodを含む[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)インターフェースの**読み取り専用**のversionを返します。
+
+- [`URLSearchParams.get()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/get)：検索パラメータに関連付けられた最初のvalueを返します。例えば：
+
+ | URL | `searchParams.get("a")` |
+ | -------------------- | --------------------------------------------------------------------------------------------------------------- |
+ | `/dashboard?a=1` | `'1'` |
+ | `/dashboard?a=` | `''` |
+ | `/dashboard?b=3` | `null` |
+ | `/dashboard?a=1&a=2` | `'1'` _- [`getAll()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/getAll)を使用してすべての値を取得します_ |
+
+- [`URLSearchParams.has()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/has)：指定されたパラメータが存在するかどうかを示すboolean valueを返します。例えば：
+
+ | URL | `searchParams.has("a")` |
+ | ---------------- | ----------------------- |
+ | `/dashboard?a=1` | `true` |
+ | `/dashboard?b=3` | `false` |
+
+- 他の**read-only**Methodについてもっと学びましょう。[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)、[`getAll()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/getAll)、[`keys()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/keys)、[`values()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/values)、[`entries()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/entries)、[`forEach()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/forEach)、そして[`toString()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/toString)を含む。
+
+> **Good to know**:
+>
+> - `useSearchParams` は[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の hook であり、[部分的なレンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)中の stale 値を防ぐために、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)では**サポートされていません**。
+> - アプリケーションが`/pages`ディレクトリを含んでいる場合、`useSearchParams`は`ReadonlyURLSearchParams | null`を返します。`null`のvalueは、`getServerSideProps`を使用しないページの事前レンダリング中に検索paramsがわからないため、移行中の互換性のためです。
+
+### 静的レンダリング
+
+routeが[静的にレンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されている場合、`useSearchParams`を呼び出すと、最も近い[`Suspense` boundary](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#example)までのClient ComponentツリーがClientサイドでレンダリングされます。
+
+これにより、`useSearchParams`を使用するdynamic部分がClientサイドでレンダリングされる一方で、routeの一部を静的にレンダリングすることが可能になります。
+
+`useSearchParams`を使用するClient Componentを`<Suspense/>`境界でラップすることをお勧めします。これにより、それより上にある任意のClient Componentsが静的にレンダリングされ、初期のHTMLの一部として送信されます。[例](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params#static-rendering)。
+
+For example:
+
+```tsx:app/dashboard/search-bar.tsx
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function SearchBar() {
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search')
+
+  // This will not be logged on the server when using static rendering
+  console.log(search)
+
+  return <>Search: {search}</>
+}
+```
+
+```jsx:app/dashboard/search-bar.js
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function SearchBar() {
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search')
+
+  // This will not be logged on the server when using static rendering
+  console.log(search)
+
+  return <>Search: {search}</>
+}
+```
+
+```tsx:app/dashboard/page.tsx
+import { Suspense } from 'react'
+import SearchBar from './search-bar'
+
+// This component passed as a fallback to the Suspense boundary
+// will be rendered in place of the search bar in the initial HTML.
+// When the value is available during React hydration the fallback
+// will be replaced with the `<SearchBar>` component.
+function SearchBarFallback() {
+  return <>placeholder</>
+}
+
+export default function Page() {
+  return (
+    <>
+      <nav>
+        <Suspense fallback={<SearchBarFallback />}>
+          <SearchBar />
+        </Suspense>
+      </nav>
+      <h1>Dashboard</h1>
+    </>
+  )
+}
+```
+
+```jsx:app/dashboard/page.js
+import { Suspense } from 'react'
+import SearchBar from './search-bar'
+
+// This component passed as a fallback to the Suspense boundary
+// will be rendered in place of the search bar in the initial HTML.
+// When the value is available during React hydration the fallback
+// will be replaced with the `<SearchBar>` component.
+function SearchBarFallback() {
+  return <>placeholder</>
+}
+
+export default function Page() {
+  return (
+    <>
+      <nav>
+        <Suspense fallback={<SearchBarFallback />}>
+          <SearchBar />
+        </Suspense>
+      </nav>
+      <h1>Dashboard</h1>
+    </>
+  )
+}
+```
+
+## Behavior
+
+### Dynamic Rendering
+
+もしrouteが[dynamically rendered](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)されている場合、`useSearchParams` は初期のserver render 等でClient Componentのserver上で利用可能になります。
+
+For example:
+
+```tsx:app/dashboard/search-bar.tsx
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function SearchBar() {
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search')
+
+  // This will be logged on the server during the initial render
+  // and on the client on subsequent navigations.
+  console.log(search)
+
+  return <>Search: {search}</>
+}
+```
+
+```jsx:app/dashboard/search-bar.js
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function SearchBar() {
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search')
+
+  // This will be logged on the server during the initial render
+  // and on the client on subsequent navigations.
+  console.log(search)
+
+  return <>Search: {search}</>
+}
+```
+
+```tsx:app/dashboard/page.tsx
+import SearchBar from './search-bar'
+
+export const dynamic = 'force-dynamic'
+
+export default function Page() {
+  return (
+    <>
+      <nav>
+        <SearchBar />
+      </nav>
+      <h1>Dashboard</h1>
+    </>
+  )
+}
+```
+
+```jsx:app/dashboard/page.js
+import SearchBar from './search-bar'
+
+export const dynamic = 'force-dynamic'
+
+export default function Page() {
+  return (
+    <>
+      <nav>
+        <SearchBar />
+      </nav>
+      <h1>Dashboard</h1>
+    </>
+  )
+}
+```
+
+> **Good to know**: [`dynamic` route セグメントの config オプション](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#dynamic)を`force-dynamic`に設定することで、 dynamic レンダリングを強制することができます。
+
+### Server Components
+
+#### Pages
+
+[Pages](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)(Server Components)でparams検索にアクセスするには、[`searchParams`](/docs/app/api-reference/file-conventions/page#searchparams-optional) プロップを使用します。
+
+#### Layouts
+
+Pagesとは異なり、[layouts](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)(Server Components)は、`searchParams`プロップを**受け取りません**。これは、共有されるlayoutが[ナビゲーション中に再renderingされない](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)ため、ナビゲーション間でstaleな`searchParams`が発生する可能性があるからです。[詳細な説明](/docs/app/api-reference/file-conventions/layout#layouts-do-not-receive-searchparams)をご覧ください。
+
+代わりに、Page [`searchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page) propまたは[`useSearchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) hookを Client Componentで使用してください。これは、最新の`searchParams`でclient上で再レンダリングされます。
+
+## Examples
+
+### `searchParams`の更新
+
+[`useRouter`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)または[`Link`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link)を使用して新しい`searchParams`を設定できます。ナビゲーションが実行された後、現在の[`page.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)は更新された[`searchParams` prop](/docs/app/api-reference/file-conventions/page#searchparams-optional)を受け取ります。
+
+```tsx:app/example-client-component.tsx
+export default function ExampleClientComponent() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams]
+  )
+
+  return (
+    <>
+      <p>Sort By</p>
+
+      {/* using useRouter */}
+      <button
+        onClick={() => {
+          // <pathname>?sort=asc
+          router.push(pathname + '?' + createQueryString('sort', 'asc'))
+        }}
+      >
+        ASC
+      </button>
+
+      {/* using <Link> */}
+      <Link
+        href={
+          // <pathname>?sort=desc
+          pathname + '?' + createQueryString('sort', 'desc')
+        }
+      >
+        DESC
+      </Link>
+    </>
+  )
+}
+```
+
+```jsx:app/example-client-component.js
+export default function ExampleClientComponent() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name, value) => {
+      const params = new URLSearchParams(searchParams)
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams]
+  )
+
+  return (
+    <>
+      <p>Sort By</p>
+
+      {/* using useRouter */}
+      <button
+        onClick={() => {
+          // <pathname>?sort=asc
+          router.push(pathname + '?' + createQueryString('sort', 'asc'))
+        }}
+      >
+        ASC
+      </button>
+
+      {/* using <Link> */}
+      <Link
+        href={
+          // <pathname>?sort=desc
+          pathname + '?' + createQueryString('sort', 'desc')
+        }
+      >
+        DESC
+      </Link>
+    </>
+  )
+}
+```
+
+## Version History
+
+| Version | Changes |
+| --------- | ----------------------------- |
+| `v13.0.0` | `useSearchParams` が導入されました。|

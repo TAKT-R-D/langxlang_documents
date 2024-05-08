@@ -1,0 +1,90 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/02-functions/use-amp.mdx
+title: useAmp
+description: Enable AMP in a page, and control the way Next.js adds AMP to the page with the AMP config.
+org_title: useAmp
+org_path: /docs/pages/api-reference/functions/use-amp
+is_empty: false
+---
+
+<details>
+  <summary>Examples</summary>
+
+- [AMP](https://github.com/vercel/next.js/tree/canary/examples/amp)
+
+</details>
+
+> AMP対応は私たちの高度な機能の1つで、[ここでAMPについて詳しく読むことができます](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/07-amp)。
+
+AMPを有効にするには、以下のconfigをページに追加してください:
+
+```jsx:pages/index.js
+export const config = { amp: true }
+```
+
+`amp` configは以下の値を受け入れます：
+
+- `true` - そのページはAMP専用となります
+- `'hybrid'` - このページには2つのVersionがあり、一つはAMP、もう一つはHTMLとなります。
+
+`amp`やconfigについて詳しく知りたい場合は、以下のセクションをお読みください。
+
+## AMP First Page
+
+次の例をご覧ください：
+
+```jsx:pages/about.js
+export const config = { amp: true }
+
+function About(props) {
+  return <h3>My AMP About Page!</h3>
+}
+
+export default About
+```
+
+上記のページはAMP-onlyページであり、それはつまり：
+
+- そのページにはNext.jsやReactのClientサイドのruntimeがありません
+- このページは、AMPキャッシュと同じ変換を適用する最適化ツールである[AMP Optimizer](https://github.com/ampproject/amp-toolbox/tree/master/packages/optimizer)によって自動的に最適化され、パフォーマンスは最大42％向上します
+- このページには、ユーザーがアクセス可能な(最適化された)versionのページと、検索エンジンがインデックス化可能な(unoptimized)versionのページがあります。
+
+## Hybrid AMP Page
+
+次の例をご覧ください：
+
+```jsx:pages/about.js
+import { useAmp } from 'next/amp'
+
+export const config = { amp: 'hybrid' }
+
+function About(props) {
+  const isAmp = useAmp()
+
+  return (
+    <div>
+      <h3>My AMP About Page!</h3>
+      {isAmp ? (
+        <amp-img
+          width="300"
+          height="300"
+          src="/my-img.jpg"
+          alt="a cool image"
+          layout="responsive"
+        />
+      ) : (
+        <img width="300" height="300" src="/my-img.jpg" alt="a cool image" />
+      )}
+    </div>
+  )
+}
+
+export default About
+```
+
+上記のページは、ハイブリッドAMPページで、それは次の意味です：
+
+- 該当のページは、伝統的なHTML(default)とAMP HTML(`?amp=1`をURLに追加することで)でレンダリングされます。
+- そのページのAMP versionは、AMP Optimizerを使用して有効な最適化のみが適用され、検索エンジンで索引付けできるようになっています
+
+Tこのページは`useAmp`を使ってモードを区別し、それは[React Hook](https://react.dev/reference/react)という、ページがAMPを使っている場合は`true`を、それ以外の場合は`false`を返すものです。

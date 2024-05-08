@@ -1,0 +1,60 @@
+---
+filePath: source/next.js/docs/04-architecture/fast-refresh.mdx
+title: Fast Refresh
+description: Fast Refresh is a hot module reloading experience that gives you instantaneous feedback on edits made to your React components.
+org_title: Fast Refresh
+org_path: /docs/architecture/fast-refresh
+is_empty: false
+---
+
+Fast Refresh は、あなたの React コンポーネントに対する編集のフィードバックを瞬時に提供する Next.js の機能です。Fast Refresh は、**9.4 以上のversion**で動作するすべての Next.js アプリケーションで、 default で有効になっています。 Next.js の Fast Refresh が有効になっている場合、ほとんどの編集内容は second に表示され、** component の状態を失うことなく**更新されます。
+
+## How It Works
+
+- もし** React コンポーネントのみ**をエクスポートするファイルを編集した場合、Fast Refresh はそのファイルのみの code を更新し、 component を再レンダリングします。そのファイル内の styles 、レンダリングロジック、イベントハンドラ、エフェクトなど、何でも編集できます。
+- React コンポーネントでない exports を持つファイルを編集すると、Fast Refresh はそのファイルとそれをインポートする他のファイルの両方を再実行します。したがって、`Button.js`と`Modal.js`の両方が `theme.js`を import する場合、`theme.js`の編集により両方のコンポーネントが更新されます。
+- 最後に、**ファイルを編集する**際に ''React'' ツリーの**外部からインポートされるファイル**である場合、Fast ''Refresh'' は**完全なリロードを行うように切り替わります**。例えば、''React component''をrenderingするファイルがあり、そのファイルが ''value'' をエクスポートし、それが非React ''component''にインポートされている場合があります。たとえば、 ''component'' が定数をエクスポートし、非Reactのユーティリティファイルがそれをインポートしている場合です。その場合、その定数を別のファイルに移行し、両方のファイルにインポートすることを検討してみてください。これにより、Fast ''Refresh'' が再び機能するようになります。他のケースも通常、同様の方法で解決できます。
+
+## Error Resilience
+
+### Syntax error
+
+ development 中に syntax error (構文 app )を起こしても、修正してファイルを再度保存すれば大丈夫です。 error は自動的に消えるので、アプリを再読み込みする必要はありません。** component の状態は失われません**。
+
+### Runtime error
+
+あなたがミスを犯し、その結果として component 内に runtime error が発生した場合、コンテキストに基づいたオーバーレイが表示されます。 error を修正すると、 app を再読み込みすることなくオーバーレイは自動的に消えます。
+
+ Component の状態は、レンダリング中に error が発生しなかった場合に保持されます。もしレンダリング中に error が発生した場合、 React は更新された code を使用してアプリケーションを再マウントします。
+
+あなたの app に[error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)がある場合(これは production での優雅な失敗にとって良い考えです)、それらはレンダリングの error の後に next の編集でレンダリングを再試行します。これは、 error boundaryが常に root app の状態にリセットされるのを防ぐことができます。ただし、 error boundariesは_過度に_詳細になってはなりません。それらは React によって production で使用され、常に意図的に設計されるべきです。
+
+## Limitations
+
+Fast Refresh は、編集中の component のローカル React ステートを保持しようとしますが、それが安全な場合に限ります。次に、ファイルの各編集でローカルステートがリセットされる可能性のあるいくつかの理由を示します:
+
+- ローカルステートはクラスコンポーネントに対して保存されません(ステートを保存するのは関数コンポーネントとHooksのみです)。
+- 編集中のファイルには、 React component に加えて、_他の_エクスポートも含まれているかもしれません。
+- 時折、ファイルは `HOC(WrappedComponent)` のような高次の component を呼び出した結果を export することがあります。返された component がクラスである場合、その状態はリセットされます。
+- `export default () => <div />;`のような匿名のアロー関数は、Fast Refreshがローカルのcomponentステートを保存しない原因となります。大規模なコードベースに対しては、[`name-default-component` codemod](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#name-default-component)を使用することができます。
+
+あなたのコードベースのより多くが関数コンポーネントとHooksに移行するにつれて、より多くのケースで状態が保持されることを期待できます。
+
+## Tips
+
+- 高速な Refresh は、関数コンポーネント(およびHooks)での React のローカル状態を default で保持します.
+- ときどき、状態を強制的にリセットし、 component を再マウントしたいかもしれません。たとえば、マウント時にのみ発生するアニメーションを微調整している場合に便利です。これを行うには、編集中のファイルの任意の位置に`// @refresh reset`を追加できます。このディレクティブはファイルにローカルであり、そのファイルで定義されたコンポーネントをFast Refresh がすべての編集ごとに再マウントするように指示します。
+- development 中に編集するcomponentsには、`console.log`や`debugger;`を入れることができます。
+- インポートは大文字と小文字を区別することを覚えておいてください。 refresh が速いものも完全なものも、 import が実際のファイル名と一致しない場合には失敗することがあります。たとえば、 `'./Header'`対`'./header'`のようにです。
+
+## Fast Refresh and Hooks
+
+可能な場合、Fast Refresh は編集の間に component の状態を保持しようとします。特に、`useState`と`useRef`は、その引数や、 Hook の呼び出し順序を変更しない限り、前回の値を保持します。
+
+依存関係を持つフック - 例えば`useEffect`、`useMemo`、`useCallback`など - は、Fast Refresh 中に _常に_ 更新されます。Fast Refresh が行われている間は、その依存関係リストは無視されます。
+
+たとえば、`useMemo(() => x * 2, [x])`を`useMemo(() => x * 10, [x])`に編集すると、`x`(依存性)が変更されていないにも関わらず再実行されます。もし React がそれを行わなければ、あなたの編集は画面に反映されません！
+
+これは時々、予期しない結果をもたらすことがあります。例えば、依存性の配列が empty の`useEffect`でも、Fast Refresh 中に一度再実行されます。
+
+しかし、 `useEffect`のたまに再実行されることに耐える code を書くことは、Fast Refresh がなくても良い習慣です。これにより、後で新しい依存関係を導入しやすくなり、[React Strict Mode](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/reactStrictMode)で強制されることがあります。私たちはこれを有効にすることを強くお勧めします。

@@ -1,0 +1,50 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/06-optimizing/index.mdx
+title: Optimizations
+description: Optimize your Next.js application for best performance and user experience.
+org_title: Optimizations
+org_path: /docs/app/building-your-application/optimizing
+is_empty: false
+nav_title: Optimizing
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Next.jsは、アプリケーションの速度と[Core Web Vitals](https://web.dev/vitals/)を向上させるために設計された様々な組み込みの最適化が含まれています。このガイドでは、ユーザーエクスペリエンスを高めるために活用できる最適化について説明します。
+
+## Built-in Components
+
+内蔵Componentは、一般的なUI最適化の実装に伴う複雑さを抽象化します。これらのComponentは次のとおりです：
+
+- **画像**：ネイティブの `<img>` 要素に基づいて構築されています。 Image Component は、 lazy loading とデバイスの size に基づいて画像のサイズを自動的に調整することで、パフォーマンスを最適化します。
+- **Link**: ネイティブな`<a>`タグを基盤に構築されています。 Link Component は、より迅速かつスムーズなページ遷移のために、バックグラウンドでページをプリフェッチします。
+- **Scripts**：ネイティブの`<script>`タグに基づいて構築されています。スクリプト Component は、サードパーティの scripts の loading と実行を制御する機能を提供します。
+
+## Metadata
+
+Metadataは、検索エンジンがあなたのコンテンツをより理解するのに役立ち(これにより優れたSEOが得られる場合もあります)、そしてあなたのコンテンツがソーシャルメディア上にどのように表示されるかをカスタマイズするのを許可します。これにより、さまざまなプラットフォーム全体でより魅力的で一貫性のあるユーザーエクスペリエンスを創造するのに役立ちます。
+
+<AppOnly>
+
+Next.jsの中のMetadata APIはページの`<head>`要素を修正することを許可します。 metadataには2つの方法で設定できます:
+
+- **Config-based Metadata**: Export a [static `metadata` object](/docs/app/api-reference/functions/generate-metadata#metadata-object) or a dynamic [`generateMetadata` function](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function) in a `layout.js` or `page.js` file.
+- **File-based Metadata**: Add static or dynamically generated special files to route segments.
+
+さらに、JSXとCSSを使って[imageResponse](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response)コンストラクタを使用してdynamic Open Graph画像を作成することができます。
+
+</AppOnly>
+
+<PagesOnly>
+
+Next.jsの中のHead Component がページの`<head>`を変更するのを許可します。[Head Component](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/head)のドキュメンテーションで詳しく学びましょう。
+
+</PagesOnly>
+
+## Static Assets
+
+Next.jsの`/public`フォルダは、画像、フォント、その他のファイルなどの静的なアセットを提供するために使用できます。また、`/public`内のファイルはCDNプロバイダーによってキャッシュされ、効率的に配信されることもあります。
+
+## Analytics and Monitoring
+
+F大規模なアプリケーションのために、Next.jsは人気のAnalyticsと監視ツールと統合し、アプリケーションのパフォーマンスを理解するのに役立ちます。詳細は<PagesOnly>[analytics](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/08-analytics)、</PagesOnly>[OpenTelemetry](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/10-open-telemetry)<PagesOnly>、</PagesOnly>および[Instrumentation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/09-instrumentation)ガイドで学んでください。

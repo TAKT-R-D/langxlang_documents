@@ -1,0 +1,198 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/08-next-cli.mdx
+title: Next.js CLI
+description: The Next.js CLI allows you to start, build, and export your application. Learn more about it here.
+org_title: Next.js CLI
+org_path: /docs/app/api-reference/next-cli
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Next.js CLIは、アプリケーションをstart、build、そしてexportすることを許可します。
+
+利用可能なCLIコマンドのリストを取得するには、プロジェクトディレクトリ内で次のコマンドを実行します。
+
+```bash:Terminal
+npx next -h
+```
+
+_([npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b)はnpm 5.2+以上と一緒になっています)_
+
+出力は次のようになるべきです：
+
+```bash:Terminal
+Usage
+  $ next <command>
+
+Available commands
+  build, start, export, dev, lint, telemetry, info
+
+Options
+  --version, -v   Version number
+  --help, -h      Displays this message
+
+For more information run a command with the --help flag
+  $ next build --help
+```
+
+[node arguments](https://nodejs.org/api/cli.html#cli_node_options_options)を`next`コマンドに渡すことができます：
+
+```bash:Terminal
+NODE_OPTIONS='--throw-deprecation' next
+NODE_OPTIONS='-r esm' next
+NODE_OPTIONS='--inspect' next
+```
+
+> **Good to know**: `next`をコマンドなしで実行することは、`next dev`を実行するのと同じです
+
+## Build
+
+`next build`は、アプリケーションの最適化されたproduction buildを作成します。出力は、各routeに関する情報を表示します。
+
+- **Size** – ページにクライアント側から移動したときにダウンロードされるアセットの number 。各 route の size は、その依存関係のみを含みます。
+- **First Load JS** – ページを server から訪れたときにダウンロードしたアセットの number 。すべてが共有するJSの量は別の指標として表示されます。
+
+これらの値は両方とも**compressed with gzip**で圧縮されています。最初のロードは緑、黄色、または赤で示されます。パフォーマンスの高いアプリケーションを目指して、緑を目指してください。
+
+`next build`で`--profile`フラグを使用して、Reactの製造プロファイリングを有効にすることができます。これには[Next.js9.5](https://nextjs.org/blog/next-9-5)が必要です。
+
+```bash:Terminal
+next build --profile
+```
+
+その後、developmentで使用するのと同じ方法でプロファイラを使用できます。
+
+`next build`で`--debug`フラグを使用すると、より詳細なbuildの出力を有効にすることができます。これには、Next.js 9.5.3が必要です：
+
+```bash:Terminal
+next build --debug
+```
+
+このフラグが有効になると、追加の build 出力、例えば rewrites、redirects、そして headers が表示されます。
+
+## Development
+
+`next dev`はHot-code リLoading、errorレポーティングなどで、アプリケーションをdevelopmentモードで起動します：
+
+アプリケーションはdefault portで `http://localhost:3000` から start します。 defaultポート は `-p` を使って、以下のように変更することができます:
+
+```bash:Terminal
+npx next dev -p 4000
+```
+
+または、`PORT`環境のvariableを使用して：
+
+```bash:Terminal
+PORT=4000 npx next dev
+```
+
+> ** Good to know : `PORT`は`.env`で設定することができません。というのも HTTP server の起動は、他のすべての code が初期化される前に行われるからです。
+
+hostname を `0.0.0.0` の default とは異なるものに設定することもできます。これは、ネットワーク上の他のデバイスでアプリケーションを利用可能にするために有用です。 default hostname は `-H` を用いて次のように変更することができます：
+
+```bash:Terminal
+npx next dev -H 192.168.1.2
+```
+
+### ローカルのDevelopmentのためのHTTPS
+
+特定の使用例、たとえばwebhooksや認証では、`localhost`で安全な環境を持つためにHTTPSを使用する必要があるかもしれません。Next.jsは、`next dev`を用いて自己署名証明書を生成することができます。それは次のように行います：
+
+```bash:Terminal
+next dev --experimental-https
+```
+
+あなたはまた、`--experimental-https-key`と`--experimental-https-cert`でカスタム証明書とキーを提供することもできます。オプションで、`--experimental-https-ca`でカスタムCA証明書を提供することもできます。
+
+```bash:Terminal
+next dev --experimental-https --experimental-https-key ./certificates/localhost-key.pem --experimental-https-cert ./certificates/localhost.pem
+```
+
+`next dev --experimental-https`は `mkcert`を使用してローカルで信頼された証明書を作成するためのものであり、 development 用途にのみ意図されています。 production では、信頼された機関から正しく発行された証明書を使用してください。Vercelにデプロイすると、あなたの Next.js アプリケーションに対してHTTPSは[自動的に設定](https://vercel.com/docs/security/encryption)されます。
+
+## Production
+
+`next start`は、アプリケーションを production モードで起動します。アプリケーションは、最初に[`next build`](#build)でコンパイルする必要があります。
+
+アプリケーションはdefault portで `http://localhost:3000` から start します。 defaultポート は `-p` を使って、以下のように変更することができます:
+
+```bash:Terminal
+npx next start -p 4000
+```
+
+または、`PORT`環境のvariableを使用して：
+
+```bash:Terminal
+PORT=4000 npx next start
+```
+
+> **Good to know**:
+>
+> - `PORT`は、他のすべての code が初期化される前に、 HTTP server の起動が行われるため、`.env`内で設定することはできません。
+>
+> - `next start`は`output: 'standalone'`や`output: 'export'`と一緒に使用することはできません。
+
+### Keep Alive Timeoutを維持する
+
+ダウンストリームプロキシ(例：AWS ELB/ALBのようなロードバランサー)の背後でNext.jsをデプロイする際は、ダウンストリームプロキシのタイムアウトよりも_大きい_ [キープアライブのタイムアウト](https://nodejs.org/api/http.html#http_server_keepalivetimeout)をHTTP serverで設定することが重要です。さもなければ、特定のTCP接続のキープアライブタイムアウトが達成されると、Node.jsはその接続をダウンストリームプロキシに通知せずにすぐに終了します。これは、Node.jsが既に終了した接続を再利用しようとするたびに、プロキシがerrorを起こす結果となります。
+
+production Next.js serverのタイムアウト値を設定するには、`--keepAliveTimeout`(ミリ秒単位)を`next start`に渡します。以下のように行います：
+
+```bash:Terminal
+npx next start --keepAliveTimeout 70000
+```
+
+## Info
+
+`next info`は、現在のシステムに関する関連詳細を出力し、これを使用してNext.jsのバグを報告することができます。この情報には、オペレーティングシステムのプラットフォーム/アーキテクチャ/versions、バイナリ(Node.js、npm、Yarn、pnpm)およびnpmパッケージversions(`next`、`react`、`react-dom`)が含まれます。
+
+あなたのプロジェクトのrootディレクトリで以下を実行：
+
+```bash:Terminal
+next info
+```
+
+このような例のような情報を提供します：
+
+```bash:Terminal
+
+Operating System:
+  Platform: linux
+  Arch: x64
+  Version: #22-Ubuntu SMP Fri Nov 5 13:21:36 UTC 2021
+  Available memory (MB): 31795
+  Available CPU cores: 16
+Binaries:
+  Node: 16.13.0
+  npm: 8.1.0
+  Yarn: 1.22.17
+  pnpm: 6.24.2
+Relevant Packages:
+  next: 14.1.1-canary.61 // Latest available version is detected (14.1.1-canary.61).
+  react: 18.2.0
+  react-dom: 18.2.0
+Next.js Config:
+  output: N/A
+
+```
+
+この情報はその後、GitHubのIssuesに貼り付けるべきです。
+
+あなたはまた`next info --verbose`を実行することも可能で、これによりシステムや、`next`に関連するパッケージのインストールについての追加情報が出力されます。
+
+## Lint
+
+`next lint` は `pages/`, `app/`, `components/`, `lib/`, `src/` ディレクトリのすべてのファイルに対して ESLint を実行します。また、アプリケーションに ESLint がまだ設定されていない場合、必要な依存関係をインストールするためのガイド付きセットアップも提供します。
+
+他のディレクトリをリントしたい場合は、`--dir` フラグを使用して指定できます：
+
+```bash:Terminal
+next lint --dir utils
+```
+
+## Telemetry
+
+Next.js は一般的な使用に関する**完全に匿名の**テレメトリーデータを収集します。この匿名プログラムへの参加は任意で、情報を共有したくない場合はオプトアウトすることができます。
+
+Tテレメトリーについてもっと学びたい方は、[こちらのdocument](https://nextjs.org/telemetry/)をご覧ください。

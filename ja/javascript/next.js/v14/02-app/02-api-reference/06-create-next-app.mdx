@@ -1,0 +1,135 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/06-create-next-app.mdx
+title: create-next-app
+description: Create Next.js apps in one command with create-next-app.
+org_title: create-next-app
+org_path: /docs/app/api-reference/create-next-app
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+最も簡単なNext.jsの始め方は、 `create-next-app`を使用することです。このCLIツールを使うと、新しいNext.jsアプリケーションをstartするための全てがすばやく設定されます。
+
+default の Next.js template を使って新たな app を作成することができます。また、[公式の Next.js の例](https://github.com/vercel/next.js/tree/canary/examples)の一つを使うこともできます。
+
+### Interactive
+
+次のコマンドを実行することで、対話的に新しいプロジェクトを作成することができます：
+
+```bash:Terminal
+npx create-next-app@latest
+```
+
+```bash:Terminal
+yarn create next-app
+```
+
+```bash:Terminal
+pnpm create next-app
+```
+
+```bash:Terminal
+bunx create-next-app
+```
+
+その後、次のプロンプトが表示されます。
+
+```txt:Terminal
+What is your project named?  my-app
+Would you like to use TypeScript?  No / Yes
+Would you like to use ESLint?  No / Yes
+Would you like to use Tailwind CSS?  No / Yes
+Would you like to use `src/` directory?  No / Yes
+Would you like to use App Router? (recommended)  No / Yes
+Would you like to customize the default import alias (@/*)?  No / Yes
+```
+
+あなたがプロンプトに回答した後、新しいプロジェクトがあなたの回答に応じた適切な設定で作成されます。
+
+### Non-interactive
+
+新しいプロジェクトを非対話的に設定するためのコマンドライン引数も渡すことができます。
+
+さらに、`--no-`を接頭辞として付けることで、default optionsを無効にすることができます(例：`--no-eslint`)。
+
+`create-next-app --help`を参照してください：
+
+```bash:Terminal
+Usage: create-next-app <project-directory> [options]
+
+Options:
+  -V, --version                        output the version number
+  --ts, --typescript
+
+    Initialize as a TypeScript project. (default)
+
+  --js, --javascript
+
+    Initialize as a JavaScript project.
+
+  --tailwind
+
+    Initialize with Tailwind CSS config. (default)
+
+  --eslint
+
+    Initialize with ESLint config.
+
+  --app
+
+    Initialize as an App Router project.
+
+  --src-dir
+
+    Initialize inside a `src/` directory.
+
+  --import-alias <alias-to-configure>
+
+    Specify import alias to use (default "@/*").
+
+  --use-npm
+
+    Explicitly tell the CLI to bootstrap the app using npm
+
+  --use-pnpm
+
+    Explicitly tell the CLI to bootstrap the app using pnpm
+
+  --use-yarn
+
+    Explicitly tell the CLI to bootstrap the app using Yarn
+
+  --use-bun
+
+    Explicitly tell the CLI to bootstrap the app using Bun
+
+  -e, --example [name]|[github-url]
+
+    An example to bootstrap the app with. You can use an example name
+    from the official Next.js repo or a public GitHub URL. The URL can use
+    any branch and/or subdirectory
+
+  --example-path <path-to-example>
+
+    In a rare case, your GitHub URL might contain a branch name with
+    a slash (e.g. bug/fix-1) and the path to the example (e.g. foo/bar).
+    In this case, you must specify the path to the example separately:
+    --example-path foo/bar
+
+  --reset-preferences
+
+    Explicitly tell the CLI to reset any stored preferences
+
+  -h, --help                           output usage information
+```
+
+### なぜCreate Next Appを使用するのか？
+
+`create-next-app`は、数秒で新しいNext.js appを作成することができます。これは、Next.jsの作成者によって公式にメンテナンスされており、numberの利点が含まれています:
+
+- **インタラクティブな体験**： `npx create-next-app@latest` を(引数なしで)実行すると、プロジェクトのセットアップをガイドするインタラクティブな体験が始まります。
+- **ゼロ依存性**: プロジェクトの初期化は second のように速いです。 Next App はゼロ依存性を持っています。
+- **オフラインサポート**: Next App の作成は、あなたがオフラインであるかどうかを自動的に検出し、ロータルパッケージの cache を使用してプロジェクトをブートストラップします。
+- **サンプルに対するサポート**： Next App を作成は、 Next.js のサンプルコレクション(例：`npx create-next-app --example api-routes`)または任意の public GitHub リポジトリからアプリケーションをブートストラップすることができます。
+- **テスト済み**：このパッケージは Next.js のモノレポの一部であり、 Next.js 自体と同じ統合 test スイートを使用してテストされています。これにより、リリースごとに期待通りに動作することが保証されます。

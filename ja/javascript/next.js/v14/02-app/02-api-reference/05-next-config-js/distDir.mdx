@@ -1,0 +1,24 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/distDir.mdx
+title: distDir
+description: Set a custom build directory to use instead of the default .next directory.
+org_title: distDir
+org_path: /docs/app/api-reference/next-config-js/distDir
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+あなたは、代わりに`.next`を使用するのではなく、カスタムのbuildディレクトリに使用する名前を指定することができます。
+
+`next.config.js`を開いて、`distDir` configを追加してください：
+
+```js:next.config.js
+module.exports = {
+  distDir: 'build',
+}
+```
+
+もし今、`next build`を実行すると、Next.jsは`build`を使い、defaultの `.next` フォルダの代わりになります。
+
+> `distDir`はプロジェクトディレクトリから出ては**いけません**。例えば、`../build`は**無効な**ディレクトリです。

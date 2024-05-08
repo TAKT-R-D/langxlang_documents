@@ -1,0 +1,61 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/page.mdx
+title: page.js
+description: API reference for the page.js file.
+org_title: page.js
+org_path: /docs/app/api-reference/file-conventions/page
+is_empty: false
+---
+
+**page**は、routeに固有のUIです。
+
+```tsx:app/blog/[slug]/page.tsx
+export default function Page({
+  params,
+  searchParams,
+}: {
+  params: { slug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  return <h1>My Page</h1>
+}
+```
+
+```jsx:app/blog/[slug]/page.js
+export default function Page({ params, searchParams }) {
+  return <h1>My Page</h1>
+}
+```
+
+## Props
+
+### `params` (optional)
+
+そのページまでのrootセグメントから[dynamic routeパラメータ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を含むobject。例えば：
+
+| Example | URL | `params` |
+| ------------------------------------ | ----------- | ------------------------------ |
+| `app/shop/[slug]/page.js` | `/shop/1` | `{ slug: '1' }` |
+| `app/shop/[category]/[item]/page.js` | `/shop/1/2` | `{ category: '1', item: '2' }` |
+| `app/shop/[...slug]/page.js` | `/shop/1/2` | `{ slug: ['1', '2'] }` |
+
+### `searchParams` (オプション)
+
+現在のURLの[search parameters](https://developer.mozilla.org/docs/Learn/Common_questions/What_is_a_URL#parameters)を含むobject。例えば：
+
+| URL | `searchParams` |
+| --------------- | -------------------- |
+| `/shop?a=1` | `{ a: '1' }` |
+| `/shop?a=1&b=2` | `{ a: '1', b: '2' }` |
+| `/shop?a=1&a=2` | `{ a: ['1', '2'] }` |
+
+> **Good to know**:
+>
+> - `searchParams`は、事前に値を知ることができない**[Dynamic API](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)**です。これを使用すると、ページはrequest時に**[dynamicレンダリング](/docs/app/building-your-application/rendering/server-components#dynamic-rendering)**を選択します。
+> - `searchParams`は平易なJavaScript objectを返し、`URLSearchParams`インスタンスではありません。
+
+## Version History
+
+| Version | Changes |
+| --------- | ------------------ |
+| `v13.0.0` | `page` が導入されました。|

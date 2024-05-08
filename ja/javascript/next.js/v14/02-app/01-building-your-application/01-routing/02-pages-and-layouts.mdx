@@ -1,0 +1,273 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/02-pages-and-layouts.mdx
+title: Pages and Layouts
+description: Create your first page and shared layout with the App Router.
+org_title: Pages and Layouts
+org_path: /docs/app/building-your-application/routing/pages-and-layouts
+is_empty: false
+---
+
+> 続ける前に、[Routing Fundamentals](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)と[Defining Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)のページを読むことをお勧めします。
+
+特別なファイル[layout.js](#layouts)、[page.js](#pages)、および[template.js](#templates)を使用すると、[route](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes#creating-routes)のUIを作成できます。このページでは、これらの特別なファイルをいつどのように使用するかについてガイドします。
+
+## Pages
+
+A pageは、routeに**固有**のUIです。 `page.js` ファイルから component を default でexportすることにより、pageを定義することができます。
+
+例えば、`index`ページを作成するには、`app`ディレクトリ内に`page.js`ファイルを追加します：
+
+<Image
+  alt="page.js special file"
+  srcLight="/docs/light/page-special-file.png"
+  srcDark="/docs/dark/page-special-file.png"
+  width="1600"
+  height="444"
+/>
+
+```tsx:app/page.tsx
+// `app/page.tsx` is the UI for the `/` URL
+export default function Page() {
+  return <h1>Hello, Home page!</h1>
+}
+```
+
+```jsx:app/page.js
+// `app/page.js` is the UI for the `/` URL
+export default function Page() {
+  return <h1>Hello, Home page!</h1>
+}
+```
+
+次に、さらなるページを作成するために、新しいフォルダを作成し、そこに`page.js`ファイルを追加します。例えば、`/dashboard` routeのページを作成するためには、`dashboard`という新しいフォルダを作成し、それに`page.js`ファイルを追加します:
+
+```tsx:app/dashboard/page.tsx
+// `app/dashboard/page.tsx` is the UI for the `/dashboard` URL
+export default function Page() {
+  return <h1>Hello, Dashboard Page!</h1>
+}
+```
+
+```jsx:app/dashboard/page.js
+// `app/dashboard/page.js` is the UI for the `/dashboard` URL
+export default function Page() {
+  return <h1>Hello, Dashboard Page!</h1>
+}
+```
+
+> **Good to know**:
+>
+> - ページには、`.js`、`.jsx`、または`.tsx`ファイル拡張子を使用することができます。
+> - ページは常に[route サブツリー](/docs/app/building-your-application/routing#terminology)の[葉](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#terminology)です。
+> - `page.js` ファイルは route セグメントを公開でアクセス可能にするために必要です。
+> - ページはdefaultで[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)ですが、[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)に設定することもできます。
+> - ページは fetch データができます。詳しくは、[データ取得](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)セクションをご覧ください。
+
+## Layouts
+
+ layout は、複数の routes 間で**共有**されるUIです。ナビゲーションでは、レイアウトは状態を保持し、インタラクティブ性を維持し、再レンダリングされません。また、レイアウトは[ネスト](#nesting-layouts)することもできます。
+
+`layout.js` ファイルから React componentを defaultでexportすることで、layoutを定義することができます。componentは、レンダリング時に子の layout (存在する場合)またはページで設定される `children` propを受け入れるべきです。
+
+例えば、layoutは`/dashboard`や`/dashboard/settings`のページと共有されます。
+
+<Image
+  alt="layout.js special file"
+  srcLight="/docs/light/layout-special-file.png"
+  srcDark="/docs/dark/layout-special-file.png"
+  width="1600"
+  height="606"
+/>
+
+```tsx:app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children, // will be a page or nested layout
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <section>
+      {/* Include shared UI here e.g. a header or sidebar */}
+      <nav></nav>
+
+      {children}
+    </section>
+  )
+}
+```
+
+```jsx:app/dashboard/layout.js
+export default function DashboardLayout({
+  children, // will be a page or nested layout
+}) {
+  return (
+    <section>
+      {/* Include shared UI here e.g. a header or sidebar */}
+      <nav></nav>
+
+      {children}
+    </section>
+  )
+}
+```
+
+### Root Layout (必須)
+
+`app`ディレクトリの最上位で定義される root layout は、すべての routes に適用されます。この layout は**必須**であり、`html`と`body`タグを含む必要があります。これにより、 server から返される初期の HTML を変更することができます。
+
+```tsx:app/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {/* Layout UI */}
+        <main>{children}</main>
+      </body>
+    </html>
+  )
+}
+```
+
+```jsx:app/layout.js
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        {/* Layout UI */}
+        <main>{children}</main>
+      </body>
+    </html>
+  )
+}
+```
+
+### ネストするLayout
+
+defaultにより、フォルダ階層内のLayoutは **ネストされ**ています。つまり、`children`プロパティを介して子Layoutをラップします。特定のroute セグメント(フォルダー)内に`layout.js`を追加することで、Layoutをネストできます。
+
+たとえば、`/dashboard`のrouteにlayoutを作成するには、`dashboard`フォルダ内に新しい`layout.js`ファイルを追加します。
+
+<Image
+  alt="Nested Layout"
+  srcLight="/docs/light/nested-layout.png"
+  srcDark="/docs/dark/nested-layout.png"
+  width="1600"
+  height="606"
+/>
+
+```tsx:app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <section>{children}</section>
+}
+```
+
+```jsx:app/dashboard/layout.js
+export default function DashboardLayout({ children }) {
+  return <section>{children}</section>
+}
+```
+
+上記の2つのLayoutを組み合わせると、root layout(`app/layout.js`)がdashboard layout(`app/dashboard/layout.js`)をラップし、それが`app/dashboard/*`内のrouteのセグメントをラップします。
+
+2つのLayoutは次のようにネストされるでしょう：
+
+<Image
+  alt="Nested Layouts"
+  srcLight="/docs/light/nested-layouts-ui.png"
+  srcDark="/docs/dark/nested-layouts-ui.png"
+  width="1600"
+  height="1026"
+/>
+
+> **Good to know**:
+>
+> - Layoutには、`.js`、`.jsx`、または`.tsx`のファイル拡張子を使用できます。
+> - root layoutのみが`<html>`および`<body>`タグを含むことができます。
+> - 同じフォルダ内で`layout.js`と`page.js`ファイルが定義されているとき、layoutはページをラップします。
+> - Layoutはdefaultでは[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)ですが、[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)に設定することも可能です。
+> - Layoutsはfetchすることができます。詳しくは[Data fetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)セクションをご覧ください。
+> - 親のlayoutからそのchildrenへデータを渡すことはできません。ただし、同じデータをrouteで複数回fetchすることが可能で、Reactは[自動的に重複Requestを除去します](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#request-memoization)。これによりパフォーマンスに影響を与えることはありません。
+> - Layoutは、それ自体の下のrouteセグメントにアクセスすることはできません。全てのrouteセグメントにアクセスするためには、Client Component内で [`useSelectedLayoutSegment`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segment) または [`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments) を使用できます。
+> - あなたは[Route Groups](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups)を使用して、特定のrouteセグメントを共有Layoutに含めたり除外したりすることができます。
+> - [Route Groups](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups)を使用して複数のrootLayoutを作成することができます。[ここ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/route-groups#creating-multiple-root-layouts)で例をご覧ください。
+> - **`pages`ディレクトリからの移行:** root layout は、[`_app.js`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)ファイルと[`_document.js`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/06-custom-document)ファイルを置き換えます。[移行ガイドを見る](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration#migrating-_documentjs-and-_appjs)。
+
+## Templates
+
+Templates は、各子供の layout やページをラップする点で layouts に似ています。Layouts が routes を通じて持続し状態を保持するのとは異なり、Templates はナビゲーションごとにその children に対して新しいインスタンスを作成します。これは、ユーザーが同じ template を共有する routes 間を移動するとき、 component の新しいインスタンスがマウントされ、DOM要素が再作成され、状態は**保持されず**、効果は再同期されることを意味します。
+
+特定の動作が必要な場合があり、そのような場合にはテンプレートの方がLayoutよりも適しているかもしれません。例えば：
+
+- `useEffect`に依存する機能(例：ページビューのログ取り)や`useState`に依存する機能(例：ページごとのフィードバックフォーム)
+- default のフレームワークの挙動を変更する。例えば、 Suspense の境界線は、ページを切り替えるときではなく、 Layout が最初に読み込まれるときにだけ fallback を表示します。テンプレートについては、 fallback は各ナビゲーションで表示されます。
+
+templateは、`template.js`ファイルからdefault React componentをexportすることで定義できます。componentは、`children`プロップを受け入れるべきです。
+
+<Image
+  alt="template.js special file"
+  srcLight="/docs/light/template-special-file.png"
+  srcDark="/docs/dark/template-special-file.png"
+  width="1600"
+  height="444"
+/>
+
+```tsx:app/template.tsx
+export default function Template({ children }: { children: React.ReactNode }) {
+  return <div>{children}</div>
+}
+```
+
+```jsx:app/template.js
+export default function Template({ children }) {
+  return <div>{children}</div>
+}
+```
+
+ネスティングに関して、`template.js`はlayoutとそのchildrenの間でレンダリングされます。ここには簡略化した出力があります：
+
+```jsx:Output
+<Layout>
+  {/* Note that the template is given a unique key. */}
+  <Template key={routeParam}>{children}</Template>
+</Layout>
+```
+
+## Metadata
+
+`app`ディレクトリでは、`title` や `meta` などの HTML の `<head>` 要素を [Metadata APIs](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata)を使用して変更することができます。
+
+Metadataは、[`Metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#the-metadata-object)または[`generateMetadata` function](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function)をエクスポートすることで定義できます。これは[`layout.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)ファイルや[`page.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)ファイルで行います。
+
+```tsx:app/page.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Next.js',
+}
+
+export default function Page() {
+  return '...'
+}
+```
+
+```jsx:app/page.js
+export const metadata = {
+  title: 'Next.js',
+}
+
+export default function Page() {
+  return '...'
+}
+```
+
+> **Good to know**: あなたは手動で `<head>` タグ、例えば `<title>` や `<meta>` を root レイアウトに追加すべき**ではありません**。代わりに、ストリーミングや `<head>` 要素の重複解除などの高度な要求を自動的に処理する[Metadata API](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)を使用するべきです。
+
+L[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)で利用可能なmetadata optionsについて詳しく学びましょう。

@@ -1,0 +1,83 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/basePath.mdx
+title: basePath
+description: Use 'basePath' to deploy a Next.js application under a sub-path of a domain.
+org_title: basePath
+org_path: /docs/app/api-reference/next-config-js/basePath
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+ドメインのサブpathの下にNext.jsアプリケーションを deploy するには、`basePath` config オプションを使用できます。
+
+`basePath`はアプリケーションのpathプレフィックスを設定することを可能にします。例えば、`''` (empty string、default)の代わりに`/docs`を使用するには、`next.config.js`を開き、`basePath` configを追加します：
+
+```js:next.config.js
+module.exports = {
+  basePath: '/docs',
+}
+```
+
+> **Good to know**：この value は build 時に設定する必要があり、client側のバンドルに value がインライン化されているため、再buildせずに変更することはできません。
+
+### Links
+
+`next/link`や`next/router`を使用して他のページにリンクするとき、`basePath`は自動的に適用されます。
+
+たとえば、`/about`を使用すると、`basePath`が`/docs`に設定されている場合、自動的に`/docs/about`になります。
+
+```js
+export default function HomePage() {
+  return (
+    <>
+      <Link href="/about">About Page</Link>
+    </>
+  )
+}
+```
+
+出力 html:
+
+```html
+<a href="/docs/about">About Page</a>
+```
+
+これにより、`basePath`のvalueを変更する際に、アプリケーション内のすべてのリンクを変更する必要がなくなります。
+
+### Images
+
+<AppOnly>
+
+[`next/image`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image) component を使用する際には、`src`の前に`basePath`を追加する必要があります。
+
+</AppOnly>
+
+<PagesOnly>
+
+[`next/image`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/image) componentを使用する際には、`src`の前に`basePath`を追加する必要があります。
+
+</PagesOnly>
+
+例えば、`/docs/me.png`を使用すると、`basePath`が`/docs`に設定されている場合、適切にあなたのimageが提供されます。
+
+```jsx
+import Image from 'next/image'
+
+function Home() {
+  return (
+    <>
+      <h1>My Homepage</h1>
+      <Image
+        src="/docs/me.png"
+        alt="Picture of the author"
+        width={500}
+        height={500}
+      />
+      <p>Welcome to my homepage!</p>
+    </>
+  )
+}
+
+export default Home
+```

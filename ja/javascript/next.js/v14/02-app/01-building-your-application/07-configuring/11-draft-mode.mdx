@@ -1,0 +1,248 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/07-configuring/11-draft-mode.mdx
+title: Draft Mode
+description: Next.js has draft mode to toggle between static and dynamic pages. You can learn how it works with App Router here.
+org_title: Draft Mode
+org_path: /docs/app/building-your-application/configuring/draft-mode
+is_empty: false
+---
+
+静的レンダリングは、ページがヘッドレスCMSから fetch するときに便利です。しかし、ヘッドレスCMSでドラフトを書いて、すぐにページでドラフトを表示したい場合には理想的ではありません。あなたは、 Next.js にこれらのページを build 時ではなく** request 時**に render し、 fetch を公開した内容ではなくドラフト内容で行ってほしいと思うでしょう。 Next.js が特定のケースだけで[dynamic レンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)に切り替えることを望むでしょう。
+
+Next.jsはこの問題を解決する**Draft Mode**という機能を持っています。その使用方法について説明します。
+
+## Step 1: Create and access the Route Handler
+
+まず、[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)を作成します。名前は何でも構いません - 例えば、`app/api/draft/route.ts` などとします。
+
+それから、`next/headers`からimport `draftMode`をして、`enable()` methodを呼び出します。
+
+```ts:app/api/draft/route.ts
+// route handler enabling draft mode
+import { draftMode } from 'next/headers'
+
+export async function GET(request: Request) {
+  draftMode().enable()
+  return new Response('Draft mode is enabled')
+}
+```
+
+```js:app/api/draft/route.js
+// route handler enabling draft mode
+import { draftMode } from 'next/headers'
+
+export async function GET(request) {
+  draftMode().enable()
+  return new Response('Draft mode is enabled')
+}
+```
+
+これにより、ドラフトモードを有効にするための**cookie**が設定されます。このcookieを含む後続のRequestは、静的に生成されたページの動作を変更する**Draft Mode**をトリガーします(この詳細については後述します)。
+
+この操作は `/api/draft` を訪れて、自身のブラウザの開発者ツールを見ることで手動でtestすることができます。`Set-Cookie` response headerで名前が`__prerender_bypass`であるcookieに注目してください。
+
+### ヘッドレスCMSからそれに安全にアクセスする
+
+実際には、このRoute Handlerを_安全に_ヘッドレスCMSから呼び出したいでしょう。具体的な手順は使用しているヘッドレスCMSにより異なりますが、ここでは可能な一般的な手順をいくつか紹介します。
+
+これらの手順は、ご使用のヘッドレスCMSが**カスタムドラフトURL**の設定をサポートしていることを前提としています。サポートしていない場合でも、このmethodを使用してドラフトURLを保護することができますが、ドラフトのURLを手動で構築し、アクセスする必要があります。
+
+**まず最初に**、お選びのトークンジェネレーターを使用して、**secret トークン string**を作成する必要があります。この secret は、あなたの Next.js app とあなたのヘッドレスCMSだけが知っています。この secret は、CMSへのアクセス権がない人々がドラフトURLにアクセスするのを防ぎます。
+
+**Second**、あなたのヘッドレスCMSがカスタムドラフトURLの設定をサポートしている場合、以下をドラフトURLに指定してください。これは、あなたのRoute Handlerが `app/api/draft/route.ts` にあることを前提としています。
+
+```bash:Terminal
+https://<your-site>/api/draft?secret=<token>&slug=<path>
+```
+
+- `<your-site>`はあなたのデプロイメントドメインであるべきです。
+- `<token>`は生成したsecretトークンに置き換えるべきです。
+- `<path>`は表示したいページのpathでなければなりません。`/posts/foo`を表示したい場合は、`&slug=/posts/foo`を使用すべきです。
+
+あなたのヘッドレスCMSでは、URLのドラフトにvariableを含めることができ、それにより`<path>`が次のようにCMSのデータに基づいて動的に設定できるかもしれません：`&slug=/posts/{entry.fields.slug}`。
+
+**最後に**、 Route Handler で：
+
+- secretが一致し、`slug`パラメータが存在するか確認してください(存在しない場合、requestは失敗するはずです)。
+- `draftMode.enable()`を呼び出してcookieを設定します。
+- その後、ブラウザを `slug` で指定された path へ redirect してください。
+
+```ts:app/api/draft/route.ts
+// route handler with secret and slug
+import { draftMode } from 'next/headers'
+import { redirect } from 'next/navigation'
+
+export async function GET(request: Request) {
+  // Parse query string parameters
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  const slug = searchParams.get('slug')
+
+  // Check the secret and next parameters
+  // This secret should only be known to this route handler and the CMS
+  if (secret !== 'MY_SECRET_TOKEN' || !slug) {
+    return new Response('Invalid token', { status: 401 })
+  }
+
+  // Fetch the headless CMS to check if the provided `slug` exists
+  // getPostBySlug would implement the required fetching logic to the headless CMS
+  const post = await getPostBySlug(slug)
+
+  // If the slug doesn't exist prevent draft mode from being enabled
+  if (!post) {
+    return new Response('Invalid slug', { status: 401 })
+  }
+
+  // Enable Draft Mode by setting the cookie
+  draftMode().enable()
+
+  // Redirect to the path from the fetched post
+  // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
+  redirect(post.slug)
+}
+```
+
+```js:app/api/draft/route.js
+// route handler with secret and slug
+import { draftMode } from 'next/headers'
+import { redirect } from 'next/navigation'
+
+export async function GET(request) {
+  // Parse query string parameters
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  const slug = searchParams.get('slug')
+
+  // Check the secret and next parameters
+  // This secret should only be known to this route handler and the CMS
+  if (secret !== 'MY_SECRET_TOKEN' || !slug) {
+    return new Response('Invalid token', { status: 401 })
+  }
+
+  // Fetch the headless CMS to check if the provided `slug` exists
+  // getPostBySlug would implement the required fetching logic to the headless CMS
+  const post = await getPostBySlug(slug)
+
+  // If the slug doesn't exist prevent draft mode from being enabled
+  if (!post) {
+    return new Response('Invalid slug', { status: 401 })
+  }
+
+  // Enable Draft Mode by setting the cookie
+  draftMode().enable()
+
+  // Redirect to the path from the fetched post
+  // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
+  redirect(post.slug)
+}
+```
+
+それが成功すれば、ブラウザはドラフトモードのcookieを使用して表示したいpathにRedirectされます。
+
+## Step 2: Update page
+
+次のステップは、ページを更新して `draftMode().isEnabled` の value を確認することです。
+
+あなたが、cookieが設定されているページを requestすると、データは build時間ではなく、**request時間**に取得されます。
+
+さらに、`isEnabled`のvalueは`true`になります。
+
+```tsx:app/page.tsx
+// page that fetches data
+import { draftMode } from 'next/headers'
+
+async function getData() {
+  const { isEnabled } = draftMode()
+
+  const url = isEnabled
+    ? 'https://draft.example.com'
+    : 'https://production.example.com'
+
+  const res = await fetch(url)
+
+  return res.json()
+}
+
+export default async function Page() {
+  const { title, desc } = await getData()
+
+  return (
+    <main>
+      <h1>{title}</h1>
+      <p>{desc}</p>
+    </main>
+  )
+}
+```
+
+```jsx:app/page.js
+// page that fetches data
+import { draftMode } from 'next/headers'
+
+async function getData() {
+  const { isEnabled } = draftMode()
+
+  const url = isEnabled
+    ? 'https://draft.example.com'
+    : 'https://production.example.com'
+
+  const res = await fetch(url)
+
+  return res.json()
+}
+
+export default async function Page() {
+  const { title, desc } = await getData()
+
+  return (
+    <main>
+      <h1>{title}</h1>
+      <p>{desc}</p>
+    </main>
+  )
+}
+```
+
+それで全部です！ヘッドレスCMSから、または手動でドラフトのRoute Handler(`secret`と`slug`を含む)にアクセスすると、ドラフトの内容を見ることができるはずです。そして、公開せずにドラフトを更新した場合も、そのドラフトを見ることができるはずです。
+
+これをヘッドレスCMSのドラフトのURLとして設定するか、手動でアクセスすれば、ドラフトを見ることができるはずです。
+
+```bash:Terminal
+https://<your-site>/api/draft?secret=<token>&slug=<path>
+```
+
+## More Details
+
+### ドラフトモードのcookieをクリアする
+
+defaultでは、ブラウザが閉じられたときにDraft Modeセッションが終了します。
+
+手動でDraft Modeのcookieをクリアするには、`draftMode().disable()`を呼び出すRoute Handlerを作成します。
+
+```ts:app/api/disable-draft/route.ts
+import { draftMode } from 'next/headers'
+
+export async function GET(request: Request) {
+  draftMode().disable()
+  return new Response('Draft mode is disabled')
+}
+```
+
+```js:app/api/disable-draft/route.js
+import { draftMode } from 'next/headers'
+
+export async function GET(request) {
+  draftMode().disable()
+  return new Response('Draft mode is disabled')
+}
+```
+
+次に、`/api/disable-draft` にrequestを送信して、Route Handlerを呼び出します。このrouteを[`next/link`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link)を使用して呼び出す場合、`prefetch={false}`を渡して、prefetch時に誤ってcookieを削除しないようにしなければなりません。
+
+### ユニークパー `next build`
+
+新しいバイpathのcookie valueは、`next build`を実行するたびに生成されます。
+
+これにより、バイpathのcookieが推測できないことが保証されます。
+
+> **Good to know**: test Draft Modeをローカルで HTTP 上で使用するには、ブラウザがサードパーティの cookies とローカルストレージへのアクセスを許可する必要があります。

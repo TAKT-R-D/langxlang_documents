@@ -1,0 +1,96 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/06-optimizing/09-instrumentation.mdx
+title: Instrumentation
+description: Learn how to use instrumentation to run code at server startup in your Next.js app
+org_title: Instrumentation
+org_path: /docs/app/building-your-application/optimizing/instrumentation
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Instrumentationは、あなたのアプリケーションに監視およびログ記録ツールを統合するためにcodeを使用するプロセスです。これにより、アプリケーションのパフォーマンスと振る舞いを追跡し、productionでの問題をdebuggingすることが可能になります。
+
+## Convention
+
+instrumentationを設定するには、プロジェクトの**root ディレクトリー**に`instrumentation.ts|js` ファイルを作成します([`src`](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/06-src-directory) フォルダを使用している場合はその内部)。
+
+その後、ファイルで`register`という機能を export します。この機能は新しい Next.js server インスタンスが開始されたときに**一度だけ**呼び出されます。
+
+例えば、[OpenTelemetry](https://opentelemetry.io/)と[@vercel/otel](https://github.com/vercel/otel)をNext.jsで使用するには：
+
+```ts:instrumentation.ts
+import { registerOTel } from '@vercel/otel'
+
+export function register() {
+  registerOTel('next-app')
+}
+```
+
+```js:instrumentation.js
+import { registerOTel } from '@vercel/otel'
+
+export function register() {
+  registerOTel('next-app')
+}
+```
+
+[Next.js with OpenTelemetry example](https://github.com/vercel/next.js/tree/canary/examples/with-opentelemetry)を参照して、完全な実装をご覧ください。
+
+> **Good to know**
+>
+> - この機能は**実験的**です。これを使用するには、あなたの`next.config.js`で[`experimental.instrumentationHook = true;`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/instrumentationHook)と明示的に定義してオプトインする必要があります。
+> - `instrumentation`ファイルはプロジェクトのrootにあるべきで、`app`や`pages`ディレクトリ内にはありません。`src`フォルダを使用している場合は、`src`の中に`pages`と`app`と並べてファイルを配置してください。
+> - [`pageExtensions` config option](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/pageExtensions)を使用してサフィックスを追加する場合、`instrumentation`のファイル名も合わせて更新する必要があります。
+
+## Examples
+
+### 副作用を伴うファイルのインポート
+
+時には、副作用が発生するためにファイルをimportして、それがあなたのcodeに利用されることもあるかもしれません。例えば、グローバルvariablesのセットを定義するファイルを importするかもしれませんが、そのimportしたファイルをあなたのcodeで明示的にはnever使用しないかもしれません。それでも、パッケージが宣言したグローバルvariablesにはアクセスできるでしょう。
+
+`register` 関数内で `import` syntaxを使用してファイルをインポートすることをお勧めします。次の例は、`register`関数内での`import`の基本的な使用方法を示しています：
+
+```ts:instrumentation.ts
+export async function register() {
+  await import('package-with-side-effect')
+}
+```
+
+```js:instrumentation.js
+export async function register() {
+  await import('package-with-side-effect')
+}
+```
+
+> **Good to know:**
+>
+> ファイルのインポートは、ファイルのトップではなく、`register`関数内から行うことをお勧めします。これにより、すべての副作用をcodeの一か所に配置し、ファイルのトップでグローバルにインポートすることによる意図しない結果を避けることができます。
+
+### Runtime固有のcodeのインポート
+
+Next.jsはすべての環境で`register`を呼び出します、したがって、特定のruntimes(例：[Edge](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#edge-runtime) や [Node.js](/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes#nodejs-runtime))をサポートしていない任意のcodeを条件付きでimportすることが重要です。現在の環境を取得するために、`NEXT_RUNTIME`環境variableを使用することができます:
+
+```ts:instrumentation.ts
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('./instrumentation-node')
+  }
+
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('./instrumentation-edge')
+  }
+}
+```
+
+```js:instrumentation.js
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('./instrumentation-node')
+  }
+
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('./instrumentation-edge')
+  }
+}
+```
