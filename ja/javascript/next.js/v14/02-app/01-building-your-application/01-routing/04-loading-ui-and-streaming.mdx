@@ -7,7 +7,7 @@ org_path: /docs/app/building-your-application/routing/loading-ui-and-streaming
 is_empty: false
 ---
 
-特別なファイル`loading.js`は、[React Suspense](https://react.dev/reference/react/Suspense)を使用して意味のあるLoadingUIを作成するのに役立ちます。この規約により、routeセグメントの内容がロードされている間に、serverから[瞬時のloading状態](#instant-loading-states)を表示できます。新しいコンテンツは、レンダリングが完了すると自動的に入れ替えられます。
+特別なファイル`loading.js`は、[React Suspense](https://react.dev/reference/react/Suspense)を使用して意味のある LoadingUI を作成するのに役立ちます。この規約により、route セグメントの内容がロードされている間に、server から[瞬時の loading 状態](#instant-loading-states)を表示できます。新しいコンテンツは、レンダリングが完了すると自動的に入れ替えられます。
 
 <Image
   alt="Loading UI"
@@ -19,9 +19,9 @@ is_empty: false
 
 ## Instant Loading States
 
-インスタントの loading 状態は、ナビゲーション時にすぐに表示される fallback UIです。スケルトンやスピナーなどの loading インジケーターを事前にレンダリングしたり、カバーフォトやタイトルなど、未来の画面の小さなが有意義な部分を表示したりすることができます。これにより、ユーザーは appが応答していることを理解し、ユーザー体験が向上します。
+インスタントの loading 状態は、ナビゲーション時にすぐに表示される fallback UI です。スケルトンやスピナーなどの loading インジケーターを事前にレンダリングしたり、カバーフォトやタイトルなど、未来の画面の小さなが有意義な部分を表示したりすることができます。これにより、ユーザーは app が応答していることを理解し、ユーザー体験が向上します。
 
-フォルダ内に`loading.js`ファイルを追加することで、loading状態を作成します。
+フォルダ内に`loading.js`ファイルを追加することで、loading 状態を作成します。
 
 <Image
   alt="loading.js special file"
@@ -45,7 +45,7 @@ export default function Loading() {
 }
 ```
 
-同じフォルダ内に、`loading.js`は`layout.js`の中にネストされます。それは自動的に`page.js`ファイルとその下のchildrenを`<Suspense>`境界でラップします。
+同じフォルダ内に、`loading.js`は`layout.js`の中にネストされます。それは自動的に`page.js`ファイルとその下の children を`<Suspense>`境界でラップします。
 
 <Image
   alt="loading.js overview"
@@ -59,25 +59,25 @@ export default function Loading() {
 >
 > - ナビゲーションは即時で、[server-centric routing](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#how-routing-and-navigation-works)を使用してもです。
 > - ナビゲーションは中断可能で、つまり routes を変更する際に、その route のコンテンツが全てロードされるまで待つ必要はなく、別の route へのナビゲーションが可能です。
-> - 共有Layoutは新しいrouteセグメントがロードされる間もインタラクティブ性を保持します。
+> - 共有 Layout は新しい route セグメントがロードされる間もインタラクティブ性を保持します。
 
-> **推奨事項:** route (layoutやページ)のセグメントに`loading.js`という仕様を使用する事をお勧めします。なぜなら、 Next.js はこの機能を最適化しているからです。
+> **推奨事項:** route (layout やページ)のセグメントに`loading.js`という仕様を使用する事をお勧めします。なぜなら、 Next.js はこの機能を最適化しているからです。
 
 ## Streaming with Suspense
 
-`loading.js`に加えて、自分のUIComponent用に手動でSuspense境界線を作成することもできます。App Routerは、[Suspense](https://react.dev/reference/react/Suspense)を用いたStreamingを[Node.jsとEdge runtimes](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)の両方でサポートしています。
+`loading.js`に加えて、自分の UIComponent 用に手動で Suspense 境界線を作成することもできます。App Router は、[Suspense](https://react.dev/reference/react/Suspense)を用いた Streaming を[Node.js と Edge runtimes](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)の両方でサポートしています。
 
-### Streamingとは何ですか？
+### Streaming とは何ですか？
 
-React と Next.js でのStreamingの動作を理解するためには、**Server-Side Rendering( SSR )**とその制限を理解することが役立ちます。
+React と Next.js での Streaming の動作を理解するためには、**Server-Side Rendering( SSR )**とその制限を理解することが役立ちます。
 
-SSRを使用すると、ユーザーがページを見て操作する前に完了させる必要がある一連の手順があります：
+SSR を使用すると、ユーザーがページを見て操作する前に完了させる必要がある一連の手順があります：
 
-1. まず、指定されたページのすべてのデータは、serverで取得されます。
-2. その後、serverはページのHTMLをレンダリングします。
-3. そのページのHTML、CSS、そしてJavaScriptは、clientに送信されます。
-4. 生成されたHTMLとCSSを使用して、非対話型のユーザーインターフェースが表示されます。
-5. 最終的に、Reactはユーザーインターフェースを[hydrates](https://react.dev/reference/react-dom/client/hydrateRoot#hydrating-server-rendered-html)して対話型にします。
+1. まず、指定されたページのすべてのデータは、server で取得されます。
+2. その後、server はページの HTML をレンダリングします。
+3. そのページの HTML、CSS、そして JavaScript は、client に送信されます。
+4. 生成された HTML と CSS を使用して、非対話型のユーザーインターフェースが表示されます。
+5. 最終的に、React はユーザーインターフェースを[hydrates](https://react.dev/reference/react-dom/client/hydrateRoot#hydrating-server-rendered-html)して対話型にします。
 
 <Image
   alt="Chart showing Server Rendering without Streaming"
@@ -87,9 +87,9 @@ SSRを使用すると、ユーザーがページを見て操作する前に完�
   height="612"
 />
 
-これらのステップは順次的で、 blocking つまり、 server はすべてのデータが取得されるまでページの HTML を render することしかできません。また、 client 上では、 React はページ内のすべてのコンポーネントの code がダウンロードされるまでUIを適用することしかできません。
+これらのステップは順次的で、 blocking つまり、 server はすべてのデータが取得されるまでページの HTML を render することしかできません。また、 client 上では、 React はページ内のすべてのコンポーネントの code がダウンロードされるまで UI を適用することしかできません。
 
-SSRは、ReactおよびNext.jsと一緒に使用すると、非対話型のページを可能な限り早くユーザーに表示することで、 perceived loading パフォーマンスを向上させるのに役立ちます。
+SSR は、React および Next.js と一緒に使用すると、非対話型のページを可能な限り早くユーザーに表示することで、 perceived loading パフォーマンスを向上させるのに役立ちます。
 
 <Image
   alt="Server Rendering without Streaming"
@@ -99,7 +99,7 @@ SSRは、ReactおよびNext.jsと一緒に使用すると、非対話型のペ�
   height="748"
 />
 
-しかし、すべてのデータの取得がserver上で完了するまで、ページがユーザーに表示されるのは依然として遅い可能性があります。
+しかし、すべてのデータの取得が server 上で完了するまで、ページがユーザーに表示されるのは依然として遅い可能性があります。
 
 **ストリーミング**は、ページの HTML を小さなチャンクに分割し、それらのチャンクを徐々に server から client に送信することを可能にします。
 
@@ -111,9 +111,9 @@ SSRは、ReactおよびNext.jsと一緒に使用すると、非対話型のペ�
   height="785"
 />
 
-これにより、ページの一部がより早く表示され、全てのデータがロードされるのを待たずにUIをレンダリングすることができます。
+これにより、ページの一部がより早く表示され、全てのデータがロードされるのを待たずに UI をレンダリングすることができます。
 
-ストリーミングはReactのcomponentモデルと非常に相性が良いです。それぞれのcomponentは一つの塊と考えることができます。 priorityが高いcomponent(例えば製品情報)、またはデータに依存しないcomponent(例えばlayout)は、最初に送信され、Reactは早期にstart hydrationを開始できます。 priorityが低いcomponent(例えばレビュー、関連製品)は、データを取得した後に同じserver requestで送信することができます。
+ストリーミングは React の component モデルと非常に相性が良いです。それぞれの component は一つの塊と考えることができます。 priority が高い component(例えば製品情報)、またはデータに依存しない component(例えば layout)は、最初に送信され、React は早期に start hydration を開始できます。 priority が低い component(例えばレビュー、関連製品)は、データを取得した後に同じ server request で送信することができます。
 
 <Image
   alt="Chart showing Server Rendering with Streaming"
@@ -127,7 +127,7 @@ SSRは、ReactおよびNext.jsと一緒に使用すると、非対話型のペ�
 
 ### Example
 
-`<Suspense>`は、非同期アクション(例：fetchデータ)を実行するcomponentをラップし、それが起こっている間にfallback UI(例：スケルトン、スピナー)を表示し、アクションが完了すると、あなたのcomponentに切り替える働きをします。
+`<Suspense>`は、非同期アクション(例：fetch データ)を実行する component をラップし、それが起こっている間に fallback UI(例：スケルトン、スピナー)を表示し、アクションが完了すると、あなたの component に切り替える働きをします。
 
 ```tsx:app/dashboard/page.tsx
 import { Suspense } from 'react'
@@ -165,20 +165,20 @@ export default function Posts() {
 }
 ```
 
-Suspenseを使用することで、次のような利点が得られます：
+Suspense を使用することで、次のような利点が得られます：
 
 1. **ストリーミング Server レンダリング** - server から client に対して徐々に HTML をレンダリングします。
 2. **選択的なハイドレーション** - React はユーザーのインタラクションに基づいて最初にどのコンポーネントをインタラクティブにするかを優先します。
 
-さらに多くのSuspenseの例や使用例をご覧になりたい方は、[Reactドキュメンテーション](https://react.dev/reference/react/Suspense)を参照してください。
+さらに多くの Suspense の例や使用例をご覧になりたい方は、[React ドキュメンテーション](https://react.dev/reference/react/Suspense)を参照してください。
 
 ### SEO
 
-- Next.jsは、[`generateMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)内のデータフェッチングが完了するのを待ってから、clientにUIをStreamingします。これにより、Streamingされるresponseの最初の部分が`<head>`タグを含むことが保証されます。
-- Streamingはserverでレンダリングされるため、SEOに影響を与えません。Googleの[Rich Results Test](https://search.google.com/test/rich-results)ツールを使用して、GoogleのWebクローラーにどのようにページが表示され、シリアライズされたHTML([source](https://web.dev/rendering-on-the-web/#seo-considerations))を確認することができます。
+- Next.js は、[`generateMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)内のデータフェッチングが完了するのを待ってから、client に UI を Streaming します。これにより、Streaming される response の最初の部分が`<head>`タグを含むことが保証されます。
+- Streaming は server でレンダリングされるため、SEO に影響を与えません。Google の[Rich Results Test](https://search.google.com/test/rich-results)ツールを使用して、Google の Web クローラーにどのようにページが表示され、シリアライズされた HTML([source](https://web.dev/rendering-on-the-web/#seo-considerations))を確認することができます。
 
-### ステータスCode
+### ステータス Code
 
-Streaming時には、requestが成功したことを示すために`200`のステータスcodeが返されます。
+Streaming 時には、request が成功したことを示すために`200`のステータス code が返されます。
 
-TserverはStreamingされたコンテンツ自体の中で、例えば、[`redirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)や[`notFound`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found)を使用するときなど、clientに対してerrorや問題をまだ伝えることができます。既にresponse headersはclientに送信されているため、responseのステータスcodeを更新することはできません。これはSEOに影響を与えません。
+server は Streaming されたコンテンツ自体の中で、例えば、[`redirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)や[`notFound`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found)を使用するときなど、client に対して error や問題をまだ伝えることができます。既に response headers は client に送信されているため、response のステータス code を更新することはできません。これは SEO に影響を与えません。

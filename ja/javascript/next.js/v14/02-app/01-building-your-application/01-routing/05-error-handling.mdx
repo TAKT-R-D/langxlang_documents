@@ -7,14 +7,14 @@ org_path: /docs/app/building-your-application/routing/error-handling
 is_empty: false
 ---
 
-`error.js`ファイルの規約により、[ネストされたroutes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#nested-routes)の予期しないruntimeerrorをスムーズに処理することが可能になります。
+`error.js`ファイルの規約により、[ネストされた routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#nested-routes)の予期しない runtimeerror をスムーズに処理することが可能になります。
 
-- routeセグメントとそのネストされたchildrenを自動的に[React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)で包みます。
-- ファイルシステム階層を使用して粒度を調整し、特定のセグメントに合わせたerrorUIを作成します。
-- errorを影響を受けたセグメントに分離し、アプリケーションの残りの部分を機能的に保持します。
-- 完全なページの再読み込みなしで、errorから復旧しようとする機能を追加してください。
+- route セグメントとそのネストされた children を自動的に[React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)で包みます。
+- ファイルシステム階層を使用して粒度を調整し、特定のセグメントに合わせた errorUI を作成します。
+- error を影響を受けたセグメントに分離し、アプリケーションの残りの部分を機能的に保持します。
+- 完全なページの再読み込みなしで、error から復旧しようとする機能を追加してください。
 
-`error.js` ファイルを route セグメント内に追加し、React component をexportすることで、error UIを作成します。
+`error.js` ファイルを route セグメント内に追加し、React component を export することで、error UI を作成します。
 
 <Image
   alt="error.js special file"
@@ -94,16 +94,16 @@ export default function Error({ error, reset }) {
   height="903"
 />
 
-- `error.js`は自動的に[React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)を作成し、ネストされた子セグメントまたは`page.js`のcomponentを**包み込みます**。
-- `error.js`ファイルからexportされたReact componentは、**fallback** componentとして使用されます。
-- errorがerror境界内でスローされると、そのerrorは**格納され**、fallback componentは**レンダリングされます**。
+- `error.js`は自動的に[React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)を作成し、ネストされた子セグメントまたは`page.js`の component を**包み込みます**。
+- `error.js`ファイルから export された React component は、**fallback** component として使用されます。
+- error が error 境界内でスローされると、その error は**格納され**、fallback component は**レンダリングされます**。
 - fallback error component がアクティブになっている場合、 error の境界**上**のレイアウトはその状態を**維持**し、インタラクティブに**残り**ます。また、 error component は error から回復するための機能を display できます。
 
-### errorからの復旧
+### error からの復旧
 
-errorの原因は時折一時的なものであることがあります。これらの場合、単純にもう一度試すだけで問題が解決するかもしれません。
+error の原因は時折一時的なものであることがあります。これらの場合、単純にもう一度試すだけで問題が解決するかもしれません。
 
-error componentは、`reset()`関数を使用してユーザーにErrorから復旧を試みるようpromptすることができます。実行すると、この関数はerrorバウンダリの内容を再レンダリングしようとします。成功すれば、fallback error componentは再レンダリングの結果に置き換えられます。
+error component は、`reset()`関数を使用してユーザーに Error から復旧を試みるよう prompt することができます。実行すると、この関数は error バウンダリの内容を再レンダリングしようとします。成功すれば、fallback error component は再レンダリングの結果に置き換えられます。
 
 ```tsx:app/dashboard/error.tsx
 'use client'
@@ -139,9 +139,9 @@ export default function Error({ error, reset }) {
 
 ### Nested Routes
 
-ReactComponentは[特別なファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)を通じて作成され、[特定のネストされた階層構造](/docs/app/building-your-application/routing#component-hierarchy)でレンダリングされます。
+ReactComponent は[特別なファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)を通じて作成され、[特定のネストされた階層構造](/docs/app/building-your-application/routing#component-hierarchy)でレンダリングされます。
 
-たとえば、`layout.js` と `error.js` ファイルを両方含む2つのセグメントで構成されるネストされたrouteは、次のように _単純化された_ componentの階層でレンダリングされます:
+たとえば、`layout.js` と `error.js` ファイルを両方含む 2 つのセグメントで構成されるネストされた route は、次のように _単純化された_ component の階層でレンダリングされます:
 
 <Image
   alt="Nested Error Component Hierarchy"
@@ -151,30 +151,30 @@ ReactComponentは[特別なファイル](/ja/javascript/next.js/v14/02-app/01-bu
   height="687"
 />
 
-ネストされたcomponent階層は、ネストされたrouteを通じての`error.js`ファイルの振る舞いに影響を与えます：
+ネストされた component 階層は、ネストされた route を通じての`error.js`ファイルの振る舞いに影響を与えます：
 
-- エラーは最も近い親の error 境界までバブルアップします。これは、`error.js`ファイルがそれにネストされた子セグメントすべてのエラーを処理することを意味します。 より粒度の高いまたは低い error UIは、`error.js`ファイルを route のネストされたフォルダの異なるレベルに配置することで実現できます。
-- `error.js` 境界は、**同じ**セグメント内の `layout.js` component でスローされたエラーを処理**しません**。なぜなら、そのlayoutの component の**内部**に error の境界がネストされているからです。
+- エラーは最も近い親の error 境界までバブルアップします。これは、`error.js`ファイルがそれにネストされた子セグメントすべてのエラーを処理することを意味します。 より粒度の高いまたは低い error UI は、`error.js`ファイルを route のネストされたフォルダの異なるレベルに配置することで実現できます。
+- `error.js` 境界は、**同じ**セグメント内の `layout.js` component でスローされたエラーを処理**しません**。なぜなら、その layout の component の**内部**に error の境界がネストされているからです。
 
-### Layoutでのerror処理
+### Layout での error 処理
 
-`error.js`の境界は、**同じセグメント**の`layout.js`または`template.js`componentsでスローされるエラーを**捕捉しません**。この[意図的な階層性](#nested-routes)は、 error が発生した際に、兄弟 routes (ナビゲーションなど)間で共有される重要なUIが可視化され、機能します。
+`error.js`の境界は、**同じセグメント**の`layout.js`または`template.js`components でスローされるエラーを**捕捉しません**。この[意図的な階層性](#nested-routes)は、 error が発生した際に、兄弟 routes (ナビゲーションなど)間で共有される重要な UI が可視化され、機能します。
 
 特定の layout または template 内のエラーを処理するには、レイアウトの親セグメントに`error.js`ファイルを配置してください。
 
-root layoutやtemplate内のerrorを処理するには、`error.js`のバリエーションである`global-error.js`を使用します。
+root layout や template 内の error を処理するには、`error.js`のバリエーションである`global-error.js`を使用します。
 
-### Root Layoutでのerror処理
+### Root Layout での error 処理
 
-root`app/error.js`の境界は、root`app/layout.js`や`app/template.js`componentでスロー(発生)されたerrorを**キャッチしません**。
+root`app/error.js`の境界は、root`app/layout.js`や`app/template.js`component でスロー(発生)された error を**キャッチしません**。
 
-これらのrootComponentにおけるerrorを特定して処理するために、`error.js`のバリエーションである`app/global-error.js`を使用します。これはroot `app`ディレクトリに位置しています。
+これらの rootComponent における error を特定して処理するために、`error.js`のバリエーションである`app/global-error.js`を使用します。これは root `app`ディレクトリに位置しています。
 
-`error.js`のようなrootではなく、`global-error.js`のerror境界は**全体**のアプリケーションを包み、アクティブ時にはそのfallback componentがroot layoutを置き換えます。これがため、`global-error.js`は自身の`<html>`タグと`<body>`タグを**必ず**定義しなければならないという点を重要視する必要があります。
+`error.js`のような root ではなく、`global-error.js`の error 境界は**全体**のアプリケーションを包み、アクティブ時にはその fallback component が root layout を置き換えます。これがため、`global-error.js`は自身の`<html>`タグと`<body>`タグを**必ず**定義しなければならないという点を重要視する必要があります。
 
-"`global-error.js`は最も粒子の細かさがなく、全体のアプリケーションに対する"キャッチオール"のerrorハンドリングと考えることができます。rootのComponentが通常、dynamicなものではないため、頻繁にトリガーされることはありません。他の`error.js`の境界線がほとんどのerrorをキャッチします。
+"`global-error.js`は最も粒子の細かさがなく、全体のアプリケーションに対する"キャッチオール"の error ハンドリングと考えることができます。root の Component が通常、dynamic なものではないため、頻繁にトリガーされることはありません。他の`error.js`の境界線がほとんどの error をキャッチします。
 
-`global-error.js`が定義されているとしても、グローバルに共有されたUIとブランドを含むroot layoutの**内部**で描画されるfallback componentがあるroot `error.js` を定義することを推奨します。
+`global-error.js`が定義されているとしても、グローバルに共有された UI とブランドを含む root layout の**内部**で描画される fallback component がある root `error.js` を定義することを推奨します。
 
 ```tsx:app/global-error.tsx
 'use client'
@@ -212,16 +212,16 @@ export default function GlobalError({ error, reset }) {
 }
 ```
 
-### Servererrorの処理
+### Servererror の処理
 
 もし error が Server Component 内部で投げられた場合、 Next.js はその `Error` object ( production では機密性の高い error 情報が削除されている)を、最も近い`error.js`ファイルへ `error` プロップとして転送します。
 
-#### 機密性の高いError情報の保護
+#### 機密性の高い Error 情報の保護
 
-production中、`Error` objectはclientに対して一般的な`message`と`digest`のプロパティのみを転送します。
+production 中、`Error` object は client に対して一般的な`message`と`digest`のプロパティのみを転送します。
 
-これは、clientにerrorの中に含まれる潜在的に敏感な詳細を漏らさないようにするためのセキュリティ対策です。
+これは、client に error の中に含まれる潜在的に敏感な詳細を漏らさないようにするためのセキュリティ対策です。
 
 `message` プロパティには、一般的な error についての message が含まれており、`digest` プロパティには、 error の自動生成されたハッシュが含まれており、 server-side のログで対応する error をマッチさせるために使用することができます。
 
-development中、`Error` objectはclientに転送され、元のerrorの`message`を含むようにシリアライズされます。これによって デバッグが容易になります。
+development 中、`Error` object は client に転送され、元の error の`message`を含むようにシリアライズされます。これによって デバッグが容易になります。

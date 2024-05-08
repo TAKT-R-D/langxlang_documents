@@ -7,62 +7,62 @@ org_path: /docs/app
 is_empty: false
 ---
 
-Next.js App Routerは、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Suspenseを用いたStreaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#streaming-with-suspense)、および[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)など、Reactの最新機能を使用したアプリケーション構築の新しいモデルを紹介します。
+Next.js App Router は、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Suspense を用いた Streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#streaming-with-suspense)、および[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)など、React の最新機能を使用したアプリケーション構築の新しいモデルを紹介します。
 
-App Routerを使い始めるには、[最初のページを作成](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)します。
+App Router を使い始めるには、[最初のページを作成](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)します。
 
 ## Frequently Asked Questions
 
-### Layout内でrequest objectにどのようにアクセスできますか？
+### Layout 内で request object にどのようにアクセスできますか？
 
 あなたは意図的に生の request object にアクセスすることはできません。しかし、[`headers`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)や[`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)はサーバー専用の関数を通じてアクセス可能です。また、[cookies を設定する](#how-can-i-set-cookies)こともできます。
 
-[layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)は再renderingしません。ページ間の移動時に不要な計算を避けるために、cache化して再利用することができます。layoutからの生のrequestへのアクセスを制限することで、Next.jsは、パフォーマンスに悪影響を及ぼす可能性のある遅いまたは高価なユーザーのcodeの実行を防ぐことができます。layout内での。
+[layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)は再 rendering しません。ページ間の移動時に不要な計算を避けるために、cache 化して再利用することができます。layout からの生の request へのアクセスを制限することで、Next.js は、パフォーマンスに悪影響を及ぼす可能性のある遅いまたは高価なユーザーの code の実行を防ぐことができます。layout 内での。
 
-このデザインは、異なるページ間でのLayoutの一貫した予測可能な振る舞いも強制し、developmentとdebuggingを簡素化します。
+このデザインは、異なるページ間での Layout の一貫した予測可能な振る舞いも強制し、development と debugging を簡素化します。
 
-あなたが作っているUIパターンによって、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)は同じlayout内で複数のページをrenderすることを可能にし、ページはrouteセグメントと同様にURLの検索paramsにアクセスできます。
+あなたが作っている UI パターンによって、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)は同じ layout 内で複数のページを render することを可能にし、ページは route セグメントと同様に URL の検索 params にアクセスできます。
 
-### ページ上のURLにどのようにアクセスできますか？
+### ページ上の URL にどのようにアクセスできますか？
 
- default では、ページは Server Components です。特定のページについて、[`params`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page#params-optional)プロップを通じて route のセグメントにアクセスしたり、[`searchParams`](/docs/app/api-reference/file-conventions/page#searchparams-optional)プロップを通じて URL の検索 params にアクセスすることができます。
+default では、ページは Server Components です。特定のページについて、[`params`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page#params-optional)プロップを通じて route のセグメントにアクセスしたり、[`searchParams`](/docs/app/api-reference/file-conventions/page#searchparams-optional)プロップを通じて URL の検索 params にアクセスすることができます。
 
-もしClient Componentsを使用しているなら、より複雑なroutesのために、[`usePathname`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)、[`useSelectedLayoutSegment`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segment)、そして[`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments)を使うことができます。
+もし Client Components を使用しているなら、より複雑な routes のために、[`usePathname`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)、[`useSelectedLayoutSegment`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segment)、そして[`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments)を使うことができます。
 
-さらに、構築中のUIパターンによりますが、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)は同じlayout内で複数のページをrenderでき、ページはrouteセグメントとURL search paramsにアクセスできます。
+さらに、構築中の UI パターンによりますが、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)は同じ layout 内で複数のページを render でき、ページは route セグメントと URL search params にアクセスできます。
 
-### 私はどのようにServerComponentからredirectできますか？
+### 私はどのように ServerComponent から redirect できますか？
 
-あなたは[`redirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)を使用して、ページから相対的または絶対的なURLにredirectすることができます。[`redirect`](/docs/app/api-reference/functions/redirect)は一時的な(307)redirectであり、一方[`permanentRedirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)はパーマネント(308)redirectです。これらの機能がストリーミングUIを使用しているときには、clientサイドでredirectを発生させるためのメタタグを挿入します。
+あなたは[`redirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)を使用して、ページから相対的または絶対的な URL に redirect することができます。[`redirect`](/docs/app/api-reference/functions/redirect)は一時的な(307)redirect であり、一方[`permanentRedirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)はパーマネント(308)redirect です。これらの機能がストリーミング UI を使用しているときには、client サイドで redirect を発生させるためのメタタグを挿入します。
 
-### Approuterでの認証処理はどのように行えますか？
+### Approuter での認証処理はどのように行えますか？
 
-これらは、App Routerをサポートする一般的な認証ソリューションの一部です：
+これらは、App Router をサポートする一般的な認証ソリューションの一部です：
 
 - [NextAuth.js](https://next-auth.js.org/configuration/nextjs#in-app-router)
 - [Clerk](https://clerk.com/docs/quickstarts/nextjs)
 - [Auth0](https://github.com/auth0/nextjs-auth0#app-router)
 - [Stytch](https://stytch.com/docs/example-apps/frontend/nextjs)
 - [Kinde](https://kinde.com/docs/developer-tools/nextjs-sdk/)
-- または手動でセッションやJWTsを処理する
+- または手動でセッションや JWTs を処理する
 
-### 私はどのようにCookiesを設定できますか？
+### 私はどのように Cookies を設定できますか？
 
 あなたは [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations#cookies) または [Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) で [`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies) 関数を使用して、cookies を設定することができます。
 
-HTTPはStreamingが開始した後でのcookiesの設定を許可していないため、ページやlayoutから直接cookiesを設定することはできません。また、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#using-cookies)からcookiesを設定することもできます。
+HTTP は Streaming が開始した後での cookies の設定を許可していないため、ページや layout から直接 cookies を設定することはできません。また、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#using-cookies)から cookies を設定することもできます。
 
-### 私はどのようにbuildマルチテナントアプリを作成できますか？
+### 私はどのように build マルチテナントアプリを作成できますか？
 
-もし一つのNext.jsアプリケーションをbuildして、複数のテナントに提供したいのであれば、我々が推奨するアーキテクチャを示す[built an example](https://vercel.com/templates/next.js/platforms-starter-kit)を作成しました。
+もし一つの Next.js アプリケーションを build して、複数のテナントに提供したいのであれば、我々が推奨するアーキテクチャを示す[built an example](https://vercel.com/templates/next.js/platforms-starter-kit)を作成しました。
 
-### App Routerキャッシュはどのように無効化できますか？
+### App Router キャッシュはどのように無効化できますか？
 
-Next.jsでは複数のキャッシング層があり、したがって、cacheの異なる部分を無効にするための複数の方法があります。[キャッシングについてもっと学ぶ](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)。
+Next.js では複数のキャッシング層があり、したがって、cache の異なる部分を無効にするための複数の方法があります。[キャッシングについてもっと学ぶ](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)。
 
-### App router上に構築された包括的でオープンソースのアプリケーションはありますか？
+### App router 上に構築された包括的でオープンソースのアプリケーションはありますか？
 
-はい。オープンソースのApp Routerの使用例として、大きな2つの例として[Next.js Commerce](https://vercel.com/templates/next.js/nextjs-commerce)または[Platforms Starter Kit](https://vercel.com/templates/next.js/platforms-starter-kit)を参照できます。
+はい。オープンソースの App Router の使用例として、大きな 2 つの例として[Next.js Commerce](https://vercel.com/templates/next.js/nextjs-commerce)または[Platforms Starter Kit](https://vercel.com/templates/next.js/platforms-starter-kit)を参照できます。
 
 ## Learn More
 
@@ -72,4 +72,4 @@ Next.jsでは複数のキャッシング層があり、したがって、cache�
 - [Caching](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)
 - [Rendering Fundamentals](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering)
 - [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)
-- [[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)
+- [Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)

@@ -9,11 +9,11 @@ is_empty: false
 
 > 続ける前に、[Routing Fundamentals](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)ページを読むことをお勧めします。
 
-このページでは、Next.jsアプリケーションでどのようにroutesを定義し、整理するかをご案内します。
+このページでは、Next.js アプリケーションでどのように routes を定義し、整理するかをご案内します。
 
 ## Creating Routes
 
-Next.jsは、ファイルシステムベースのrouterを使用し、**フォルダ**はroutesを定義するために使用されます。
+Next.js は、ファイルシステムベースの router を使用し、**フォルダ**は routes を定義するために使用されます。
 
 各フォルダーは、**URL** セグメントにマッピングする[**route**セグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#route-segments)を表現します。[ネストした route](/docs/app/building-your-application/routing#nested-routes)を作成するために、フォルダーを互いにネストすることができます。
 
@@ -25,7 +25,7 @@ Next.jsは、ファイルシステムベースのrouterを使用し、**フォ�
   height="594"
 />
 
-特別な[`page.js`ファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)は、routeセグメントを一般に公開するために使用されます。
+特別な[`page.js`ファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)は、route セグメントを一般に公開するために使用されます。
 
 <Image
   alt="Defining Routes"
@@ -35,13 +35,13 @@ Next.jsは、ファイルシステムベースのrouterを使用し、**フォ�
   height="687"
 />
 
-この例では、`/dashboard/analytics` URL pathは、対応する`page.js`ファイルがないため、公開アクセス可能では_ありません_。このフォルダは、Component、スタイルシート、画像、または他の同位のファイルを保存するために使用できます。
+この例では、`/dashboard/analytics` URL path は、対応する`page.js`ファイルがないため、公開アクセス可能では*ありません*。このフォルダは、Component、スタイルシート、画像、または他の同位のファイルを保存するために使用できます。
 
 > **Good to know**: `.js`、`.jsx`、または`.tsx`のファイル拡張子は特別なファイルに使用することができます。
 
 ## Creating UI
 
-[特別なファイル規約](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)は、各routeセグメントに対するUIを作成するために使用されます。最も一般的なものは、route固有のUIを表示するための[ページ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)、および複数のroutesに共有されるUIを表示するための[layouts](/docs/app/building-your-application/routing/pages-and-layouts#layouts)です。
+[特別なファイル規約](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)は、各 route セグメントに対する UI を作成するために使用されます。最も一般的なものは、route 固有の UI を表示するための[ページ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)、および複数の routes に共有される UI を表示するための[layouts](/docs/app/building-your-application/routing/pages-and-layouts#layouts)です。
 
 例えば、最初のページを作成するには、`app` ディレクトリ内に `page.js` ファイルを追加し、export という React component を行います。
 

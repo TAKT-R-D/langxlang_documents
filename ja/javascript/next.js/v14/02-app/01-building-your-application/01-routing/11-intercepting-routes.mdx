@@ -50,20 +50,20 @@ routes をインターセプトすることで、現在の layout 内でアプ�
   height="604"
 />
 
-> (`(..)`)規約は、ファイルシステムではなく、_route セグメント_に基づいていることに注意してください。
+> `(..)`規約は、ファイルシステムではなく、**route セグメント**に基づいていることに注意してください。
 
 ## Examples
 
 ### Modals
 
-Routesをインターセプトすることは、モーダルを作成するために[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)と一緒に使用することができます。これにより、モーダルを作成する際によく遭遇する問題を解決できます。例えば：
+Routes をインターセプトすることは、モーダルを作成するために[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)と一緒に使用することができます。これにより、モーダルを作成する際によく遭遇する問題を解決できます。例えば：
 
 - Making the modal content **shareable through a URL**.
 - **Preserving context** when the page is refreshed, instead of closing the modal.
 - **Closing the modal on backwards navigation** rather than going to the previous route.
 - **Reopening the modal on forwards navigation**.
 
-次のUIパターンを考えてみてください。ユーザーは、Client側のナビゲーションを使用してギャラリーからフォトモーダルを開くことができます。または、共有可能なURLから直接フォトページに移動することもできます。
+次の UI パターンを考えてみてください。ユーザーは、Client 側のナビゲーションを使用してギャラリーからフォトモーダルを開くことができます。または、共有可能な URL から直接フォトページに移動することもできます。
 
 <Image
   alt="Intercepting routes modal example"
@@ -73,10 +73,10 @@ Routesをインターセプトすることは、モーダルを作成するた�
   height="976"
 />
 
-上記の例では、`photo`セグメントへのpathは、`@modal`がスロットであり、セグメントでは**ない**ため、`(..)`のmatcherを使用できます。これは、`photo`のrouteが2つのファイルシステムレベルよりも高いにもかかわらず、1つのセグメントレベルだけ高いことを意味します。
+上記の例では、`photo`セグメントへの path は、`@modal`がスロットであり、セグメントでは**ない**ため、`(..)`の matcher を使用できます。これは、`photo`の route が 2 つのファイルシステムレベルよりも高いにもかかわらず、1 つのセグメントレベルだけ高いことを意味します。
 
-[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#modals)のドキュメンテーションを参照して、ステップバイステップの例をご覧いただくか、または[imageギャラリーの例](https://github.com/vercel-labs/nextgram)をご覧ください。
+[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#modals)のドキュメンテーションを参照して、ステップバイステップの例をご覧いただくか、または[image ギャラリーの例](https://github.com/vercel-labs/nextgram)をご覧ください。
 
 > **Good to know:**
 >
-> - O他の例としては、トップナビゲーションバーでログインモーダルを開きながら、専用の`/login`ページを持つことや、サイドモーダルでショッピングカートを開くことなどがあります。
+> - 他の例としては、トップナビゲーションバーでログインモーダルを開きながら、専用の`/login`ページを持つことや、サイドモーダルでショッピングカートを開くことなどがあります。

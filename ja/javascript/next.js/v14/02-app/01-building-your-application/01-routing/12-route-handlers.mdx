@@ -7,7 +7,7 @@ org_path: /docs/app/building-your-application/routing/route-handlers
 is_empty: false
 ---
 
- Route ハンドラーを使用すると、Web [Request](https://developer.mozilla.org/docs/Web/API/Request)および[Response](https://developer.mozilla.org/docs/Web/API/Response) APIを使用して指定した route のカスタム request ハンドラーを作成することができます。
+Route ハンドラーを使用すると、Web [Request](https://developer.mozilla.org/docs/Web/API/Request)および[Response](https://developer.mozilla.org/docs/Web/API/Response) API を使用して指定した route のカスタム request ハンドラーを作成することができます。
 
 <Image
   alt="Route.js Special File"
@@ -21,7 +21,7 @@ is_empty: false
 
 ## Convention
 
-Routeハンドラは、`app`ディレクトリ内の[`route.js|ts` ファイル](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route)で定義されています：
+Route ハンドラは、`app`ディレクトリ内の[`route.js|ts` ファイル](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route)で定義されています：
 
 ```ts:app/api/route.ts
 export const dynamic = 'force-dynamic' // defaults to auto
@@ -33,9 +33,9 @@ export const dynamic = 'force-dynamic' // defaults to auto
 export async function GET(request) {}
 ```
 
-Routeハンドラーは、`page.js`と`layout.js`と同様に、`app`ディレクトリの中にネストできます。しかし、`route.js`ファイルを`page.js`と同じrouteセグメントレベルに置くことは**できません**。
+Route ハンドラーは、`page.js`と`layout.js`と同様に、`app`ディレクトリの中にネストできます。しかし、`route.js`ファイルを`page.js`と同じ route セグメントレベルに置くことは**できません**。
 
-### サポートされているHTTP Methods
+### サポートされている HTTP Methods
 
 次の[HTTP methods](https://developer.mozilla.org/docs/Web/HTTP/Methods)がサポートされています：`GET`、`POST`、`PUT`、`PATCH`、`DELETE`、`HEAD`、そして`OPTIONS`。サポートされていない method が呼び出されると、 Next.js は`405 Method Not Allowed` response を返します。
 
@@ -47,7 +47,7 @@ Routeハンドラーは、`page.js`と`layout.js`と同様に、`app`ディレ�
 
 ### Caching
 
-Routeハンドラーは、`Response`objectを使用して、`GET`methodを使用する場合、defaultによってキャッシュされます。
+Route ハンドラーは、`Response`object を使用して、`GET`method を使用する場合、default によってキャッシュされます。
 
 ```ts:app/items/route.ts
 export async function GET() {
@@ -77,16 +77,16 @@ export async function GET() {
 }
 ```
 
-> ** TypeScript 警告:** `Response.json()`は TypeScript 5.2からのみ有効です。もし低い TypeScript version を使用している場合は、タイプ付きのレスポンスの代わりに、[`NextResponse.json()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-response#json)を使用することができます。
+> ** TypeScript 警告:** `Response.json()`は TypeScript 5.2 からのみ有効です。もし低い TypeScript version を使用している場合は、タイプ付きのレスポンスの代わりに、[`NextResponse.json()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-response#json)を使用することができます。
 
 ### キャッシュからのオプトアウト
 
 次の方法でキャッシングのオプトアウトが可能です：
 
-- `Request` objectを`GET` methodで使用する。
-- 他のHTTP methodsを使用して。
+- `Request` object を`GET` method で使用する。
+- 他の HTTP methods を使用して。
 - `cookies`や`headers`のような[Dynamic Functions](#dynamic-functions)を使用する。
-- [Segment Config Options](#segment-config-options)は手動でdynamicモードを指定します。
+- [Segment Config Options](#segment-config-options)は手動で dynamic モードを指定します。
 
 例えば：
 
@@ -122,7 +122,7 @@ export async function GET(request) {
 }
 ```
 
-同様に、`POST`のmethodは、Route Handlerが動的に評価される原因となります。
+同様に、`POST`の method は、Route Handler が動的に評価される原因となります。
 
 ```ts:app/items/route.ts
 export async function POST() {
@@ -158,22 +158,22 @@ export async function POST() {
 }
 ```
 
-> **Good to know**: API Routes のように、 Route Handlersは、フォームの提出などのケースで使用できます。深く React と統合する[フォームや変異の処理](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)のための新しい abstraction が開発中です。
+> **Good to know**: API Routes のように、 Route Handlers は、フォームの提出などのケースで使用できます。深く React と統合する[フォームや変異の処理](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)のための新しい abstraction が開発中です。
 
 ### Route 解決策
 
 `route`は最低レベルのルーティング基本と考えることができます。
 
-- 彼らはLayoutやClient側のナビゲーション、たとえば`page`のようなものに**参加しません**。
-- 同じrouteに `route.js` ファイルが**存在してはならない**、つまり `page.js` と同じです。
+- 彼らは Layout や Client 側のナビゲーション、たとえば`page`のようなものに**参加しません**。
+- 同じ route に `route.js` ファイルが**存在してはならない**、つまり `page.js` と同じです。
 
-| ページ | Route | 結果 |
-| -------------------- | ------------------ | ---------------------------- |
-| `app/page.js` | `app/route.js` | <Cross size={18} /> コンフリクト |
-| `app/page.js` | `app/api/route.js` | <Check size={18} /> 有効 |
-| `app/[user]/page.js` | `app/api/route.js` | <Check size={18} /> 有効 |
+| ページ               | Route              | 結果                             |
+| -------------------- | ------------------ | -------------------------------- |
+| `app/page.js`        | `app/route.js`     | <Cross size={18} /> コンフリクト |
+| `app/page.js`        | `app/api/route.js` | <Check size={18} /> 有効         |
+| `app/[user]/page.js` | `app/api/route.js` | <Check size={18} /> 有効         |
 
-各`route.js`または`page.js`ファイルは、そのrouteに関するすべてのHTTP動詞を引き継ぎます。
+各`route.js`または`page.js`ファイルは、その route に関するすべての HTTP 動詞を引き継ぎます。
 
 ```jsx:app/page.js
 export default function Page() {
@@ -187,7 +187,7 @@ export async function POST(request) {}
 
 ## Examples
 
-次の例では、Routeハンドラを他のNext.js APIや機能とどのように組み合わせるかを示しています。
+次の例では、Route ハンドラを他の Next.js API や機能とどのように組み合わせるかを示しています。
 
 ### キャッシュデータの再検証
 
@@ -218,18 +218,18 @@ export async function GET() {
 あるいは、[`revalidate` セグメント config オプション](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#revalidate)を使用することもできます：
 
 ```ts
-export const revalidate = 60
+export const revalidate = 60;
 ```
 
 ### Dynamic 関数
 
-Routeハンドラーは、Next.jsのdynamic関数、例えば[`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)や[`headers`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)といったものと一緒に使用することができます。
+Route ハンドラーは、Next.js の dynamic 関数、例えば[`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)や[`headers`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)といったものと一緒に使用することができます。
 
 #### Cookies
 
 `next/headers`の[`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)を使用して、 cookies を読み取るか設定することができます。この server 機能は、 Route Handler 内で直接呼び出すことも、別の関数の中にネストすることもできます。
 
-あるいは、[`Set-Cookie`](https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie) headerを使用して新しい`Response`を返すことができます。
+あるいは、[`Set-Cookie`](https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie) header を使用して新しい`Response`を返すことができます。
 
 ```ts:app/api/route.ts
 import { cookies } from 'next/headers'
@@ -259,7 +259,7 @@ export async function GET(request) {
 }
 ```
 
-また、基盤となるWeb APIを使用して、requestからcookiesを読み取ることもできます([`NextRequest`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request)):
+また、基盤となる Web API を使用して、request から cookies を読み取ることもできます([`NextRequest`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request)):
 
 ```ts:app/api/route.ts
 import { type NextRequest } from 'next/server'
@@ -309,7 +309,7 @@ export async function GET(request) {
 }
 ```
 
-また、基礎となるWeb APIを使って、requestからheadersを読み取ることもできます([`NextRequest`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request)):
+また、基礎となる Web API を使って、request から headers を読み取ることもできます([`NextRequest`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request)):
 
 ```ts:app/api/route.ts
 import { type NextRequest } from 'next/server'
@@ -345,9 +345,9 @@ export async function GET(request) {
 
 ### Dynamic Route セグメント
 
-> 続ける前に、[Routesの定義](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)のページを読むことをお勧めします。
+> 続ける前に、[Routes の定義](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)のページを読むことをお勧めします。
 
-Route Handlersは、Dynamicデータからrequestハンドラを作成するために[dynamic Segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を使用することができます。
+Route Handlers は、Dynamic データから request ハンドラを作成するために[dynamic Segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を使用することができます。
 
 ```ts:app/items/[slug]/route.ts
 export async function GET(
@@ -364,15 +364,15 @@ export async function GET(request, { params }) {
 }
 ```
 
-| Route | Example URL | `params` |
+| Route                       | Example URL | `params`        |
 | --------------------------- | ----------- | --------------- |
-| `app/items/[slug]/route.js` | `/items/a` | `{ slug: 'a' }` |
-| `app/items/[slug]/route.js` | `/items/b` | `{ slug: 'b' }` |
-| `app/items/[slug]/route.js` | `/items/c` | `{ slug: 'c' }` |
+| `app/items/[slug]/route.js` | `/items/a`  | `{ slug: 'a' }` |
+| `app/items/[slug]/route.js` | `/items/b`  | `{ slug: 'b' }` |
+| `app/items/[slug]/route.js` | `/items/c`  | `{ slug: 'c' }` |
 
 ### URL Query パラメータ
 
-Route Handlerに渡される request objectは、`NextRequest`インスタンスであり、[一部追加の便利なMethod](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request#nexturl)が含まれています。これには、より容易にqueryパラメータを処理するためのものも含まれています。
+Route Handler に渡される request object は、`NextRequest`インスタンスであり、[一部追加の便利な Method](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request#nexturl)が含まれています。これには、より容易に query パラメータを処理するためのものも含まれています。
 
 ```ts:app/api/search/route.ts
 import { type NextRequest } from 'next/server'
@@ -394,7 +394,7 @@ export function GET(request) {
 
 ### Streaming
 
-Streamingは、OpenAIのような大規模言語モデル(LLMs)と組み合わせて使用されることが一般的で、AIが生成するコンテンツに利用されます。[AI SDK](https://sdk.vercel.ai/docs)について詳しく学びましょう。
+Streaming は、OpenAI のような大規模言語モデル(LLMs)と組み合わせて使用されることが一般的で、AI が生成するコンテンツに利用されます。[AI SDK](https://sdk.vercel.ai/docs)について詳しく学びましょう。
 
 ```ts:app/api/chat/route.ts
 import OpenAI from 'openai'
@@ -444,7 +444,7 @@ export async function POST(req) {
 }
 ```
 
-これらの抽象化はWeb APIを使用してストリームを作成します。また、基礎となるWeb APIを直接使用することもできます。
+これらの抽象化は Web API を使用してストリームを作成します。また、基礎となる Web API を直接使用することもできます。
 
 ```ts:app/api/route.ts
 // https://developer.mozilla.org/docs/Web/API/ReadableStream#convert_async_iterator_to_stream
@@ -528,7 +528,7 @@ export async function GET() {
 
 ### Request ボディ
 
-`Request`本文は、標準的なWeb API Methodを使用して読み取ることができます：
+`Request`本文は、標準的な Web API Method を使用して読み取ることができます：
 
 ```ts:app/items/route.ts
 export async function POST(request: Request) {
@@ -566,11 +566,11 @@ export async function POST(request) {
 }
 ```
 
-`formData`のデータはすべて文字列であるため、requestを検証し、希望する形式(例えば`number`)でデータを取得するために[`zod-form-data`](https://www.npmjs.com/zod-form-data)を使用したいかもしれません。
+`formData`のデータはすべて文字列であるため、request を検証し、希望する形式(例えば`number`)でデータを取得するために[`zod-form-data`](https://www.npmjs.com/zod-form-data)を使用したいかもしれません。
 
 ### CORS
 
-標準のWeb APIMethodを使用して、特定のRoute HandlerのCORS headersを設定することができます：
+標準の Web APIMethod を使用して、特定の Route Handler の CORS headers を設定することができます：
 
 ```ts:app/api/route.ts
 export const dynamic = 'force-dynamic' // defaults to auto
@@ -609,7 +609,7 @@ export async function GET(request) {
 
 ### Webhooks
 
-第三者のサービスからのwebhooksを受け取るためにRoute Handlerを使用することができます：
+第三者のサービスからの webhooks を受け取るために Route Handler を使用することができます：
 
 ```ts:app/api/route.ts
 export async function POST(request: Request) {
@@ -645,21 +645,21 @@ export async function POST(request) {
 }
 ```
 
-特筆すべきは、Pages Routerとは異なり、API Routesを使う場合、追加の設定を使うために `bodyParser` を使用する必要はありません。
+特筆すべきは、Pages Router とは異なり、API Routes を使う場合、追加の設定を使うために `bodyParser` を使用する必要はありません。
 
-### EdgeとNode.js Runtimes
+### Edge と Node.js Runtimes
 
-Route Handlersは、ストリーミングを含む Edge と Node.js runtimes の両方をシームレスにサポートする同型のWeb API を持っています。 Route Handlers は Pages や Layouts と同じ[route セグメントの設定](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)を使用しているため、一般的な用途の[静的に再生成される](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#revalidating-data) Route Handlersのような待望の機能をサポートします。
+Route Handlers は、ストリーミングを含む Edge と Node.js runtimes の両方をシームレスにサポートする同型の Web API を持っています。 Route Handlers は Pages や Layouts と同じ[route セグメントの設定](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)を使用しているため、一般的な用途の[静的に再生成される](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#revalidating-data) Route Handlers のような待望の機能をサポートします。
 
 `runtime`セグメントの config オプションを使用して、 runtime を指定できます。
 
 ```ts
-export const runtime = 'edge' // 'nodejs' is the default
+export const runtime = "edge"; // 'nodejs' is the default
 ```
 
-### 非UI応答
+### 非 UI 応答
 
-非UIコンテンツを返すために Route ハンドラを使用することができます。[`sitemap.xml`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/sitemap#generating-a-sitemap-using-code-js-ts)、[`robots.txt`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/robots#generate-a-robots-file)、[`app icons`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#generate-icons-using-code-js-ts-tsx)、および[open graph イメージ](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image)はすべて組み込みのサポートがあることに注意してください。
+非 UI コンテンツを返すために Route ハンドラを使用することができます。[`sitemap.xml`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/sitemap#generating-a-sitemap-using-code-js-ts)、[`robots.txt`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/robots#generate-a-robots-file)、[`app icons`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#generate-icons-using-code-js-ts-tsx)、および[open graph イメージ](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image)はすべて組み込みのサポートがあることに注意してください。
 
 ```ts:app/rss.xml/route.ts
 export const dynamic = 'force-dynamic' // defaults to auto
@@ -704,7 +704,7 @@ export async function GET() {
 
 ### セグメント Config Options
 
-Routeハンドラは、ページやLayoutと同じ[routeセグメント設定](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)を使用します。
+Route ハンドラは、ページや Layout と同じ[route セグメント設定](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)を使用します。
 
 ```ts:app/items/route.ts
 export const dynamic = 'auto'
@@ -724,4 +724,4 @@ export const runtime = 'nodejs'
 export const preferredRegion = 'auto'
 ```
 
-S詳細については、[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)をご覧ください。
+詳細については、[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)をご覧ください。

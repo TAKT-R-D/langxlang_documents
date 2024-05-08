@@ -7,13 +7,13 @@ org_path: /docs/app/building-your-application/routing/dynamic-routes
 is_empty: false
 ---
 
-具体的なセグメント名を事前に知らない場合や、Dynamicデータからroutesを作成したい場合は、request時に詰め込むか、もしくは[prerendered](#generating-static-params)をbuild時に使用できるdynamicセグメントを使用できます。
+具体的なセグメント名を事前に知らない場合や、Dynamic データから routes を作成したい場合は、request 時に詰め込むか、もしくは[prerendered](#generating-static-params)を build 時に使用できる dynamic セグメントを使用できます。
 
 ## Convention
 
-Dynamicセグメントは、フォルダー名を角括弧で囲むことで作成できます：`[folderName]`。たとえば、`[id]`または`[slug]`。
+Dynamic セグメントは、フォルダー名を角括弧で囲むことで作成できます：`[folderName]`。たとえば、`[id]`または`[slug]`。
 
-Dynamicセグメントは、`params`プロップとして[`layout`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)、[`page`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)、[`route`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、および[`generateMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#generatemetadata-function)関数に渡されます。
+Dynamic セグメントは、`params`プロップとして[`layout`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)、[`page`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)、[`route`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、および[`generateMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#generatemetadata-function)関数に渡されます。
 
 ## Example
 
@@ -31,19 +31,19 @@ export default function Page({ params }) {
 }
 ```
 
-| Route | 例 URL | `params` |
-| ------------------------- | ----------- | --------------- |
+| Route                     | 例 URL    | `params`        |
+| ------------------------- | --------- | --------------- |
 | `app/blog/[slug]/page.js` | `/blog/a` | `{ slug: 'a' }` |
 | `app/blog/[slug]/page.js` | `/blog/b` | `{ slug: 'b' }` |
 | `app/blog/[slug]/page.js` | `/blog/c` | `{ slug: 'c' }` |
 
-セグメントのparamsを生成する方法を学びたい方は、[generateStaticparams()](#generating-static-params) ページをご覧ください。
+セグメントの params を生成する方法を学びたい方は、[generateStaticparams()](#generating-static-params) ページをご覧ください。
 
 > **Good to know**: Dynamic セグメントは `pages` ディレクトリの [Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) と同等です。
 
 ## Generating Static Params
 
-`generateStaticParams`関数は[dynamic route セグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)と組み合わせて使用することで、request時ではなく、build時に routes を [**静的に生成**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)することができます。
+`generateStaticParams`関数は[dynamic route セグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)と組み合わせて使用することで、request 時ではなく、build 時に routes を [**静的に生成**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)することができます。
 
 ```tsx:app/blog/[slug]/page.tsx
 export async function generateStaticParams() {
@@ -73,14 +73,14 @@ export async function generateStaticParams() {
 
 ## Catch-all Segments
 
-Dynamicセグメントは、ブラケット内に省略記号 `[...folderName]`を追加することで、後続のすべての**catch-all**セグメントを拡張できます。
+Dynamic セグメントは、ブラケット内に省略記号 `[...folderName]`を追加することで、後続のすべての**catch-all**セグメントを拡張できます。
 
 例えば、`app/shop/[...slug]/page.js`は`/shop/clothes`と一致しますが、`/shop/clothes/tops`、`/shop/clothes/tops/t-shirts`なども一致します。
 
-| Route | 例 URL | `params` |
+| Route                        | 例 URL        | `params`                    |
 | ---------------------------- | ------------- | --------------------------- |
-| `app/shop/[...slug]/page.js` | `/shop/a` | `{ slug: ['a'] }` |
-| `app/shop/[...slug]/page.js` | `/shop/a/b` | `{ slug: ['a', 'b'] }` |
+| `app/shop/[...slug]/page.js` | `/shop/a`     | `{ slug: ['a'] }`           |
+| `app/shop/[...slug]/page.js` | `/shop/a/b`   | `{ slug: ['a', 'b'] }`      |
 | `app/shop/[...slug]/page.js` | `/shop/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |
 
 ## Optional Catch-all Segments
@@ -89,18 +89,18 @@ Catch-all セグメントは、二重の角括弧にパラメーターを含め�
 
 たとえば、`app/shop/[[...slug]]/page.js`は`/shop`に**も**一致します。それは`/shop/clothes`、`/shop/clothes/tops`、`/shop/clothes/tops/t-shirts`に加えてです。
 
-**catch-all**と**オプショナルcatch-all**セグメントの違いは、オプショナルを用いると、パラメーターのないrouteもマッチします(上記の例では`/shop`)。
+**catch-all**と**オプショナル catch-all**セグメントの違いは、オプショナルを用いると、パラメーターのない route もマッチします(上記の例では`/shop`)。
 
-| Route | 例 URL | `params` |
+| Route                          | 例 URL        | `params`                    |
 | ------------------------------ | ------------- | --------------------------- |
-| `app/shop/[[...slug]]/page.js` | `/shop` | `{}` |
-| `app/shop/[[...slug]]/page.js` | `/shop/a` | `{ slug: ['a'] }` |
-| `app/shop/[[...slug]]/page.js` | `/shop/a/b` | `{ slug: ['a', 'b'] }` |
+| `app/shop/[[...slug]]/page.js` | `/shop`       | `{}`                        |
+| `app/shop/[[...slug]]/page.js` | `/shop/a`     | `{ slug: ['a'] }`           |
+| `app/shop/[[...slug]]/page.js` | `/shop/a/b`   | `{ slug: ['a', 'b'] }`      |
 | `app/shop/[[...slug]]/page.js` | `/shop/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |
 
 ## TypeScript
 
-TypeScriptを使用するとき、設定されたrouteセグメントに応じて`params`に型を追加することができます。
+TypeScript を使用するとき、設定された route セグメントに応じて`params`に型を追加することができます。
 
 ```tsx:app/blog/[slug]/page.tsx
 export default function Page({ params }: { params: { slug: string } }) {
@@ -114,11 +114,11 @@ export default function Page({ params }) {
 }
 ```
 
-| Route | `params` Type 定義 |
+| Route                               | `params` Type 定義                       |
 | ----------------------------------- | ---------------------------------------- |
-| `app/blog/[slug]/page.js` | `{ slug: string }` |
-| `app/shop/[...slug]/page.js` | `{ slug: string[] }` |
-| `app/shop/[[...slug]]/page.js` | `{ slug?: string[] }` |
+| `app/blog/[slug]/page.js`           | `{ slug: string }`                       |
+| `app/shop/[...slug]/page.js`        | `{ slug: string[] }`                     |
+| `app/shop/[[...slug]]/page.js`      | `{ slug?: string[] }`                    |
 | `app/[categoryId]/[itemId]/page.js` | `{ categoryId: string, itemId: string }` |
 
 > **Good to know**: これは将来的には[TypeScript plugin](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript#typescript-plugin)によって自動的に行われるかもしれません。
