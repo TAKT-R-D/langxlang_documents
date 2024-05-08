@@ -10,7 +10,7 @@ nav_title: App Router Migration
 
 このガイドはあなたを助けます：
 
-- [あなたの Next.js アプリケーションを version 12から version 13にアップデート](#nextjs-version)
+- [あなたの Next.js アプリケーションを version 12 から version 13 にアップデート](#nextjs-version)
 - [`pages` および `app` ディレクトリの両方で機能するアップグレード機能](#upgrading-new-features)
 - [既存のアプリケーションを `pages` から `app` へ段階的に移行します](#migrating-from-pages-to-app)
 
@@ -18,11 +18,11 @@ nav_title: App Router Migration
 
 ### Node.js Version
 
-最小のNode.js versionは現在**v18.17**です。詳細については、[Node.jsドキュメンテーション](https://nodejs.org/docs/latest-v18.x/api/)をご覧ください。
+最小の Node.js version は現在**v18.17**です。詳細については、[Node.js ドキュメンテーション](https://nodejs.org/docs/latest-v18.x/api/)をご覧ください。
 
 ### Next.js Version
 
-あなたの好みのパッケージマネージャーを使用して、Next.js version13にアップデートするには、次のコマンドを実行してください。
+あなたの好みのパッケージマネージャーを使用して、Next.js version13 にアップデートするには、次のコマンドを実行してください。
 
 ```bash:Terminal
 npm install next@latest react@latest react-dom@latest
@@ -30,13 +30,13 @@ npm install next@latest react@latest react-dom@latest
 
 ### ESLint Version
 
-あなたがESLintを使っている場合、あなたのESLint versionをアップグレードする必要があります：
+あなたが ESLint を使っている場合、あなたの ESLint version をアップグレードする必要があります：
 
 ```bash:Terminal
 npm install -D eslint-config-next@latest
 ```
 
-> **Good to know**: ESLint serverの変更が反映されるためには、VS CodeでESLint serverを再起動する必要があるかもしれません。コマンドパレット(Macでは`cmd+shift+p`、Windowsでは`ctrl+shift+p`)を開き、`ESLint: Restart ESLint Server`で検索してください。
+> **Good to know**: ESLint server の変更が反映されるためには、VS Code で ESLint server を再起動する必要があるかもしれません。コマンドパレット(Mac では`cmd+shift+p`、Windows では`ctrl+shift+p`)を開き、`ESLint: Restart ESLint Server`で検索してください。
 
 ## Next Steps
 
@@ -47,24 +47,24 @@ npm install -D eslint-config-next@latest
 
 ## Upgrading New Features
 
- Next.js 13は、新機能と規約を備えた新しい[App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)を導入しました。新しい Router は `app` ディレクトリで利用可能で、`pages` ディレクトリと共存します。
+Next.js 13 は、新機能と規約を備えた新しい[App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)を導入しました。新しい Router は `app` ディレクトリで利用可能で、`pages` ディレクトリと共存します。
 
- Next.js 13にアップグレードしても、新しい[App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#the-app-router)を require で使用する必要は**ありません**。新しい機能を使った `pages` の使用を続けることができます。それらの新機能は、アップデートされた[Image component](#image-component)、[Link component](#link-component)、[Script component](#script-component)、そして[Font optimization](#font-optimization)など、どちらのディレクトリでも動作します。
+Next.js 13 にアップグレードしても、新しい[App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#the-app-router)を require で使用する必要は**ありません**。新しい機能を使った `pages` の使用を続けることができます。それらの新機能は、アップデートされた[Image component](#image-component)、[Link component](#link-component)、[Script component](#script-component)、そして[Font optimization](#font-optimization)など、どちらのディレクトリでも動作します。
 
 ### `<Image/>` Component
 
-Next.js 12は、一時的なimport：`next/future/image`とともに、Image Componentに新しい改良を導入しました。これらの改良には、Client側のJavaScriptの削減、画像の拡張やstyleをより簡単に行う方法、より良いアクセシビリティ、およびブラウザのネイティブなlazy loadingが含まれています。
+Next.js 12 は、一時的な import：`next/future/image`とともに、Image Component に新しい改良を導入しました。これらの改良には、Client 側の JavaScript の削減、画像の拡張や style をより簡単に行う方法、より良いアクセシビリティ、およびブラウザのネイティブな lazy loading が含まれています。
 
-version13では、この新しい動作が `next/image` のdefaultになりました。
+version13 では、この新しい動作が `next/image` の default になりました。
 
-新しいImage Componentに移行するための2つのcodemodsがあります：
+新しい Image Component に移行するための 2 つの codemods があります：
 
-- [**`next-image-to-legacy-image` codemod**](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-image-to-legacy-image): 安全かつ自動で `next/image` のインポートを `next/legacy/image` に名前変更します。既存のComponentは同じ動作を維持します。
-- [**`next-image-experimental` コードモッド**](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-image-experimental): 危険なインラインの styles を追加し、未使用の props を削除します。これにより、既存のコンポーネントの動作が新しいdefaultに合わせて変更されます。このコードモッドを使用するには、まず `next-image-to-legacy-image` コードモッドを実行する必要があります。
+- [**`next-image-to-legacy-image` codemod**](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-image-to-legacy-image): 安全かつ自動で `next/image` のインポートを `next/legacy/image` に名前変更します。既存の Component は同じ動作を維持します。
+- [**`next-image-experimental` コードモッド**](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-image-experimental): 危険なインラインの styles を追加し、未使用の props を削除します。これにより、既存のコンポーネントの動作が新しい default に合わせて変更されます。このコードモッドを使用するには、まず `next-image-to-legacy-image` コードモッドを実行する必要があります。
 
 ### `<Link>` Component
 
-[`<Link>` Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#link-component)は、子として`<a>`タグを手動で追加する必要がなくなりました。この動作は、[version 12.2](https://nextjs.org/blog/next-12-2)で実験的なオプションとして追加され、現在はdefaultとなっています。Next.js 13では、`<Link>`は常に`<a>`をレンダリングし、propsを基礎となるタグに転送することを可能にします。
+[`<Link>` Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#link-component)は、子として`<a>`タグを手動で追加する必要がなくなりました。この動作は、[version 12.2](https://nextjs.org/blog/next-12-2)で実験的なオプションとして追加され、現在は default となっています。Next.js 13 では、`<Link>`は常に`<a>`をレンダリングし、props を基礎となるタグに転送することを可能にします。
 
 For example:
 
@@ -82,19 +82,19 @@ import Link from 'next/link'
 </Link>
 ```
 
-あなたのリンクをNext.js 13にアップグレードするには、[`new-link` codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#new-link)を使用できます。
+あなたのリンクを Next.js 13 にアップグレードするには、[`new-link` codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#new-link)を使用できます。
 
 ### `<Script>` Component
 
- [`next/script`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/script)の挙動が、`pages`と`app`の両方をサポートするように更新されましたが、スムーズな移行を確保するためにはいくつかの変更が必要となります：
+[`next/script`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/script)の挙動が、`pages`と`app`の両方をサポートするように更新されましたが、スムーズな移行を確保するためにはいくつかの変更が必要となります：
 
-- 以前に`_document.js`に含めていた全ての`beforeInteractive`のscriptsを、root layoutファイル(`app/layout.tsx`)に移動してください。
+- 以前に`_document.js`に含めていた全ての`beforeInteractive`の scripts を、root layout ファイル(`app/layout.tsx`)に移動してください。
 - 実験的な`worker` strategy はまだ `app`で動作せず、この strategy を指定した scripts は削除するか、別の strategy (例：`lazyOnload`)を使用するように変更する必要があります。
-- `onLoad`、`onReady`、そして `onError` ハンドラーラーはServer Componentsで動作しませんので、それらを[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)に移動するか、完全に削除するように確認してください。
+- `onLoad`、`onReady`、そして `onError` ハンドラーラーは Server Components で動作しませんので、それらを[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)に移動するか、完全に削除するように確認してください。
 
 ### フォント最適化
 
-以前、Next.jsは[inlining font CSS](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts)によってフォントの最適化を支援していました。Version 13では、新たに[`next/font`](/docs/app/building-your-application/optimizing/fonts)モジュールが導入され、優れたパフォーマンスとプライバシーを維持しながらフォントloading経験をカスタマイズする能力を提供します。`next/font`は、`pages`および`app`ディレクトリの両方でサポートされています。
+以前、Next.js は[inlining font CSS](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts)によってフォントの最適化を支援していました。Version 13 では、新たに[`next/font`](/docs/app/building-your-application/optimizing/fonts)モジュールが導入され、優れたパフォーマンスとプライバシーを維持しながらフォント loading 経験をカスタマイズする能力を提供します。`next/font`は、`pages`および`app`ディレクトリの両方でサポートされています。
 
 `pages`で[inlining CSS](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts)はまだ機能しますが、`app`では機能しません。代わりに[`next/font`](/docs/app/building-your-application/optimizing/fonts)を使用すべきです。
 
@@ -102,36 +102,36 @@ import Link from 'next/link'
 
 ## Migrating from `pages` to `app`
 
-> **🎥 視聴:** App Router を少しずつ採用する方法を学ぶ→ [YouTube (16分)](https://www.youtube.com/watch?v=YQMSietiFm0).
+> **🎥 視聴:** App Router を少しずつ採用する方法を学ぶ → [YouTube (16 分)](https://www.youtube.com/watch?v=YQMSietiFm0).
 
-App Routerへの移行は、Next.jsが上に構築するReactの機能を初めて使用するかもしれません。これにはServer Components、Suspenseなどが含まれます。 [特別なファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions) や [Layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts) などの新しい Next.js の機能と組み合わされると、移行は新しい概念、思考モデル、行動変更を学習することを意味します。
+App Router への移行は、Next.js が上に構築する React の機能を初めて使用するかもしれません。これには Server Components、Suspense などが含まれます。 [特別なファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions) や [Layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts) などの新しい Next.js の機能と組み合わされると、移行は新しい概念、思考モデル、行動変更を学習することを意味します。
 
 これらの更新の複合的な複雑さを、移行をより小さなステップに分割することで軽減することをお勧めします。`app`ディレクトリは意図的に、ページごとの増分的な移行を可能にするために、`pages`ディレクトリと同時に動作するように設計されています。
 
-- `app`ディレクトリはネストされたroutes _と_ Layoutをサポートしています。[詳しくはこちら](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)。
-- ネストされたフォルダを使用して[routesを定義する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)と、特別な`page.js`ファイルを使用してrouteセグメントを公開することができます。[詳しくはこちら](#step-4-migrating-pages)。
-- [Special file conventions](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)は、それぞれのrouteセグメントのUIを作成するために使用されます。最も一般的な特別なファイルは、`page.js`と`layout.js`です。
-  - `page.js`を使用して、routeに固有のUIを定義します。
-  - `layout.js`を使用して、複数のroutesで共有されるUIを定義してください。
+- `app`ディレクトリはネストされた routes _と_ Layout をサポートしています。[詳しくはこちら](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)。
+- ネストされたフォルダを使用して[routes を定義する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)と、特別な`page.js`ファイルを使用して route セグメントを公開することができます。[詳しくはこちら](#step-4-migrating-pages)。
+- [Special file conventions](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)は、それぞれの route セグメントの UI を作成するために使用されます。最も一般的な特別なファイルは、`page.js`と`layout.js`です。
+  - `page.js`を使用して、route に固有の UI を定義します。
+  - `layout.js`を使用して、複数の routes で共有される UI を定義してください。
   - 特別なファイルには、`.js`、`.jsx`、または`.tsx`のファイル拡張子を使用できます。
 - 他のファイルを `app` ディレクトリに共存させることができます。例えば、コンポーネント、 styles 、テストなどです。[詳しくはこちら](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)。
-- `getServerSideProps`や`getStaticProps`のようなデータ取得機能は、`app`内の新しいAPI[リンク](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)に置き換えられました。`getStaticPaths`は[`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)に置き換えられました。
-- `pages/_app.js` と `pages/_document.js` は一つの`app/layout.js` root layoutに置き換えられました。[もっと詳しく](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)。
+- `getServerSideProps`や`getStaticProps`のようなデータ取得機能は、`app`内の新しい API[リンク](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)に置き換えられました。`getStaticPaths`は[`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)に置き換えられました。
+- `pages/_app.js` と `pages/_document.js` は一つの`app/layout.js` root layout に置き換えられました。[もっと詳しく](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)。
 - `pages/_error.js`は、より詳細な`error.js`特別ファイルに置き換えられました。[詳細を学ぶ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling)。
 - `pages/404.js`は[`not-found.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found)ファイルに置き換えられました。
-- `pages/api/*` API Routesが特別なファイル [`route.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route)(Route Handler)に置き換えられました。
+- `pages/api/*` API Routes が特別なファイル [`route.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route)(Route Handler)に置き換えられました。
 
-### ステップ1： `app` ディレクトリの作成
+### ステップ 1： `app` ディレクトリの作成
 
-最新のNext.js versionに更新してください(13.4以上が必要)：
+最新の Next.js version に更新してください(13.4 以上が必要)：
 
 ```bash
 npm install next@latest
 ```
 
-次に、プロジェクトのroot(または`src/`ディレクトリ)に新しい`app`ディレクトリを作成してください。
+次に、プロジェクトの root(または`src/`ディレクトリ)に新しい`app`ディレクトリを作成してください。
 
-### ステップ2：Root Layoutの作成
+### ステップ 2：Root Layout の作成
 
 新しい `app/layout.tsx` ファイルを `app` ディレクトリの中に作成してください。これは、`app` 内のすべての routes に適用される[root layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)です。
 
@@ -165,12 +165,12 @@ export default function RootLayout({
 }
 ```
 
-- `app`ディレクトリには、root layoutが**必ず**含まれていなければなりません。
-- root layoutは、`<html>`と`<body>`タグを定義する必要があります。なぜなら、Next.jsはそれらを自動的に作成しないからです。
-- root layoutは、`pages/_app.tsx`と`pages/_document.tsx`ファイルを置き換えます。
-- layoutファイルには、`.js`、`.jsx`、または`.tsx`の拡張子を使用できます。
+- `app`ディレクトリには、root layout が**必ず**含まれていなければなりません。
+- root layout は、`<html>`と`<body>`タグを定義する必要があります。なぜなら、Next.js はそれらを自動的に作成しないからです。
+- root layout は、`pages/_app.tsx`と`pages/_document.tsx`ファイルを置き換えます。
+- layout ファイルには、`.js`、`.jsx`、または`.tsx`の拡張子を使用できます。
 
-`<head>` HTML要素を管理するには、[組み込みのSEOサポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata)を使用できます:
+`<head>` HTML 要素を管理するには、[組み込みの SEO サポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata)を使用できます:
 
 ```tsx:app/layout.tsx
 import { Metadata } from 'next'
@@ -190,13 +190,13 @@ export const metadata = {
 
 #### `_document.js`と`_app.js`の移行
 
-既存の `_app` または `_document` ファイルがある場合は、内容(例えば、グローバルな Styles )を root layout (`app/layout.tsx`) にコピーすることができます。 `app/layout.tsx` の styles は、 `pages/*` には適用され_ません_。移行中は `_app`/`_document` を保持し、`pages/*` の routes が壊れるのを防ぐべきです。完全に移行が完了したら、それらを安全に delete することができます。
+既存の `_app` または `_document` ファイルがある場合は、内容(例えば、グローバルな Styles )を root layout (`app/layout.tsx`) にコピーすることができます。 `app/layout.tsx` の styles は、 `pages/*` には適用され*ません*。移行中は `_app`/`_document` を保持し、`pages/*` の routes が壊れるのを防ぐべきです。完全に移行が完了したら、それらを安全に delete することができます。
 
 あなたが React Context プロバイダーを使用している場合、それらは [Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)に移動する必要があります。
 
-#### `getLayout()`パターンのLayoutsへの移行(オプショナル)
+#### `getLayout()`パターンの Layouts への移行(オプショナル)
 
-Next.jsは、`pages`ディレクトリでページごとのLayoutを実現するために、[PageComponentにプロパティを追加する](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#layout-pattern#per-page-layouts)ことを推奨しました。このパターンは、`app`ディレクトリでの[nested layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)のネイティブサポートに置き換えることができます。
+Next.js は、`pages`ディレクトリでページごとの Layout を実現するために、[PageComponent にプロパティを追加する](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#layout-pattern#per-page-layouts)ことを推奨しました。このパターンは、`app`ディレクトリでの[nested layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)のネイティブサポートに置き換えることができます。
 
 <details>
   <summary>See before and after example</summary>
@@ -232,14 +232,14 @@ Page.getLayout = function getLayout(page) {
 
   ```jsx filename="app/dashboard/page.js"
   export default function Page() {
-    return <p>My Page</p>
+    return <p>My Page</p>;
   }
   ```
 
 - `DashboardLayout`の内容を新しい[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)に移動して、`pages`ディレクトリの動作を維持してください。
 
   ```jsx filename="app/dashboard/DashboardLayout.js"
-  'use client' // this directive should be at top of the file, before any imports.
+  "use client"; // this directive should be at top of the file, before any imports.
 
   // This is a Client Component
   export default function DashboardLayout({ children }) {
@@ -248,18 +248,18 @@ Page.getLayout = function getLayout(page) {
         <h2>My Dashboard</h2>
         {children}
       </div>
-    )
+    );
   }
   ```
 
-- `app`ディレクトリ内の新しい`layout.js`ファイルに`DashboardLayout`をImportしてください。
+- `app`ディレクトリ内の新しい`layout.js`ファイルに`DashboardLayout`を Import してください。
 
   ```jsx filename="app/dashboard/layout.js"
-  import DashboardLayout from './DashboardLayout'
+  import DashboardLayout from "./DashboardLayout";
 
   // This is a Server Component
   export default function Layout({ children }) {
-    return <DashboardLayout>{children}</DashboardLayout>
+    return <DashboardLayout>{children}</DashboardLayout>;
   }
   ```
 
@@ -267,9 +267,9 @@ Page.getLayout = function getLayout(page) {
 
 </details>
 
-### ステップ3： `next/head` の移行
+### ステップ 3： `next/head` の移行
 
-`pages`ディレクトリでは、`next/head` React componentが`<head>` HTML要素(`title`、`meta`など)を管理するために使用されています。`app`ディレクトリでは、`next/head`は新しい[組み込みのSEOサポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata)に置き換えられます。
+`pages`ディレクトリでは、`next/head` React component が`<head>` HTML 要素(`title`、`meta`など)を管理するために使用されています。`app`ディレクトリでは、`next/head`は新しい[組み込みの SEO サポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata)に置き換えられます。
 
 **Before:**
 
@@ -325,27 +325,27 @@ export default function Page() {
 }
 ```
 
-すべてのmetadata optionsを[参照](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)してください。
+すべての metadata options を[参照](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)してください。
 
-### ステップ4：ページの移行
+### ステップ 4：ページの移行
 
 - [`app` ディレクトリ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)内のページは、 default で[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)です。これは `pages` ディレクトリとは異なり、こちらのページは[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)です。
-- [データ取得](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)は `app` で変更されました。`getServerSideProps`、`getStaticProps`、および `getInitialProps`は、よりシンプルなAPIに置き換えられました。
-- `app`ディレクトリはネストされたフォルダを使用して[routesを定義する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)ため、そして特別な`page.js`ファイルを使用してrouteセグメントを公にアクセス可能にするためです。
-- | `pages` ディレクトリ | `app` ディレクトリ       | Route          | | ----------------- | --------------------- | -------------- | | `index.js`        | `page.js`             | `/`            | | `about.js`        | `about/page.js`       | `/about`       | | `blog/[slug].js`  | `blog/[slug]/page.js` | `/blog/post-1` |
+- [データ取得](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)は `app` で変更されました。`getServerSideProps`、`getStaticProps`、および `getInitialProps`は、よりシンプルな API に置き換えられました。
+- `app`ディレクトリはネストされたフォルダを使用して[routes を定義する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)ため、そして特別な`page.js`ファイルを使用して route セグメントを公にアクセス可能にするためです。
+- | `pages` ディレクトリ | `app` ディレクトリ | Route | | ----------------- | --------------------- | -------------- | | `index.js` | `page.js` | `/` | | `about.js` | `about/page.js` | `/about` | | `blog/[slug].js` | `blog/[slug]/page.js` | `/blog/post-1` |
 
-ページの移行を主に2つのステップに分解することをお勧めします：
+ページの移行を主に 2 つのステップに分解することをお勧めします：
 
-- ステップ1：exportされたdefaultページComponentを新しいClient Componentに移動します。
-- ステップ2：新しい`app`ディレクトリ内の新しい`page.js`ファイルに新しいClient ComponentをImportします。
+- ステップ 1：export された default ページ Component を新しい Client Component に移動します。
+- ステップ 2：新しい`app`ディレクトリ内の新しい`page.js`ファイルに新しい Client Component を Import します。
 
 > **Good to know**: これが最も`pages`ディレクトリに近い動作をするため、最も簡単な移行 path です。
 
-**ステップ1：新しい Client Component を作成する**
+**ステップ 1：新しい Client Component を作成する**
 
-- `app`ディレクトリ内に新しい別のファイル(例 `app/home-page.tsx` など)を作成し、その中にClient Componentをexportします。 Client Componentsを定義するには、ファイルの先頭(どのインポートよりも前)に`'use client'`ディレクティブを追加します。
-  - Pages Routerと同様に、初回のページロード時にClient Componentsを静的HTMLにプレレンダリングするための[最適化ステップ](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components#full-page-load)があります。
-- `pages/index.js`から`app/home-page.tsx`へと、default というexportされたページ componentを移動させてください。
+- `app`ディレクトリ内に新しい別のファイル(例 `app/home-page.tsx` など)を作成し、その中に Client Component を export します。 Client Components を定義するには、ファイルの先頭(どのインポートよりも前)に`'use client'`ディレクティブを追加します。
+  - Pages Router と同様に、初回のページロード時に Client Components を静的 HTML にプレレンダリングするための[最適化ステップ](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components#full-page-load)があります。
+- `pages/index.js`から`app/home-page.tsx`へと、default という export されたページ component を移動させてください。
 
 ```tsx:app/home-page.tsx
 'use client'
@@ -381,63 +381,63 @@ export default function HomePage({ recentPosts }) {
 }
 ```
 
-**ステップ2：新しいページを作成する**
+**ステップ 2：新しいページを作成する**
 
 - 新しい `app/page.tsx` ファイルを `app` ディレクトリ内に作成します。これは、 default で Server Component です。
-- ページに`home-page.tsx`のImport Client Componentをインポートします。
-- `pages/index.js`でデータを取得していた場合、新しい[data fetching APIs](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)を使用してデータ取得のロジックを直接Server Componentに移動します。詳細は[data fetching upgrade guide](#step-6-migrating-data-fetching-methods)を参照してください。
+- ページに`home-page.tsx`の Import Client Component をインポートします。
+- `pages/index.js`でデータを取得していた場合、新しい[data fetching APIs](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)を使用してデータ取得のロジックを直接 Server Component に移動します。詳細は[data fetching upgrade guide](#step-6-migrating-data-fetching-methods)を参照してください。
 
   ```tsx filename="app/page.tsx" switcher
   // Import your Client Component
-  import HomePage from './home-page'
+  import HomePage from "./home-page";
 
   async function getPosts() {
-    const res = await fetch('https://...')
-    const posts = await res.json()
-    return posts
+    const res = await fetch("https://...");
+    const posts = await res.json();
+    return posts;
   }
 
   export default async function Page() {
     // Fetch data directly in a Server Component
-    const recentPosts = await getPosts()
+    const recentPosts = await getPosts();
     // Forward fetched data to your Client Component
-    return <HomePage recentPosts={recentPosts} />
+    return <HomePage recentPosts={recentPosts} />;
   }
   ```
 
   ```jsx filename="app/page.js" switcher
   // Import your Client Component
-  import HomePage from './home-page'
+  import HomePage from "./home-page";
 
   async function getPosts() {
-    const res = await fetch('https://...')
-    const posts = await res.json()
-    return posts
+    const res = await fetch("https://...");
+    const posts = await res.json();
+    return posts;
   }
 
   export default async function Page() {
     // Fetch data directly in a Server Component
-    const recentPosts = await getPosts()
+    const recentPosts = await getPosts();
     // Forward fetched data to your Client Component
-    return <HomePage recentPosts={recentPosts} />
+    return <HomePage recentPosts={recentPosts} />;
   }
   ```
 
-- あなたの前のページが `useRouter` を使用していた場合、新しいルーティングhookへの更新が必要です。 [もっと詳しく](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)。
-- Startを押して、あなたのdevelopment serverを始め、[`EXL0005`](http://localhost:3000)にアクセスしてください。すでに存在するindex routeが、今はappディレクトリを通じて提供されているはずです。
+- あなたの前のページが `useRouter` を使用していた場合、新しいルーティング hook への更新が必要です。 [もっと詳しく](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)。
+- Start を押して、あなたの development server を始め、[`EXL0005`](http://localhost:3000)にアクセスしてください。すでに存在する index route が、今は app ディレクトリを通じて提供されているはずです。
 
-### ステップ5：ルーティングhookの移行
+### ステップ 5：ルーティング hook の移行
 
-新しいrouterが追加され、`app`ディレクトリに新しい動作をサポートします。
+新しい router が追加され、`app`ディレクトリに新しい動作をサポートします。
 
-`app`では、`next/navigation`からインポートされた3つの新しいhookを使用する必要があります：[`useRouter()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)、[`usePathname()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)、そして[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params)。
+`app`では、`next/navigation`からインポートされた 3 つの新しい hook を使用する必要があります：[`useRouter()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)、[`usePathname()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)、そして[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params)。
 
-- 新しい`useRouter` hookは、`next/navigation`からインポートされ、`next/router`からインポートされる`pages`の中の`useRouter` hookとは異なる動作を持っています。
+- 新しい`useRouter` hook は、`next/navigation`からインポートされ、`next/router`からインポートされる`pages`の中の`useRouter` hook とは異なる動作を持っています。
   - `next/router`からインポートされる[`useRouter` hook](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)は、`app`ディレクトリではサポートされていませんが、`pages`ディレクトリでは引き続き使用できます。
-- 新しい`useRouter`は`pathname`のstringを返しません。代わりに別の`usePathname`のhookを使用してください。
-- 新しい`useRouter`は`query`のobjectを返しません。代わりに、別の`useSearchParams`のhookを使用してください。
+- 新しい`useRouter`は`pathname`の string を返しません。代わりに別の`usePathname`の hook を使用してください。
+- 新しい`useRouter`は`query`の object を返しません。代わりに、別の`useSearchParams`の hook を使用してください。
 - `useSearchParams` と`usePathname` を同時に使用してページの変更をリスンすることができます。詳細は[Router Events](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router#router-events)セクションを参照してください。
-- これらの新しいhookは、Client Componentsでのみサポートされています。Server Componentsでは使用できません。
+- これらの新しい hook は、Client Components でのみサポートされています。Server Components では使用できません。
 
 ```tsx:app/example-client-component.tsx
 'use client'
@@ -467,19 +467,19 @@ export default function ExampleClientComponent() {
 }
 ```
 
-さらに、新たな `useRouter` hookには以下の変更があります：
+さらに、新たな `useRouter` hook には以下の変更があります：
 
 - `isFallback`は削除されました。なぜなら、`fallback`が[置き換えられました](#replacing-fallback)からです。
-- `locale`、`locales`、`defaultLocales`、`domainLocales`の値は、`app`ディレクトリでビルトインのi18n Next.js機能がもはや必要ないため削除されました。[i18nについてもっと学ぶ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/14-internationalization)。
+- `locale`、`locales`、`defaultLocales`、`domainLocales`の値は、`app`ディレクトリでビルトインの i18n Next.js 機能がもはや必要ないため削除されました。[i18n についてもっと学ぶ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/14-internationalization)。
 - `basePath`は削除されました。代替手段は`useRouter`の一部にはなりません。まだ実装されていません。
-- `asPath`は削除されました。なぜなら、新しいrouterから`as`の概念が削除されたからです。
-- `isReady`はもはや必要ないため、削除されました。 [static rendering](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)の間に、[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) hookを使用するあらゆるcomponentは、プレレンダリングステップをスキップし、代わりにclientでruntimeにレンダリングされます。
+- `asPath`は削除されました。なぜなら、新しい router から`as`の概念が削除されたからです。
+- `isReady`はもはや必要ないため、削除されました。 [static rendering](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)の間に、[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) hook を使用するあらゆる component は、プレレンダリングステップをスキップし、代わりに client で runtime にレンダリングされます。
 
-[`useRouter()` API referenceを見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)。
+[`useRouter()` API reference を見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)。
 
-### ステップ6：データ取得方法の移行
+### ステップ 6：データ取得方法の移行
 
-`pages` ディレクトリは、ページのデータをfetchするために `getServerSideProps` と `getStaticProps` を使用します。`app`ディレクトリ内では、これらの以前のデータフェッチ関数は、`fetch()` と `async` React Server Componentsを基盤にした[よりシンプルなAPI](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)に置き換えられます。
+`pages` ディレクトリは、ページのデータを fetch するために `getServerSideProps` と `getStaticProps` を使用します。`app`ディレクトリ内では、これらの以前のデータフェッチ関数は、`fetch()` と `async` React Server Components を基盤にした[よりシンプルな API](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)に置き換えられます。
 
 ```tsx:app/page.tsx
 export default async function Page() {
@@ -525,7 +525,7 @@ export default async function Page() {
 
 #### Server-side Rendering (`getServerSideProps`)
 
-"`pages`ディレクトリでは、`getServerSideProps`が使われて server 上のデータを fetch し、props をファイル内の default でexportされた React component に転送します。このページの初期 HTML は server からプレレンダリングされ、次にブラウザでページを "hydrating"(インタラクティブにする)します。
+`pages`ディレクトリでは、`getServerSideProps`が使われて server 上のデータを fetch し、props をファイル内の default で export された React component に転送します。このページの初期 HTML は server からプレレンダリングされ、次にブラウザでページを "hydrating"(インタラクティブにする)します。
 
 ```jsx:pages/dashboard.js
 // `pages` directory
@@ -548,7 +548,7 @@ export default function Dashboard({ projects }) {
 }
 ```
 
-`app`ディレクトリでは、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)を使用して、ReactComponent内でデータの取得を共有できます。これにより、serverからのレンダリングされたHTMLを維持しながら、clientへ送るJavaScriptの量を減らすことができます。
+`app`ディレクトリでは、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)を使用して、ReactComponent 内でデータの取得を共有できます。これにより、server からのレンダリングされた HTML を維持しながら、client へ送る JavaScript の量を減らすことができます。
 
 `cache`オプションを`no-store`に設定することで、フェッチしたデータが[never キャッシュされるべきではない](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)ことを示すことができます。これは、`pages`ディレクトリの`getServerSideProps`に似ています。
 
@@ -600,9 +600,9 @@ export default async function Dashboard() {
 }
 ```
 
-#### Request Objectへのアクセス
+#### Request Object へのアクセス
 
-`pages`ディレクトリでは、Node.js HTTP APIに基づいてRequestベースのデータを取得できます。
+`pages`ディレクトリでは、Node.js HTTP API に基づいて Request ベースのデータを取得できます。
 
 たとえば、`getServerSideProps`から`req` object を取得し、リクエストの cookies や headers を取得するために使用することができます。
 
@@ -621,10 +621,10 @@ export default function Page(props) {
 }
 ```
 
-`app`ディレクトリは、requestデータを取得するための新しい読み取り専用の機能を公開します。
+`app`ディレクトリは、request データを取得するための新しい読み取り専用の機能を公開します。
 
-- [`headers()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers): WebのHeaders APIに基づいており、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)内でrequest headersを取得するために使用できます。
-- [`cookies()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies): Webの Cookies API に基づき、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)内で cookies を取得するために使用できます。
+- [`headers()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers): Web の Headers API に基づいており、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)内で request headers を取得するために使用できます。
+- [`cookies()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies): Web の Cookies API に基づき、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)内で cookies を取得するために使用できます。
 
 ```tsx:app/page.tsx
 // `app` directory
@@ -666,7 +666,7 @@ export default async function Page() {
 
 #### Static Site Generation(`getStaticProps`)
 
-`pages`ディレクトリでは、`getStaticProps`関数が使用されて、buildの時にページを事前にレンダリングします。この関数を使用すると、外部のAPIからまたは直接データベースからデータをfetchして、そのデータをページ全体に渡すことができます。これは、buildの過程で生成されています。
+`pages`ディレクトリでは、`getStaticProps`関数が使用されて、build の時にページを事前にレンダリングします。この関数を使用すると、外部の API からまたは直接データベースからデータを fetch して、そのデータをページ全体に渡すことができます。これは、build の過程で生成されています。
 
 ```jsx:pages/index.js
 // `pages` directory
@@ -705,7 +705,7 @@ export default async function Index() {
 
 #### Dynamic paths (`getStaticPaths`)
 
-`pages`ディレクトリでは、`getStaticPaths`関数を使用して、build時に事前に描画するべきdynamic pathsを定義します。
+`pages`ディレクトリでは、`getStaticPaths`関数を使用して、build 時に事前に描画するべき dynamic paths を定義します。
 
 ```jsx:pages/posts/[id].js
 // `pages` directory
@@ -731,7 +731,7 @@ export default function Post({ post }) {
 
 `app`ディレクトリでは、`getStaticPaths` は [`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params) に置き換えられています。
 
-[`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)は、`getStaticPaths`と同様の動作をしますが、routeパラメータを返すための簡略化されたAPIを持ち、[layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)の中で使用できます。`generateStaticParams`の返り値の形状は、ネストされた`param`Objectの配列や解決されたpathsのstringではなく、セグメントの配列です。
+[`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)は、`getStaticPaths`と同様の動作をしますが、route パラメータを返すための簡略化された API を持ち、[layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)の中で使用できます。`generateStaticParams`の返り値の形状は、ネストされた`param`Object の配列や解決された paths の string ではなく、セグメントの配列です。
 
 ```jsx:app/posts/[id]/page.js
 // `app` directory
@@ -755,13 +755,13 @@ export default async function Post({ params }) {
 }
 ```
 
-新しいモデルにとって、`app`ディレクトリ内で `getStaticPaths`よりも `generateStaticParams`という名前を使用する方が適切です。`get`という接頭辞は、もっと説明的な `generate`に置き換えられ、`getStaticProps`と `getServerSideProps`が必要なくなったため、今では単独での使用が適切です。また、 `Paths`というサフィックスは、複数のdynamicセグメントを持つネストされたルーティングに適した`Params`に置き換えられました。
+新しいモデルにとって、`app`ディレクトリ内で `getStaticPaths`よりも `generateStaticParams`という名前を使用する方が適切です。`get`という接頭辞は、もっと説明的な `generate`に置き換えられ、`getStaticProps`と `getServerSideProps`が必要なくなったため、今では単独での使用が適切です。また、 `Paths`というサフィックスは、複数の dynamic セグメントを持つネストされたルーティングに適した`Params`に置き換えられました。
 
 ---
 
 #### `fallback`の置き換え
 
-`pages`ディレクトリでは、`getStaticPaths`から返される`fallback`プロパティを使用して、 build 時に事前にレンダリングされていないページの動作を定義します。このプロパティは、ページが生成されている間に fallback ページを表示するために`true`に設定するか、404ページを表示するために`false`に設定するか、または request 時にページを生成するために`blocking`に設定することができます。
+`pages`ディレクトリでは、`getStaticPaths`から返される`fallback`プロパティを使用して、 build 時に事前にレンダリングされていないページの動作を定義します。このプロパティは、ページが生成されている間に fallback ページを表示するために`true`に設定するか、404 ページを表示するために`false`に設定するか、または request 時にページを生成するために`blocking`に設定することができます。
 
 ```jsx:pages/posts/[id].js
 // `pages` directory
@@ -785,7 +785,7 @@ export default function Post({ post }) {
 `app`ディレクトリでは、[`config.dynamicParams`プロパティ](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#dynamicparams)が、[`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)の外部にある params の処理方法を制御します。
 
 - **`true`**: ( default ) `generateStaticParams` に含まれていない Dynamic セグメントは、要求に応じて生成されます。
-- **`false`**: `generateStaticParams`に含まれていない Dynamic セグメントは404を返します。
+- **`false`**: `generateStaticParams`に含まれていない Dynamic セグメントは 404 を返します。
 
 これは `pages` ディレクトリの `getStaticPaths` の `fallback: true | false | 'blocking'` オプションを置き換えます。`fallback: 'blocking'` オプションは、`'blocking'`と `true` との違いがストリーミングでは無視できる程度だから `dynamicParams`に含まれていません。
 
@@ -809,7 +809,7 @@ export default async function Post({ params }) {
 }
 ```
 
-[`dynamicParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#dynamicparams)が`true`に設定されている場合(“ default )、生成されていない route セグメントが要求されたとき、それはserversでrenderingされcacheされます。
+[`dynamicParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#dynamicparams)が`true`に設定されている場合(“ default )、生成されていない route セグメントが要求されたとき、それは servers で rendering され cache されます。
 
 #### Incremental Static Regeneration (`getStaticProps`と`revalidate`を使用して)
 
@@ -870,9 +870,9 @@ export async function GET(request: Request) {}
 export async function GET(request) {}
 ```
 
-> **Good to know**: 以前APIroutesを使用してclientから外部のAPIを呼び出していた場合、代わりに[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)を使用して安全にfetchデータを取得できるようになりました。 [data fetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)について詳しく学ぶ。
+> **Good to know**: 以前 APIroutes を使用して client から外部の API を呼び出していた場合、代わりに[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)を使用して安全に fetch データを取得できるようになりました。 [data fetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)について詳しく学ぶ。
 
-### ステップ7：スタイリング
+### ステップ 7：スタイリング
 
 `pages`ディレクトリでは、グローバルスタイルシートは`pages/_app.js`のみに制限されています。しかし、`app`ディレクトリでは、この制限が解除されました。グローバルな styles は、任意の layout 、ページ、または component に追加することができます。
 
@@ -915,4 +915,4 @@ export default function RootLayout({ children }) {
 
 ## Codemods
 
- Next.js は、機能が非推奨になったときにコードベースのアップグレードを支援するためのCodemod変換を提供します。詳細は[Codemods](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods)を参照してください。
+Next.js は、機能が非推奨になったときにコードベースのアップグレードを支援するための Codemod 変換を提供します。詳細は[Codemods](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods)を参照してください。

@@ -8,9 +8,9 @@ is_empty: false
 nav_title: Vitest
 ---
 
-ViteとReact Testing Libraryは頻繁に**単体テスト**のために一緒に使用されます。このガイドでは、Next.jsとVitestをセットアップし、初めてのテストを書く方法を示します。
+Vite と React Testing Library は頻繁に**単体テスト**のために一緒に使用されます。このガイドでは、Next.js と Vitest をセットアップし、初めてのテストを書く方法を示します。
 
-> **知っておくべきこと：** `async` Server Components は、 React エコシステムにとって新しいものであるため、現在Vitestはこれをサポートしていません。同期的な Server と Client Components に対する**ユニットテスト**は実行できますが、`async`コンポーネントに対しては**E2Eテスト**を使用することをお勧めします。
+> **Good to know:** `async` Server Components は、 React エコシステムにとって新しいものであるため、現在 Vitest はこれをサポートしていません。同期的な Server と Client Components に対する**ユニットテスト**は実行できますが、`async`コンポーネントに対しては**E2E テスト**を使用することをお勧めします。
 
 ## Quickstart
 
@@ -34,7 +34,7 @@ pnpm install -D vitest @vitejs/plugin-react jsdom @testing-library/react
 bun add -D vitest @vitejs/plugin-react jsdom @testing-library/react
 ```
 
-あなたのプロジェクトのrootに`vitest.config.ts|js` ファイルを作成し、次のoptionsを追加してください：
+あなたのプロジェクトの root に`vitest.config.ts|js` ファイルを作成し、次の options を追加してください：
 
 ```ts:vitest.config.ts
 import { defineConfig } from 'vitest/config'
@@ -60,7 +60,7 @@ export default defineConfig({
 })
 ```
 
-Vitestの設定についての詳細は、[Vitest Configuration](https://vitest.dev/config/#configuration) docsをご参照ください。
+Vitest の設定についての詳細は、[Vitest Configuration](https://vitest.dev/config/#configuration) docs をご参照ください。
 
 次に、`package.json`に`test`スクリプトを追加します：
 
@@ -75,7 +75,7 @@ Vitestの設定についての詳細は、[Vitest Configuration](https://vitest.
 }
 ```
 
-`npm run test`を実行すると、Vitestはdefaultでプロジェクトの変更を**監視**します。
+`npm run test`を実行すると、Vitest は default でプロジェクトの変更を**監視**します。
 
 ## Creating your first Vitest Unit Test
 
@@ -205,6 +205,6 @@ bun test
 
 これらのリソースが役立つかもしれません：
 
-- [Next.jsとVitestの例](https://github.com/vercel/next.js/tree/canary/examples/with-vitest)
+- [Next.js と Vitest の例](https://github.com/vercel/next.js/tree/canary/examples/with-vitest)
 - [Vitest Docs](https://vitest.dev/guide/)
-- [[React テスト Library ドキュメント](https://testing-library.com/docs/react-testing-library/intro/)
+- [React テスト Library ドキュメント](https://testing-library.com/docs/react-testing-library/intro/)

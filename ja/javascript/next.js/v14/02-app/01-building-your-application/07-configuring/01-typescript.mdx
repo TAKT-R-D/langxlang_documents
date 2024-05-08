@@ -9,21 +9,21 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.jsは、あなたのReactアプリケーションを構築するためのTypeScriptを最初に使用するdevelopment体験を提供します。
+Next.js は、あなたの React アプリケーションを構築するための TypeScript を最初に使用する development 体験を提供します。
 
-それは、必要なパッケージを自動的にインストールし、適切なsettingsを設定するための組み込みのTypeScriptサポートが付属しています。
+それは、必要なパッケージを自動的にインストールし、適切な settings を設定するための組み込みの TypeScript サポートが付属しています。
 
 <AppOnly>
 
 あなたのエディター用の[TypeScript Plugin](#typescript-plugin)も含めています。
 
-> **🎥 視聴する:** TypeScript plugin について学ぶ → [YouTube (3分間)](https://www.youtube.com/watch?v=pqMqn9fKEf8)
+> **🎥 視聴する:** TypeScript plugin について学ぶ → [YouTube (3 分間)](https://www.youtube.com/watch?v=pqMqn9fKEf8)
 
 </AppOnly>
 
 ## New Projects
 
-`create-next-app`は今、TypeScriptをdefaultで配布しています。
+`create-next-app`は今、TypeScript を default で配布しています。
 
 ```bash:Terminal
 npx create-next-app@latest
@@ -33,19 +33,19 @@ npx create-next-app@latest
 
 ファイルの名前を `.ts` / `.tsx` に変更することで、プロジェクトに TypeScript を追加します。`next dev` および `next build` を実行して、必要な依存関係を自動的にインストールし、推奨の config options を持つ `tsconfig.json` ファイルを追加します。
 
-すでに`jsconfig.json`ファイルをお持ちの場合は、古い`jsconfig.json`から`paths` compiler オプションをコピーして新しい`tsconfig.json`ファイルに貼り付け、古い`jsconfig.json`ファイルをdeleteしてください。
+すでに`jsconfig.json`ファイルをお持ちの場合は、古い`jsconfig.json`から`paths` compiler オプションをコピーして新しい`tsconfig.json`ファイルに貼り付け、古い`jsconfig.json`ファイルを delete してください。
 
 <AppOnly>
 
 ## TypeScript Plugin
 
-Next.jsは、カスタムのTypeScript pluginとtypeチェッカーを含み、VScodeや他のcodeエディターが高度なtypeチェックと自動補完のために使用できます。
+Next.js は、カスタムの TypeScript plugin と type チェッカーを含み、VScode や他の code エディターが高度な type チェックと自動補完のために使用できます。
 
-VS Codeでpluginを有効にすることができます。方法は以下の通りです:
+VS Code で plugin を有効にすることができます。方法は以下の通りです:
 
 1. コマンドパレットを開く(`Ctrl/⌘` + `Shift` + `P`)
-"2. 「TypeScript: TypeScriptversionを選択」の検索"
-3. "Use Workspace Version"を選択する
+   "2. 「TypeScript: TypeScriptversion を選択」の検索"
+2. "Use Workspace Version"を選択する
 
 <Image
   alt="TypeScript Command Palette"
@@ -55,16 +55,16 @@ VS Codeでpluginを有効にすることができます。方法は以下の通�
   height="637"
 />
 
-さて、ファイルを編集すると、カスタムのpluginが有効になります。`next build`を実行すると、カスタムのtypeチェッカーが使用されます。
+さて、ファイルを編集すると、カスタムの plugin が有効になります。`next build`を実行すると、カスタムの type チェッカーが使用されます。
 
 ### Plugin の特徴
 
-TypeScript pluginは以下の点でお手伝いできます：
+TypeScript plugin は以下の点でお手伝いできます：
 
 - 無効な値が[segment config options](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)に渡された場合の警告。
-- 利用可能なoptionsを表示し、コンテキストに基づいたドキュメンテーションを行います。
+- 利用可能な options を表示し、コンテキストに基づいたドキュメンテーションを行います。
 - `use client`ディレクティブが正しく使用されていることを確認します。
-- `useState`のようなclienthookがClient Componentsでのみ使用されることを確認します。
+- `useState`のような clienthook が Client Components でのみ使用されることを確認します。
 
 > **Good to know**: 将来的にはさらに多くの機能が追加される予定です。
 
@@ -72,15 +72,15 @@ TypeScript pluginは以下の点でお手伝いできます：
 
 ## Minimum TypeScript Version
 
-`v4.5.2`以上のTypeScriptを使用することを強く推奨します。このVersionでは、[importの名前についてのtype修飾子](https://devblogs.microsoft.com/typescript/announcing-typescript-4-5/#type-on-import-names)や[パフォーマンスの向上](https://devblogs.microsoft.com/typescript/announcing-typescript-4-5/#real-path-sync-native)などといったsyntaxフィーチャが利用可能になります。
+`v4.5.2`以上の TypeScript を使用することを強く推奨します。この Version では、[import の名前についての type 修飾子](https://devblogs.microsoft.com/typescript/announcing-typescript-4-5/#type-on-import-names)や[パフォーマンスの向上](https://devblogs.microsoft.com/typescript/announcing-typescript-4-5/#real-path-sync-native)などといった syntax フィーチャが利用可能になります。
 
 <AppOnly>
 
 ## Statically Typed Links
 
- Next.js は、`next/link`を使用する際のタイプミスやその他のエラーを防ぐために、リンクを静的に type できます。これにより、ページ間のナビゲーション時の type 安全性が向上します。
+Next.js は、`next/link`を使用する際のタイプミスやその他のエラーを防ぐために、リンクを静的に type できます。これにより、ページ間のナビゲーション時の type 安全性が向上します。
 
-この機能に参加するためには、`experimental.typedRoutes`を有効にし、プロジェクトでTypeScriptを使用する必要があります。
+この機能に参加するためには、`experimental.typedRoutes`を有効にし、プロジェクトで TypeScript を使用する必要があります。
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */
@@ -93,9 +93,9 @@ const nextConfig = {
 module.exports = nextConfig
 ```
 
-Next.jsは、アプリケーション内の全ての既存のroutesに関する情報を含む`.next/types`内のlink定義を生成します。それをTypeScriptが使用して、エディター内の無効なリンクについてフィードバックを提供します。
+Next.js は、アプリケーション内の全ての既存の routes に関する情報を含む`.next/types`内の link 定義を生成します。それを TypeScript が使用して、エディター内の無効なリンクについてフィードバックを提供します。
 
-現在、実験的な対応は、dynamicセグメントを含む任意のstringリテラルを含みます。リテラルでない文字列の場合、現在は手動で`href`を`as Route`としてキャストする必要があります。
+現在、実験的な対応は、dynamic セグメントを含む任意の string リテラルを含みます。リテラルでない文字列の場合、現在は手動で`href`を`as Route`としてキャストする必要があります。
 
 ```tsx
 import type { Route } from 'next';
@@ -111,35 +111,35 @@ import Link from 'next/link'
 <Link href="/aboot" />
 ```
 
-`href`をカスタムのcomponentでラップする`next/link`に受け入れるためには、一般的なものを使用します：
+`href`をカスタムの component でラップする`next/link`に受け入れるためには、一般的なものを使用します：
 
 ```tsx
-import type { Route } from 'next'
-import Link from 'next/link'
+import type { Route } from "next";
+import Link from "next/link";
 
 function Card<T extends string>({ href }: { href: Route<T> | URL }) {
   return (
     <Link href={href}>
       <div>My Card</div>
     </Link>
-  )
+  );
 }
 ```
 
 > **それはどのように機能しますか？**
 >
-> `next dev`または`next build`を実行すると、Next.jsは`.next`の中に隠された`.d.ts`ファイルを生成し、アプリケーション内の全ての既存のroutes(`Link`の`href`のtypeである全ての有効なroutes)に関する情報を含みます。この`.d.ts`ファイルは`tsconfig.json`に含まれ、TypeScript compilerはその`.d.ts`をチェックし、無効なリンクについてエディターでフィードバックを提供します。
+> `next dev`または`next build`を実行すると、Next.js は`.next`の中に隠された`.d.ts`ファイルを生成し、アプリケーション内の全ての既存の routes(`Link`の`href`の type である全ての有効な routes)に関する情報を含みます。この`.d.ts`ファイルは`tsconfig.json`に含まれ、TypeScript compiler はその`.d.ts`をチェックし、無効なリンクについてエディターでフィードバックを提供します。
 
 ## End-to-End Type Safety
 
- Next.js App Router は、** type の安全性を強化**しています。これには次のようなものが含まれます：
+Next.js App Router は、** type の安全性を強化**しています。これには次のようなものが含まれます：
 
-1. **フェッチ関数とページ間でのデータのシリアライズなし**： Components、layout、ページ上で直接`fetch`を使用できます。このデータはシリアライズ( string への変換)されたり、 React で使用するために client 側に渡される必要は_ありません_。代わりに、`app`は default で Server Components を使用しているため、特別な手順なしで`Date`、`Map`、`Set`などのvaluesを利用できます。以前は、 Next .js固有の server を使って手動で server と client の境界を type する必要がありました。
+1. **フェッチ関数とページ間でのデータのシリアライズなし**： Components、layout、ページ上で直接`fetch`を使用できます。このデータはシリアライズ( string への変換)されたり、 React で使用するために client 側に渡される必要は*ありません*。代わりに、`app`は default で Server Components を使用しているため、特別な手順なしで`Date`、`Map`、`Set`などの values を利用できます。以前は、 Next .js 固有の server を使って手動で server と client の境界を type する必要がありました。
 2. **コンポーネント間のデータフローの効率化**： `_app` の代わりに root レイアウトを削除することで、コンポーネントとページ間のデータフローを視覚化することが容易になりました。以前は、`pages`と`_app`の間でデータが流れる際に、 type が困難で混乱を招くバグが生じる可能性がありました。その問題はもはや存在せず、 App Router では[colocated data fetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)が可能です。
 
-[Next.jsにおけるデータの取得](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)は、データベースやコンテンツプロバイダーの選択について指示することなく、できるだけエンドツーエンドのtype安全性を提供します。
+[Next.js におけるデータの取得](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)は、データベースやコンテンツプロバイダーの選択について指示することなく、できるだけエンドツーエンドの type 安全性を提供します。
 
-我々は通常のTypeScriptで期待するように、responseデータをtypeすることができます。例えば：
+我々は通常の TypeScript で期待するように、response データを type することができます。例えば：
 
 ```tsx:app/page.tsx
 async function getData() {
@@ -156,19 +156,19 @@ export default async function Page() {
 }
 ```
 
-_完全な_ エンドツーエンドのtype安全性については、あなたのデータベースまたはコンテンツプロバイダがTypeScriptをサポートすることも必要です。これは、[ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping)の使用や、型安全なqueryビルダの使用を通じて実現されるかもしれません。
+_完全な_ エンドツーエンドの type 安全性については、あなたのデータベースまたはコンテンツプロバイダが TypeScript をサポートすることも必要です。これは、[ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping)の使用や、型安全な query ビルダの使用を通じて実現されるかもしれません。
 
 ## Async Server Component TypeScript Error
 
-`async`のServer ComponentをTypeScriptで使用するには、TypeScript `5.1.3` 以上および `@types/react` `18.2.8` 以上を使用していることを確認してください。
+`async`の Server Component を TypeScript で使用するには、TypeScript `5.1.3` 以上および `@types/react` `18.2.8` 以上を使用していることを確認してください。
 
-もし古いversionのTypeScriptを使用している場合、`'Promise<Element>' is not a valid JSX element`というtype errorが表示されるかもしれません。最新のversionのTypeScriptと`@types/react`に更新することで、この問題は解決するはずです。
+もし古い version の TypeScript を使用している場合、`'Promise<Element>' is not a valid JSX element`という type error が表示されるかもしれません。最新の version の TypeScript と`@types/react`に更新することで、この問題は解決するはずです。
 
 ## Passing Data Between Server & Client Components
 
-ServerとClient Componentをpropsを通じてデータをやり取りする際、そのデータはブラウザで使用するために文字列化(stringに変換)されます。ただし、特別なtypeは必要ありません。それは、Component間で他のpropsを通過させるのと同じように型付けされます。
+Server と Client Component を props を通じてデータをやり取りする際、そのデータはブラウザで使用するために文字列化(string に変換)されます。ただし、特別な type は必要ありません。それは、Component 間で他の props を通過させるのと同じように型付けされます。
 
-さらに、未レンダリングのデータがserverとclientの間を渡らないため、シリアライズされるcodeが少なくなります(それはserver上に残ります)。これは現在、Server Componentsのサポートにより可能となりました。
+さらに、未レンダリングのデータが server と client の間を渡らないため、シリアライズされる code が少なくなります(それは server 上に残ります)。これは現在、Server Components のサポートにより可能となりました。
 
 </AppOnly>
 
@@ -176,7 +176,7 @@ ServerとClient Componentをpropsを通じてデータをやり取りする際�
 
 ## Static Generation and Server-side Rendering
 
-[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-props)、[`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths)、および[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-server-side-props)については、それぞれ`GetStaticProps`、`GetStaticPaths`、`GetServerSideProps`のtypeを使用することができます。
+[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-props)、[`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths)、および[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-server-side-props)については、それぞれ`GetStaticProps`、`GetStaticPaths`、`GetServerSideProps`の type を使用することができます。
 
 ```tsx:pages/blog/[slug].tsx
 import { GetStaticProps, GetStaticPaths, GetServerSideProps } from 'next'
@@ -198,42 +198,42 @@ export const getServerSideProps = (async (context) => {
 
 ## API Routes
 
-以下は、API routes用の組み込みtypeの使用方法の一例です：
+以下は、API routes 用の組み込み type の使用方法の一例です：
 
 ```ts
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.status(200).json({ name: 'John Doe' })
+  res.status(200).json({ name: "John Doe" });
 }
 ```
 
-あなたはまた、responseデータをtypeすることもできます：
+あなたはまた、response データを type することもできます：
 
 ```ts
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
-  name: string
-}
+  name: string;
+};
 
 export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ name: 'John Doe' })
+  res.status(200).json({ name: "John Doe" });
 }
 ```
 
 ## Custom `App`
 
-あなたが[カスタム `App`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を持っている場合、組み込みのtype `AppProps`を使ってファイル名を`./pages/_app.tsx`に変更することができます。そのように：
+あなたが[カスタム `App`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を持っている場合、組み込みの type `AppProps`を使ってファイル名を`./pages/_app.tsx`に変更することができます。そのように：
 
 ```ts
-import type { AppProps } from 'next/app'
+import type { AppProps } from "next/app";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 ```
 
@@ -241,7 +241,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
 ## Path aliases and baseUrl
 
-Next.jsは自動的に`tsconfig.json`の`"paths"`と`"baseUrl"`のoptionsをサポートします。"
+Next.js は自動的に`tsconfig.json`の`"paths"`と`"baseUrl"`の options をサポートします。"
 
 <AppOnly>
 
@@ -251,13 +251,13 @@ Next.jsは自動的に`tsconfig.json`の`"paths"`と`"baseUrl"`のoptionsをサ�
 
 <PagesOnly>
 
-この機能については、[モジュールPathエイリアスのドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/04-absolute-imports-and-module-aliases)で詳しく学べます。
+この機能については、[モジュール Path エイリアスのドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/04-absolute-imports-and-module-aliases)で詳しく学べます。
 
 </PagesOnly>
 
 ## Type checking next.config.js
 
-`next.config.js`ファイルは、BabelまたはTypeScriptによって解析されないため、JavaScriptファイルでなければなりません。しかし、以下のようにJSDocを使用してIDEでいくつかのtypeチェックを追加することができます:
+`next.config.js`ファイルは、Babel または TypeScript によって解析されないため、JavaScript ファイルでなければなりません。しかし、以下のように JSDoc を使用して IDE でいくつかの type チェックを追加することができます:
 
 ```js
 // @ts-check
@@ -267,24 +267,24 @@ Next.jsは自動的に`tsconfig.json`の`"paths"`と`"baseUrl"`のoptionsをサ�
  **/
 const nextConfig = {
   /* config options here */
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 ```
 
 ## Incremental type checking
 
-`v10.2.1`以降、 Next.jsは、`tsconfig.json`で有効にした場合に[増分の type チェック](https://www.typescriptlang.org/tsconfig#incremental)をサポートします。これにより、大規模なアプリケーションにおけるtypeチェックの速度を向上させることができます。
+`v10.2.1`以降、 Next.js は、`tsconfig.json`で有効にした場合に[増分の type チェック](https://www.typescriptlang.org/tsconfig#incremental)をサポートします。これにより、大規模なアプリケーションにおける type チェックの速度を向上させることができます。
 
 ## Ignoring TypeScript Errors
 
-あなたのプロジェクトにTypeScripterrorが存在する場合、Next.jsはあなたの**production build** (`next build`)に失敗します。
+あなたのプロジェクトに TypeScripterror が存在する場合、Next.js はあなたの**production build** (`next build`)に失敗します。
 
-あなたのアプリケーションにerrorがある場合でも、Next.jsによる危険なproduction codeの生成を希望する場合、組み込みのtypeチェックステップを無効にすることができます。
+あなたのアプリケーションに error がある場合でも、Next.js による危険な production code の生成を希望する場合、組み込みの type チェックステップを無効にすることができます。
 
-無効になっている場合、typeチェックをbuildプロセスあるいはdeployプロセスの一部として実行していることを確認してください。そうでない場合、これは非常に危険である可能性があります。
+無効になっている場合、type チェックを build プロセスあるいは deploy プロセスの一部として実行していることを確認してください。そうでない場合、これは非常に危険である可能性があります。
 
-`next.config.js`を開き、`typescript`のconfigで`ignoreBuildErrors`オプションを有効にします。
+`next.config.js`を開き、`typescript`の config で`ignoreBuildErrors`オプションを有効にします。
 
 ```js:next.config.js
 module.exports = {
@@ -321,8 +321,8 @@ module.exports = {
 
 ## Version Changes
 
-| Version | Changes |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `v13.2.0` | 静的型付けリンクがベータ版で利用可能です。 |
-| `v12.0.0` | [SWC](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler)は、より速いbuildのために、今後は default で TypeScript とTSXをコンパイルします。|
-| `v10.2.1` | あなたの `tsconfig.json` で有効にしたときに、[インクリメンタル type チェック](https://www.typescriptlang.org/tsconfig#incremental) のサポートが追加されました。|
+| Version   | Changes                                                                                                                                                         |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v13.2.0` | 静的型付けリンクがベータ版で利用可能です。                                                                                                                      |
+| `v12.0.0` | [SWC](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler)は、より速い build のために、今後は default で TypeScript と TSX をコンパイルします。          |
+| `v10.2.1` | あなたの `tsconfig.json` で有効にしたときに、[インクリメンタル type チェック](https://www.typescriptlang.org/tsconfig#incremental) のサポートが追加されました。 |

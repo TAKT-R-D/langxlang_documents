@@ -11,7 +11,7 @@ is_empty: false
 
 ## Upgrading from 13 to 14
 
-Next.js version 14に更新するには、お好みのパッケージマネージャーを使用して以下のコマンドを実行してください：
+Next.js version 14 に更新するには、お好みのパッケージマネージャーを使用して以下のコマンドを実行してください：
 
 ```bash:Terminal
 npm i next@latest react@latest react-dom@latest eslint-config-next@latest
@@ -33,8 +33,8 @@ bun add next@latest react@latest react-dom@latest eslint-config-next@latest
 
 ### v14 サマリー
 
-- 最小のNode.js versionは16.14から18.17に上がりました、なぜなら16.xはライフエンドに達していました。
-- `next export`コマンドは、`output: 'export'` configを推奨するために削除されました。詳細については、[docs](https://nextjs.org/docs/app/building-your-application/deploying/static-exports)をご覧ください。
-- `next/server`の import である`ImageResponse`は`next/og`に名称変更されました。これにより、あなたのインポート名を安全かつ自動的に変更するための[codemodが利用可能](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-og-import)です。
+- 最小の Node.js version は 16.14 から 18.17 に上がりました、なぜなら 16.x はライフエンドに達していました。
+- `next export`コマンドは、`output: 'export'` config を推奨するために削除されました。詳細については、[docs](https://nextjs.org/docs/app/building-your-application/deploying/static-exports)をご覧ください。
+- `next/server`の import である`ImageResponse`は`next/og`に名称変更されました。これにより、あなたのインポート名を安全かつ自動的に変更するための[codemod が利用可能](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-og-import)です。
 - `@next/font`パッケージは、組み込みの`next/font`に対して完全に削除されました。[codemod is available](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#built-in-next-font) で、インポートの名前を安全かつ自動的に変更できます。
-- T`next-swc`のWASM targetが削除されました。
+- `next-swc`の WASM target が削除されました。

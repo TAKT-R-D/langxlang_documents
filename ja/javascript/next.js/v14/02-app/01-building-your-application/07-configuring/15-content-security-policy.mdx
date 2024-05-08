@@ -9,30 +9,30 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-[Content Security Policy (CSP)](https://developer.mozilla.org/docs/Web/HTTP/CSP)は、クロスサイトスクリプティング(XSS)、クリックジャック、その他のcode挿入攻撃など、様々なセキュリティ脅威からあなたのNext.jsアプリケーションを保護するために重要です。
+[Content Security Policy (CSP)](https://developer.mozilla.org/docs/Web/HTTP/CSP)は、クロスサイトスクリプティング(XSS)、クリックジャック、その他の code 挿入攻撃など、様々なセキュリティ脅威からあなたの Next.js アプリケーションを保護するために重要です。
 
-CSPを使用することで、開発者はコンテンツソース、scripts、スタイルシート、画像、フォント、Object、メディア(オーディオ、ビデオ)、iframeなどに許可可能な原点を指定することができます。
+CSP を使用することで、開発者はコンテンツソース、scripts、スタイルシート、画像、フォント、Object、メディア(オーディオ、ビデオ)、iframe などに許可可能な原点を指定することができます。
 
 <details>
   <summary>Examples</summary>
 
-- [厳格なCSP](https://github.com/vercel/next.js/tree/canary/examples/with-strict-csp)
+- [厳格な CSP](https://github.com/vercel/next.js/tree/canary/examples/with-strict-csp)
 
 </details>
 
 ## Nonces
 
-[nonce](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/nonce)とは、一回限りの使用のために作られたユニークでランダムな string の文字列です。それは、厳格なCSPディレクティブを迂回して、一部のインラインの scripts や styles を選択的に実行するために、CSPと組み合わせて使用されます。
+[nonce](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/nonce)とは、一回限りの使用のために作られたユニークでランダムな string の文字列です。それは、厳格な CSP ディレクティブを迂回して、一部のインラインの scripts や styles を選択的に実行するために、CSP と組み合わせて使用されます。
 
 ### なぜ nonce を使用するのですか？
 
-CSPは悪意のあるscriptsをブロックするように設計されていますが、インラインscriptsが必要な正当なシナリオも存在します。そのような場合、noncesはそれらのscriptsが正しいnonceを持っていれば実行を許可する方法を提供します。
+CSP は悪意のある scripts をブロックするように設計されていますが、インライン scripts が必要な正当なシナリオも存在します。そのような場合、nonces はそれらの scripts が正しい nonce を持っていれば実行を許可する方法を提供します。
 
-### Middlewareを使用してnonceを追加する
+### Middleware を使用して nonce を追加する
 
-[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)は、ページがレンダリングされる前に、headersを追加し、noncesを生成することを可能にします。
+[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)は、ページがレンダリングされる前に、headers を追加し、nonces を生成することを可能にします。
 
-ページが表示されるたびに、新しいnonceが生成されるべきです。これは、あなたが**nonceを追加するためにdynamicレンダリングを使用しなければならない**ことを意味します。
+ページが表示されるたびに、新しい nonce が生成されるべきです。これは、あなたが**nonce を追加するために dynamic レンダリングを使用しなければならない**ことを意味します。
 
 For example:
 
@@ -125,9 +125,9 @@ export function middleware(request) {
 }
 ```
 
-defaultでは、MiddlewareはすべてのRequestで実行されます。[`matcher`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#matcher)を使用して、特定のpathsでMiddlewareを実行するようにフィルタリングすることができます。
+default では、Middleware はすべての Request で実行されます。[`matcher`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#matcher)を使用して、特定の paths で Middleware を実行するようにフィルタリングすることができます。
 
-私たちはマッチングのプリフェッチ(`next/link`から)と、CSP headerが不要な静的アセットを無視することをお勧めします。
+私たちはマッチングのプリフェッチ(`next/link`から)と、CSP header が不要な静的アセットを無視することをお勧めします。
 
 ```ts:middleware.ts
 export const config = {
@@ -171,9 +171,9 @@ export const config = {
 }
 ```
 
-### nonceの読み取り
+### nonce の読み取り
 
-あなたは今、[`headers`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)を使って[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)からnonceを読むことができます。
+あなたは今、[`headers`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)を使って[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)から nonce を読むことができます。
 
 ```tsx:app/page.tsx
 import { headers } from 'next/headers'
@@ -211,7 +211,7 @@ export default function Page() {
 
 ## Without Nonces
 
-requireを必要としないアプリケーションの場合、[`next.config.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js)ファイルに直接CSP headerを設定することができます。
+require を必要としないアプリケーションの場合、[`next.config.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js)ファイルに直接 CSP header を設定することができます。
 
 ```js:next.config.js
 const cspHeader = `
@@ -247,4 +247,4 @@ module.exports = {
 
 ## Version History
 
-W我々は、非スと正しく処理し、適用するために、Next.jsの`v13.4.20+`を使用することをお勧めします。
+我々は、非スと正しく処理し、適用するために、Next.js の`v13.4.20+`を使用することをお勧めします。

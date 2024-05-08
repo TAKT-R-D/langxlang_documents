@@ -16,23 +16,23 @@ is_empty: false
 
 </details>
 
-Next.jsは、`tsconfig.json`および`jsconfig.json`ファイルの`"paths"`および`"baseUrl"`の optionsを組み込みでサポートしています。"
+Next.js は、`tsconfig.json`および`jsconfig.json`ファイルの`"paths"`および`"baseUrl"`の options を組み込みでサポートしています。"
 
-これらのoptionsを使用すると、プロジェクトのディレクトリを絶対pathsにエイリアス設定でき、import modulesを容易にします。例えば:
+これらの options を使用すると、プロジェクトのディレクトリを絶対 paths にエイリアス設定でき、import modules を容易にします。例えば:
 
 ```tsx
 // before
-import { Button } from '../../../components/button'
+import { Button } from "../../../components/button";
 
 // after
-import { Button } from '@/components/button'
+import { Button } from "@/components/button";
 ```
 
 > **Good to know**: `create-next-app`は、これらの options を設定するように prompt します。
 
 ## Absolute Imports
 
-`baseUrl`設定オプションは、プロジェクトのrootから直接importすることを可能にします。
+`baseUrl`設定オプションは、プロジェクトの root から直接 import することを可能にします。
 
 この設定の一例：
 
@@ -154,9 +154,9 @@ export default function HomePage() {
 
 ```jsx
 // pages/index.js
-import Button from '@/components/button'
-import '@/styles/styles.css'
-import Helper from 'utils/helper'
+import Button from "@/components/button";
+import "@/styles/styles.css";
+import Helper from "utils/helper";
 
 export default function HomePage() {
   return (
@@ -164,6 +164,6 @@ export default function HomePage() {
       <h1>Hello World</h1>
       <Button />
     </Helper>
-  )
+  );
 }
 ```

@@ -9,11 +9,11 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.jsは、静的サイトまたはシングルページアプリケーション(SPA)として開始し、その後オプションで、requireしたserverの機能を使用するためのアップグレードを可能にします。
+Next.js は、静的サイトまたはシングルページアプリケーション(SPA)として開始し、その後オプションで、require した server の機能を使用するためのアップグレードを可能にします。
 
-`next build`を実行すると、Next.jsはrouteごとにHTMLファイルを生成します。厳密なSPAを個々のHTMLファイルに分けることで、Next.jsはClient側で不必要なJavaScript codeのloadingを回避し、バンドルsizeを削減してページの読み込みを高速化することができます。
+`next build`を実行すると、Next.js は route ごとに HTML ファイルを生成します。厳密な SPA を個々の HTML ファイルに分けることで、Next.js は Client 側で不必要な JavaScript code の loading を回避し、バンドル size を削減してページの読み込みを高速化することができます。
 
-Next.jsがこの静的なexportをサポートしているため、HTML/CSS/JSの静的アセットを提供できる任意のウェブserverにデプロイおよびホスティングできます。
+Next.js がこの静的な export をサポートしているため、HTML/CSS/JS の静的アセットを提供できる任意のウェブ server にデプロイおよびホスティングできます。
 
 <PagesOnly>
 
@@ -23,7 +23,7 @@ Next.jsがこの静的なexportをサポートしているため、HTML/CSS/JS�
 
 ## Configuration
 
-`next.config.js`の中で出力モードを変更し、静的なexportを有効にします：
+`next.config.js`の中で出力モードを変更し、静的な export を有効にします：
 
 ```js:next.config.js
 /**
@@ -45,11 +45,11 @@ const nextConfig = {
 module.exports = nextConfig
 ```
 
-`next build`を実行した後、Next.jsはあなたのアプリケーションのためのHTML/CSS/JSの資産を含む`out`フォルダーを生成します。
+`next build`を実行した後、Next.js はあなたのアプリケーションのための HTML/CSS/JS の資産を含む`out`フォルダーを生成します。
 
 <PagesOnly>
 
-あなたは[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と[`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)を利用して、`pages`ディレクトリ内の各ページに対するHTMLファイル(または[dynamic routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)のようなもの)を生成することができます。
+あなたは[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と[`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)を利用して、`pages`ディレクトリ内の各ページに対する HTML ファイル(または[dynamic routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)のようなもの)を生成することができます。
 
 </PagesOnly>
 
@@ -57,13 +57,13 @@ module.exports = nextConfig
 
 ## Supported Features
 
-Next.jsの中心部は、静的exportをサポートするように設計されています。
+Next.js の中心部は、静的 export をサポートするように設計されています。
 
 ### Server Components
 
-`next build`を実行して静的なexportを生成するとき、`app`ディレクトリ内で使用されるServer Componentsは、従来の静的サイト生成と同様に、buildの間に実行されます。
+`next build`を実行して静的な export を生成するとき、`app`ディレクトリ内で使用される Server Components は、従来の静的サイト生成と同様に、build の間に実行されます。
 
-結果として得られるcomponentは、初回のページ読み込みのために静的なHTMLにレンダリングされ、また、clientのroutes間のナビゲーション用の静的ペイロードとして機能します。静的なexportを使用する際には、Server Componentsを変更する必要はありません。ただし、[dynamic serverfunctions](#unsupported-features)を使用する場合は例外です。
+結果として得られる component は、初回のページ読み込みのために静的な HTML にレンダリングされ、また、client の routes 間のナビゲーション用の静的ペイロードとして機能します。静的な export を使用する際には、Server Components を変更する必要はありません。ただし、[dynamic serverfunctions](#unsupported-features)を使用する場合は例外です。
 
 ```tsx:app/page.tsx
 export default async function Page() {
@@ -77,7 +77,7 @@ export default async function Page() {
 
 ### Client Components
 
-clientでデータの取り出しを行いたい場合は、[SWR](https://github.com/vercel/swr)を用いたClient Componentを使ってRequestをメモ化することができます。
+client でデータの取り出しを行いたい場合は、[SWR](https://github.com/vercel/swr)を用いた Client Component を使って Request をメモ化することができます。
 
 ```tsx:app/other/page.tsx
 'use client'
@@ -117,7 +117,7 @@ export default function Page() {
 }
 ```
 
-route の遷移はクライアント側で行われるため、これは従来のSPAのように動作します。例えば、以下の index route を使用すると、 client 上の異なる投稿に移動できます。
+route の遷移はクライアント側で行われるため、これは従来の SPA のように動作します。例えば、以下の index route を使用すると、 client 上の異なる投稿に移動できます。
 
 ```tsx:app/page.tsx
 import Link from 'next/link'
@@ -161,14 +161,14 @@ export default function Page() {
 
 ## Supported Features
 
-静的なサイトをbuildするために必要なNext.jsの主要な機能の大部分がサポートされています、これには以下が含まれます：
+静的なサイトを build するために必要な Next.js の主要な機能の大部分がサポートされています、これには以下が含まれます：
 
 - `getStaticPaths`を使用する際の[Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)
 - `next/link`を使ったプリフェッチ
 - Preloading JavaScript
 - [Dynamic Imports](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/08-lazy-loading)
 - 任意のスタイリング options (例えば、CSS Modules, styled-jsx)
-- [Client側データフェッチング](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/05-client-side)
+- [Client 側データフェッチング](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/05-client-side)
 - [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)
 - [`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)
 
@@ -176,7 +176,7 @@ export default function Page() {
 
 ### Image Optimization
 
-[Image Optimization](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images)は、`next.config.js`でカスタムのimage loaderを定義することにより、静的なexportと共に`next/image`を用いて使用できます。例えば、Cloudinaryのようなサービスで画像を最適化することができます:
+[Image Optimization](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images)は、`next.config.js`でカスタムの image loader を定義することにより、静的な export と共に`next/image`を用いて使用できます。例えば、Cloudinary のようなサービスで画像を最適化することができます:
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */
@@ -191,7 +191,7 @@ const nextConfig = {
 module.exports = nextConfig
 ```
 
-このカスタムのloaderは、リモートのsourceから画像をfetchする方法を定義します。たとえば、以下のloaderはCloudinaryのURLを構築します。
+このカスタムの loader は、リモートの source から画像を fetch する方法を定義します。たとえば、以下の loader は Cloudinary の URL を構築します。
 
 ```ts:my-loader.ts
 export default function cloudinaryLoader({
@@ -219,7 +219,7 @@ export default function cloudinaryLoader({ src, width, quality }) {
 }
 ```
 
-その後、アプリケーションで`next/image`を使用し、Cloudinaryのimageへのpathsを相対的に定義することができます：
+その後、アプリケーションで`next/image`を使用し、Cloudinary の image への paths を相対的に定義することができます：
 
 ```tsx:app/page.tsx
 import Image from 'next/image'
@@ -241,7 +241,7 @@ export default function Page() {
 
 ### Route ハンドラー
 
-Routeハンドラーは、`next build`を実行するときに静的なresponseをrenderします。サポートされるのは`GET` HTTPMethodのみです。これは、キャッシュされたデータまたはキャッシュされていないデータから静的なHTML、JSON、TXT、または他のファイルを生成するために使用できます。例えば：
+Route ハンドラーは、`next build`を実行するときに静的な response を render します。サポートされるのは`GET` HTTPMethod のみです。これは、キャッシュされたデータまたはキャッシュされていないデータから静的な HTML、JSON、TXT、または他のファイルを生成するために使用できます。例えば：
 
 ```ts:app/data.json/route.ts
 export async function GET() {
@@ -255,13 +255,13 @@ export async function GET() {
 }
 ```
 
-上記のファイル `app/data.json/route.ts` は `next build`中に、静的ファイルにrenderされ、`{ name: 'Lee' }` を含む `data.json` を生成します。
+上記のファイル `app/data.json/route.ts` は `next build`中に、静的ファイルに render され、`{ name: 'Lee' }` を含む `data.json` を生成します。
 
-あなたが入ってくるrequestからdynamicな値を読み取る必要がある場合、静的なexportを使用することはできません。
+あなたが入ってくる request から dynamic な値を読み取る必要がある場合、静的な export を使用することはできません。
 
-### ブラウザAPI
+### ブラウザ API
 
-Client Componentsは`next build`の間にHTMLへレンダリング済みです。[Web APIs](https://developer.mozilla.org/docs/Web/API) 、例えば`window`、`localStorage`、そして`navigator`のようなAPIがserver上では利用できないので、これらのAPIを安全に利用するためにはブラウザで実行する必要があります。例えば:
+Client Components は`next build`の間に HTML へレンダリング済みです。[Web APIs](https://developer.mozilla.org/docs/Web/API) 、例えば`window`、`localStorage`、そして`navigator`のような API が server 上では利用できないので、これらの API を安全に利用するためにはブラウザで実行する必要があります。例えば:
 
 ```jsx
 'use client';
@@ -282,13 +282,13 @@ export default function ClientComponent() {
 
 ## Unsupported Features
 
-Node.js serverが必要なrequire機能や、buildプロセス中に計算できないdynamicロジックは**サポートされていません**：
+Node.js server が必要な require 機能や、build プロセス中に計算できない dynamic ロジックは**サポートされていません**：
 
 <AppOnly>
 
 - [Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) と `dynamicParams: true`
 - [Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) `generateStaticParams()`がなし
-- [Route ハンドラー](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) は Requestに依存しています
+- [Route ハンドラー](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) は Request に依存しています
 - [Cookies](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)
 - [Rewrites](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/rewrites)
 - [Redirects](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects)
@@ -301,7 +301,7 @@ Node.js serverが必要なrequire機能や、buildプロセス中に計算でき
 これらの機能のいずれかを `next dev` で使用しようとすると、[`dynamic`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#dynamic) オプションを root layout の `error` に設定するのと同様の error が発生します。
 
 ```jsx
-export const dynamic = 'error'
+export const dynamic = "error";
 ```
 
 </AppOnly>
@@ -325,21 +325,21 @@ export const dynamic = 'error'
 
 ## Deploying
 
-静的なexportを使って、HTML/CSS/JSの静的アセットをサーブできるあらゆるウェブserverでNext.jsをデプロイおよびホストできます。
+静的な export を使って、HTML/CSS/JS の静的アセットをサーブできるあらゆるウェブ server で Next.js をデプロイおよびホストできます。
 
 `next build`を実行すると、 Next.js は静的な export を`out`フォルダに生成します。例えば、次のような routes があるとします。
 
 - `/`
 - `/blog/[id]`
 
-`next build`を実行した後、Next.jsは以下のファイルを生成します：
+`next build`を実行した後、Next.js は以下のファイルを生成します：
 
 - `/out/index.html`
 - `/out/404.html`
 - `/out/blog/post-1.html`
 - `/out/blog/post-2.html`
 
-静的なhost、例えばNginxを使用している場合、着信Requestを適切なファイルにrewritesするよう設定できます：
+静的な host、例えば Nginx を使用している場合、着信 Request を適切なファイルに rewrites するよう設定できます：
 
 ```nginx:nginx.conf
 server {
@@ -367,8 +367,8 @@ server {
 
 ## Version History
 
-| Version | Changes |
-| --------- | -------------------------------------------------------------------------------------------------------------------- |
-| `v14.0.0` | `next export`は`"output": "export"`に優先して削除されました |
-| `v13.4.0` | App Router (安定版)は、強化された静的 export のサポートを追加し、React Server Components および Route ハンドラの使用も含まれています。|
-| `v13.3.0` | `next export`は廃止され、`"output": "export"`に置き換えられました |
+| Version   | Changes                                                                                                                                |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `v14.0.0` | `next export`は`"output": "export"`に優先して削除されました                                                                            |
+| `v13.4.0` | App Router (安定版)は、強化された静的 export のサポートを追加し、React Server Components および Route ハンドラの使用も含まれています。 |
+| `v13.3.0` | `next export`は廃止され、`"output": "export"`に置き換えられました                                                                      |

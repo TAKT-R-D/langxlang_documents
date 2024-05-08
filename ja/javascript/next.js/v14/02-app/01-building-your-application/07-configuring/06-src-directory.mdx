@@ -9,11 +9,11 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-あなたのプロジェクトのrootに特別なNext.jsの `app` や `pages` ディレクトリを持つ代わりに、Next.jsはアプリケーションのcodeを `src` ディレクトリの下に置くという一般的なパターンもサポートしています。
+あなたのプロジェクトの root に特別な Next.js の `app` や `pages` ディレクトリを持つ代わりに、Next.js はアプリケーションの code を `src` ディレクトリの下に置くという一般的なパターンもサポートしています。
 
-これにより、アプリケーションのcodeは、主にプロジェクトのrootにliveするプロジェクト設定ファイルから分離されます。これは一部の個人やチームが好む方法です。
+これにより、アプリケーションの code は、主にプロジェクトの root に live するプロジェクト設定ファイルから分離されます。これは一部の個人やチームが好む方法です。
 
-`src`ディレクトリを使用するには、`app`のRouterフォルダーまたは`pages`のRouterフォルダーをそれぞれ`src/app`または`src/pages`に移動します。
+`src`ディレクトリを使用するには、`app`の Router フォルダーまたは`pages`の Router フォルダーをそれぞれ`src/app`または`src/pages`に移動します。
 
 <Image
   alt="An example folder structure with the `src` directory"
@@ -25,10 +25,10 @@ is_empty: false
 
 > **Good to know**
 >
-> - あなたのプロジェクトのrootに`/public`ディレクトリは残るべきです。
-> - `package.json`、`next.config.js`、`tsconfig.json`などのConfigファイルはプロジェクトのrootに残すべきです。
-> - `.env.*`ファイルはプロジェクトのrootに残るべきです。
-> - `src/app`または`src/pages`は、rootディレクトリに`app`または`pages`が存在する場合は無視されます。
+> - あなたのプロジェクトの root に`/public`ディレクトリは残るべきです。
+> - `package.json`、`next.config.js`、`tsconfig.json`などの Config ファイルはプロジェクトの root に残すべきです。
+> - `.env.*`ファイルはプロジェクトの root に残るべきです。
+> - `src/app`または`src/pages`は、root ディレクトリに`app`または`pages`が存在する場合は無視されます。
 > - `src`を使っている場合、おそらく`/components`や`/lib`などの他のアプリケーションフォルダも移動するでしょう。
-> - あなたがMiddlewareを使用している場合、それが `src` ディレクトリ内に配置されていることを確認してください。
-> - IもしTailwind CSSを使用しているなら、`tailwind.config.js` ファイルの[content section](https://tailwindcss.com/docs/content-configuration)に`/src`プレフィックスを追加する必要があります。
+> - あなたが Middleware を使用している場合、それが `src` ディレクトリ内に配置されていることを確認してください。
+> - もし Tailwind CSS を使用しているなら、`tailwind.config.js` ファイルの[content section](https://tailwindcss.com/docs/content-configuration)に`/src`プレフィックスを追加する必要があります。

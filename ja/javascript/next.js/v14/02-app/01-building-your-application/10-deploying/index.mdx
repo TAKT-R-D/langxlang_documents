@@ -9,35 +9,35 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-おめでとうございます、productionに出荷する時間です。
+おめでとうございます、production に出荷する時間です。
 
-あなたは[managed Next.js with Vercel](#managed-nextjs-with-vercel)をdeployすることも、自己ホストすることもできます。それはNode.js serverの上にあるか、Dockerのimageの中にあるか、あるいは静的なHTMLファイルでさえ可能です。`next start`を使用してデプロイするとき、すべてのNext.jsの機能がサポートされます。
+あなたは[managed Next.js with Vercel](#managed-nextjs-with-vercel)を deploy することも、自己ホストすることもできます。それは Node.js server の上にあるか、Docker の image の中にあるか、あるいは静的な HTML ファイルでさえ可能です。`next start`を使用してデプロイするとき、すべての Next.js の機能がサポートされます。
 
 ## Production Builds
 
-`next build`を実行すると、あなたのアプリケーションの最適化されたversionがproduction用に生成されます。HTML, CSS, JavaScriptのファイルはあなたのページに基づいて作成されます。JavaScriptは**コンパイル**され、ブラウザのバンドルは[Next.js Compiler](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler)を使用して**圧縮**されます。これにより、最高のパフォーマンスを実現し、[すべての現代のブラウザ](/ja/javascript/next.js/v14/04-architecture/supported-browsers)をサポートします。
+`next build`を実行すると、あなたのアプリケーションの最適化された version が production 用に生成されます。HTML, CSS, JavaScript のファイルはあなたのページに基づいて作成されます。JavaScript は**コンパイル**され、ブラウザのバンドルは[Next.js Compiler](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler)を使用して**圧縮**されます。これにより、最高のパフォーマンスを実現し、[すべての現代のブラウザ](/ja/javascript/next.js/v14/04-architecture/supported-browsers)をサポートします。
 
-Next.jsは、管理されたものと自己ホスティングされたNext.jsの両方で使用される標準的なデプロイメント出力を生成します。これにより、どちらのデプロイメント方法でもすべての機能がサポートされることを保証します。次のメジャーversionでは、この出力を私たちの[Build出力API仕様](https://vercel.com/docs/build-output-api/v3?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)に変換する予定です。
+Next.js は、管理されたものと自己ホスティングされた Next.js の両方で使用される標準的なデプロイメント出力を生成します。これにより、どちらのデプロイメント方法でもすべての機能がサポートされることを保証します。次のメジャー version では、この出力を私たちの[Build 出力 API 仕様](https://vercel.com/docs/build-output-api/v3?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)に変換する予定です。
 
 ## Managed Next.js with Vercel
 
-[Vercel](https://vercel.com/docs/frameworks/nextjs?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)は、Next.jsの制作者および管理者であり、Next.jsアプリケーションのための管理されたインフラストラクチャと開発者エクスペリエンスプラットフォームを提供しています。
+[Vercel](https://vercel.com/docs/frameworks/nextjs?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)は、Next.js の制作者および管理者であり、Next.js アプリケーションのための管理されたインフラストラクチャと開発者エクスペリエンスプラットフォームを提供しています。
 
-Vercelへのデプロイはゼロコンフィギュレーションで、スケーラビリティ、可用性、およびグローバルなパフォーマンス向上のための追加機能を提供します。しかし、自己ホスト時でも、すべてのNext.jsの機能は依然としてサポートされています。
+Vercel へのデプロイはゼロコンフィギュレーションで、スケーラビリティ、可用性、およびグローバルなパフォーマンス向上のための追加機能を提供します。しかし、自己ホスト時でも、すべての Next.js の機能は依然としてサポートされています。
 
-[VercelのNext.js](https://vercel.com/docs/frameworks/nextjs?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)についてもっと学んだり、[無料でtemplateをdeploy](https://vercel.com/templates/next.js?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)して試してみましょう。
+[Vercel の Next.js](https://vercel.com/docs/frameworks/nextjs?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)についてもっと学んだり、[無料で template を deploy](https://vercel.com/templates/next.js?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)して試してみましょう。
 
 ## Self-Hosting
 
-あなたは3つの異なる方法でNext.jsをセルフホストすることができます:
+あなたは 3 つの異なる方法で Next.js をセルフホストすることができます:
 
 - [A Node.js server](#nodejs-server)
 - [Docker コンテナ](#docker-image)
-- [静的なexport](#static-html-export)
+- [静的な export](#static-html-export)
 
 ### Node.js Server
 
-Next.jsは、Node.jsをサポートしている任意のホスティングプロバイダにデプロイできます。あなたの`package.json`が`"build"`と`"start"`のscriptsを持っていることを確認してください:"
+Next.js は、Node.js をサポートしている任意のホスティングプロバイダにデプロイできます。あなたの`package.json`が`"build"`と`"start"`の scripts を持っていることを確認してください:"
 
 ```json:package.json
 {
@@ -49,30 +49,30 @@ Next.jsは、Node.jsをサポートしている任意のホスティングプロ
 }
 ```
 
-それから、アプリケーションをbuildするために `npm run build` を実行します。最後に、 `npm run start` を実行して、Node.js serverをstartさせます。このserverはすべてのNext.js機能をサポートします。
+それから、アプリケーションを build するために `npm run build` を実行します。最後に、 `npm run start` を実行して、Node.js server を start させます。この server はすべての Next.js 機能をサポートします。
 
 ### Docker Image
 
-Next.jsは[Docker](https://www.docker.com/)コンテナをサポートしている任意のホスティングプロバイダにデプロイできます。このアプローチは、[Kubernetes](https://kubernetes.io/)などのcontainerオーケストレータへデプロイする際や、任意のクラウドプロバイダ内のcontainerで実行する際に使用できます。
+Next.js は[Docker](https://www.docker.com/)コンテナをサポートしている任意のホスティングプロバイダにデプロイできます。このアプローチは、[Kubernetes](https://kubernetes.io/)などの container オーケストレータへデプロイする際や、任意のクラウドプロバイダ内の container で実行する際に使用できます。
 
 1. あなたのマシンに[Install Docker](https://docs.docker.com/get-docker/)をインストールしてください
-2. ([私たちの例をクローンしてください](https://github.com/vercel/next.js/tree/canary/examples/with-docker)(または[マルチ環境の例](https://github.com/vercel/next.js/tree/canary/examples/with-docker-multi-env))
-3. Buildを使用して、あなたのcontainerを作成します：`docker build -t nextjs-docker .`
-4. あなたのcontainerを実行してください：`docker run -p 3000:3000 nextjs-docker`
+2. [私たちの例をクローンしてください](https://github.com/vercel/next.js/tree/canary/examples/with-docker)(または[マルチ環境の例](https://github.com/vercel/next.js/tree/canary/examples/with-docker-multi-env))
+3. Build を使用して、あなたの container を作成します：`docker build -t nextjs-docker .`
+4. あなたの container を実行してください：`docker run -p 3000:3000 nextjs-docker`
 
-Dockerを通じてのNext.jsはすべてのNext.js機能をサポートします。
+Docker を通じての Next.js はすべての Next.js 機能をサポートします。
 
-### 静的なHTML Export
+### 静的な HTML Export
 
 Next.js enables starting as a static site or Single-Page Application (SPA), then later optionally upgrading to use features that require a server.
 
-Next.jsは、この[静的なexport](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)をサポートしているため、HTML/CSS/JSの静的アセットを提供できる任意のウェブserverにデプロイおよびホスティングできます。これには、AWS S3、Nginx、またはApacheのようなツールが含まれます。
+Next.js は、この[静的な export](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)をサポートしているため、HTML/CSS/JS の静的アセットを提供できる任意のウェブ server にデプロイおよびホスティングできます。これには、AWS S3、Nginx、または Apache のようなツールが含まれます。
 
-[静的なexport](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)として実行することは、serverがrequireとされるNext.jsの機能をサポートしていません。[詳細を学ぶ](/docs/app/building-your-application/deploying/static-exports#unsupported-features)。
+[静的な export](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)として実行することは、server が require とされる Next.js の機能をサポートしていません。[詳細を学ぶ](/docs/app/building-your-application/deploying/static-exports#unsupported-features)。
 
 > **Good to know:**
 >
-> - [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)は静的exportでサポートされています。
+> - [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)は静的 export でサポートされています。
 
 ## Features
 
@@ -80,29 +80,29 @@ Next.jsは、この[静的なexport](/ja/javascript/next.js/v14/02-app/01-buildi
 
 [Image Optimization](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images)は `next/image`を通じて自己ホスティングでゼロ設定として動作し、`next start`を使用してデプロイします。別のサービスを使用して画像を最適化したい場合は、[image loader の設定](/docs/app/building-your-application/optimizing/images#loaders)を行うことができます。
 
-Image Optimizationは、カスタムのimage loaderを`next.config.js`で定義することにより、[静的なexport](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports#image-optimization)と共に使用できます。なお、イメージはbuild中ではなく、runtime中に最適化されることに注意してください。
+Image Optimization は、カスタムの image loader を`next.config.js`で定義することにより、[静的な export](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports#image-optimization)と共に使用できます。なお、イメージは build 中ではなく、runtime 中に最適化されることに注意してください。
 
 > **Good to know:**
 >
-> - セルフホスティングの際には、プロジェクトディレクトリで `npm install sharp` を実行し、`sharp` をインストールして、パフォーマンスの高い[Image Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images)を production 環境で実現することを検討してください。Linuxプラットフォームでは、`sharp`はメモリ使用量を過度に増加させないように、[追加の設定](https://sharp.pixelplumbing.com/install#linux-memory-allocator)を require する場合があります。
-> - 最適化された画像の[caching behavior of optimized images](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#caching-behavior)について詳しく学び、TTLの設定方法を学びましょう。
+> - セルフホスティングの際には、プロジェクトディレクトリで `npm install sharp` を実行し、`sharp` をインストールして、パフォーマンスの高い[Image Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images)を production 環境で実現することを検討してください。Linux プラットフォームでは、`sharp`はメモリ使用量を過度に増加させないように、[追加の設定](https://sharp.pixelplumbing.com/install#linux-memory-allocator)を require する場合があります。
+> - 最適化された画像の[caching behavior of optimized images](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#caching-behavior)について詳しく学び、TTL の設定方法を学びましょう。
 > - 好みに応じて、`next/image`の他の利点を保持したまま、[Image Optimization を無効にする](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#unoptimized)こともできます。例えば、画像の最適化を自分で別々に行っている場合などです。
 
 ### Middleware
 
 [Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)は、`next start`を使用したデプロイ時にゼロ設定で自己ホストする仕組みです。それは受信 request へのアクセスを必要とするため、[静的な export](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)を使用する場合にはサポートされません。
 
-Middlewareは、Node.jsAPIの一部である[runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)を使用して低遅延を保証するため、アプリケーション内のすべてのrouteまたはアセットの前で実行される可能性があります。このruntimeはat the edgeでの実行をrequireせず、単一地域のserverで動作します。複数の地域でMiddlewareを実行するためには、追加の設定とインフラが必要です。
+Middleware は、Node.jsAPI の一部である[runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)を使用して低遅延を保証するため、アプリケーション内のすべての route またはアセットの前で実行される可能性があります。この runtime は at the edge での実行を require せず、単一地域の server で動作します。複数の地域で Middleware を実行するためには、追加の設定とインフラが必要です。
 
-すべての Node.js APIを必要とするロジック(または外部パッケージ)を追加することを検討している場合、このロジックを[layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts) として、[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)に移動することができるかもしれません。例えば、[headers](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)のチェックや[リダイレクト](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)などが挙げられます。また、 headers 、 cookies 、または query パラメータを使用して、`next.config.js`を経由して[redirect](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects#header-cookie-and-query-matching)や[rewrite](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/rewrites#header-cookie-and-query-matching)を行うこともできます。それが効果がない場合は、[カスタム server](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server)も利用することができます。
+すべての Node.js API を必要とするロジック(または外部パッケージ)を追加することを検討している場合、このロジックを[layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts) として、[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)に移動することができるかもしれません。例えば、[headers](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)のチェックや[リダイレクト](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)などが挙げられます。また、 headers 、 cookies 、または query パラメータを使用して、`next.config.js`を経由して[redirect](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects#header-cookie-and-query-matching)や[rewrite](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/rewrites#header-cookie-and-query-matching)を行うこともできます。それが効果がない場合は、[カスタム server](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server)も利用することができます。
 
 ### Environment Variables
 
-Next.js can support both build time and runtime environment variables.
+Next.js はビルド時とランタイムの環境変数の両方をサポートできます。
 
-**By default, environment variables are only available on the server**. To expose an environment variable to the browser, it must be prefixed with `NEXT_PUBLIC_`. However, these public environment variables will be inlined into the JavaScript bundle during `next build`.
+**default では、環境変数はサーバー上でのみ利用可能です**。環境変数をブラウザに公開するには、`NEXT_PUBLIC_` でプレフィックスを付ける必要があります。しかし、これらの公開環境変数は `next build` 中に JavaScript バンドルにインライン化されます。
 
-To read runtime environment variables, we recommend using `getServerSideProps` or [incrementally adopting the App Router](/docs/app/building-your-application/upgrading/app-router-migration). With the App Router, we can safely read environment variables on the server during dynamic rendering. This allows you to use a singular Docker image that can be promoted through multiple environments with different values.
+ランタイム環境変数を読み取るには、`getServerSideProps`または[App Router の段階的導入](/docs/app/building-your-application/upgrading/app-router-migration)を使用することをお勧めします。App Router を使用すると、動的レンダリング中にサーバー上で安全に環境変数を読み取ることができます。これにより、異なる値を持つ複数の環境を通じて昇格可能な単一の Docker イメージを使用することができます。
 
 ```jsx
 import { unstable_noStore as noStore } from 'next/cache';
@@ -119,34 +119,34 @@ export default function Component() {
 
 > **Good to know:**
 >
-> - You can run code on server startup using the [`register` function](/docs/app/building-your-application/optimizing/instrumentation).
-> - We do not recommend using the [runtimeConfig](/docs/pages/api-reference/next-config-js/runtime-configuration) option, as this does not work with the standalone output mode. Instead, we recommend [incrementally adopting](/docs/app/building-your-application/upgrading/app-router-migration) the App Router.
+> - server 起動時に[`register` function](/docs/app/building-your-application/optimizing/instrumentation)を使用してコードを実行することができます。
+> - [runtimeConfig](/docs/pages/api-reference/next-config-js/runtime-configuration)オプションの使用は推奨しません。これはスタンドアロン出力モードでは動作しないためです。代わりに、[App Router の段階的導入](/docs/app/building-your-application/upgrading/app-router-migration)をお勧めします。
 
-### キャッシングとISR
+### キャッシングと ISR
 
-Next.jsは、cacheされたResponse、生成された静的ページ、buildの出力、および画像、フォント、scriptsなどの他の静的アセットを扱うことができます。
+Next.js は、cache された Response、生成された静的ページ、build の出力、および画像、フォント、scripts などの他の静的アセットを扱うことができます。
 
-ページのキャッシングと再検証( Incremental Static Regeneration ( ISR )または App Router の新機能を使用)は、**同じ共有 cache **を使用します。 default では、この cache は Next.js server のファイルシステム(ディスク)に保存されます。Pagesと App Router を使用して自己ホスティングを行う際には、**これが自動的に動作します**。
+ページのキャッシングと再検証( Incremental Static Regeneration ( ISR )または App Router の新機能を使用)は、**同じ共有 cache**を使用します。 default では、この cache は Next.js server のファイルシステム(ディスク)に保存されます。Pages と App Router を使用して自己ホスティングを行う際には、**これが自動的に動作します**。
 
-あなたは、Next.js cacheの位置を変更できます。これにより、キャッシュ済みのページやデータをずっと使えるストレージに保存したい場合や、あなたのNext.jsアプリケーションの複数のコンテナまたはインスタンス間でcacheを共有したい場合などに便利です。
+あなたは、Next.js cache の位置を変更できます。これにより、キャッシュ済みのページやデータをずっと使えるストレージに保存したい場合や、あなたの Next.js アプリケーションの複数のコンテナまたはインスタンス間で cache を共有したい場合などに便利です。
 
 #### 自動キャッシング
 
-- Next.jsは、本当に不変なアセットに対して`Cache-Control`をheaderとし、`public, max-age=31536000, immutable`を設定します。これは上書きできません。これらの不変なファイルにはファイル名にSHAハッシュが含まれているため、無期限に安全にキャッシュできます。例えば、[静的なImageのインポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images#local-images)です。画像のTTLを[設定する](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#caching-behavior)ことができます。
+- Next.js は、本当に不変なアセットに対して`Cache-Control`を header とし、`public, max-age=31536000, immutable`を設定します。これは上書きできません。これらの不変なファイルにはファイル名に SHA ハッシュが含まれているため、無期限に安全にキャッシュできます。例えば、[静的な Image のインポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images#local-images)です。画像の TTL を[設定する](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#caching-behavior)ことができます。
 - Incremental Static Regeneration ( ISR )は、`Cache-Control`の header に`s-maxage: <revalidate in getStaticProps>, stale-while-revalidate`を設定します。この再検証時間は、あなたの[`getStaticProps` function](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)で秒単位で定義されます。`revalidate: false`を設定した場合、 default で一年間の cache 期間になります。
-- 動的にレンダリングされたページは、ユーザー固有のデータがキャッシュされるのを防ぐために、`Cache-Control` headerを`private, no-cache, no-store, max-age=0, must-revalidate`に設定します。これは、App RouterとPages Routerの両方に適用されます。これには、[Draft Mode](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/11-draft-mode)も含まれます。
+- 動的にレンダリングされたページは、ユーザー固有のデータがキャッシュされるのを防ぐために、`Cache-Control` header を`private, no-cache, no-store, max-age=0, must-revalidate`に設定します。これは、App Router と Pages Router の両方に適用されます。これには、[Draft Mode](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/11-draft-mode)も含まれます。
 
 #### 静的アセット
 
-もし別のドメインやCDN上でhostとして静的アセットを利用したい場合、`assetPrefix`[configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/assetPrefix)を`next.config.js`の中で使用することができます。 Next.jsは、このアセットプレフィックスをJavaScriptまたはCSSファイルを取得するときに使用します。アセットを別のドメインに分けることは、DNSおよびTLSの解決に追加の時間がかかるというデメリットがあります。
+もし別のドメインや CDN 上で host として静的アセットを利用したい場合、`assetPrefix`[configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/assetPrefix)を`next.config.js`の中で使用することができます。 Next.js は、このアセットプレフィックスを JavaScript または CSS ファイルを取得するときに使用します。アセットを別のドメインに分けることは、DNS および TLS の解決に追加の時間がかかるというデメリットがあります。
 
 [`assetPrefix`についてもっと学ぶ](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/assetPrefix)。
 
 #### キャッシングの設定
 
-Default では、生成された cache アセットはメモリ（Default は50MB）とディスクに保存されます。Kubernetes のような container オーケストレーションプラットフォームを使用して Next.js をホスティングする場合、各ポッドは cache のコピーを持っています。Default ではポッド間で cache が共有されていないため、stale なデータが表示されるのを防ぐために、Next.js cache を設定して cache handler を提供し、メモリ内キャッシングを無効にすることができます。
+Default では、生成された cache アセットはメモリ（Default は 50MB）とディスクに保存されます。Kubernetes のような container オーケストレーションプラットフォームを使用して Next.js をホスティングする場合、各ポッドは cache のコピーを持っています。Default ではポッド間で cache が共有されていないため、stale なデータが表示されるのを防ぐために、Next.js cache を設定して cache handler を提供し、メモリ内キャッシングを無効にすることができます。
 
-セルフホスティング時にISR/DataのCacheの場所を設定するには、ご自身の`next.config.js`ファイルでカスタムのhandlerを設定できます：
+セルフホスティング時に ISR/Data の Cache の場所を設定するには、ご自身の`next.config.js`ファイルでカスタムの handler を設定できます：
 
 ```jsx:next.config.js
 module.exports = {
@@ -155,7 +155,7 @@ module.exports = {
 }
 ```
 
-次に、プロジェクトのrootに`cache-handler.js`を作成します。例えば、次のようになります：
+次に、プロジェクトの root に`cache-handler.js`を作成します。例えば、次のようになります：
 
 ```jsx:cache-handler.js
 const cache = new Map()
@@ -191,17 +191,17 @@ module.exports = class CacheHandler {
 }
 ```
 
-カスタムのcache handlerを使用すると、Next.jsアプリケーションをホストするすべてのポッド間で一貫性を確保することができます。例えば、[Redis](https://github.com/vercel/next.js/tree/canary/examples/cache-handler-redis)やAWS S3のような場所にキャッシュした値を保存することができます。
+カスタムの cache handler を使用すると、Next.js アプリケーションをホストするすべてのポッド間で一貫性を確保することができます。例えば、[Redis](https://github.com/vercel/next.js/tree/canary/examples/cache-handler-redis)や AWS S3 のような場所にキャッシュした値を保存することができます。
 
 > **Good to know:**
 >
-> - `revalidatePath`は、cacheタグの上にある便利なレイヤーです。`revalidatePath`を呼び出すと、提供されたページに対して特別なdefaultタグを使用して`revalidateTag`関数が呼び出されます。
+> - `revalidatePath`は、cache タグの上にある便利なレイヤーです。`revalidatePath`を呼び出すと、提供されたページに対して特別な default タグを使用して`revalidateTag`関数が呼び出されます。
 
 ### Build Cache
 
-Next.jsは`next build`の間にIDを生成し、どのversionのアプリケーションが提供されているかを識別します。同じbuildが複数のコンテナを起動するために使用されるべきです。
+Next.js は`next build`の間に ID を生成し、どの version のアプリケーションが提供されているかを識別します。同じ build が複数のコンテナを起動するために使用されるべきです。
 
-あなたが環境の各段階で再構築している場合、コンテナ間で使用する一貫したbuild IDを生成する必要があります。`next.config.js`の中で`generateBuildId`コマンドを使用してください。
+あなたが環境の各段階で再構築している場合、コンテナ間で使用する一貫した build ID を生成する必要があります。`next.config.js`の中で`generateBuildId`コマンドを使用してください。
 
 ```jsx:next.config.js
 module.exports = {
@@ -214,19 +214,19 @@ module.exports = {
 
 ### Version スキュー
 
-Next.jsは、ほとんどの[versionスキュー](https://www.industrialempathy.com/posts/version-skew/)の問題を自動的に軽減し、新しいアセットが検出されたときにアプリケーションを自動的に再読み込みします。たとえば、build IDが一致しない場合、ページ間の遷移は、プリフェッチされたvalueを使用するのではなく、ハードなナビゲーションを実行します。
+Next.js は、ほとんどの[version スキュー](https://www.industrialempathy.com/posts/version-skew/)の問題を自動的に軽減し、新しいアセットが検出されたときにアプリケーションを自動的に再読み込みします。たとえば、build ID が一致しない場合、ページ間の遷移は、プリフェッチされた value を使用するのではなく、ハードなナビゲーションを実行します。
 
-アプリケーションが再読み込みされると、ページ間のナビゲーションで維持されるように設計されていない場合、アプリケーションの状態が失われる可能性があります。たとえば、URL 状態やローカルストレージを使用すると、ページのrefresh後も状態が維持されます。しかし、`useState`のようなcomponentの状態はそのようなナビゲーションで失われます。
+アプリケーションが再読み込みされると、ページ間のナビゲーションで維持されるように設計されていない場合、アプリケーションの状態が失われる可能性があります。たとえば、URL 状態やローカルストレージを使用すると、ページの refresh 後も状態が維持されます。しかし、`useState`のような component の状態はそのようなナビゲーションで失われます。
 
-Vercelは、新しいbuildが展開されている間に、前のbuildからのアセットと機能が依然として利用可能であることを確認するために、Next.jsアプリケーションに追加の[skew protection](https://vercel.com/docs/deployments/skew-protection?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)を提供します。
+Vercel は、新しい build が展開されている間に、前の build からのアセットと機能が依然として利用可能であることを確認するために、Next.js アプリケーションに追加の[skew protection](https://vercel.com/docs/deployments/skew-protection?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)を提供します。
 
 <AppOnly>
 
-### StreamingとSuspense
+### Streaming と Suspense
 
-Next.js App Routerは、自分でホスティングする時に[StreamingResponse](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)をサポートしています。Nginxや同様のプロキシを使用している場合、Streamingを有効にするためにバッファリングを無効に設定する必要があります。
+Next.js App Router は、自分でホスティングする時に[StreamingResponse](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)をサポートしています。Nginx や同様のプロキシを使用している場合、Streaming を有効にするためにバッファリングを無効に設定する必要があります。
 
-例えば、Nginxでバッファリングを無効にするには、`X-Accel-Buffering` を `no` に設定します：
+例えば、Nginx でバッファリングを無効にするには、`X-Accel-Buffering` を `no` に設定します：
 
 ```js:next.config.js
 module.exports = {
@@ -252,9 +252,9 @@ module.exports = {
 
 ## Manual Graceful Shutdowns
 
-自己ホストする際には、`SIGTERM`や`SIGINT`シグナルでserverがシャットダウンしたときにcodeを実行したいかもしれません。
+自己ホストする際には、`SIGTERM`や`SIGINT`シグナルで server がシャットダウンしたときに code を実行したいかもしれません。
 
-あなたはenvのvariable`NEXT_MANUAL_SIG_HANDLE`を`true`に設定し、その後で`_document.js`ファイル内でそのシグナルのhandlerをregisterすることができます。`package.json`スクリプト内で環境のvariableを直接registerする必要があり、`.env` ファイルの中ではないです。
+あなたは env の variable`NEXT_MANUAL_SIG_HANDLE`を`true`に設定し、その後で`_document.js`ファイル内でそのシグナルの handler を register することができます。`package.json`スクリプト内で環境の variable を直接 register する必要があり、`.env` ファイルの中ではないです。
 
 > **Good to know**: 手動でのシグナル処理は`next dev`では利用できません。
 

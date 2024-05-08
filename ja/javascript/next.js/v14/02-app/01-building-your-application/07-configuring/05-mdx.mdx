@@ -10,7 +10,7 @@ nav_title: MDX
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-[Markdown](https://daringfireball.net/projects/markdown/syntax)はテキストをフォーマットするための軽量マークアップ言語です。それはあなたがプレーンテキストのsyntaxを使って書き、それを構造的に有効なHTMLに変換することを可能にします。それは一般的にウェブサイトやブログのコンテンツを書くために使用されます。
+[Markdown](https://daringfireball.net/projects/markdown/syntax)はテキストをフォーマットするための軽量マークアップ言語です。それはあなたがプレーンテキストの syntax を使って書き、それを構造的に有効な HTML に変換することを可能にします。それは一般的にウェブサイトやブログのコンテンツを書くために使用されます。
 
 あなたは書きます...
 
@@ -24,19 +24,19 @@ Output:
 <p>I <strong>love</strong> using <a href="https://nextjs.org/">Next.js</a></p>
 ```
 
-[MDX](https://mdxjs.com/)はマークダウンのスーパーセットで、マークダウンファイルに直接[JSX](https://react.dev/learn/writing-markup-with-jsx)を書くことができます。これは、コンテンツ内にReactComponentを埋め込んだり、dynamicなインタラクティビティを追加するための強力な方法です。
+[MDX](https://mdxjs.com/)はマークダウンのスーパーセットで、マークダウンファイルに直接[JSX](https://react.dev/learn/writing-markup-with-jsx)を書くことができます。これは、コンテンツ内に ReactComponent を埋め込んだり、dynamic なインタラクティビティを追加するための強力な方法です。
 
-Next.jsは、アプリケーション内のローカルMDXコンテンツと、serverで動的に取得されるリモートMDXファイルの両方をサポートできます。 Next.js pluginはマークダウンとReactComponentをHTMLに変換する処理を行い、Server Components(App Routerのdefault)での使用をサポートします。
+Next.js は、アプリケーション内のローカル MDX コンテンツと、server で動的に取得されるリモート MDX ファイルの両方をサポートできます。 Next.js plugin はマークダウンと ReactComponent を HTML に変換する処理を行い、Server Components(App Router の default)での使用をサポートします。
 
 ## `@next/mdx`
 
-`@next/mdx`パッケージは、Next.jsがマークダウンとMDXを処理できるように設定するために使用されます。**それはローカルファイルからデータを取得し**、`/pages`または`/app`ディレクトリに直接`.mdx`拡張子のページを作成することができます。
+`@next/mdx`パッケージは、Next.js がマークダウンと MDX を処理できるように設定するために使用されます。**それはローカルファイルからデータを取得し**、`/pages`または`/app`ディレクトリに直接`.mdx`拡張子のページを作成することができます。
 
-Next.jsを使用してMDXを設定し、使用する方法を一緒に見ていきましょう。
+Next.js を使用して MDX を設定し、使用する方法を一緒に見ていきましょう。
 
 ## Getting Started
 
-render MDXに必要なパッケージをインストールします：
+render MDX に必要なパッケージをインストールします：
 
 ```bash:Terminal
 npm install @next/mdx @mdx-js/loader @mdx-js/react @types/mdx
@@ -44,9 +44,9 @@ npm install @next/mdx @mdx-js/loader @mdx-js/react @types/mdx
 
 <AppOnly>
 
-あなたのアプリケーションのroot (`src/` または `app/` の親フォルダー)に `mdx-components.tsx` ファイルを作成してください：
+あなたのアプリケーションの root (`src/` または `app/` の親フォルダー)に `mdx-components.tsx` ファイルを作成してください：
 
-> **Good to know**: `mdx-components.tsx`は App Router でMDXを使用するためには必要で、それなしでは動作しません。
+> **Good to know**: `mdx-components.tsx`は App Router で MDX を使用するためには必要で、それなしでは動作しません。
 
 ```tsx:mdx-components.tsx
 import type { MDXComponents } from 'mdx/types'
@@ -68,7 +68,7 @@ export function useMDXComponents(components) {
 
 </AppOnly>
 
-`next.config.js` ファイルをあなたのプロジェクトのrootに更新して、それを MDX を使用するように設定します:
+`next.config.js` ファイルをあなたのプロジェクトの root に更新して、それを MDX を使用するように設定します:
 
 ```js:next.config.js
 const withMDX = require('@next/mdx')()
@@ -85,7 +85,7 @@ module.exports = withMDX(nextConfig)
 
 <AppOnly>
 
-次に、`/app`ディレクトリ内に新しいMDXページを作成します：
+次に、`/app`ディレクトリ内に新しい MDX ページを作成します：
 
 ```txt
   your-project
@@ -99,7 +99,7 @@ module.exports = withMDX(nextConfig)
 
 <PagesOnly>
 
-その後、`/pages`ディレクトリ内に新しいMDXページを作成します：
+その後、`/pages`ディレクトリ内に新しい MDX ページを作成します：
 
 ```txt
   your-project
@@ -110,10 +110,10 @@ module.exports = withMDX(nextConfig)
 
 </PagesOnly>
 
-これで、MDXページ内で直接markdownとimport ReactComponentを使用できるようになりました:
+これで、MDX ページ内で直接 markdown と import ReactComponent を使用できるようになりました:
 
 ```mdx
-import { MyComponent } from 'my-components'
+import { MyComponent } from "my-components";
 
 # Welcome to my MDX page!
 
@@ -130,13 +130,13 @@ Checkout my React component:
 <MyComponent />
 ```
 
-`/my-mdx-page` への route で移動すると、レンダリングされたMDXが display されます。
+`/my-mdx-page` への route で移動すると、レンダリングされた MDX が display されます。
 
 ## Remote MDX
 
-あなたのマークダウンまたはMDXファイルやコンテンツが_どこか別の場所_にある場合、それをserver上で動的にfetchできます。これは、別のローカルフォルダ、CMS、データベース、または他の場所に保存されているコンテンツに役立ちます。この目的に役立つ人気のコミュニティパッケージは[`next-mdx-remote`](https://github.com/hashicorp/next-mdx-remote#react-server-components-rsc--nextjs-app-directory-support)です。
+あなたのマークダウンまたは MDX ファイルやコンテンツが*どこか別の場所*にある場合、それを server 上で動的に fetch できます。これは、別のローカルフォルダ、CMS、データベース、または他の場所に保存されているコンテンツに役立ちます。この目的に役立つ人気のコミュニティパッケージは[`next-mdx-remote`](https://github.com/hashicorp/next-mdx-remote#react-server-components-rsc--nextjs-app-directory-support)です。
 
-> **Good to know**: 注意して進めてください。MDXは JavaScript にコンパイルされ、 server 上で実行されます。信頼できる source からのみMDXコンテンツを fetch すべきで、そうでないとリモート code 実行(RCE)につながる可能性があります。
+> **Good to know**: 注意して進めてください。MDX は JavaScript にコンパイルされ、 server 上で実行されます。信頼できる source からのみ MDX コンテンツを fetch すべきで、そうでないとリモート code 実行(RCE)につながる可能性があります。
 
 次の例では`next-mdx-remote`を使用します:
 
@@ -208,13 +208,13 @@ export async function getStaticProps() {
 
 </PagesOnly>
 
-`/my-mdx-page-remote`へのrouteに移動すると、renderingされたMDXが表示されるはずです。
+`/my-mdx-page-remote`への route に移動すると、rendering された MDX が表示されるはずです。
 
 ## Layouts
 
 <AppOnly>
 
-MDXページ間でlayoutを共有するには、App Routerと共に[built-in layouts support](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)を使用することができます。
+MDX ページ間で layout を共有するには、App Router と共に[built-in layouts support](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)を使用することができます。
 
 ```tsx:app/my-mdx-page/layout.tsx
 export default function MdxLayout({ children }: { children: React.ReactNode }) {
@@ -234,7 +234,7 @@ export default function MdxLayout({ children }) {
 
 <PagesOnly>
 
-MDXページでlayoutを共有するには、layout componentを作成します：
+MDX ページで layout を共有するには、layout component を作成します：
 
 ```tsx:components/mdx-layout.tsx
 export default function MdxLayout({ children }: { children: React.ReactNode }) {
@@ -250,10 +250,10 @@ export default function MdxLayout({ children }) {
 }
 ```
 
-それから、MDXページにlayout componentをimportし、MDXの内容をlayoutでラップし、それをexportしてください：
+それから、MDX ページに layout component を import し、MDX の内容を layout でラップし、それを export してください：
 
 ```mdx
-import MdxLayout from '../components/mdx-layout'
+import MdxLayout from "../components/mdx-layout";
 
 # Welcome to my MDX page!
 
@@ -267,11 +267,11 @@ export default function MDXPage({ children }) {
 
 ## Remark and Rehype Plugins
 
-必要に応じて、MDXコンテンツを transform するための`remark`および`rehype`プラグインを提供することができます。
+必要に応じて、MDX コンテンツを transform するための`remark`および`rehype`プラグインを提供することができます。
 
-たとえば、GitHubフレーバーのマークダウンをサポートするために`remark-gfm`を使用することができます。
+たとえば、GitHub フレーバーのマークダウンをサポートするために`remark-gfm`を使用することができます。
 
-`remark`と`rehype`エコシステムがESMのみなので、設定ファイルとして`next.config.mjs`を使用する必要があります。
+`remark`と`rehype`エコシステムが ESM のみなので、設定ファイルとして`next.config.mjs`を使用する必要があります。
 
 ```js:next.config.mjs
 import remarkGfm from 'remark-gfm'
@@ -298,18 +298,18 @@ export default withMDX(nextConfig)
 
 ## Frontmatter
 
-フロントマターは、ページに関するデータを保存するために使用できるYAMLのようなキー/値のペアリングです。`@next/mdx`は、defaultではフロントマターをサポート**しません**が、MDXコンテンツにフロントマターを追加するための多くのソリューションが存在します。例えば：
+フロントマターは、ページに関するデータを保存するために使用できる YAML のようなキー/値のペアリングです。`@next/mdx`は、default ではフロントマターをサポート**しません**が、MDX コンテンツにフロントマターを追加するための多くのソリューションが存在します。例えば：
 
 - [remark-frontmatter](https://github.com/remarkjs/remark-frontmatter)
 - [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter)
 - [gray-matter](https://github.com/jonschlinkert/gray-matter).
 
-`@next/mdx`を使用してページmetadataにアクセスするには、 `.mdx`ファイル内からmetadata objectをexportできます：
+`@next/mdx`を使用してページ metadata にアクセスするには、 `.mdx`ファイル内から metadata object を export できます：
 
 ```mdx
 export const metadata = {
-  author: 'John Doe',
-}
+  author: "John Doe",
+};
 
 # My MDX page
 ```
@@ -338,17 +338,17 @@ This is a list in markdown:
 </ul>
 ```
 
-あなたが自分のウェブサイトやアプリケーションにカスタム感を持たせたいと思ったときに、 shortcode を使用できます。これらは、あなた自身のカスタムcomponentsで、`HTML`要素にマップします。
+あなたが自分のウェブサイトやアプリケーションにカスタム感を持たせたいと思ったときに、 shortcode を使用できます。これらは、あなた自身のカスタム components で、`HTML`要素にマップします。
 
 <AppOnly>
 
-これを行うには、アプリケーションのrootにある`mdx-components.tsx`ファイルを開き、カスタム要素を追加します：
+これを行うには、アプリケーションの root にある`mdx-components.tsx`ファイルを開き、カスタム要素を追加します：
 
 </AppOnly>
 
 <PagesOnly>
 
-これを行うには、アプリケーションのroot(`pages/`または`src/`の親フォルダ)に`mdx-components.tsx`ファイルを作成し、カスタム要素を追加します：
+これを行うには、アプリケーションの root(`pages/`または`src/`の親フォルダ)に`mdx-components.tsx`ファイルを作成し、カスタム要素を追加します：
 
 </PagesOnly>
 
@@ -403,18 +403,18 @@ export function useMDXComponents(components) {
 
 ## Deep Dive: How do you transform markdown into HTML?
 
-Reactはネイティブでマークダウンを理解することができません。マークダウンのプレーンテキストは、まずHTMLに変換する必要があります。これは`remark`と`rehype`を使用して達成することができます。
+React はネイティブでマークダウンを理解することができません。マークダウンのプレーンテキストは、まず HTML に変換する必要があります。これは`remark`と`rehype`を使用して達成することができます。
 
-`remark`はマークダウンを中心としたツールのエコシステムです。`rehype`も同様で、これはHTMLのためのものです。例えば、次のcodeスニペットはマークダウンをHTMLに変換します：
+`remark`はマークダウンを中心としたツールのエコシステムです。`rehype`も同様で、これは HTML のためのものです。例えば、次の code スニペットはマークダウンを HTML に変換します：
 
 ```js
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkRehype from 'remark-rehype'
-import rehypeSanitize from 'rehype-sanitize'
-import rehypeStringify from 'rehype-stringify'
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeStringify from "rehype-stringify";
 
-main()
+main();
 
 async function main() {
   const file = await unified()
@@ -422,9 +422,9 @@ async function main() {
     .use(remarkRehype) // Transform to HTML AST
     .use(rehypeSanitize) // Sanitize HTML input
     .use(rehypeStringify) // Convert AST into serialized HTML
-    .process('Hello, Next.js!')
+    .process("Hello, Next.js!");
 
-  console.log(String(file)) // <p>Hello, Next.js!</p>
+  console.log(String(file)); // <p>Hello, Next.js!</p>
 }
 ```
 
@@ -434,7 +434,7 @@ async function main() {
 
 ## Using the Rust-based MDX compiler (Experimental)
 
-Next.jsは、Rustで書かれた新しいMDX compilerをサポートしています。この compilerはまだ実験段階であり、productionでの使用は推奨されていません。新しい compilerを使用するには、 `withMDX` に渡すときに `next.config.js`を設定する必要があります。
+Next.js は、Rust で書かれた新しい MDX compiler をサポートしています。この compiler はまだ実験段階であり、production での使用は推奨されていません。新しい compiler を使用するには、 `withMDX` に渡すときに `next.config.js`を設定する必要があります。
 
 ```js:next.config.js
 module.exports = withMDX({
