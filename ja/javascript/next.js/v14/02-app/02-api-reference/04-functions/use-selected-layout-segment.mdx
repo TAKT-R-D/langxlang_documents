@@ -1,0 +1,176 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/use-selected-layout-segment.mdx
+title: useSelectedLayoutSegment
+description: API Reference for the useSelectedLayoutSegment hook.
+org_title: useSelectedLayoutSegment
+org_path: /docs/app/api-reference/functions/use-selected-layout-segment
+is_empty: false
+---
+
+`useSelectedLayoutSegment`は、呼び出し元の Layout の**1 つ下の階層**のアクティブな route セグメントを読み取ることができる**Client Component**の hook です。
+
+layout の親としてのタブなどのナビゲーション UI に便利であり、アクティブな子セグメントに応じて style が変わります。
+
+```tsx:app/example-client-component.tsx
+'use client'
+
+import { useSelectedLayoutSegment } from 'next/navigation'
+
+export default function ExampleClientComponent() {
+  const segment = useSelectedLayoutSegment()
+
+  return <p>Active segment: {segment}</p>
+}
+```
+
+```jsx:app/example-client-component.js
+'use client'
+
+import { useSelectedLayoutSegment } from 'next/navigation'
+
+export default function ExampleClientComponent() {
+  const segment = useSelectedLayoutSegment()
+
+  return <p>Active segment: {segment}</p>
+}
+```
+
+> **Good to know**:
+>
+> - `useSelectedLayoutSegment`は[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の hook であり、レイアウトは[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)が default ですので、通常、`useSelectedLayoutSegment`は、 Layout にインポートされた Client Component を介して呼び出されます。
+> - `useSelectedLayoutSegment`は一つ下のレベルのセグメントのみを返します。すべてのアクティブなセグメントを返すには、[`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments)をご覧ください。
+
+## Parameters
+
+```tsx
+const segment = useSelectedLayoutSegment(parallelRoutesKey?: string)
+```
+
+`useSelectedLayoutSegment` はオプションで [`parallelRoutesKey`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#useselectedlayoutsegments) を受け付けます。これにより、そのスロット内のアクティブな route セグメントを読み取ることができます。
+
+## Returns
+
+`useSelectedLayoutSegment`はアクティブなセグメントの string を返すか、存在しない場合は`null`を返します。
+
+たとえば、以下の Layout と URL が与えられた場合、返されるセグメントは以下のようになります：
+
+| Layout                    | 訪問した URL                   | 返されたセグメント |
+| ------------------------- | ------------------------------ | ------------------ |
+| `app/layout.js`           | `/`                            | `null`             |
+| `app/layout.js`           | `/dashboard`                   | `'dashboard'`      |
+| `app/dashboard/layout.js` | `/dashboard`                   | `null`             |
+| `app/dashboard/layout.js` | `/dashboard/settings`          | `'settings'`       |
+| `app/dashboard/layout.js` | `/dashboard/analytics`         | `'analytics'`      |
+| `app/dashboard/layout.js` | `/dashboard/analytics/monthly` | `'analytics'`      |
+
+## Examples
+
+### アクティブな link component を作成する
+
+`useSelectedLayoutSegment`を使用して、アクティブな link component を作成し、アクティブなセグメントに応じて style が変化することができます。例えば、ブログのサイドバーにある注目の投稿リスト:
+
+```tsx:app/blog/blog-nav-link.tsx
+'use client'
+
+import Link from 'next/link'
+import { useSelectedLayoutSegment } from 'next/navigation'
+
+// This *client* component will be imported into a blog layout
+export default function BlogNavLink({
+  slug,
+  children,
+}: {
+  slug: string
+  children: React.ReactNode
+}) {
+  // Navigating to `/blog/hello-world` will return 'hello-world'
+  // for the selected layout segment
+  const segment = useSelectedLayoutSegment()
+  const isActive = slug === segment
+
+  return (
+    <Link
+      href={`/blog/${slug}`}
+      // Change style depending on whether the link is active
+      style={{ fontWeight: isActive ? 'bold' : 'normal' }}
+    >
+      {children}
+    </Link>
+  )
+}
+```
+
+```jsx:app/blog/blog-nav-link.js
+'use client'
+
+import Link from 'next/link'
+import { useSelectedLayoutSegment } from 'next/navigation'
+
+// This *client* component will be imported into a blog layout
+export default function BlogNavLink({ slug, children }) {
+  // Navigating to `/blog/hello-world` will return 'hello-world'
+  // for the selected layout segment
+  const segment = useSelectedLayoutSegment()
+  const isActive = slug === segment
+
+  return (
+    <Link
+      href={`/blog/${slug}`}
+      // Change style depending on whether the link is active
+      style={{ fontWeight: isActive ? 'bold' : 'normal' }}
+    >
+      {children}
+    </Link>
+  )
+}
+```
+
+```tsx:app/blog/layout.tsx
+// Import the Client Component into a parent Layout (Server Component)
+import { BlogNavLink } from './blog-nav-link'
+import getFeaturedPosts from './get-featured-posts'
+
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const featuredPosts = await getFeaturedPosts()
+  return (
+    <div>
+      {featuredPosts.map((post) => (
+        <div key={post.id}>
+          <BlogNavLink slug={post.slug}>{post.title}</BlogNavLink>
+        </div>
+      ))}
+      <div>{children}</div>
+    </div>
+  )
+}
+```
+
+```jsx:app/blog/layout.js
+// Import the Client Component into a parent Layout (Server Component)
+import { BlogNavLink } from './blog-nav-link'
+import getFeaturedPosts from './get-featured-posts'
+
+export default async function Layout({ children }) {
+  const featuredPosts = await getFeaturedPosts()
+  return (
+    <div>
+      {featuredPosts.map((post) => (
+        <div key={post.id}>
+          <BlogNavLink slug={post.slug}>{post.title}</BlogNavLink>
+        </div>
+      ))}
+      <div>{children}</div>
+    </div>
+  )
+}
+```
+
+## Version History
+
+| Version   | Changes                                      |
+| --------- | -------------------------------------------- |
+| `v13.0.0` | `useSelectedLayoutSegment`が導入されました。 |

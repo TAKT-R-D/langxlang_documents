@@ -1,0 +1,82 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/route.mdx
+title: route.js
+description: API reference for the route.js special file.
+org_title: route.js
+org_path: /docs/app/api-reference/file-conventions/route
+is_empty: false
+---
+
+Route Handlers allow you to create custom request handlers for a given route using the Web [Request](https://developer.mozilla.org/docs/Web/API/Request) and [Response](https://developer.mozilla.org/docs/Web/API/Response) APIs.
+
+## HTTP Methods
+
+**route** ファイルを使用すると、特定の route に対してカスタム request ハンドラを作成できます。以下の [HTTP methods](https://developer.mozilla.org/docs/Web/HTTP/Methods) がサポートされています: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`。
+
+```ts:route.ts
+export async function GET(request: Request) {}
+
+export async function HEAD(request: Request) {}
+
+export async function POST(request: Request) {}
+
+export async function PUT(request: Request) {}
+
+export async function DELETE(request: Request) {}
+
+export async function PATCH(request: Request) {}
+
+// If `OPTIONS` is not defined, Next.js will automatically implement `OPTIONS` and  set the appropriate Response `Allow` header depending on the other methods defined in the route handler.
+export async function OPTIONS(request: Request) {}
+```
+
+```js:route.js
+export async function GET(request) {}
+
+export async function HEAD(request) {}
+
+export async function POST(request) {}
+
+export async function PUT(request) {}
+
+export async function DELETE(request) {}
+
+export async function PATCH(request) {}
+
+// If `OPTIONS` is not defined, Next.js will automatically implement `OPTIONS` and  set the appropriate Response `Allow` header depending on the other methods defined in the route handler.
+export async function OPTIONS(request) {}
+```
+
+> **Good to know**: Route ハンドラは、`app`ディレクトリ内でのみ使用可能です。 API Routes (`pages`)と Route ハンドラ(`app`)を一緒に使用する必要は**ありません**。なぜなら、 Route ハンドラはすべての使用ケースを処理できるはずだからです。
+
+## Parameters
+
+### `request`(オプション)
+
+`request` object は、Web[request](https://developer.mozilla.org/docs/Web/API/Request) API の拡張である[NextRequest](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request) object です。`NextRequest`を使用すると、`cookies`への容易なアクセスや拡張された解析された URLobject の`nextUrl`など、来る request をより詳細に制御できます。
+
+### `context` (オプション)
+
+```ts:app/dashboard/[team]/route.js
+export async function GET(request, context: { params }) {
+  const team = params.team // '1'
+}
+```
+
+現在、`context`の唯一の value は、現在の route に対する[dynamic route parameters](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を含む object である`params`です。
+
+| Example                          | URL            | `params`                  |
+| -------------------------------- | -------------- | ------------------------- |
+| `app/dashboard/[team]/route.js`  | `/dashboard/1` | `{ team: '1' }`           |
+| `app/shop/[tag]/[item]/route.js` | `/shop/1/2`    | `{ tag: '1', item: '2' }` |
+| `app/blog/[...slug]/route.js`    | `/blog/1/2`    | `{ slug: ['1', '2'] }`    |
+
+## NextResponse
+
+Route ハンドラは、`NextResponse` object を返すことにより、Web の Response API を拡張できます。これにより、cookies、headers、redirect、および rewrite を簡単に設定できます。[API reference を見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-response)。
+
+## Version History
+
+| Version   | Changes                            |
+| --------- | ---------------------------------- |
+| `v13.2.0` | Route ハンドラーが導入されました。 |

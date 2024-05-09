@@ -1,0 +1,546 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/headers.mdx
+title: headers
+description: Add custom HTTP headers to your Next.js app.
+org_title: headers
+org_path: /docs/app/api-reference/next-config-js/headers
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Headers は、特定の path に対する入力 request への response にカスタムの HTTP headers を設定できるようにします。
+
+カスタムの HTTP headers を設定するためには、`next.config.js`の`headers`キーを使用することができます：
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/about',
+        headers: [
+          {
+            key: 'x-custom-header',
+            value: 'my custom header value',
+          },
+          {
+            key: 'x-another-custom-header',
+            value: 'my other custom header value',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+`headers`は、`source`と`headers`のプロパティを持つ Object を保持する配列を返すことを期待する async 関数です。
+
+- `source`は、到着する request path のパターンです。
+- `headers`は、`key`と`value`プロパティを持つ response header オブジェクトの配列です。
+- `basePath`: `false`または`undefined` - false の場合、マッチング時に basePath は含まれず、 rewrites は外部だけで使用できます。
+- `locale`: `false` または `undefined` - locale がマッチング時に含まれないべきかどうか。
+- `has`は、`type`、`key`、`value`プロパティを持つ[has objects](#header-cookie-and-query-matching)の配列です。
+- `missing`は、`type`、`key`、`value`プロパティを持つ[missing オブジェクト](#header-cookie-and-query-matching)の配列です。
+
+Headers は、ページと`/public`ファイルを含むファイルシステムの前にチェックされます。
+
+## Header Overriding Behavior
+
+二つの headers が同じ path に一致し、同じ header キーを設定した場合、最後の header キーが最初のものを上書きします。以下の headers を使用すると、path `/hello`は最後に設定された header value が`world`であるため、header `x-hello`が`world`になります。
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'there',
+          },
+        ],
+      },
+      {
+        source: '/hello',
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+## Path Matching
+
+Path の一致が許可されています。例えば、`/blog/:slug`は`/blog/hello-world`と一致します(ネストされた paths はありません):
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/blog/:slug',
+        headers: [
+          {
+            key: 'x-slug',
+            value: ':slug', // Matched parameters can be used in the value
+          },
+          {
+            key: 'x-slug-:slug', // Matched parameters can be used in the key
+            value: 'my other custom header value',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+### ワイルドカード Path マッチング
+
+ワイルドカードの path に一致させるためには、パラメータの後に`*`を使用することができます。例えば、`/blog/:slug*`は`/blog/a/b/c/d/hello-world`に一致します。
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/blog/:slug*',
+        headers: [
+          {
+            key: 'x-slug',
+            value: ':slug*', // Matched parameters can be used in the value
+          },
+          {
+            key: 'x-slug-:slug*', // Matched parameters can be used in the key
+            value: 'my other custom header value',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+### Regex Path マッチング
+
+正規表現 path に一致させるには、パラメータの後に正規表現を括弧で囲むことができます。たとえば、`/blog/:slug(\\d{1,})`は`/blog/123`に一致しますが、`/blog/abc`には一致しません：
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/blog/:post(\\d{1,})',
+        headers: [
+          {
+            key: 'x-post',
+            value: ':post',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+次の文字 `(`、`)`、`{`、`}`、`:`、`*`、`+`、`?`は、regex の path マッチングに使用されるため、それらを`source`で特別でない値として使用する場合、それらの前に`\\`を追加してエスケープする必要があります。
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        // this will match `/english(default)/something` being requested
+        source: '/english\\(default\\)/:slug',
+        headers: [
+          {
+            key: 'x-header',
+            value: 'value',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+## Header, Cookie, and Query Matching
+
+`has`フィールドと一致するか、あるいは`missing`フィールドと一致しない時にだけ、header、cookie、または query の値と一緒に header を適用することができます。`source`と全ての`has`アイテムが一致し、全ての`missing`アイテムが一致しない場合にのみ、header が適用されます。
+
+`has`と`missing`アイテムには次のフィールドが含まれることがあります：
+
+- `type`: `String` - これは、`header`、`cookie`、`host`、または`query`のいずれかでなければなりません。
+- `key`: `String` - 選択された type に一致するためのキー。
+- `value`: `String`または`undefined` - チェックする value 、 undefined の場合、任意の value に一致します。 string のような正規表現を使用して、 value の特定の部分をキャプチャできます。例えば、 value `first-(?<paramName>.*)`が `first-second`用に使用される場合、 `second`は destination で `:paramName`として使えます。
+
+```js:next.config.js
+module.exports = {
+  async headers() {
+    return [
+      // if the header `x-add-header` is present,
+      // the `x-another-header` header will be applied
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-add-header',
+          },
+        ],
+        headers: [
+          {
+            key: 'x-another-header',
+            value: 'hello',
+          },
+        ],
+      },
+      // if the header `x-no-header` is not present,
+      // the `x-another-header` header will be applied
+      {
+        source: '/:path*',
+        missing: [
+          {
+            type: 'header',
+            key: 'x-no-header',
+          },
+        ],
+        headers: [
+          {
+            key: 'x-another-header',
+            value: 'hello',
+          },
+        ],
+      },
+      // if the source, query, and cookie are matched,
+      // the `x-authorized` header will be applied
+      {
+        source: '/specific/:path*',
+        has: [
+          {
+            type: 'query',
+            key: 'page',
+            // the page value will not be available in the
+            // header key/values since value is provided and
+            // doesn't use a named capture group e.g. (?<page>home)
+            value: 'home',
+          },
+          {
+            type: 'cookie',
+            key: 'authorized',
+            value: 'true',
+          },
+        ],
+        headers: [
+          {
+            key: 'x-authorized',
+            value: ':authorized',
+          },
+        ],
+      },
+      // if the header `x-authorized` is present and
+      // contains a matching value, the `x-another-header` will be applied
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-authorized',
+            value: '(?<authorized>yes|true)',
+          },
+        ],
+        headers: [
+          {
+            key: 'x-another-header',
+            value: ':authorized',
+          },
+        ],
+      },
+      // if the host is `example.com`,
+      // this header will be applied
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'example.com',
+          },
+        ],
+        headers: [
+          {
+            key: 'x-another-header',
+            value: ':authorized',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+## Headers with basePath support
+
+[`basePath` サポート](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/basePath)を headers と共に利用する場合、`basePath: false` を header に追加しない限り、各 `source` は自動的に `basePath` でプレフィックスされます：
+
+```js:next.config.js
+module.exports = {
+  basePath: '/docs',
+
+  async headers() {
+    return [
+      {
+        source: '/with-basePath', // becomes /docs/with-basePath
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+      },
+      {
+        source: '/without-basePath', // is not modified since basePath: false is set
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+        basePath: false,
+      },
+    ]
+  },
+}
+```
+
+## Headers with i18n support
+
+<AppOnly>
+
+[`i18n`サポート](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/14-internationalization)を活用する際に、 header ごとに、`source`は自動的に接頭辞が付けられ、設定された`locales`を処理します。ただし、`locale: false`を headers に追加すると、この動作は発生しません。 `locale: false`を使用する場合は、`source`の前に locale を付けて、正しくマッチさせる必要があります。
+
+</AppOnly>
+
+<PagesOnly>
+
+headers を使用して [`i18n` サポート](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)を活用する際、各 `source`は自動的に接頭辞が付けられて設定された`locales`を処理します、ただし `locale: false` を header に追加した場合を除きます。`locale: false`が使用されている場合、`source`に locale を接頭辞として付ける必要があります。それが正しく一致するためで ￿ す。
+
+</PagesOnly>
+
+```js:next.config.js
+module.exports = {
+  i18n: {
+    locales: ['en', 'fr', 'de'],
+    defaultLocale: 'en',
+  },
+
+  async headers() {
+    return [
+      {
+        source: '/with-locale', // automatically handles all locales
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+      },
+      {
+        // does not handle locales automatically since locale: false is set
+        source: '/nl/with-locale-manual',
+        locale: false,
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+      },
+      {
+        // this matches '/' since `en` is the defaultLocale
+        source: '/en',
+        locale: false,
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+      },
+      {
+        // this gets converted to /(en|fr|de)/(.*) so will not match the top-level
+        // `/` or `/fr` routes like /:path* would
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'x-hello',
+            value: 'world',
+          },
+        ],
+      },
+    ]
+  },
+}
+```
+
+## Cache-Control
+
+`Cache-Control`の headers を`next.config.js`でページやアセットに設定することはできません。これらの headers は、Response と静的アセットが効果的にキャッシュされることを確認するために、production で上書きされます。
+
+<AppOnly>
+
+App Router を使った[caching](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)についてもっと学びましょう。
+
+</AppOnly>
+
+<PagesOnly>
+
+[静的に生成](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/02-static-site-generation)されたページの cache を再認証する必要がある場合は、ページの[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)関数内で `revalidate`プロパティを設定することで実行できます。
+
+`Cache-Control` header を [API Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes) に設定することができます。これは `res.setHeader` method を使用することで行うことができます。
+
+```ts:pages/api/hello.ts
+import type { NextApiRequest, NextApiResponse } from 'next'
+
+type ResponseData = {
+  message: string
+}
+
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseData>
+) {
+  res.setHeader('Cache-Control', 's-maxage=86400')
+  res.status(200).json({ message: 'Hello from Next.js!' })
+}
+```
+
+```js:pages/api/hello.js
+export default function handler(req, res) {
+  res.setHeader('Cache-Control', 's-maxage=86400')
+  res.status(200).json({ message: 'Hello from Next.js!' })
+}
+```
+
+</PagesOnly>
+
+## Options
+
+### CORS
+
+[Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/docs/Web/HTTP/CORS)は、どのサイトがあなたのリソースにアクセスできるかを制御するセキュリティ機能です。 `Access-Control-Allow-Origin` header を設定して、特定のオリジンがあなたの<PagesOnly>API エンドポイント</PagesOnly><AppOnly>ルートハンドラ</AppOnly>にアクセスできるようにすることができます。
+
+```js
+async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*", // Set your origin
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
+          },
+        ],
+      },
+    ];
+  },
+```
+
+### X-DNS-Prefetch-Control
+
+[この header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control)は DNS プレフェッチを制御し、ブラウザが外部リンク、画像、 CSS 、 JavaScript などのドメイン名の解決を積極的に行うことを可能にします。このプレフェッチはバックグラウンドで実行されるため、参照されるアイテムが必要になる時点で[DNS](https://developer.mozilla.org/docs/Glossary/DNS)が解決される可能性が高くなります。これにより、ユーザーが link をクリックしたときの遅延を減らします。
+
+```js
+{
+  key: 'X-DNS-Prefetch-Control',
+  value: 'on'
+}
+```
+
+### Strict-Transport-Security
+
+この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security)は、ブラウザに対して HTTPS を使用してのみアクセスするよう指示します。これは、HTTP を使用する代わりになります。以下の設定を使用すると、現在および将来のすべてのサブドメインで`max-age` 2 年間にわたり HTTPS を使用します。これにより、HTTP でのみ提供できるページやサブドメインへのアクセスがブロックされます。
+
+あなたが[Vercel](https://vercel.com/docs/concepts/edge-network/headers#strict-transport-security?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)にデプロイしている場合、この header は必要ありません。なぜなら、それはすべてのデプロイメントに自動的に追加されるからです。ただし、`next.config.js` で `headers` を明示的に宣言した場合は除きます。
+
+```js
+{
+  key: 'Strict-Transport-Security',
+  value: 'max-age=63072000; includeSubDomains; preload'
+}
+```
+
+### X-Frame-Options
+
+この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Frame-Options)は、サイトが`iframe`内で表示されるべきかどうかを示します。これにより、クリックジャッキング攻撃を防ぐことができます。
+
+**この header は、CSP の`frame-ancestors`オプションに置き換えられています**。これは、現代のブラウザではよりサポートが充実しています(設定の詳細は、[Content Security Policy](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/15-content-security-policy) を参照してください)。
+
+```js
+{
+  key: 'X-Frame-Options',
+  value: 'SAMEORIGIN'
+}
+```
+
+### Permissions-Policy
+
+[この header](https://developer.mozilla.org/docs/Web/HTTP/Headers/Permissions-Policy)は、ブラウザでどの機能や API を使用できるかを制御できます。以前は`Feature-Policy`という名前でした。
+
+```js
+{
+  key: 'Permissions-Policy',
+  value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()'
+}
+```
+
+### X-Content-Type-Options
+
+この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Content-Type-Options)は、`Content-Type`の header が明示的に設定されていない場合に、ブラウザがコンテンツの type を推測しようとするのを防ぎます。これにより、ユーザーがファイルをアップロードして共有できるウェブサイトの XSS 攻撃を防ぐことができます。
+
+例えば、ユーザーが image をダウンロードしようとしているが、それが実行可能なファイルなど、異なる`Content-Type`として扱われてしまう、という場合。これは悪意のある動作につながるかもしれません。この header は、ブラウザの拡張機能をダウンロードする場合にも適用されます。この header に対する唯一の有効な value は`nosniff`です。
+
+```js
+{
+  key: 'X-Content-Type-Options',
+  value: 'nosniff'
+}
+```
+
+### Referrer-Policy
+
+[This header](https://developer.mozilla.org/docs/Web/HTTP/Headers/Referrer-Policy)は、現在のウェブサイト(元)から別のウェブサイトに移動する際に、ブラウザがどれだけの情報を含むかを制御します。
+
+```js
+{
+  key: 'Referrer-Policy',
+  value: 'origin-when-cross-origin'
+}
+```
+
+### Content-Security-Policy
+
+あなたのアプリケーションに[Content Security Policy](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/15-content-security-policy)を追加することについて詳しく学びましょう。
+
+## Version History
+
+| Version   | Changes                      |
+| --------- | ---------------------------- |
+| `v13.3.0` | `missing` が追加されました。 |
+| `v10.2.0` | `has` が追加されました。     |
+| `v9.5.0`  | Headers 追加済み。           |

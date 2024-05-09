@@ -1,0 +1,100 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/index.mdx
+title: next.config.js Options
+description: Learn how to configure your application with next.config.js.
+org_title: next.config.js Options
+org_path: /docs/app/api-reference/next-config-js
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Next.js は、プロジェクトディレクトリの root (例えば、`package.json`によって)にある`next.config.js`ファイルを通じて設定できます。これは、 default export によるものです。
+
+```js:next.config.js
+// @ts-check
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  /* config options here */
+}
+
+module.exports = nextConfig
+```
+
+`next.config.js`は通常の Node.js モジュールであり、JSON ファイルではありません。これは Next.js server と build フェーズによって使用され、ブラウザの build には含まれていません。
+
+もしあなたが[ECMAScript modules](https://nodejs.org/api/esm.html)が必要な場合、`next.config.mjs`を使用することができます:
+
+```js:next.config.mjs
+// @ts-check
+
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
+  /* config options here */
+}
+
+export default nextConfig
+```
+
+あなたはまた、関数を使用することもできます：
+
+```js:next.config.mjs
+// @ts-check
+
+export default (phase, { defaultConfig }) => {
+  /**
+   * @type {import('next').NextConfig}
+   */
+  const nextConfig = {
+    /* config options here */
+  }
+  return nextConfig
+}
+```
+
+Next.js12.1.0 以降、あなたは async 関数を使うことができます。
+
+```js:next.config.js
+// @ts-check
+
+module.exports = async (phase, { defaultConfig }) => {
+  /**
+   * @type {import('next').NextConfig}
+   */
+  const nextConfig = {
+    /* config options here */
+  }
+  return nextConfig
+}
+```
+
+`phase`は、設定がロードされる現在の context です。[利用可能なフェーズ](https://github.com/vercel/next.js/blob/5e6b008b561caf2710ab7be63320a3d549474a5b/packages/next/shared/lib/constants.ts#L19-L23)を見ることができます。フェーズは`next/constants`からインポートすることができます。
+
+```js
+// @ts-check
+
+const { PHASE_DEVELOPMENT_SERVER } = require("next/constants");
+
+module.exports = (phase, { defaultConfig }) => {
+  if (phase === PHASE_DEVELOPMENT_SERVER) {
+    return {
+      /* development only config options here */
+    };
+  }
+
+  return {
+    /* config options for all phases except development here */
+  };
+};
+```
+
+コメントされた行は、`next.config.js`で許可されている設定を置くことができる場所であり、それらは[このファイルで定義されています](https://github.com/vercel/next.js/blob/canary/packages/next/src/server/config-shared.ts)。
+
+ただし、config はいずれも必須ではなく、各々の config が何をするのかを理解する必要はありません。代わりに、このセクションで有効にしたり、修正したりする必要のある機能を探し、それらが何をするべきかを示します。
+
+> あなたの target Node.js version で利用できない新しい JavaScript の特徴を使用するのは避けてください。`next.config.js` は Webpack、Babel、または TypeScript によって解析されません。
+
+このページは、利用可能なすべての設定の options を文書化しています：

@@ -1,0 +1,159 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/error.mdx
+title: error.js
+description: API reference for the error.js special file.
+org_title: error.js
+org_path: /docs/app/api-reference/file-conventions/error
+is_empty: false
+---
+
+**error**ファイルは、route セグメントのための errorUI 境界を定義します。
+
+それは、Server Components や Client Components で発生する**思いがけない**error を捕捉し、fallbackUI を表示するのに役立ちます。
+
+```tsx:app/dashboard/error.tsx
+'use client' // Error components must be Client Components
+
+import { useEffect } from 'react'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error(error)
+  }, [error])
+
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button
+        onClick={
+          // Attempt to recover by trying to re-render the segment
+          () => reset()
+        }
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+```
+
+```jsx:app/dashboard/error.js
+'use client' // Error components must be Client Components
+
+import { useEffect } from 'react'
+
+export default function Error({ error, reset }) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error(error)
+  }, [error])
+
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button
+        onClick={
+          // Attempt to recover by trying to re-render the segment
+          () => reset()
+        }
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+```
+
+## Props
+
+### `error`
+
+[`Error`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error) object のインスタンスが `error.js` Client Components に転送されました。
+
+#### `error.message`
+
+error message のエラーメッセージ。
+
+- Client Components から転送された error の場合、これは元の error の message になります。
+- Server Components から転送されたエラーについては、機密情報が漏れ出るのを防ぐための一般的な error message となります。`errors.digest`は、 server-side のログの対応する error と一致させるために使用できます。
+
+#### `error.digest`
+
+Server Component で発生する error の自動生成されたハッシュ。これは、server-side のログの対応する error をマッチングするために使用できます。
+
+### `reset`
+
+Error 境界をリセットする機能。実行すると、機能は error 境界の内容を再レンダリングしようとします。成功した場合、 fallback error component は再レンダリングの結果に置き換えられます。
+
+ユーザーが error から回復しようとするように、prompt を使用することができます。
+
+> **Good to know**:
+>
+> - `error.js`の境界は**[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)**でなければなりません。
+> - Production build では、 Server Components から転送されるエラーは特定の error 詳細が削除され、機密情報の漏洩を防ぎます。
+> - `error.js` バウンダリは `layout.js` component でスローされるエラーを**処理しません**。それはその layouts の component の**内部**にネストされているからです。 error バウンダリがそのため、同じセグメントでは機能しません。
+> - 特定の layout のエラーを処理するには、`error.js` ファイルをレイアウトの親セグメントに配置します。
+> - root layout または template 内のエラーを処理するには、`error.js` のバリエーションである `app/global-error.js` を使用します。
+
+## `global-error.js`
+
+具体的に root `layout.js`の error を処理するには、`error.js`のバリエーションである`app/global-error.js`を使用します。これは、root `app`ディレクトリに位置しています。
+
+```tsx:app/global-error.tsx
+'use client'
+
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+        <button onClick={() => reset()}>Try again</button>
+      </body>
+    </html>
+  )
+}
+```
+
+```jsx:app/global-error.js
+'use client'
+
+export default function GlobalError({ error, reset }) {
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+        <button onClick={() => reset()}>Try again</button>
+      </body>
+    </html>
+  )
+}
+```
+
+> **Good to know**:
+>
+> - `global-error.js`はアクティブであるときに root の`layout.js`を置き換えるため、それ自身で`<html>`と`<body>`タグを定義する**必要があります**。
+> - Error UI をデザインする際には、error 境界を手動で切り替えるために、[React デベロッパーツール](https://react.dev/learn/react-developer-tools)を使用すると便利かもしれません。
+
+## not-found.js
+
+[`not-found`](https://nextjs.org/docs/app/api-reference/file-conventions/not-found)ファイルは、`notFound()`関数が route セグメント内でスローされた時に UI を render するために使用されます。
+
+## Version History
+
+| Version   | Changes                         |
+| --------- | ------------------------------- |
+| `v13.1.0` | `global-error` 導入されました。 |
+| `v13.0.0` | `error`が導入されました。       |

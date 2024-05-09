@@ -1,0 +1,40 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/11-upgrading/03-version-14.mdx
+title: Version 14
+description: Upgrade your Next.js Application from Version 13 to 14.
+org_title: Version 14
+org_path: /docs/app/building-your-application/upgrading/version-14
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+## Upgrading from 13 to 14
+
+Next.js version 14 に更新するには、お好みのパッケージマネージャーを使用して以下のコマンドを実行してください：
+
+```bash:Terminal
+npm i next@latest react@latest react-dom@latest eslint-config-next@latest
+```
+
+```bash:Terminal
+yarn add next@latest react@latest react-dom@latest eslint-config-next@latest
+```
+
+```bash:Terminal
+pnpm up next react react-dom eslint-config-next --latest
+```
+
+```bash:Terminal
+bun add next@latest react@latest react-dom@latest eslint-config-next@latest
+```
+
+> **知っておくべきこと：** TypeScript を使用している場合は、`@types/react`および`@types/react-dom`も最新バージョンにアップグレードしてください。
+
+### v14 サマリー
+
+- 最小の Node.js version は 16.14 から 18.17 に上がりました、なぜなら 16.x はライフエンドに達していました。
+- `next export`コマンドは、`output: 'export'` config を推奨するために削除されました。詳細については、[docs](https://nextjs.org/docs/app/building-your-application/deploying/static-exports)をご覧ください。
+- `next/server`の import である`ImageResponse`は`next/og`に名称変更されました。これにより、あなたのインポート名を安全かつ自動的に変更するための[codemod が利用可能](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#next-og-import)です。
+- `@next/font`パッケージは、組み込みの`next/font`に対して完全に削除されました。[codemod is available](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#built-in-next-font) で、インポートの名前を安全かつ自動的に変更できます。
+- `next-swc`の WASM target が削除されました。

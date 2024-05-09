@@ -1,0 +1,145 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths.mdx
+title: getStaticPaths
+description: Fetch data and generate static pages with 'getStaticPaths'. Learn more about this API for data fetching in Next.js.
+org_title: getStaticPaths
+org_path: /docs/pages/building-your-application/data-fetching/get-static-paths
+is_empty: false
+---
+
+ページが[Dynamic Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を持ち、`getStaticProps`を使用している場合、静的に生成されるべき paths のリストを定義する必要があります。
+
+`getStaticPaths`という関数を動的ルーティングを使用するページからエクスポートすると、Next.js は`getStaticPaths`で指定された全ての paths を静的に事前 rendering します(静的サイト生成)。
+
+```tsx:pages/repo/[name].tsx
+import type {
+  InferGetStaticPropsType,
+  GetStaticProps,
+  GetStaticPaths,
+} from 'next'
+
+type Repo = {
+  name: string
+  stargazers_count: number
+}
+
+export const getStaticPaths = (async () => {
+  return {
+    paths: [
+      {
+        params: {
+          name: 'next.js',
+        },
+      }, // See the "paths" section below
+    ],
+    fallback: true, // false or "blocking"
+  }
+}) satisfies GetStaticPaths
+
+export const getStaticProps = (async (context) => {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo = await res.json()
+  return { props: { repo } }
+}) satisfies GetStaticProps<{
+  repo: Repo
+}>
+
+export default function Page({
+  repo,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
+  return repo.stargazers_count
+}
+```
+
+```jsx:pages/repo/[name].js
+export async function getStaticPaths() {
+  return {
+    paths: [
+      {
+        params: {
+          name: 'next.js',
+        },
+      }, // See the "paths" section below
+    ],
+    fallback: true, // false or "blocking"
+  }
+}
+
+export async function getStaticProps() {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo = await res.json()
+  return { props: { repo } }
+}
+
+export default function Page({ repo }) {
+  return repo.stargazers_count
+}
+```
+
+すべてのパラメータと props が `getStaticPaths` で使用できることについては、[`getStaticPaths` API reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths) でカバーされています。
+
+## When should I use getStaticPaths?
+
+dynamic routes を使用してページを静的に事前レンダリングする場合は、`getStaticPaths`を使用すべきです。そして：
+
+- The data comes from a headless CMS
+- データはデータベースから来ています
+- データはファイルシステムから来ています
+- データは公開キャッシュ可能(ユーザー固有ではない)
+- The page must be pre-rendered (for SEO) and be very fast — `getStaticProps` generates `HTML` and `JSON` files, both of which can be cached by a CDN for performance
+
+## When does getStaticPaths run
+
+`getStaticPaths`は、 build 時および production 時にのみ実行され、 runtime 時に呼び出されません。`getStaticPaths`内に記述された code がクライアントサイドバンドルから削除されていることを、[このツール](https://next-code-elimination.vercel.app/)で確認できます。
+
+### getStaticProps は、getStaticPaths に対してどのように実行されますか
+
+- `getStaticProps`は`next build`の間に`paths`が build 中に返された場合に実行されます
+- `getStaticProps`は`fallback: true`を使用しているとき、バックグラウンドで実行されます。
+- `getStaticProps`は、`fallback: blocking`を使用して初期の render が呼び出される前に呼び出されます。
+
+## Where can I use getStaticPaths
+
+- `getStaticPaths`は`getStaticProps`と**必ず**使用しなければなりません
+- あなたは `getStaticPaths` を [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props) と一緒に**使うことができません**
+- あなたは[Dynamic Route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)から`getStaticPaths`を export することができます。これはまた、`getStaticProps`を使用します。
+- あなたは非ページファイル(例えば、あなたの `components` フォルダ)から export することはできません `getStaticPaths`
+- あなたは `getStaticPaths`を独立した関数として export しなければなりません。ページの component のプロパティとしてではありません。
+
+## Runs on every request in development
+
+development (`next dev`)では、`getStaticPaths`はすべての request で呼び出されます。
+
+## Generating paths on-demand
+
+`getStaticPaths`は、[`fallback`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-blocking)でオンデマンドに代わって build 中にどのページが生成されるかを制御することができます。 build 中に多くのページを生成すると、build の速度が遅くなります。
+
+`paths`に対して empty 配列を返すことで、すべてのページの生成をオンデマンドに延期することができます。これは、Next.js アプリケーションを複数の環境にデプロイする際に特に役立ちます。たとえば、プレビュー用にすべてのページをオンデマンドで生成することで、build を高速化することができます(ただし、productionbuild は除く)。これは、数百、数千の静的ページを持つサイトにとって有効です。
+
+```jsx:pages/posts/[id].js
+export async function getStaticPaths() {
+  // When this is true (in preview environments) don't
+  // prerender any static pages
+  // (faster builds, but slower initial page load)
+  if (process.env.SKIP_BUILD_STATIC_GENERATION) {
+    return {
+      paths: [],
+      fallback: 'blocking',
+    }
+  }
+
+  // Call an external API endpoint to get posts
+  const res = await fetch('https://.../posts')
+  const posts = await res.json()
+
+  // Get the paths we want to prerender based on posts
+  // In production environments, prerender all pages
+  // (slower builds, but faster initial page load)
+  const paths = posts.map((post) => ({
+    params: { id: post.id },
+  }))
+
+  // { fallback: false } means other routes should 404
+  return { paths, fallback: false }
+}
+```

@@ -1,0 +1,24 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/logging.mdx
+title: logging
+description: Configure how data fetches are logged to the console when running Next.js in development mode.
+org_title: logging
+org_path: /docs/app/api-reference/next-config-js/logging
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+あなたはロギングレベルを設定することができ、development モードで Next.js を実行する際に全ての URL がコンソールに記録されるかどうかを設定することができます。
+
+現在、`logging`は、`fetch`の API を使ってデータを取得する際にのみ適用されます。まだ Next.js 内の他のログには適用されていません。
+
+```js:next.config.js
+module.exports = {
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+}
+```

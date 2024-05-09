@@ -1,0 +1,33 @@
+---
+filePath: source/next.js/docs/04-architecture/turbopack.mdx
+title: Turbopack
+description: Turbopack is an incremental bundler optimized for JavaScript and TypeScript, written in Rust, and built into Next.js.
+org_title: Turbopack
+org_path: /docs/architecture/turbopack
+is_empty: false
+---
+
+[Turbopack](https://turbo.build/pack)(ベータ版)は、JavaScript や TypeScript に最適化されたインクリメンタルバンドラで、Rust で書かれており、Next.js に組み込まれています。
+
+## Usage
+
+Turbopack は、Next.js の`pages`ディレクトリーと`app`ディレクトリーの両方で使用することができ、より速いローカルの development を可能にします。Turbopack を有効にするには、Next.js development server を実行する際に`--turbo`フラグを使用してください。
+
+```json:package.json
+{
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  }
+}
+```
+
+## Supported Features
+
+Turbopack の現在サポートされている機能の詳細については、[documentation](https://turbo.build/pack/docs/features)をご覧ください。
+
+## Unsupported Features
+
+Turbopack は現在、`next dev`のみをサポートしており、`next build`はサポートしていません。安定性に向けて前進するにつれて、build のサポートに取り組んでいます。

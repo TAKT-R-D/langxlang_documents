@@ -1,0 +1,184 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/06-configuring/11-draft-mode.mdx
+title: Draft Mode
+description: Next.js has draft mode to toggle between static and dynamic pages. You can learn how it works with Pages Router.
+org_title: Draft Mode
+org_path: /docs/pages/building-your-application/configuring/draft-mode
+is_empty: false
+---
+
+[Pages ドキュメント](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts)と[Data Fetching ドキュメント](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)で、`getStaticProps` と `getStaticPaths` を使って、ページを build 時点で事前にレンダリングする方法(**静的生成**)について話しました。
+
+あなたのページがヘッドレス CMS から fetch データするとき、スタティックジェネレーションは役立ちます。ただし、あなたがヘッドレス CMS でドラフトを作成し、そのドラフトをすぐにページで見たいときには最適ではありません。あなたは Next.js にこれらのページを**request time**に render し、build time ではなく、公開されたコンテンツではなくドラフトのコンテンツを fetch するようにしたいと思うでしょう。この特定のケースについてだけ、あなたは Next.js にスタティックジェネレーションを回避してもらいたいと思うでしょう。
+
+Next.js には**ドラフトモード**と呼ばれる機能があり、この問題を解決します。以下にその使用方法を説明します。
+
+## Step 1: Create and access the API route
+
+> あなたが Next.js API Routes に馴染みがない場合、まずは[API Routes のドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes)をご覧ください。
+
+まず、**API route**を作成します。それは任意の名前を持つことができます - 例えば `pages/api/draft.ts`
+
+この API route では、`setDraftMode`を response object 上で呼び出す必要があります。
+
+```js
+export default function handler(req, res) {
+  // ...
+  res.setDraftMode({ enable: true });
+  // ...
+}
+```
+
+これにより**cookie**が設定され、ドラフトモードが有効になります。このクッキーを含む後続のリクエストは**ドラフトモード**をトリガーし、静的に生成されたページの挙動が変更されます（詳細は後ほど）。
+
+あなたは手動で以下のような API route を作成し、手動でブラウザからアクセスすることで、test を行うことができます。
+
+```ts:pages/api/draft.ts
+// simple example for testing it manually from your browser.
+export default function handler(req, res) {
+  res.setDraftMode({ enable: true })
+  res.end('Draft mode is enabled')
+}
+```
+
+ブラウザの開発者ツールを開き、`/api/draft`にアクセスすると、`Set-Cookie`という response header と、`__prerender_bypass`という名前の cookie が表示されることに気づくでしょう。
+
+### Securely accessing it from your Headless CMS
+
+実際には、この API route を**headless CMS**から**安全に**呼び出したいと思うでしょう。具体的な手順は使用する headless CMS により異なりますが、以下にいくつかの一般的な手順を示します。
+
+これらの手順は、使用しているヘッドレス CMS が**カスタムドラフト URL**の設定をサポートしていることを前提としています。サポートされていない場合でも、この方法を使用してドラフト URL を保護することはできますが、ドラフト URL を手動で構築してアクセスする必要があります。
+
+**まず**、選択したトークンジェネレーターを使用して**シークレットトークン文字列**を作成する必要があります。このシークレットは、あなたの Next.js アプリとヘッドレス CMS のみが知っています。このシークレットは、CMS にアクセスできない人がドラフト URL にアクセスするのを防ぎます。
+
+**次に**、ヘッドレス CMS がカスタムドラフト URL の設定をサポートしている場合は、ドラフトの URL として以下を指定します。これは、ドラフトの API route が `pages/api/draft.ts` に位置していることを前提としています。
+
+```bash:Terminal
+https://<your-site>/api/draft?secret=<token>&slug=<path>
+```
+
+- `<your-site>`はデプロイメントドメインであるべきです。
+- `<token>`は生成したシークレットトークンに置き換えるべきです。
+- `<path>`は閲覧したいページの path であるべきです。`/posts/foo`を閲覧したい場合は、`&slug=/posts/foo`を使用すべきです。
+
+あなたのヘッドレス CMS は、ドラフト URL に変数を含めることを許可するかもしれません。そのため、CMS のデータに基づいて動的に`<path>`を設定できるようになります。例えば、`&slug=/posts/{entry.fields.slug}`のようにします。
+
+**最終的に**、ドラフトの API route では：
+
+- `slug`パラメーターが存在するかどうか(存在しない場合、 request が失敗するはずです)と、 secret が一致していることを確認してください。-
+- `res.setDraftMode`を呼び出す。
+- その後、`slug`で指定された path にブラウザを redirect します。(次の例では[307 redirect](https://developer.mozilla.org/docs/Web/HTTP/Status/307)を使用しています)。
+
+```js
+export default async (req, res) => {
+  // Check the secret and next parameters
+  // This secret should only be known to this API route and the CMS
+  if (req.query.secret !== "MY_SECRET_TOKEN" || !req.query.slug) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+
+  // Fetch the headless CMS to check if the provided `slug` exists
+  // getPostBySlug would implement the required fetching logic to the headless CMS
+  const post = await getPostBySlug(req.query.slug);
+
+  // If the slug doesn't exist prevent draft mode from being enabled
+  if (!post) {
+    return res.status(401).json({ message: "Invalid slug" });
+  }
+
+  // Enable Draft Mode by setting the cookie
+  res.setDraftMode({ enable: true });
+
+  // Redirect to the path from the fetched post
+  // We don't redirect to req.query.slug as that might lead to open redirect vulnerabilities
+  res.redirect(post.slug);
+};
+```
+
+成功すると、ブラウザはドラフトモードのクッキーを使用して閲覧したいパスにリダイレクトされます。
+
+## Step 2: Update `getStaticProps`
+
+次のステップは、ドラフトモードをサポートするように`getStaticProps`を更新することです。
+
+`getStaticProps`が設定された(`res.setDraftMode`を介して)ページを request する場合、`getStaticProps`は**request time**で呼び出されます(build time の代わりに)。
+
+さらに、`context` object として呼び出され、`context.draftMode`は`true`になります。
+
+```js
+export async function getStaticProps(context) {
+  if (context.draftMode) {
+    // dynamic data
+  }
+}
+```
+
+私たちはドラフトの API route で`res.setDraftMode`を使用したので、`context.draftMode`は`true`になります。
+
+あなたが`getStaticPaths`も使用している場合、`context.params`も利用可能になります。
+
+### Fetch ドラフトデータ
+
+`getStaticProps` を更新して、`context.draftMode` に基づいて異なるデータを fetch することができます。
+
+例えば、あなたのヘッドレス CMS は、下書きのポストのための異なる API エンドポイントを持つかもしれません。その場合は、以下のように API エンドポイントの URL を変更することができます。
+
+```js
+export async function getStaticProps(context) {
+  const url = context.draftMode
+    ? "https://draft.example.com"
+    : "https://production.example.com";
+  const res = await fetch(url);
+  // ...
+}
+```
+
+それで全部です！ヘッドレス CMS から、または手動で、ドラフトの API route(`secret`と`slug`付き)にアクセスすれば、ドラフトのコンテンツを見ることができるはずです。そして、公開せずにドラフトを更新すれば、ドラフトを見ることができるはずです。
+
+これをヘッドレス CMS のドラフト URL として設定するか、手動でアクセスすると、ドラフトを見ることができるはずです。
+
+```bash:Terminal
+https://<your-site>/api/draft?secret=<token>&slug=<path>
+```
+
+## More Details
+
+### Clear the Draft Mode cookie
+
+Default では、ドラフトモードのセッションはブラウザが閉じられると終了します。
+
+ドラフトモードの cookie を手動でクリアするには、`setDraftMode({ enable: false })`を呼び出す API route を作成します。
+
+```ts:pages/api/disable-draft.ts
+export default function handler(req, res) {
+  res.setDraftMode({ enable: false })
+}
+```
+
+それから、`/api/disable-draft`に request を送信して API Route を呼び出します。[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)を使用してこの route を呼び出す場合、prefetch で誤って cookie を削除しないように`prefetch={false}`を渡す必要があります。
+
+### `getServerSideProps`と連携します
+
+ドラフトモードは`getServerSideProps`と連携して動作し、[`context`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-server-side-props#context-parameter)の object に`draftMode`キーとして利用できます。
+
+> **Good to know**: 下書きモードを使用する場合、バイパスできないため`Cache-Control` header を設定しないでください。代わりに、[ISR](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)の使用をお勧めします。
+
+### API Routes と連携
+
+API Routes は、request object 上の`draftMode`にアクセスできます。例えば：
+
+```js
+export default function myApiRoute(req, res) {
+  if (req.draftMode) {
+    // get draft data
+  }
+}
+```
+
+### Unique per `next build`
+
+新しいバイパスクッキーの値は、`next build`を実行するたびに生成されます。
+
+これにより、バイパスクッキーが推測されることがないようにします。
+
+> **Good to know**: ドラフトモードをローカルで HTTP 上でテストするには、ブラウザがサードパーティのクッキーとローカルストレージアクセスを許可する必要があります。

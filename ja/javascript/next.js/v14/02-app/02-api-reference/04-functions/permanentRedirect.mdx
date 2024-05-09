@@ -1,0 +1,62 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/permanentRedirect.mdx
+title: permanentRedirect
+description: API Reference for the permanentRedirect function.
+org_title: permanentRedirect
+org_path: /docs/app/api-reference/functions/permanentRedirect
+is_empty: false
+---
+
+`permanentRedirect`関数を使用すると、ユーザーを別の URL に redirect することができます。`permanentRedirect`は、 Server Components 、 Client Components 、[Route ハンドラ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、または[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で使用することができます。
+
+Streaming の context で使用された場合、これは client 側で redirect を発行するための meta タグを挿入します。server action で使用された場合、呼び出し元に対して 303 の HTTP redirect response を提供します。それ以外の場合、呼び出し元に対して 308(Permanent)の HTTP redirect response を提供します。
+
+リソースが存在しない場合、代わりに[`notFound` function](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found)を使用することができます。
+
+> **Good to know**: 308( Permanent )の代わりに 307(Temporary)の HTTP redirect を返すことを好むなら、代わりに [`redirect`関数](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)を使用できます。
+
+## Parameters
+
+`permanentRedirect` 関数は二つの引数を受け入れます：
+
+```js
+permanentRedirect(path, type);
+```
+
+| パラメータ | Type                                                                 | Description                                        |
+| ---------- | -------------------------------------------------------------------- | -------------------------------------------------- |
+| `path`     | `string`                                                             | URL への redirect 。相対または絶対 path 可能です。 |
+| `type`     | `'replace'`( default )または `'push'`( Server Actions での default ) | 実行する redirect の type 。                       |
+
+default では、`permanentRedirect`は [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)では`push`(ブラウザの履歴 stack に新しいエントリを追加)を使用し、それ以外の場合では`replace`(ブラウザの履歴 stack 内の現在の URL を置き換える)を使用します。この動作は`type`パラメータを指定することで上書きすることができます。
+
+`type` パラメータは、Server Components で使用するときには効果がありません。
+
+## Returns
+
+`permanentRedirect`はどんな value も返しません。
+
+## Example
+
+`permanentRedirect()` 関数を呼び出すと、`NEXT_REDIRECT` error がスローされ、それがスローされた route セグメントのレンダリングが終了します。
+
+```jsx:app/team/[id]/page.js
+import { permanentRedirect } from 'next/navigation'
+
+async function fetchTeam(id) {
+  const res = await fetch('https://...')
+  if (!res.ok) return undefined
+  return res.json()
+}
+
+export default async function Profile({ params }) {
+  const team = await fetchTeam(params.id)
+  if (!team) {
+    permanentRedirect('/login')
+  }
+
+  // ...
+}
+```
+
+> **Good to know**: `permanentRedirect`は`return permanentRedirect()`を使用することを require していません。これは、 TypeScript [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) type を使用しているためです。

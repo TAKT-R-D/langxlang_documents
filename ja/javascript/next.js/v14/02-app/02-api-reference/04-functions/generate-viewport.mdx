@@ -1,0 +1,236 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/generate-viewport.mdx
+title: generateViewport
+description: API Reference for the generateViewport function.
+org_title: generateViewport
+org_path: /docs/app/api-reference/functions/generate-viewport
+is_empty: false
+---
+
+ページの初期の viewport は、静的な`viewport`の object または dynamic な`generateViewport`関数を用いてカスタマイズすることができます。
+
+> **Good to know**:
+>
+> - `viewport` object と`generateViewport`関数の export は**Server Components でのみ**サポートされています。
+> - あなたは同じ route セグメントから、`viewport` object と `generateViewport` 関数の両方を export することはできません。
+> - `metadata`export の移行から来ている場合、[metadata-to-viewport-export codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#metadata-to-viewport-export)を使用して変更を更新できます。
+
+## The `viewport` object
+
+viewport options を定義するには、`layout.jsx`または`page.jsx`ファイルから`viewport` object を export します。
+
+```tsx:layout.tsx
+import type { Viewport } from 'next'
+
+export const viewport: Viewport = {
+  themeColor: 'black',
+}
+
+export default function Page() {}
+```
+
+```jsx:layout.jsx
+export const viewport = {
+  themeColor: 'black',
+}
+
+export default function Page() {}
+```
+
+## `generateViewport` function
+
+`generateViewport`は、一つ以上の viewport フィールドを含む[`Viewport` object](#viewport-fields)を返すべきです。
+
+```tsx:layout.tsx
+export function generateViewport({ params }) {
+  return {
+    themeColor: '...',
+  }
+}
+```
+
+```jsx:layout.js
+export function generateViewport({ params }) {
+  return {
+    themeColor: '...',
+  }
+}
+```
+
+> **Good to know**:
+>
+> - viewport が runtime 情報に依存しない場合、`generateMetadata`ではなく、静的な[`viewport` object](#the-viewport-object)を使用して定義するべきです。
+
+## Viewport Fields
+
+### `themeColor`
+
+[`theme-color`](https://developer.mozilla.org/docs/Web/HTML/Element/meta/name/theme-color)についてもっと学びましょう。
+
+**シンプルなテーマカラー**
+
+```tsx:layout.tsx
+import type { Viewport } from 'next'
+
+export const viewport: Viewport = {
+  themeColor: 'black',
+}
+```
+
+```jsx:layout.jsx
+export const viewport = {
+  themeColor: 'black',
+}
+```
+
+```html:<head>
+<meta name="theme-color" content="black" />
+```
+
+**メディア属性と共に**
+
+```tsx:layout.tsx
+import type { Viewport } from 'next'
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'cyan' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
+}
+```
+
+```jsx:layout.jsx
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'cyan' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
+}
+```
+
+```html:<head>
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="cyan" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="black" />
+```
+
+### `width`、`initialScale`、`maximumScale` そして `userScalable`
+
+> **Good to know**： `viewport`の meta タグは、次の“ default の値で自動的に設定されます。通常、 default が十分であるため、手動での設定は不要です。ただし、完全性のために情報が提供されています。
+
+```tsx:layout.tsx
+import type { Viewport } from 'next'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // Also supported by less commonly used
+  // interactiveWidget: 'resizes-visual',
+}
+```
+
+```jsx:layout.jsx
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // Also supported by less commonly used
+  // interactiveWidget: 'resizes-visual',
+}
+```
+
+```html:<head>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+/>
+```
+
+### `colorScheme`
+
+[`color-scheme`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name#:~:text=color%2Dscheme%3A%20specifies,of%20the%20following%3A)についてもっと学びましょう。
+
+```tsx:layout.tsx
+import type { Viewport } from 'next'
+
+export const viewport: Viewport = {
+  colorScheme: 'dark',
+}
+```
+
+```jsx:layout.jsx
+export const viewport = {
+  colorScheme: 'dark',
+}
+```
+
+```html:<head>
+<meta name="color-scheme" content="dark" />
+```
+
+## Types
+
+`Viewport` type を使用することで、ご自身の viewport object に type の安全性を追加することができます。もし、ご自身の IDE で[ビルトインの TypeScript plugin](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript)を使用している場合、手動で type を追加する必要はありませんが、もし必要であれば明示的に追加することもできます。
+
+### `viewport` object
+
+```tsx
+import type { Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: "black",
+};
+```
+
+### `generateViewport` 関数
+
+#### Regular function
+
+```tsx
+import type { Viewport } from "next";
+
+export function generateViewport(): Viewport {
+  return {
+    themeColor: "black",
+  };
+}
+```
+
+#### With segment props
+
+```tsx
+import type { Viewport } from "next";
+
+type Props = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export function generateViewport({ params, searchParams }: Props): Viewport {
+  return {
+    themeColor: "black",
+  };
+}
+
+export default function Page({ params, searchParams }: Props) {}
+```
+
+#### JavaScript Projects
+
+JavaScript のプロジェクトには、JSDoc を使用して type の安全性を追加することができます。
+
+```js
+/** @type {import("next").Viewport} */
+export const viewport = {
+  themeColor: "black",
+};
+```
+
+## Version History
+
+| Version   | Changes                                          |
+| --------- | ------------------------------------------------ |
+| `v14.0.0` | `viewport`と`generateViewport`が導入されました。 |

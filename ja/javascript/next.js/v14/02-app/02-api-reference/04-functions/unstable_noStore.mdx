@@ -1,0 +1,47 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/unstable_noStore.mdx
+title: unstable_noStore
+description: API Reference for the unstable_noStore function.
+org_title: unstable_noStore
+org_path: /docs/app/api-reference/functions/unstable_noStore
+is_empty: false
+---
+
+`unstable_noStore`は、静的レンダリングを宣言的にオプトアウトし、特定の component がキャッシュされないように指示するために使用することができます。
+
+```jsx
+import { unstable_noStore as noStore } from 'next/cache';
+
+export default async function Component() {
+  noStore();
+  const result = await db.query(...);
+  ...
+}
+```
+
+> **Good to know**:
+>
+> - `unstable_noStore`は`fetch`上の`cache: 'no-store'`と同等です
+> - `unstable_noStore`は、より細かく、コンポーネントごとに使用できるため、`export const dynamic = 'force-dynamic'`よりも優先されます
+
+- `unstable_noStore` を [`unstable_cache`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/unstable_cache)内で使用しても、静的生成からのオプトアウトはされません。代わりに、cache の設定に従って結果を cache するかどうかを決定します。
+
+## Usage
+
+`fetch`に追加の options を渡すことを好まない場合、例えば `cache: 'no-store'`や`next: { revalidate: 0 }`のようなもの、これらすべての使用ケースに対する代わりとして`noStore()`を使用することができます。
+
+```jsx
+import { unstable_noStore as noStore } from 'next/cache';
+
+export default async function Component() {
+  noStore();
+  const result = await db.query(...);
+  ...
+}
+```
+
+## Version History
+
+| Version   | Changes                              |
+| --------- | ------------------------------------ |
+| `v14.0.0` | `unstable_noStore`が導入されました。 |

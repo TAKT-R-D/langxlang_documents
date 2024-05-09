@@ -1,0 +1,382 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/11-upgrading/01-codemods.mdx
+title: Codemods
+description: Use codemods to upgrade your Next.js codebase when new features are released.
+org_title: Codemods
+org_path: /docs/app/building-your-application/upgrading/codemods
+is_empty: false
+---
+
+Codemods はプログラム的にあなたの Code ベースで実行される変換です。これにより、すべてのファイルを手動で通過することなく、大量の number の変更をプログラム的に適用することが可能になります。
+
+Next.js は、 API が更新されたり非推奨になったりした場合に、 Next.js のコードベースをアップグレードするのを支援するための Codemod 変換を提供します。
+
+## Usage
+
+ターミナルで、プロジェクトのフォルダに移動(`cd`)してから、次のコマンドを実行してください：
+
+```bash:Terminal
+npx @next/codemod <transform> <path>
+```
+
+`<transform>`と`<path>`を適切な値に置き換える。
+
+- `transform` - transform の名前
+- `path` - transform するファイルまたはディレクトリ
+- `--dry` はドライランを行います、code は編集されません
+- `--print`は比較のための変更された出力を表示します
+
+## Next.js Codemods
+
+### 14.0
+
+#### `ImageResponse`のインポートを移行する
+
+##### `next-og-import`
+
+```bash:Terminal
+npx @next/codemod@latest next-og-import .
+```
+
+この codemod は、[`next/server`]から[`next/og`]へのインポートを移動し、[Dynamic OG Image Generation](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata#dynamic-image-generation)の使用のために変換します。
+
+For example:
+
+```js
+import { ImageResponse } from "next/server";
+```
+
+に変身する：
+
+```js
+import { ImageResponse } from "next/og";
+```
+
+#### `viewport`を export を使用する
+
+##### `metadata-to-viewport-export`
+
+```bash:Terminal
+npx @next/codemod@latest metadata-to-viewport-export .
+```
+
+この codemod は、特定の viewport metadata を`viewport`の export に移行します。
+
+For example:
+
+```js
+export const metadata = {
+  title: "My App",
+  themeColor: "dark",
+  viewport: {
+    width: 1,
+  },
+};
+```
+
+に変身する：
+
+```js
+export const metadata = {
+  title: "My App",
+};
+
+export const viewport = {
+  width: 1,
+  themeColor: "dark",
+};
+```
+
+### 13.2
+
+#### ビルトインフォントを使用する
+
+##### `built-in-next-font`
+
+```bash:Terminal
+npx @next/codemod@latest built-in-next-font .
+```
+
+この codemod は、`@next/font`パッケージをアンインストールし、`@next/font`のインポートを組み込みの`next/font`に変換します。
+
+For example:
+
+```js
+import { Inter } from "@next/font/google";
+```
+
+に変身する：
+
+```js
+import { Inter } from "next/font/google";
+```
+
+### 13.0
+
+#### Next Image の名前変更インポート
+
+##### `next-image-to-legacy-image`
+
+```bash:Terminal
+npx @next/codemod@latest next-image-to-legacy-image .
+```
+
+`next/image`のインポートを既存の Next.js10、11、または 12 のアプリケーションで安全に`next/legacy/image`に名前を変更します。Next.js 13 では、`next/future/image`も`next/image`に名前を変更します。
+
+For example:
+
+```jsx:pages/index.js
+import Image1 from 'next/image'
+import Image2 from 'next/future/image'
+
+export default function Home() {
+  return (
+    <div>
+      <Image1 src="/test.jpg" width="200" height="300" />
+      <Image2 src="/test.png" width="500" height="400" />
+    </div>
+  )
+}
+```
+
+に変身する：
+
+```jsx:pages/index.js
+// 'next/image' becomes 'next/legacy/image'
+import Image1 from 'next/legacy/image'
+// 'next/future/image' becomes 'next/image'
+import Image2 from 'next/image'
+
+export default function Home() {
+  return (
+    <div>
+      <Image1 src="/test.jpg" width="200" height="300" />
+      <Image2 src="/test.png" width="500" height="400" />
+    </div>
+  )
+}
+```
+
+#### 新しい Image Component に移行する
+
+##### `next-image-experimental`
+
+```bash:Terminal
+npx @next/codemod@latest next-image-experimental .
+```
+
+`next/legacy/image`から新しい`next/image`に危険な移行を行います。これは、インラインの styles を追加し、使用されていない props を削除することで行います。
+
+- `layout`プロップを削除し、`style`を追加します。
+- `objectFit`プロパティを削除し、`style`を追加します。
+- `objectPosition`プロップを削除し、`style`を追加します。
+- `lazyBoundary`プロップを削除します。
+- `lazyRoot`プロパティを削除します。
+
+#### LinkComponent から`<a>`タグを削除する
+
+##### `new-link`
+
+```bash:Terminal
+npx @next/codemod@latest new-link .
+```
+
+<AppOnly>
+
+[Linkcomponent](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link)内の`<a>`タグを削除するか、自動修正できない Links に`legacyBehavior`プロップを追加してください。
+
+</AppOnly>
+
+<PagesOnly>
+
+[Link コンポーネント](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)内の `<a>` タグを削除するか、自動修正できないリンクに `legacyBehavior` プロパティを追加してください。
+
+</PagesOnly>
+
+For example:
+
+```jsx
+<Link href="/about">
+  <a>About</a>
+</Link>
+// transforms into
+<Link href="/about">
+  About
+</Link>
+
+<Link href="/about">
+  <a onClick={() => console.log('clicked')}>About</a>
+</Link>
+// transforms into
+<Link href="/about" onClick={() => console.log('clicked')}>
+  About
+</Link>
+```
+
+自動修正が適用できない場合、`legacyBehavior`プロップが追加されます。これにより、特定の link に対して古い動作を使用して、あなたの app が機能し続けることが可能となります。
+
+```jsx
+const Component = () => <a>About</a>
+
+<Link href="/about">
+  <Component />
+</Link>
+// becomes
+<Link href="/about" legacyBehavior>
+  <Component />
+</Link>
+```
+
+### 11
+
+#### CRA からの移行
+
+##### `cra-to-next`
+
+```bash:Terminal
+npx @next/codemod cra-to-next
+```
+
+React App プロジェクトを Next に移行し、Pages Router と必要な config を作成して振る舞いを合わせます。初期には、`window`の使用により SSR の互換性が破損するのを防ぐために、Client 側のみのレンダリングが利用されます。そして、Next.js 特有の機能の段階的な導入を可能にするために、シームレスに有効化することができます。
+
+この transform に関連するフィードバックを[このディスカッション](https://github.com/vercel/next.js/discussions/25858)で共有してください。
+
+### 10
+
+#### React のインポートを追加
+
+##### `add-missing-react-import`
+
+```bash:Terminal
+npx @next/codemod add-missing-react-import
+```
+
+`React`を import しないファイルを変換して、新しい[React JSX transform](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)が動作するように import を含めます。
+
+For example:
+
+```jsx:my-component.js
+export default class Home extends React.Component {
+  render() {
+    return <div>Hello World</div>
+  }
+}
+```
+
+に変身する：
+
+```jsx:my-component.js
+import React from 'react'
+export default class Home extends React.Component {
+  render() {
+    return <div>Hello World</div>
+  }
+}
+```
+
+### 9
+
+#### Transform 匿名 Component を名前付き Component に変換する
+
+##### `name-default-component`
+
+```bash:Terminal
+npx @next/codemod name-default-component
+```
+
+**バージョン 9 以上。**
+
+匿名の Component を名前付き Component に変換して、それらが[Fast Refresh](https://nextjs.org/blog/next-9-4#fast-refresh)と正常に動作するようにします。
+
+For example:
+
+```jsx:my-component.js
+export default function () {
+  return <div>Hello World</div>
+}
+```
+
+に変身する：
+
+```jsx:my-component.js
+export default function MyComponent() {
+  return <div>Hello World</div>
+}
+```
+
+その component はファイルの名前に基づいてキャメルケースの名前を持ち、また、アロー関数でも機能します。
+
+### 8
+
+#### Transform AMP HOC をページの config に変換します
+
+##### `withamp-to-config`
+
+```bash:Terminal
+npx @next/codemod withamp-to-config
+```
+
+`withAmp` HOC を Next.js 9 のページ設定に変換します。
+
+For example:
+
+```js
+// Before
+import { withAmp } from "next/amp";
+
+function Home() {
+  return <h1>My AMP Page</h1>;
+}
+
+export default withAmp(Home);
+```
+
+```js
+// After
+export default function Home() {
+  return <h1>My AMP Page</h1>;
+}
+
+export const config = {
+  amp: true,
+};
+```
+
+### 6
+
+#### `withRouter`を使用する
+
+##### `url-to-withrouter`
+
+```bash:Terminal
+npx @next/codemod url-to-withrouter
+```
+
+`url`プロパティを自動的に注入するという非推奨の操作を、トップレベルのページで`withRouter`とそれが注入する`router`プロパティを使用するように変換します。詳細はこちらをご覧ください：[https://nextjs.org/docs/messages/URL-deprecated](/docs/messages/URL-deprecated)
+
+For example:
+
+```js:From
+import React from 'react'
+export default class extends React.Component {
+  render() {
+    const { pathname } = this.props.url
+    return <div>Current pathname: {pathname}</div>
+  }
+}
+```
+
+```js:To
+import React from 'react'
+import { withRouter } from 'next/router'
+export default withRouter(
+  class extends React.Component {
+    render() {
+      const { pathname } = this.props.router
+      return <div>Current pathname: {pathname}</div>
+    }
+  }
+)
+```
+
+これは一つのケースです。変換(およびテスト)された全てのケースは、[`__testfixtures__` ディレクトリ](https://github.com/vercel/next.js/tree/canary/packages/next-codemod/transforms/__testfixtures__/url-to-withrouter)で見つけることができます。

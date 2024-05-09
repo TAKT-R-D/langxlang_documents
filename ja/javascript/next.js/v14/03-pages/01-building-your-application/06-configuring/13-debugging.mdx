@@ -1,0 +1,122 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/06-configuring/13-debugging.mdx
+title: Debugging
+description: Learn how to debug your Next.js application with VS Code or Chrome DevTools.
+org_title: Debugging
+org_path: /docs/pages/building-your-application/configuring/debugging
+is_empty: false
+---
+
+このドキュメンテーションでは、[VS Code debugger](https://code.visualstudio.com/docs/editor/debugging)または[Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools)を使用して、フルの source マップのサポートを使用してフロントエンドとバックエンドの Next.js code を debugging する方法について説明しています。
+
+Node.js にアタッチできるあらゆるデバッガは、Next.js アプリケーションのデバッグにも使用できます。詳細は Node.js の[デバッグガイド](https://nodejs.org/en/docs/guides/debugging-getting-started/)をご覧ください。
+
+## Debugging with VS Code
+
+`.vscode/launch.json`という名前のファイルをプロジェクトの root に作成し、以下の内容を含めてください。
+
+```json:launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: debug server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev"
+    },
+    {
+      "name": "Next.js: debug client-side",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "Next.js: debug full stack",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "serverReadyAction": {
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      }
+    }
+  ]
+}
+```
+
+`npm run dev`は、Yarn を使用している場合は`yarn dev`に、pnpm を使用している場合は`pnpm dev`に置き換えることができます。
+
+もしアプリケーションが起動する[port number の変更](/ja/javascript/next.js/v14/03-pages/02-api-reference/05-next-cli#development)を行うなら、replace を行い、`http://localhost:3000` の `3000` を代わりに使用している port に書き換えてください。
+
+あなたが root 以外のディレクトリから Next.js を実行している場合(例えば、Turborepo を使用している場合)、`cwd`を server-side と完全な stack debugging タスクに追加する必要があります。例えば、`"cwd": "${workspaceFolder}/apps/web"`のようにします。
+
+次に Debug パネルに移動します(Windows/Linux では`Ctrl+Shift+D`、macOS では`⇧+⌘+D`)、起動設定を選択し、その後`F5`を押すか、Command パレットから**Debug: Start Debugging**を選択して、start すると、debugging セッションが開始されます。
+
+## Using the Debugger in Jetbrains WebStorm
+
+runtime 設定を一覧表示するドロップダウンメニューをクリックし、`Edit Configurations...`をクリックします。`http://localhost:3000`を URL とした`Javascript Debug`デバッグ設定を作成します。お好みに合わせてカスタマイズ(例: debugging 用のブラウザ、プロジェクトファイルとして保存など)し、`OK`をクリックしてください。このデバッグ設定を実行すると、選択したブラウザが自動的に開きます。この時点で、次の 2 つのアプリケーションがデバッグモードになります：NextJS のノードアプリケーションとクライアント/ブラウザアプリケーション。
+
+## Debugging with Chrome DevTools
+
+### Client サイドの code
+
+Start というボタンを押して、development server を通常通りに起動します。`next dev`、`npm run dev`、または`yarn dev`を実行します。server が起動したら、`http://localhost:3000` (またはあなたの選択した URL)を Next で開きます。次に、Chrome の開発者ツールを開き(Windows/Linux では`Ctrl+Shift+J`、macOS では`⌥+⌘+I`)、**Sources**タブに移動します。
+
+さて、Client 側の code が[`debugger`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/debugger)ステートメントに到達すると、いつでも code の実行が一時停止し、そのファイルが debugging エリアに表示されます。また、Windows/Linux では`Ctrl+P`を、macOS では`⌘+P`を押してファイルを検索し、手動でブレークポイントを設定することもできます。ここで検索するときには、source ファイルは`webpack://_N_E/./`で始まる paths を持つことに注意してください。
+
+### Server-side code
+
+Chrome DevTools を使用して server-side Next.js code をデバッグするには、下層の Node.js プロセスに[`--inspect`](https://nodejs.org/api/cli.html#cli_inspect_host_port) フラグを渡す必要があります。
+
+```bash:Terminal
+NODE_OPTIONS='--inspect' next dev
+```
+
+`npm run dev`または`yarn dev`を使用している場合、`package.json`の`dev`スクリプトを更新する必要があります:
+
+```json:package.json
+{
+  "scripts": {
+    "dev": "NODE_OPTIONS='--inspect' next dev"
+  }
+}
+```
+
+`--inspect`フラグを使用して Next.js dev server を起動すると、次のようになります：
+
+```bash:Terminal
+Debugger listening on ws://127.0.0.1:9229/0cf90313-350d-4466-a748-cd60f4e47c95
+For help, see: https://nodejs.org/en/docs/inspector
+ready - started server on 0.0.0.0:3000, url: http://localhost:3000
+```
+
+> `NODE_OPTIONS='--inspect' npm run dev` や `NODE_OPTIONS='--inspect' yarn dev`を実行すると機能しないことに注意してください。これにより、同じ port 上で複数のデバッガーを start しようとすることになります：一つは npm/yarn プロセス用、もう一つは Next.js 用です。結果として、コンソール上で`Starting inspector on 127.0.0.1:9229 failed: address already in use`のような error が表示されるでしょう。
+
+server が起動したら、Chrome で新しいタブを開き、`chrome://inspect`にアクセスします。そこで Next.js アプリケーションが**RemoteTarget**セクション内に表示されるはずです。アプリケーションの下にある**inspect**をクリックして別の DevToolswindow を開き、その後**Sources**タブに移動します。
+
+Debugging server-side code はここでは debuggingClient サイドの code が ChromeDevTools で行うのと同じように機能します。ただし、ここで`Ctrl+P`または`⌘+P`を使用してファイルを検索すると、あなたの source ファイルは `webpack://{application-name}/./`(ここで、`{application-name}`はあなたの`package.json`ファイルによってあなたのアプリケーションの名前に置き換えられます)で始まる paths を持つことになります。
+
+### Windows での Debugging
+
+Windows ユーザーは、`NODE_OPTIONS='--inspect'`を使用する際に問題に遭遇する可能性があります。その syntax は Windows プラットフォームではサポートされていません。これを回避するために、[`cross-env`](https://www.npmjs.com/package/cross-env)パッケージを development の依存関係としてインストールする(`npm` および `yarn`で `-D`)し、`dev`script を次のように replace ください。
+
+```json:package.json
+{
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS='--inspect' next dev"
+  }
+}
+```
+
+`cross-env`は、あなたがどのプラットフォーム(Mac、Linux、Windows を含む)にいても、常に`NODE_OPTIONS`環境 variable を設定し、デバイスやオペレーティングシステム間で一貫して debugging を行うことができます。
+
+> **Good to know**: あなたのマシンで Windows Defender が無効になっていることを確認してください。この外部サービスは _すべてのファイルの読み取り_ をチェックします。これは、`next dev`を使用して Fast Refresh 時間が大幅に増加する原因となっていると報告されています。これは、既知の問題であり、 Next.js とは関連がないですが、 Next.js development に影響を与えます。
+
+## More information
+
+JavaScript デバッガーの使用方法について詳しく学ぶには、次のドキュメンテーションをご覧ください：
+
+- [Node.js debugging in VS Code: ブレイクポイント](https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_breakpoints)
+- [Chrome DevTools：debugging JavaScript](https://developers.google.com/web/tools/chrome-devtools/javascript)

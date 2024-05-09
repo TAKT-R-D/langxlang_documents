@@ -1,0 +1,178 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/02-rendering/02-static-site-generation.mdx
+title: Static Site Generation (SSG)
+description: Use Static Site Generation (SSG) to pre-render pages at build time.
+org_title: Static Site Generation (SSG)
+org_path: /docs/pages/building-your-application/rendering/static-site-generation
+is_empty: false
+---
+
+<details>
+  <summary>Examples</summary>
+
+- [WordPress Example](https://github.com/vercel/next.js/tree/canary/examples/cms-wordpress)([Demo](https://next-blog-wordpress.vercel.app))
+- [markdown ファイルを使用したブログスターター](https://github.com/vercel/next.js/tree/canary/examples/blog-starter) ([デモ](https://next-blog-starter.vercel.app/))
+- [DatoCMS Example](https://github.com/vercel/next.js/tree/canary/examples/cms-datocms) ([Demo](https://next-blog-datocms.vercel.app/))
+- [TakeShape Example](https://github.com/vercel/next.js/tree/canary/examples/cms-takeshape) ([Demo](https://next-blog-takeshape.vercel.app/))
+- [Sanity Example](https://github.com/vercel/next.js/tree/canary/examples/cms-sanity) ([Demo](https://next-blog-sanity.vercel.app/))
+- [Prismic Example](https://github.com/vercel/next.js/tree/canary/examples/cms-prismic) ([Demo](https://next-blog-prismic.vercel.app/))
+- [Contentful Example](https://github.com/vercel/next.js/tree/canary/examples/cms-contentful) ([Demo](https://next-blog-contentful.vercel.app/))
+- [Strapi Example](https://github.com/vercel/next.js/tree/canary/examples/cms-strapi) ([Demo](https://next-blog-strapi.vercel.app/))
+- [Prepr Example](https://github.com/vercel/next.js/tree/canary/examples/cms-prepr) ([Demo](https://next-blog-prepr.vercel.app/))
+- [Agility CMS Example](https://github.com/vercel/next.js/tree/canary/examples/cms-agilitycms) ([Demo](https://next-blog-agilitycms.vercel.app/))
+- [Cosmic Example](https://github.com/vercel/next.js/tree/canary/examples/cms-cosmic) ([Demo](https://next-blog-cosmic.vercel.app/))
+- [ButterCMS Example](https://github.com/vercel/next.js/tree/canary/examples/cms-buttercms) ([Demo](https://next-blog-buttercms.vercel.app/))
+- [Storyblok Example](https://github.com/vercel/next.js/tree/canary/examples/cms-storyblok) ([Demo](https://next-blog-storyblok.vercel.app/))
+- [GraphCMS Example](https://github.com/vercel/next.js/tree/canary/examples/cms-graphcms) ([Demo](https://next-blog-graphcms.vercel.app/))
+- [Kontent Example](https://github.com/vercel/next.js/tree/canary/examples/cms-kontent-ai) ([Demo](https://next-blog-kontent.vercel.app/))
+- [Builder.io Example](https://github.com/vercel/next.js/tree/canary/examples/cms-builder-io) ([Demo](https://cms-builder-io.vercel.app/))
+- [[TinaCMS Example](https://github.com/vercel/next.js/tree/canary/examples/cms-tina) ([Demo](https://cms-tina-example.vercel.app/))]
+- [Static Tweet (Demo)](https://static-tweet.vercel.app/)
+- [Enterspeed Example](https://github.com/vercel/next.js/tree/canary/examples/cms-enterspeed) ([Demo](https://next-blog-demo.enterspeed.com/))
+
+</details>
+
+もしページが**Static Generation**を使用している場合、そのページの HTML は**build 時**に生成されます。つまり、production では、`next build` を実行したときにそのページの HTML が生成されます。この HTML は各々の request で再利用されます。それは CDN によってキャッシュされます。
+
+Next.js では、**データがある場合とない場合の両方で**ページを静的に生成することができます。それぞれのケースを見てみましょう。
+
+### データなしの静的生成
+
+default として、Next.js はデータを取得せずに Static Generation を使用してページを事前にレンダリングします。ここに例があります：
+
+```jsx
+function About() {
+  return <div>About</div>;
+}
+
+export default About;
+```
+
+このページは、fetch という外部データを事前にレンダリングする必要はありません。このような場合、Next.js は build 時間中にページごとに一つの HTML ファイルを生成します。
+
+### データを用いた静的生成
+
+一部のページは、事前レンダリングのために外部データのフェッチが require です。2 つのシナリオがあり、1 つまたは両方が適用されるかもしれません。それぞれのケースで、Next.js が提供するこれらの関数を使用できます:
+
+1. あなたのページの**コンテンツ**は外部データに依存しています：`getStaticProps`を使用してください。
+2. あなたのページの**paths**は外部データに依存します：`getStaticPaths`を使用してください(通常は`getStaticProps`と併用)。
+
+#### シナリオ 1：あなたのページコンテンツは外部データに依存しています
+
+**例**: あなたのブログページは、CMS(コンテンツ管理システム)から fetch を使ってブログ記事のリストを取得する必要があるかもしれません。
+
+```jsx
+// TODO: Need to fetch `posts` (by calling some API endpoint)
+//       before this page can be pre-rendered.
+export default function Blog({ posts }) {
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+このデータをプレレンダリングで fetch するために、 Next.js は同じファイルから`export`という`async`関数を`getStaticProps`として出力することができます。この関数は build 時に呼び出され、プレレンダリング時にフェッチしたデータをページの`props`に渡すことができます。
+
+```jsx
+export default function Blog({ posts }) {
+  // Render posts...
+}
+
+// This function gets called at build time
+export async function getStaticProps() {
+  // Call an external API endpoint to get posts
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
+
+  // By returning { props: { posts } }, the Blog component
+  // will receive `posts` as a prop at build time
+  return {
+    props: {
+      posts,
+    },
+  };
+}
+```
+
+`getStaticProps`の仕組みについてより詳しく学ぶには、[データフェッチングのドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)をご覧ください。
+
+#### シナリオ 2：あなたのページの paths は外部データに依存しています
+
+Next.js は、**dynamic routes**を持つページを作成できます。例えば、`pages/posts/[id].js`と呼ばれるファイルを作成して、`id`に基づいた単一のブログの post を表示することができます。これにより、`posts/1`にアクセスすると、`id: 1`のブログの post を表示できます。
+
+> To learn more about dynamic routing, check the [Dynamic Routing documentation](/docs/pages/building-your-application/routing/dynamic-routes).
+
+ただし、どの `id` を build 時に事前レンダリングするかは、外部データによって異なるかもしれません。
+
+**例**: データベースに post (`id: 1`を持つ)ブログを 1 つだけ追加したと仮定します。この場合、 build 時には`posts/1`のみを事前レンダリングすることを望むでしょう。
+
+その後、 `id: 2` を持つ second post を追加するかもしれません。その場合、 `posts/2` も事前にレンダリングしたいでしょう。
+
+したがって、あらかじめレンダリングされているページの**paths**は外部データに依存しています。これを処理するために、Next.js では、`export`という`async`関数を、今回の例では dynamic なページ(`pages/posts/[id].js`)から`getStaticPaths`という名前で出力することができます。この関数は build 時に呼び出され、どの paths を事前にレンダリングしたいかを指定できます。
+
+```jsx
+// This function gets called at build time
+export async function getStaticPaths() {
+  // Call an external API endpoint to get posts
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
+
+  // Get the paths we want to pre-render based on posts
+  const paths = posts.map((post) => ({
+    params: { id: post.id },
+  }));
+
+  // We'll pre-render only these paths at build time.
+  // { fallback: false } means other routes should 404.
+  return { paths, fallback: false };
+}
+```
+
+また、`pages/posts/[id].js`で、この`id`を使って、post に関するデータを fetch できるように、`getStaticProps`を export する必要があります。それによりページを事前にレンダリングできます。
+
+```jsx
+export default function Post({ post }) {
+  // Render post...
+}
+
+export async function getStaticPaths() {
+  // ...
+}
+
+// This also gets called at build time
+export async function getStaticProps({ params }) {
+  // params contains the post `id`.
+  // If the route is like /posts/1, then params.id is 1
+  const res = await fetch(`https://.../posts/${params.id}`);
+  const post = await res.json();
+
+  // Pass post data to the page via props
+  return { props: { post } };
+}
+```
+
+`getStaticPaths`の動作について詳しく学びたい場合は、[データフェッチングのドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)をご覧ください。
+
+### 私はいつ Static Generation を使うべきですか？
+
+私たちは、ページが一度構築されて CDN によって配信されるため、server render でページを毎回 request するよりもはるかに速くなるので、可能な限り**静的生成**(データの有無を問わず)を使用することをお勧めします。
+
+あなたは多種多様なページにおいて、Static Generation を使用することができます。これには以下のものが含まれます：
+
+- マーケティングページ
+- ブログ投稿とポートフォリオ
+- E コマース商品リスト
+- ヘルプとドキュメンテーション
+
+自分自身に問いかけるべきです：「私はこのページをユーザーの Request の**前に**プリレンダーできるか？」その答えがはいなら、あなたは Static Generation を選択すべきです。
+
+一方で、ユーザーの request に先だってページを事前にレンダリングできない場合、Static Generation はあまり良い考えでは**ありません**。おそらくあなたのページは頻繁に更新されるデータを表示しており、ページの内容は request ごとに変わるでしょう。
+
+このような場合、次のいずれかを行うことができます：
+
+- Static Generation を **Client-side data fetching**とともに使用してみてください。ページの一部を事前レンダリングしないで、Client 側の JavaScript を用いてそれらを補完することができます。この手法について詳しくは、[Data Fetching documentation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/05-client-side)をご覧ください。
+- **Server-Side レンダリングを使用する:** Next.js は、各 request でページを事前にレンダリングします。ページは CDN にキャッシュできないため、速度は遅くなりますが、事前にレンダリングされたページは常に最新のものになります。このアプローチについては以下で話し合います。

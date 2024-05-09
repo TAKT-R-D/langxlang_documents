@@ -1,0 +1,26 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/eslint.mdx
+title: eslint
+description: Next.js reports ESLint errors and warnings during builds by default. Learn how to opt-out of this behavior here.
+org_title: eslint
+org_path: /docs/app/api-reference/next-config-js/eslint
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+あなたのプロジェクトで ESLint が検出された場合、error が存在すると Next.js はあなたの**production build**(`next build`)に失敗します。
+
+あなたのアプリケーションが ESLint error を持っていても Next.js が production code を生成するようにしたい場合は、組み込みのリンティングステップを完全に無効にすることができます。これは、既に ESLint をワークフローの別の部分(例えば、CI や pre-commit hook など)で実行するように設定している場合を除き、推奨されません。
+
+`next.config.js`を開き、`eslint` config の中で`ignoreDuringBuilds`オプションを有効にしてください。
+
+```js:next.config.js
+module.exports = {
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
+}
+```

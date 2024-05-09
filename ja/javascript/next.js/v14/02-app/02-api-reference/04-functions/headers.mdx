@@ -1,0 +1,131 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/headers.mdx
+title: headers
+description: API reference for the headers function.
+org_title: headers
+org_path: /docs/app/api-reference/functions/headers
+is_empty: false
+---
+
+次の `headers` 関数を使用すると、[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)からの HTTP の受信 request ヘッダ を読み取ることができます。
+
+## `headers()`
+
+この API は[Web Headers API](https://developer.mozilla.org/docs/Web/API/Headers)を拡張します。これは**読み取り専用**であり、つまり、送信する request headers を `set` / `delete`することはできません。
+
+```tsx:app/page.tsx
+import { headers } from 'next/headers'
+
+export default function Page() {
+  const headersList = headers()
+  const referer = headersList.get('referer')
+
+  return <div>Referer: {referer}</div>
+}
+```
+
+```jsx:app/page.js
+import { headers } from 'next/headers'
+
+export default function Page() {
+  const headersList = headers()
+  const referer = headersList.get('referer')
+
+  return <div>Referer: {referer}</div>
+}
+```
+
+> **Good to know**:
+>
+> - `headers()`は**[Dynamic Function](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)**であり、返される値は事前には知ることができません。これを layout またはページで使用すると、route は request 時に**[dynamic rendering](/docs/app/building-your-application/rendering/server-components#dynamic-rendering)**を選択します。
+
+### API Reference
+
+```tsx
+const headersList = headers();
+```
+
+#### Parameters
+
+`headers`はパラメータを受け取りません。
+
+#### Returns
+
+`headers`は**読み取り就職専用の**[Web Headers](https://developer.mozilla.org/docs/Web/API/Headers) object を返します。
+
+- [`Headers.entries()`](https://developer.mozilla.org/docs/Web/API/Headers/entries): これに含まれるすべてのキー/値のペアを順番に処理可能な[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。object
+- [`Headers.forEach()`](https://developer.mozilla.org/docs/Web/API/Headers/forEach): この `Headers` object 内の各 key/value ペアに対して、指定された関数を一度実行します。
+- [`Headers.get()`](https://developer.mozilla.org/docs/Web/API/Headers/get): 与えられた名前を持つ `Headers` object 内の header のすべての値の[`String`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)シーケンスを返します。
+- [`Headers.has()`](https://developer.mozilla.org/docs/Web/API/Headers/has): `Headers` object が特定の header を含んでいるかどうかを示す boolean を返します。
+- [`Headers.keys()`](https://developer.mozilla.org/docs/Web/API/Headers/keys)：この object に含まれるキー/値のペアのすべてのキーを通過するための[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。
+- [`Headers.values()`](https://developer.mozilla.org/docs/Web/API/Headers/values)：この object に含まれるキー/値のペアのすべての値を通過することができる[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。
+
+### Examples
+
+#### データフェッチングとの使用法
+
+`headers()`は[Suspense for Data Fetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)と組み合わせて使用することができます。
+
+```jsx:app/page.js
+import { Suspense } from 'react'
+import { headers } from 'next/headers'
+
+async function User() {
+  const authorization = headers().get('authorization')
+  const res = await fetch('...', {
+    headers: { authorization }, // Forward the authorization header
+  })
+  const user = await res.json()
+
+  return <h1>{user.name}</h1>
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <User />
+    </Suspense>
+  )
+}
+```
+
+#### IP アドレス
+
+`headers()`は、client の IP アドレスを取得するために使用できます。
+
+```jsx:app/page.js
+import { Suspense } from 'react'
+import { headers } from 'next/headers'
+
+function IP() {
+  const FALLBACK_IP_ADDRESS = '0.0.0.0'
+  const forwardedFor = headers().get('x-forwarded-for')
+
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0] ?? FALLBACK_IP_ADDRESS
+  }
+
+  return headers().get('x-real-ip') ?? FALLBACK_IP_ADDRESS
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <IP />
+    </Suspense>
+  )
+}
+```
+
+`x-forwarded-for`に加えて、`headers()`も読み取ることができます：
+
+- `x-real-ip`
+- `x-forwarded-host`
+- `x-forwarded-port`
+- `x-forwarded-proto`
+
+## Version History
+
+| Version   | Changes                    |
+| --------- | -------------------------- |
+| `v13.0.0` | `headers` 導入されました。 |

@@ -1,0 +1,39 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/default.mdx
+title: default.js
+description: API Reference for the default.js file.
+org_title: default.js
+org_path: /docs/app/api-reference/file-conventions/default
+is_empty: false
+---
+
+`default.js`ファイルは、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)内で fallback を render するために使用されます。これは、[slot's](/docs/app/building-your-application/routing/parallel-routes#slots)のアクティブな状態をフルページロード後に Next.js が回復できない場合に使用されます。
+
+[ソフトナビゲーション](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#5-soft-navigation)中、Next.js は各スロットのアクティブな _state_ (サブページ)を追跡します。しかし、ハードナビゲーション(フルページのロード)の場合、Next.js はアクティブな状態を回復することができません。この場合、現在の URL と一致しないサブページに対して`default.js`ファイルをレンダリングすることができます。
+
+次のフォルダ構造を考えてみてください。 `@team`スロットには`settings`ページがありますが、`@analytics`にはありません。
+
+<Image
+  alt="Parallel Routes unmatched routes"
+  srcLight="/docs/light/parallel-routes-unmatched-routes.png"
+  srcDark="/docs/dark/parallel-routes-unmatched-routes.png"
+  width="1600"
+  height="930"
+/>
+
+`/dashboard/settings`への移動時、`@team`スロットは現在アクティブなページを`@analytics`スロットに保持したまま、`settings`ページを render します。
+
+リフレッシュ時に、Next.js は`@analytics`用に`default.js`をレンダリングします。`default.js`が存在しない場合、代わりに`404`がレンダリングされます。
+
+さらに、`children`は暗黙のスロットであるため、Next.js が親ページのアクティブな状態を回復できない場合に`children`のフォールバックをレンダリングするために、`default.js`ファイルを作成する必要があります。
+
+## Props
+
+### `params` (オプショナル)
+
+スロットのサブページまでの root セグメントからの[dynamic route パラメータ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を含む object。例えば：
+
+| 例                                         | URL          | `params`                            |
+| ------------------------------------------ | ------------ | ----------------------------------- |
+| `app/@sidebar/[artist]/default.js`         | `/zack`      | `{ artist: 'zack' }`                |
+| `app/@sidebar/[artist]/[album]/default.js` | `/zack/next` | `{ artist: 'zack', album: 'next' }` |

@@ -1,0 +1,91 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/10-upgrading/06-version-13.mdx
+title: Version 13
+description: Upgrade your Next.js Application from Version 12 to 13.
+org_title: Version 13
+org_path: /docs/pages/building-your-application/upgrading/version-13
+is_empty: false
+---
+
+## Upgrading from 12 to 13
+
+To update to Next.js version 13, run the following command using your preferred package manager:
+
+```bash:Terminal
+npm i next@13 react@latest react-dom@latest eslint-config-next@13
+```
+
+```bash:Terminal
+yarn add next@13 react@latest react-dom@latest eslint-config-next@13
+```
+
+```bash:Terminal
+pnpm i next@13 react@latest react-dom@latest eslint-config-next@13
+```
+
+```bash:Terminal
+bun add next@13 react@latest react-dom@latest eslint-config-next@13
+```
+
+> **Good to konw：** TypeScript を使用している場合は、`@types/react`と`@types/react-dom`も最新バージョンにアップグレードしてください。
+
+### v13 概要
+
+- [対応ブラウザ](/ja/javascript/next.js/v14/04-architecture/supported-browsers)は Internet Explorer のサポートを終了し、target を現代のブラウザに変更しました。
+- 最小の Node.js version は、12.x と 14.x がライフサイクルの終わりを迎えたため、12.22.0 から 16.14.0 に引き上げられました。
+- 最小限の React version が 17.0.2 から 18.2.0 に上げられました。
+- `swcMinify`設定プロパティは`false`から`true`に変更されました。詳細については、[Next.js Compiler](/ja/javascript/next.js/v14/04-architecture/nextjs-compiler)をご覧ください。
+- `next/image` の import は `next/legacy/image`に名前が変更されました。 `next/future/image` の import は `next/image`に名前が変更されました。あなたのインポートを安全かつ自動的に名前変更するための[codemod が利用可能です](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#next-image-to-legacy-image)。
+- `next/link`の子はもはや`<a>`であることはできません。`legacyBehavior`プロパティを追加して従来の動作を使用するか、`<a>`を削除してアップグレードします。[codemod は利用可能です](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#new-link)で、自動的にあなたの code をアップグレードします。
+- `target`設定プロパティは削除され、[Output File Tracing](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/output)によって置き換えられました。
+
+## Migrating shared features
+
+Next.js 13 は、新しい機能や規約が含まれた新しい[`app` ディレクトリ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)を導入します。しかし、 Next.js 13 へのアップグレードは、新しい[`app` ディレクトリ](/docs/app/building-your-application/routing#the-app-router)を require 。
+
+`pages`を引き続き使用することができ、更新された[Image component](#image-component)、[Link component](#link-component)、[Script component](#script-component)、そして[Font optimization](#font-optimization)など、両方のディレクトリで動作する新機能が含まれています。
+
+### `<Image/>` Component
+
+Next.js 12 は、一時的な import：`next/future/image`を使用して、Image Component への多くの改善を導入しました。これらの改善には、Client 側の JavaScript を少なくし、画像を拡張し、style を付けやすくする方法、より良いアクセシビリティ、そしてネイティブブラウザの lazy loading の改良が含まれています。
+
+Next.js 13 から始まり、この新しい動作は現在、`next/image`のための default となりました。
+
+There are two codemods to help you migrate to the new Image Component:
+
+- [next-image-to-legacy-image](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#next-image-to-legacy-image):　この codemod は、Next.js 12 と同じ挙動を維持するために、`next/image`のインポートを安全かつ自動的に`next/legacy/image`に名前を変更します。Next.js 13 にすばやく自動的に更新するために、この codemod を実行することをお勧めします。
+- [next-image-experimental](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#next-image-experimental): 前の codemod を実行した後、オプションでこの実験的な codemod を実行して、`next/legacy/image`を新たな`next/image`にアップグレードすることができます。これにより、未使用の「 props 」を削除し、インラインの「 styles 」を追加します。この codemod が実験的であり、静的な使用(例えば`<Image src={img} layout="responsive" />`のような)のみをカバーし、「 dynamic 」な使用(例えば`<Image {...props} />`のような)はカバーしないことに注意してください。
+
+あるいは、[マイグレーションガイド](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#next-image-experimental)に従って手動で更新することができます。また、[legacy comparison](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/image-legacy#comparison)もご覧いただけます。
+
+### `<Link>` Component
+
+[`<Link>` Component](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)はもはや手動で子として`<a>`タグを追加する必要はありません。この振る舞いは[version 12.2](https://nextjs.org/blog/next-12-2)で実験的なオプションとして追加され、現在は default となっています。Next.js 13 では、`<Link>`は常に`<a>`をレンダリングし、props を基礎となるタグに転送することができます。
+
+For example:
+
+```jsx
+import Link from 'next/link'
+
+// Next.js 12: `<a>` has to be nested otherwise it's excluded
+<Link href="/about">
+  <a>About</a>
+</Link>
+
+// Next.js 13: `<Link>` always renders `<a>` under the hood
+<Link href="/about">
+  About
+</Link>
+```
+
+あなたのリンクを Next.js 13 にアップグレードするには、[`new-link` codemod](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading/01-codemods#new-link)を使用できます。
+
+### `<Script>` Component
+
+[`next/script`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/script)の振る舞いが更新され、`pages`と`app`の両方をサポートするようになりました。`app`を段階的に採用する場合は、[アップグレードガイド](/ja/javascript/next.js/v14/03-pages/01-building-your-application/10-upgrading)を読んでください。
+
+### Font Optimization
+
+以前、Next.js は、フォントの CSS のインライン化によってフォントを最適化するのに役立ちました。Version13 では、新たに[`next/font`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/02-fonts) モジュールが導入され、優れたパフォーマンスとプライバシーを確保しつつ、フォントの loading 体験をカスタマイズする能力を提供します。
+
+`next/font`の使用方法を学びたい場合は、[フォントの最適化](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/02-fonts)をご覧ください。

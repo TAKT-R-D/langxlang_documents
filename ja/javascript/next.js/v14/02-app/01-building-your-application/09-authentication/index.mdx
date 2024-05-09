@@ -1,0 +1,873 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/09-authentication/index.mdx
+title: Authentication
+description: Learn how to implement authentication in Next.js, covering best practices, securing routes, authorization techniques, and session management.
+org_title: Authentication
+org_path: /docs/app/building-your-application/authentication
+is_empty: false
+---
+
+Next.js の認証を実装するために、以下の三つの基本概念を理解してください：
+
+- **[認証](#authentication)**は、ユーザーが自分が主張する通りであるかどうかを確認します。ユーザー名やパスワードのような、ユーザーが持っている何かで自身の身元を証明することを要求します。
+- **[セッション管理](#session-management)**は、ユーザーの状態(例：ログイン状態)を複数のリクエストにわたって追跡します。
+- **[Authorization](#authorization)**は、ユーザーがアプリケーションのどの部分にアクセスできるかを決定します。
+
+このページでは、Next.js の機能を使用して一般的な認証、承認、およびセッション管理のパターンを実装する方法を示しています。これにより、アプリケーションのニーズに基づいて最適なソリューションを選択できます。
+
+## Authentication
+
+認証はユーザーの身元を確認します。これはユーザーがユーザー名と path ワードでログインするか、Google のようなサービスを通じて行われます。これは、ユーザーが本当に自分が主張する人物であることを確認することに関連しており、ユーザーのデータとアプリケーションを不正アクセスや詐欺的な行為から保護します。
+
+### 認証戦略
+
+現代のウェブアプリケーションは、一般的にいくつかの認証戦略を使用します：
+
+1. **OAuth/OpenID Connect (OIDC)**：ユーザーの資格情報を共有せずにサードパーティのアクセスを可能にします。ソーシャルメディアへのログインやシングルサインオン(SSO)ソリューションに理想的です。OpenID Connect を用いてアイデンティティ層を追加します。
+2. **クレデンシャルベースのログイン(Email + Password)**: Web アプリケーションで標準的な選択肢で、ユーザーは email と password でログインします。使い慣れており、実装も容易ですが、フィッシングのような脅威に対する堅牢なセキュリティ対策が必要です。
+3. **パスワードレス/トークンベースの認証**：安全でパスワードなしのアクセスのために、メールマジックリンクまたは SMS ワンタイムコードを使用します。その便利さと強化されたセキュリティで人気であり、この method はパスワード疲労を軽減するのに役立ちます。その制約は、ユーザーのメールまたは電話の利用可能性に依存していることです。
+4. **Passkeys/WebAuthn**: 各サイトに固有の暗号化された資格情報を使用し、フィッシングに対する高いセキュリティを提供します。安全ですが新しいため、この strategy は実装が難しい場合があります。
+
+authentication strategy の選択は、アプリケーションの特定の要件、ユーザーインターフェイスの考慮事項、および security objectives と一致するべきです。
+
+### 認証の実装
+
+このセクションでは、基本的なメール path ワード認証をウェブアプリケーションに追加するプロセスを探求します。この method は基本的なセキュリティレベルを提供しますが、一般的なセキュリティ脅威に対する強化保護のために、OAuth や path ワードレスログインなどのより高度な options を検討する価値があります。私たちが議論する認証フローは以下の通りです：
+
+<PagesOnly>
+
+1. ユーザーはログインフォームを通じて自身の credentials を提出します。
+2. このフォームは、API route が処理する request を送信します。
+3. 正常に確認が完了した場合、プロセスは完了し、ユーザーの正常な認証が示されます。
+4. 検証が失敗した場合、error message が表示されます。
+
+ユーザーが自身の認証情報を入力できるログインフォームを考えてみましょう:
+
+```tsx:pages/login.tsx
+import { FormEvent } from 'react'
+import { useRouter } from 'next/router'
+
+export default function LoginPage() {
+  const router = useRouter()
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get('email')
+    const password = formData.get('password')
+
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (response.ok) {
+      router.push('/profile')
+    } else {
+      // Handle errors
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  )
+}
+```
+
+```jsx:pages/login.jsx
+import { FormEvent } from 'react'
+import { useRouter } from 'next/router'
+
+export default function LoginPage() {
+  const router = useRouter()
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get('email')
+    const password = formData.get('password')
+
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (response.ok) {
+      router.push('/profile')
+    } else {
+      // Handle errors
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  )
+}
+```
+
+上記のフォームには、ユーザーのメールアドレスと path ワードを取得するための 2 つの入力フィールドがあります。送信すると、POST request を API route (`/api/auth/login`) に送信する機能がトリガーされます。
+
+その後、認証を処理するために認証プロバイダーの API を API route で呼び出すことができます。
+
+```ts:pages/api/auth/login.ts
+import { NextApiRequest, NextApiResponse } from 'next'
+import { signIn } from '@/auth'
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  try {
+    const { email, password } = req.body
+    await signIn('credentials', { email, password })
+
+    res.status(200).json({ success: true })
+  } catch (error) {
+    if (error.type === 'CredentialsSignin') {
+      res.status(401).json({ error: 'Invalid credentials.' })
+    } else {
+      res.status(500).json({ error: 'Something went wrong.' })
+    }
+  }
+}
+```
+
+```js:pages/api/auth/login.js
+import { signIn } from '@/auth'
+
+export default async function handler(req, res) {
+  try {
+    const { email, password } = req.body
+    await signIn('credentials', { email, password })
+
+    res.status(200).json({ success: true })
+  } catch (error) {
+    if (error.type === 'CredentialsSignin') {
+      res.status(401).json({ error: 'Invalid credentials.' })
+    } else {
+      res.status(500).json({ error: 'Something went wrong.' })
+    }
+  }
+}
+```
+
+</PagesOnly>
+
+<AppOnly>
+
+1. ユーザーはログインフォームを通じて自身の credentials を提出します。
+2. そのフォームは Server Action を呼び出します。
+3. 正常に確認が完了した場合、プロセスは完了し、ユーザーの正常な認証が示されます。
+4. 検証が失敗した場合、error message が表示されます。
+
+ユーザーが自身の認証情報を入力できるログインフォームを考えてみましょう:
+
+```tsx:app/login/page.tsx
+import { authenticate } from '@/app/lib/actions'
+
+export default function Page() {
+  return (
+    <form action={authenticate}>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  )
+}
+```
+
+```jsx:app/login/page.jsx
+import { authenticate } from '@/app/lib/actions'
+
+export default function Page() {
+  return (
+    <form action={authenticate}>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  )
+}
+```
+
+上記のフォームには、ユーザーのメールアドレスと path ワードを取得するための 2 つの入力フィールドがあります。送信時には、`authenticate` Server Action が呼び出されます。
+
+その後、あなたは認証プロバイダの API を Server Action で呼び出して認証を処理することができます：
+
+```ts:app/lib/actions.ts
+'use server'
+
+import { signIn } from '@/auth'
+
+export async function authenticate(_currentState: unknown, formData: FormData) {
+  try {
+    await signIn('credentials', formData)
+  } catch (error) {
+    if (error) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.'
+        default:
+          return 'Something went wrong.'
+      }
+    }
+    throw error
+  }
+}
+```
+
+```js:app/lib/actions.js
+'use server'
+
+import { signIn } from '@/auth'
+
+export async function authenticate(_currentState, formData) {
+  try {
+    await signIn('credentials', formData)
+  } catch (error) {
+    if (error) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.'
+        default:
+          return 'Something went wrong.'
+      }
+    }
+    throw error
+  }
+}
+```
+
+</AppOnly>
+
+この code では、`signIn` method が格納されたユーザーデータとの照合を行います。認証プロバイダーが資格情報を処理した後、2 つの可能な結果があります：
+
+- **認証成功**：この結果は、ログインが成功したことを示しています。これにより、保護された routes へのアクセスやユーザー情報の取得などのさらなるアクションが開始できます。
+- **認証失敗**：資格情報が間違っている場合や error が発生した場合、認証が失敗したことを示す error message を関数が返します。
+
+<AppOnly>
+
+最後に、`login-form.tsx`の component で、React の`useFormState`を使って Server Action を呼び出し、フォーム error を処理し、`useFormStatus`を使用してフォームの保留中の状態を処理することができます：
+
+```tsx:app/login/page.tsx
+'use client'
+
+import { authenticate } from '@/app/lib/actions'
+import { useFormState, useFormStatus } from 'react-dom'
+
+export default function Page() {
+  const [errorMessage, dispatch] = useFormState(authenticate, undefined)
+
+  return (
+    <form action={dispatch}>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div>{errorMessage && <p>{errorMessage}</p>}</div>
+      <LoginButton />
+    </form>
+  )
+}
+
+function LoginButton() {
+  const { pending } = useFormStatus()
+
+  return (
+    <button aria-disabled={pending} type="submit">
+      Login
+    </button>
+  )
+}
+```
+
+```jsx:app/login/page.jsx
+'use client'
+
+import { authenticate } from '@/app/lib/actions'
+import { useFormState, useFormStatus } from 'react-dom'
+
+export default function Page() {
+  const [errorMessage, dispatch] = useFormState(authenticate, undefined)
+
+  return (
+    <form action={dispatch}>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div>{errorMessage && <p>{errorMessage}</p>}</div>
+      <LoginButton />
+    </form>
+  )
+}
+
+function LoginButton() {
+  const { pending } = useFormStatus()
+
+  return (
+    <button aria-disabled={pending} type="submit">
+      Login
+    </button>
+  )
+}
+```
+
+</AppOnly>
+
+Next.js プロジェクトで、特に複数のログイン方法を提供する場合に、よりスムーズな認証設定を行うためには、包括的な[認証ソリューション](#examples)の使用を検討してください。
+
+## Authorization
+
+ユーザーが認証されると、ユーザーが特定の routes にアクセスできるようにする必要があります。そして、Server Actions でデータを変異させたり、Route Handlers を呼び出すなどの操作を行うことができます。
+
+### Middleware を使用して Routes を保護する
+
+Next.js の[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)を使うと、ウェブサイトのさまざまな部分に誰がアクセスできるかを管理することができます。これは、ユーザーコンソール dashboard のようなエリアを保護しながら、マーケティングページなどの他のページを public にするために重要です。 Middleware は、すべての routes に適用し、 public へのアクセスを除外することが推奨されます。
+
+以下に、Next.js で認証のための Middleware を実装する方法を示します：
+
+1. **Middleware の設定:**
+   - あなたのプロジェクトの root ディレクトリに`middleware.ts`または`.js`ファイルを作成してください。
+   - ユーザーアクセスを承認するロジックを含めてください。たとえば、authentication tokens のチェックなどです。
+2. **保護された Routes の定義：**
+
+- すべての routes require に認証が必要なわけではありません。あなたの Middleware で`matcher`オプションを使用して、認証チェックが require されない任意の routes を指定してください。
+
+3. **Middleware ロジック：**
+   - ユーザーが認証されているかどうかを検証するロジックを書く。 route の認可のためのユーザーロールや権限を確認します。
+4. **不正アクセスの対応:**
+   - 不正なユーザーを適切にログインページまたは error page へ Redirect してください。
+
+例えば Middleware ファイル:
+
+```ts:middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  const currentUser = request.cookies.get('currentUser')?.value
+
+  if (currentUser) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+  return NextResponse.redirect(new URL('/login', request.url))
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+}
+```
+
+```js:middleware.js
+import { NextResponse } from 'next/server'
+
+export function middleware(request) {
+  const currentUser = request.cookies.get('currentUser')?.value
+
+  if (currentUser) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+  return NextResponse.redirect(new URL('/login', request.url))
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+}
+```
+
+この例では、[`NextResponse.redirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-response#redirect)を使用して、 request パイプラインの初期段階で redirects を処理し、それを効率的に行い、アクセス制御を集中化します。
+
+<AppOnly>
+
+具体的なリダイレクトのニーズに対して、`redirect`関数は Server Components 、 Route ハンドラー、および Server Actions で使用することができ、より多くの制御を提供します。これは、ロールベースのナビゲーションや文脈に応じたシナリオに役立ちます。
+
+```ts:app/page.tsx
+import { redirect } from 'next/navigation'
+
+export default function Page() {
+  // Logic to determine if a redirect is needed
+  const accessDenied = true
+  if (accessDenied) {
+    redirect('/login')
+  }
+
+  // Define other routes and logic
+}
+```
+
+```js:app/page.jsx
+import { redirect } from 'next/navigation'
+
+export default function Page() {
+  // Logic to determine if a redirect is needed
+  const accessDenied = true
+  if (accessDenied) {
+    redirect('/login')
+  }
+
+  // Define other routes and logic
+}
+```
+
+</AppOnly>
+
+成功した認証の後、それぞれの役割に基づいたユーザーのナビゲーションを管理することが重要です。例えば、管理者ユーザーは dashboard という管理者用のページに Redirect されるかもしれません、一方で一般ユーザーは別のページに送られます。これは、役割に特化した経験と条件付きナビゲーション、例えば必要ならプロフィールを完成させるようにユーザーに促すことなどに重要です。
+
+認証を設定する際には、あなたの app がデータにアクセスしたり、データを変更する場所で主要なセキュリティチェックが行われることを確認することが重要です。Middleware は初期の検証には役立つかもしれませんが、データを保護するための唯一の防衛線にはすべきではありません。セキュリティチェックの大部分は、データアクセスレイヤー(DAL)で行うべきです。
+
+<PagesOnly>
+
+### API Routes を保護する
+
+API Routes は、Next.js における server-side のロジックとデータ管理を処理するために不可欠です。これらの routes を保護することは必要不可欠で、特定の機能へのアクセスを認証済みのユーザーのみに制限することを保証します。これには通常、ユーザーの認証ステータスと彼らのロールに基づく権限の確認が含まれます。
+
+これは API Route を保護する例です：
+
+```ts:pages/api/route.ts
+import { NextApiRequest, NextApiResponse } from 'next'
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const session = await getSession(req)
+
+  // Check if the user is authenticated
+  if (!session) {
+    res.status(401).json({
+      error: 'User is not authenticated',
+    })
+    return
+  }
+
+  // Check if the user has the 'admin' role
+  if (session.user.role !== 'admin') {
+    res.status(401).json({
+      error: 'Unauthorized access: User does not have admin privileges.',
+    })
+    return
+  }
+
+  // Proceed with the route for authorized users
+  // ... implementation of the API Route
+}
+```
+
+```js:pages/api/route.js
+export default async function handler(req, res) {
+  const session = await getSession(req)
+
+  // Check if the user is authenticated
+  if (!session) {
+    res.status(401).json({
+      error: 'User is not authenticated',
+    })
+    return
+  }
+
+  // Check if the user has the 'admin' role
+  if (session.user.role !== 'admin') {
+    res.status(401).json({
+      error: 'Unauthorized access: User does not have admin privileges.',
+    })
+    return
+  }
+
+  // Proceed with the route for authorized users
+  // ... implementation of the API Route
+}
+```
+
+この例は、認証と許可のための 2 段階のセキュリティチェックを備えた API Route を示しています。まず、アクティブなセッションを確認し、次にログインしているユーザーが'admin'であるかどうかを確認します。このアプローチにより、認証され、許可されたユーザーに限定したセキュアなアクセスを確保し、request の処理に対する堅牢なセキュリティを維持します。
+
+</PagesOnly>
+
+<AppOnly>
+
+このアプローチは、[このセキュリティブログ](/blog/security-nextjs-server-components-actions)で強調されており、専用の DAL 内にすべてのデータアクセスを集約することを推奨しています。この strategy は、一貫したデータアクセスを保証し、認証のバグを最小限に抑え、保守を簡素化します。包括的なセキュリティを確保するためには、以下の重要な領域を考慮してください:
+
+- Server Actions : server-side のプロセス、特に機密性の高い操作に対してセキュリティチェックを実装します。
+- Route ハンドラー：セキュリティ対策を用いて受信 Request を管理し、アクセスが認証済みのユーザーに限定されるよう確保します。
+- データアクセスレイヤー (DAL)：データベースと直接対話し、データトランザクションの検証と承認には不可欠です。最も重要な対話ポイント、すなわちデータのアクセスや変更におけるデータの安全性を確保するために、DAL 内での重要なチェックを行うことが極めて重要です。
+
+DAL を保護するための詳細なガイド、例えば code のスニペットや高度なセキュリティ対策については、セキュリティガイドの[Data Access Layer セクション](/blog/security-nextjs-server-components-actions#data-access-layer)を参照してください。
+
+### Server Actions の保護
+
+[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)をパブリックフェイスの API エンドポイントと同等のセキュリティ対策で扱うことが重要です。各アクションに対するユーザーの認可を確認することが重要です。 Server Actions 内部でユーザーの権限を確認するチェックを実装します。例えば、特定のアクションを管理者ユーザーのみに制限するなどです。
+
+以下の例では、アクションを進める前にユーザーの role を確認します：
+
+```ts:app/lib/actions.ts
+'use server'
+
+// ...
+
+export async function serverAction() {
+  const session = await getSession()
+  const userRole = session?.user?.role
+
+  // Check if user is authorized to perform the action
+  if (userRole !== 'admin') {
+    throw new Error('Unauthorized access: User does not have admin privileges.')
+  }
+
+  // Proceed with the action for authorized users
+  // ... implementation of the action
+}
+```
+
+```js:app/lib/actions.js
+'use server'
+
+// ...
+
+export async function serverAction() {
+  const session = await getSession()
+  const userRole = session?.user?.role
+
+  // Check if user is authorized to perform the action
+  if (userRole !== 'admin') {
+    throw new Error('Unauthorized access: User does not have admin privileges.')
+  }
+
+  // Proceed with the action for authorized users
+  // ... implementation of the action
+}
+```
+
+### Route ハンドラーを保護する
+
+Next.js の Route ハンドラは、受信 Request の管理において重要な役割を果たします。Server Actions と同様に、特定の機能に対してのみ認証されたユーザーがアクセスできるように、それらは保全されるべきです。こういったことは、ユーザーの認証ステータスと彼らの権限を確認することをしばしば含みます。
+
+ここに Route Handler を確保する例があります：
+
+```ts:app/api/route.ts
+export async function GET() {
+  // User authentication and role verification
+  const session = await getSession()
+
+  // Check if the user is authenticated
+  if (!session) {
+    return new Response(null, { status: 401 }) // User is not authenticated
+  }
+
+  // Check if the user has the 'admin' role
+  if (session.user.role !== 'admin') {
+    return new Response(null, { status: 403 }) // User is authenticated but does not have the right permissions
+  }
+
+  // Data fetching for authorized users
+}
+```
+
+```js:app/api/route.js
+export async function GET() {
+  // User authentication and role verification
+  const session = await getSession()
+
+  // Check if the user is authenticated
+  if (!session) {
+    return new Response(null, { status: 401 }) // User is not authenticated
+  }
+
+  // Check if the user has the 'admin' role
+  if (session.user.role !== 'admin') {
+    return new Response(null, { status: 403 }) // User is authenticated but does not have the right permissions
+  }
+
+  // Data fetching for authorized users
+}
+```
+
+この例では、認証と認可のための二層のセキュリティチェックを備えた Route Handler を示しています。まず、アクティブなセッションがあるかどうかを確認し、次にログインユーザーが'admin'であるかどうかを確認します。このアプローチにより、認証され、認可されたユーザーのみへのセキュアなアクセスが保証され、request の処理に対して堅牢なセキュリティが維持されます。
+
+### Server Components を使用した承認
+
+Next.js の[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)は、認証のような複雑なロジックを統合するための安全な環境を提供するために、server-side 実行のために設計されています。それらはバックエンドリソースへの直接アクセスを可能にし、データ重視のタスクのパフォーマンスを最適化し、センシティブな操作のセキュリティを強化します。
+
+Server Components では、よく行われる実践としてユーザーの役割に基づいて UI 要素を条件付きで render することがあります。このアプローチは、ユーザーが閲覧を許可されているコンテンツのみにアクセスすることを確認することで、ユーザー体験とセキュリティを高めます。
+
+**Example:**
+
+```tsx:app/dashboard/page.tsx
+export default function Dashboard() {
+  const session = await getSession()
+  const userRole = session?.user?.role // Assuming 'role' is part of the session object
+
+  if (userRole === 'admin') {
+    return <AdminDashboard /> // Component for admin users
+  } else if (userRole === 'user') {
+    return <UserDashboard /> // Component for regular users
+  } else {
+    return <AccessDenied /> // Component shown for unauthorized access
+  }
+}
+```
+
+```jsx:app/dashboard/page.jsx
+export default function Dashboard() {
+  const session = await getSession()
+  const userRole = session?.user?.role // Assuming 'role' is part of the session object
+
+  if (userRole === 'admin') {
+    return <AdminDashboard /> // Component for admin users
+  } else if (userRole === 'user') {
+    return <UserDashboard /> // Component for regular users
+  } else {
+    return <AccessDenied /> // Component shown for unauthorized access
+  }
+}
+```
+
+この例では、Dashboard component は'admin'、'user'、そして未承認の役割に対して異なる UI をレンダリングします。このパターンは、各ユーザーが自分の役割に適した Component のみと対話することを保証し、セキュリティとユーザーエクスペリエンスの両方を向上させます。
+
+</AppOnly>
+
+### ベストプラクティス
+
+- **セキュアなセッション管理**：セッションデータのセキュリティを最優先し、不正なアクセスやデータ侵害を防ぎます。暗号化とセキュアな保存の手法を使用してください。
+- **Dynamic ロール管理**： 柔軟なユーザーロールのシステムを使用して、権限とロールの変更に容易に対応し、ハードコーディングされたロールを避けます。
+- **セキュリティ最優先のアプローチ**： 認証ロジックのすべての側面で、ユーザーデータを保護し、アプリケーションの完全性を維持するために、セキュリティを優先してください。これには、徹底的なテストと潜在的なセキュリティの脆弱性を考慮することが含まれます。
+
+## Session Management
+
+セッション管理とは、ユーザーのアプリケーションとのやり取りを時間を通じて追跡し、管理することを含みます。これにより、認証された状態がアプリケーションの異なる部分で保持されることを確認します。
+
+これにより、繰り返しのログインが不要になり、セキュリティとユーザーの利便性がともに向上します。セッション管理に使用される主な方法は 2 つあります： cookie-based と database sessions です。
+
+### Cookie ベースのセッション
+
+> **🎥 視聴:** Next.js でのクッキーベースのセッションと認証について詳しく学びましょう → [YouTube (11 分)](https://www.youtube.com/watch?v=DJvM2lSPn6w)。
+
+Cookie ベースのセッションは、ブラウザの cookies に直接暗号化されたセッション情報を格納することでユーザーデータを管理します。ユーザーがログインすると、この暗号化されたデータは cookie に格納されます。その後のすべての server request にはこの cookie が含まれ、繰り返しの server クエリの必要性を最小限に抑え、クライアントサイドの効率を向上させます。
+
+しかし、この method は、敏感なデータを保護するために慎重な暗号化が必要です。なぜなら、cookies は Client 側のセキュリティリスクに対して脆弱だからです。cookies 内のセッションデータを暗号化することは、ユーザー情報を不正アクセスから守るための重要な方法です。それにより、cookie が盗まれたとしても、その内部のデータは読み取れない状態を保つことができます。
+
+さらに、個々の cookies は size (通常約 4KB)に制限がありますが、cookie-chunking のような技術を使用することで、大きなセッションデータを複数の cookies に分割することでこの制限を克服することができます。
+
+Next.js プロジェクトで cookie を設定すると、次のようになる可能性があります：
+
+**server に cookie を設定する:**
+
+<PagesOnly>
+
+```ts:pages/api/login.ts
+import { serialize } from 'cookie'
+import type { NextApiRequest, NextApiResponse } from 'next'
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  const sessionData = req.body
+  const encryptedSessionData = encrypt(sessionData)
+
+  const cookie = serialize('session', encryptedSessionData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7, // One week
+    path: '/',
+  })
+  res.setHeader('Set-Cookie', cookie)
+  res.status(200).json({ message: 'Successfully set cookie!' })
+}
+```
+
+```js:pages/api/login.js
+import { serialize } from 'cookie'
+
+export default function handler(req, res) {
+  const sessionData = req.body
+  const encryptedSessionData = encrypt(sessionData)
+
+  const cookie = serialize('session', encryptedSessionData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7, // One week
+    path: '/',
+  })
+  res.setHeader('Set-Cookie', cookie)
+  res.status(200).json({ message: 'Successfully set cookie!' })
+}
+```
+
+</PagesOnly>
+
+<AppOnly>
+
+```ts:app/actions.ts
+'use server'
+
+import { cookies } from 'next/headers'
+
+export async function handleLogin(sessionData) {
+  const encryptedSessionData = encrypt(sessionData) // Encrypt your session data
+  cookies().set('session', encryptedSessionData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7, // One week
+    path: '/',
+  })
+  // Redirect or handle the response after setting the cookie
+}
+```
+
+```js:app/actions.js
+'use server'
+
+import { cookies } from 'next/headers'
+
+export async function handleLogin(sessionData) {
+  const encryptedSessionData = encrypt(sessionData) // Encrypt your session data
+  cookies().set('session', encryptedSessionData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7, // One week
+    path: '/',
+  })
+  // Redirect or handle the response after setting the cookie
+}
+```
+
+**server component で cookie に保存されたセッションデータにアクセスする：**
+
+```tsx:app/page.tsx
+import { cookies } from 'next/headers'
+
+export async function getSessionData(req) {
+  const encryptedSessionData = cookies().get('session')?.value
+  return encryptedSessionData ? JSON.parse(decrypt(encryptedSessionData)) : null
+}
+```
+
+```jsx:app/page.jsx
+import { cookies } from 'next/headers'
+
+export async function getSessionData(req) {
+  const encryptedSessionData = cookies().get('session')?.value
+  return encryptedSessionData ? JSON.parse(decrypt(encryptedSessionData)) : null
+}
+```
+
+</AppOnly>
+
+### データベースセッション
+
+データベースセッション管理は、セッションデータを server に保存し、ユーザーのブラウザがセッション ID のみを受け取ることを含みます。この ID は、server-side に保存されたセッションデータを参照しますが、データ自体は含みません。この method は、セキュリティを強化し、敏感なセッションデータを Client 側の環境から遠ざけ、Client 側の攻撃への露出のリスクを減らします。データベースセッションはまた、より大規模なデータ保存ニーズに対応するために、よりスケーラブルです。
+
+しかし、このアプローチにはトレードオフがあります。各ユーザーのインタラクションごとにデータベースの検索が必要になるため、パフォーマンスのオーバーヘッドが増える可能性があります。セッションデータのキャッシングのような戦略はこれを緩和するのに役立つことができます。さらに、データベースへの依存は、セッション管理がデータベースのパフォーマンスと可用性と同じくらい信頼できることを意味します。
+
+ここには、Next.js アプリケーションでデータベースセッションを実装する簡易的な例を示します：
+
+** Server 上でのセッションの作成**:
+
+<PagesOnly>
+
+```ts:pages/api/create-session.ts
+import db from '../../lib/db'
+import { NextApiRequest, NextApiResponse } from 'next'
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  try {
+    const user = req.body
+    const sessionId = generateSessionId()
+    await db.insertSession({
+      sessionId,
+      userId: user.id,
+      createdAt: new Date(),
+    })
+
+    res.status(200).json({ sessionId })
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+```
+
+```js:pages/api/create-session.js
+import db from '../../lib/db'
+
+export default async function handler(req, res) {
+  try {
+    const user = req.body
+    const sessionId = generateSessionId()
+    await db.insertSession({
+      sessionId,
+      userId: user.id,
+      createdAt: new Date(),
+    })
+
+    res.status(200).json({ sessionId })
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+```
+
+</PagesOnly>
+
+<AppOnly>
+
+```js
+import db from "./lib/db";
+
+export async function createSession(user) {
+  const sessionId = generateSessionId(); // Generate a unique session ID
+  await db.insertSession({ sessionId, userId: user.id, createdAt: new Date() });
+  return sessionId;
+}
+```
+
+**Middleware または Server-Side ロジックでセッションを取得する**:
+
+```js
+import { cookies } from "next/headers";
+import db from "./lib/db";
+
+export async function getSession() {
+  const sessionId = cookies().get("sessionId")?.value;
+  return sessionId ? await db.findSession(sessionId) : null;
+}
+```
+
+</AppOnly>
+
+### Next.js でセッション管理を選択する
+
+Next.js で Cookies ベースのセッションとデータベースセッションを選択することは、アプリケーションのニーズによるところが大きいです。 Cookies ベースのセッションは、より小さなアプリケーションや server 負荷が低い環境に適しており、シンプルですが、セキュリティがやや劣る可能性があります。一方、より複雑なデータベースセッションは、セキュリティとスケーラビリティが向上し、大規模なデータセンシティブなアプリケーションに理想的です。
+
+[認証ソリューション](#examples) である [NextAuth.js](https://authjs.dev/guides/upgrade-to-v5) を使用すると、cookies やデータベースストレージを使ったセッション管理がより効率的になります。この自動化は development プロセスを単純化しますが、選ばれたソリューションが使用するセッション管理 method を理解することが重要です。それがあなたのアプリケーションのセキュリティやパフォーマンスの要件と一致することを確認する必要があります。
+
+あなたの選択に関わらず、セッション管理戦略でセキュリティを優先してください。strategy ベースのセッションでは、セキュアで HTTP 専用の cookies を使用することが、セッションデータを保護するためには不可欠です。データベースのセッションでは、定期的なバックアップとセッションデータの安全な取り扱いが必須です。両方のアプローチで、不正アクセスの防止とアプリケーションのパフォーマンスと信頼性の維持のために、セッションの有効期限の設定とクリーンアップメカニズムの実装が重要です。
+
+## Examples
+
+ここには、Next.js と互換性のある認証ソリューションがあります。Next.js アプリケーションでそれらを設定する方法を学ぶために、以下のクイックスタートガイドを参照してください:
+
+{/* TODO: Change link to authjs.dev when new documentation is ready */}
+
+- [Auth0](https://auth0.com/docs/quickstart/webapp/nextjs/01-login)
+- [Clerk](https://clerk.com/docs/quickstarts/nextjs)
+- [Kinde](https://kinde.com/docs/developer-tools/nextjs-sdk)
+- [Lucia](https://lucia-auth.com/getting-started/nextjs-app)
+- [NextAuth.js](https://authjs.dev/guides/upgrade-to-v5)
+- [Supabase](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
+- [Stytch](https://stytch.com/docs/guides/quickstarts/nextjs)
+- [Iron Session](https://github.com/vvo/iron-session)
+
+## Further Reading
+
+認証とセキュリティについて学習を続けるためには、以下のリソースをチェックしてみてください：
+
+- [XSS 攻撃を理解する](https://vercel.com/guides/understanding-xss-attacks)
+- [CSRF 攻撃の理解](https://vercel.com/guides/understanding-csrf-attacks)

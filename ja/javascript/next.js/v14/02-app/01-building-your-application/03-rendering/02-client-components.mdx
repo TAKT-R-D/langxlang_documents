@@ -1,0 +1,110 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/03-rendering/02-client-components.mdx
+title: Client Components
+description: Learn how to use Client Components to render parts of your application on the client.
+org_title: Client Components
+org_path: /docs/app/building-your-application/rendering/client-components
+is_empty: false
+---
+
+Client Components は、client で request 時間にレンダリングできる対話型 UI を書くことを可能にします。Next.js では、client レンダリングは**任意参加**で、つまり何の Component が React によって client 上で render されるべきかを明示的に決定する必要があります。
+
+このページでは、Client Components の動作方法、レンダリングの仕方、そしてそれらをいつ使用するかについて説明します。
+
+## Benefits of Client Rendering
+
+client でレンダリング作業を行うことにはいくつかの利点があります。これには以下のようなものがあります：
+
+- **対話性**: Client Components は状態、エフェクト、イベントリスナーを使用でき、これによりユーザーに対して即座のフィードバックを提供し、UI を更新することができます。
+- **ブラウザ API**: Client Components は、[ジオロケーション](https://developer.mozilla.org/docs/Web/API/Geolocation_API)や[ローカルストレージ](https://developer.mozilla.org/docs/Web/API/Window/localStorage)などのブラウザ API にアクセスでき、特定のユースケースのための UI を build できます。
+
+## Using Client Components in Next.js
+
+Client Components を使用するには、インポートの上にあるファイルの先頭に React [`"use client"` directive](https://react.dev/reference/react/use-client) を追加できます。
+
+`"use client"` は Server と Client Component modules 間の[境界](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering#network-boundary)を宣言するために使用されます。これは、ファイルに `"use client"` を定義することで、それにインポートされた他のすべての modules、子 components を含む、client バンドルの一部と見なされることを意味します。
+
+```tsx:app/counter.tsx
+'use client'
+
+import { useState } from 'react'
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click me</button>
+    </div>
+  )
+}
+```
+
+```jsx:app/counter.js
+'use client'
+
+import { useState } from 'react'
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click me</button>
+    </div>
+  )
+}
+```
+
+以下の図は、ネストされた「component」(`toggle.js`)で`onClick`と`useState`を使用すると、`"use client"`ディレクティブが定義されていない場合、「error」が発生することを示しています。これは、default では、component が「サーバ」上で rendering され、これらの API が利用できないからです。`toggle.js`内に`"use client"`ディレクティブを定義することで、「React」に「client」上で「component」とその「子」を「rendering」するよう指示することができ、そこでは API が利用可能です。
+
+<Image
+  alt="Use Client Directive and Network Boundary"
+  srcLight="/docs/light/use-client-directive.png"
+  srcDark="/docs/dark/use-client-directive.png"
+  width="1600"
+  height="1320"
+/>
+
+> **複数の`use client`エントリーポイントを定義する:**
+>
+> あなたは React Component ツリー内で複数の"use client"エントリーポイントを定義することができます。これにより、アプリケーションを複数の client バンドル(またはブランチ)に分割することができます。
+>
+> ただし、`"use client"`は、 client 上でレンダリングする必要があるすべての component で定義する必要はありません。一度境界を定義すると、それにインポートされたすべての子コンポーネントと modules は、 client バンドルの一部と見なされます。
+
+## How are Client Components Rendered?
+
+Next.js では、request が全ページのロード(初回訪問やブラウザの refresh によるページ再読み込み)の一部かどうかにより、Client Components が異なる形でレンダリングされます。これは後続のナビゲーションの場合も同じです。
+
+### フルページのロード
+
+初期ページのロードを最適化するために、Next.js は、React の API を使用して、Client および Server Components の両方に対して、静的な HTML preview を server 上で render します。これは、ユーザーが最初にアプリケーションを訪れたときに、client が Client Component JavaScript バンドルをダウンロード、解析、実行するのを待つことなく、すぐにページの内容を表示できることを意味します。
+
+server 上で：
+
+1. React は、**React Server Component Payload (RSC Payload)**と呼ばれる特別なデータ形式に、Server Components をレンダリングします。これには Client Components への参照が含まれています。
+2. Next.js は RSC Payload と Client Component JavaScript の指示を使用して、server 上の route に対する**HTML**を render します。
+
+次に、クライアントで:
+
+1. HTML は、すぐに高速で非対話的な最初の preview を route の表示するために使用されます。
+2. The React Server Components Payload is used to reconcile the Client and Server Component trees, and update the DOM.
+3. JavaScript の指示は、[hydrate](https://react.dev/reference/react-dom/client/hydrateRoot)するために使われ、Client Components を活性化させ、その UI をインタラクティブにします。
+
+> **ハイドレーションとは何ですか？**
+>
+> Hydration は、静的な HTML をインタラクティブにするために、イベントリスナーを DOM にアタッチするプロセスです。裏側では、hydration は[`hydrateRoot`](https://react.dev/reference/react-dom/client/hydrateRoot) React API を使用して行われます。
+
+### その後のナビゲーション
+
+次回のナビゲーション以降では、Client Components はすべて client 上でレンダリングされ、server レンダリングの HTML なしで表示されます。
+
+これは、Client Component JavaScript バンドルがダウンロードされ、解析されることを意味します。バンドルが準備完了したら、React は RSC Payload を利用して、Client と Server Component のツリーを調整し、DOM を更新します。
+
+## Going back to the Server Environment
+
+時々、`"use client"`の境界を宣言した後で、server の環境に戻りたい場合があります。例えば、client バンドルの size を減らしたい、server 上でデータを fetch したい、または server 上でのみ利用可能な API を使用したい場合などです。
+
+理論的には Client Components の中にネストしているとしても、Client と Server Components を交互に配置することにより、code を server に保持することができます。詳細については、[Composition Patterns](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/03-composition-patterns)ページと[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)をご覧ください。

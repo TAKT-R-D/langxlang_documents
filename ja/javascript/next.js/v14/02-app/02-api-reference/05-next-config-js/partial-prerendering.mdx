@@ -1,0 +1,38 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/partial-prerendering.mdx
+title: Partial Prerendering (experimental)
+description: Learn how to enable Partial Prerendering (experimental) in Next.js 14.
+org_title: Partial Prerendering (experimental)
+org_path: /docs/app/api-reference/next-config-js/partial-prerendering
+is_empty: false
+---
+
+> **警告**: パーシャルプレレンダリングは実験的な機能であり、現在のところ** production 環境には適していません**。
+
+Partial Prerendering は、実験的な機能で、route の静的な部分を先行レンダリングし、cache から提供し、dynamic な穴をストリームし込むことができます。これらは全て一つの HTTP request で行われます。
+
+パーシャルプレレンダリングは`next@canary`で利用可能です：
+
+```bash:Terminal
+npm install next@canary
+```
+
+実験的な `ppr` フラグを設定することで、Partial Prerendering を有効にすることができます:
+
+```js:next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    ppr: true,
+  },
+}
+
+module.exports = nextConfig
+```
+
+> **Good to know:**
+>
+> - 部分的なプレレンダリングはまだ Client サイドのナビゲーションには適用されていません。私たちは積極的にこれに取り組んでいます。
+> - パーシャルプレレンダリングは[Node.js runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)専用に設計されています。静的シェルを即座に提供できる場合、 Node.js runtime の一部を使用する必要はありません。
+
+[Next.js Learn course](/learn/dashboard-app/partial-prerendering)で部分的な事前レンダリングについてもっと学びましょう。

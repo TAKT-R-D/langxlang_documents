@@ -1,0 +1,102 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/turbo.mdx
+title: turbo (Experimental)
+description: Configure Next.js with Turbopack-specific options
+org_title: turbo (Experimental)
+org_path: /docs/app/api-reference/next-config-js/turbo
+is_empty: false
+nav_title: turbo
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+> **警告**: これらの機能は実験的なものであり、`next --turbo`でのみ動作します。
+
+## webpack loaders
+
+現在、Turbopack は webpack の loader API の一部をサポートしており、一部の webpack ローダーを使用して Turbopack 内で transform code を行うことができます。
+
+ローダーを設定するには、インストールしたローダーの名前と、`next.config.js`内の options を追加し、ファイル拡張子をローダーのリストにマッピングします：
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    turbo: {
+      rules: {
+        // Option format
+        '*.md': [
+          {
+            loader: '@mdx-js/loader',
+            options: {
+              format: 'md',
+            },
+          },
+        ],
+        // Option-less format
+        '*.mdx': ['@mdx-js/loader'],
+      },
+    },
+  },
+}
+```
+
+それでは、上記の設定が与えられた場合、あなたは自身の app から変換された code を使用することができます：
+
+```js
+import MyDoc from "./my-doc.mdx";
+
+export default function Home() {
+  return <MyDoc />;
+}
+```
+
+## Resolve Alias
+
+`next.config.js`を通じて、Turbopack は、webpack の[`resolve.alias`](https://webpack.js.org/configuration/resolve/#resolvealias)設定と同様に、エイリアスを通じてモジュール解決を変更するように設定することができます。
+
+`next.config.js`でリゾルブエイリアスを設定するには、インポートされたパターンを新しい destination に map します。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        underscore: 'lodash',
+        mocha: { browser: 'mocha/browser-entry.js' },
+      },
+    },
+  },
+}
+```
+
+このエイリアスは`underscore`パッケージのインポートを`lodash`パッケージに変更します。つまり、`import underscore from 'underscore'`とすると、`underscore`ではなく`lodash`モジュールがロードされます。
+
+Turbopack は、Node.js の[条件付き export](https://nodejs.org/docs/latest-v18.x/api/packages.html#conditional-exports)と同様に、このフィールドを通じて条件付きエイリアスをサポートしています。現時点では、`browser`条件のみがサポートされています。上記のケースでは、`mocha`モジュールのインポートは、Turbopack がブラウザ環境を対象とする場合、`mocha/browser-entry.js`にエイリアス化されます。
+
+## Resolve Extensions
+
+`next.config.js`を通じて、Turbopack は、webpack の[`resolve.extensions`](https://webpack.js.org/configuration/resolve/#resolveextensions)設定と同様に、カスタム拡張子を持つ modules を解決するように設定することができます。
+
+resolve extension を設定するには、`next.config.js`内の`resolveExtensions`フィールドを使用します：
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    turbo: {
+      resolveExtensions: [
+        '.mdx',
+        '.tsx',
+        '.ts',
+        '.jsx',
+        '.js',
+        '.mjs',
+        '.json',
+      ],
+    },
+  },
+}
+```
+
+これにより、元の resolve 拡張機能が提供されたリストで上書きされます。default 拡張機能を含めるように注意してください。
+
+F 詳細な情報と、あなたの app を webpack から Turbopack に移行する方法についてのガイダンスは、[Turbopack の webpack 互換性に関するドキュメンテーション](https://turbo.build/pack/docs/migrating-from-webpack)をご覧ください。

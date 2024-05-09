@@ -1,0 +1,54 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/06-optimizing/11-static-assets.mdx
+title: Static Assets in 'public'
+description: Next.js allows you to serve static files, like images, in the public directory. You can learn how it works here.
+org_title: Static Assets in 'public'
+org_path: /docs/app/building-your-application/optimizing/static-assets
+is_empty: false
+nav_title: Static Assets
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Next.js は、`public`と呼ばれるフォルダの下で画像のような静的ファイルを提供できます。このフォルダは root ディレクトリ内にあります。`public`内のファイルは、ベース URL (`/`)から始まるあなたの code で参照されることができます。
+
+例えば、ファイル `public/avatars/me.png` は、`/avatars/me.png` path を訪れることで閲覧することができます。その image を display するための code は次のようになるかもしれません：
+
+```jsx:avatar.js
+import Image from 'next/image'
+
+export function Avatar({ id, alt }) {
+  return <Image src={`/avatars/${id}.png`} alt={alt} width="64" height="64" />
+}
+
+export function AvatarOfMe() {
+  return <Avatar id="me" alt="A portrait of me" />
+}
+```
+
+## Caching
+
+Next.js は `public` フォルダ内の資産を安全に headers することができません。変更があるかもしれないからです。適用される default の cache headers は次のとおりです：
+
+```jsx
+Cache-Control: public, max-age=0
+```
+
+## Robots, Favicons, and others
+
+<PagesOnly>
+
+このフォルダは、`robots.txt`、`favicon.ico`、Google サイト認証、他のすべての静的ファイル(`.html`を含む)にも便利です。ただし、`pages/`ディレクトリ内のファイルと同じ名前の静的ファイルを持たないように注意してください。これは、error を引き起こします。 [さらに読む](/docs/messages/conflicting-public-file-page)。
+
+</PagesOnly>
+
+<AppOnly>
+
+静的な metadata ファイル、たとえば、`robots.txt`や`favicon.ico`などは、`app`フォルダ内の [特別な metadata ファイル](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata)を使用すべきです。
+
+</AppOnly>
+
+> Good to know:
+>
+> - ディレクトリは`public`と命名する必要があります。名前は変更できず、静的アセットを提供するために使用される唯一のディレクトリです。
+> - `public`ディレクトリ内にある資産のみが、[build time](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#build)に Next.js によって提供されます。request time に追加されたファイルは利用できません。永続的なファイルストレージのために[Vercel Blob](https://vercel.com/docs/storage/vercel-blob?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)のようなサードパーティのサービスを使用することをお勧めします。

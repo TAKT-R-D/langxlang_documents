@@ -1,0 +1,38 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/loading.mdx
+title: loading.js
+description: API reference for the loading.js  file.
+org_title: loading.js
+org_path: /docs/app/api-reference/file-conventions/loading
+is_empty: false
+---
+
+**loading**ファイルは、[Suspense](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を基にした即時の loading 状態を作成することができます。
+
+default で、このファイルは[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components) - ですが、`"use client"`ディレクティブを通じて Client Component としても使用できます。
+
+```tsx:app/feed/loading.tsx
+export default function Loading() {
+  // Or a custom loading skeleton component
+  return <p>Loading...</p>
+}
+```
+
+```jsx:app/feed/loading.js
+export default function Loading() {
+  // Or a custom loading skeleton component
+  return <p>Loading...</p>
+}
+```
+
+Loading UIComponent は、パラメータを受け付けません。
+
+> **Good to know**
+>
+> - loading UI を設計する際、[React Developer Tools](https://react.dev/learn/react-developer-tools)を使って手動で Suspense バウンダリーを切り替えると役立つかもしれません。
+
+## Version History
+
+| Version   | Changes                    |
+| --------- | -------------------------- |
+| `v13.0.0` | `loading` 導入されました。 |

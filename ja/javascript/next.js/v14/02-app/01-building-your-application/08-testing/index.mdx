@@ -1,0 +1,30 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/08-testing/index.mdx
+title: Testing
+description: Learn how to set up Next.js with four commonly used testing tools — Cypress, Playwright, Vitest, and Jest.
+org_title: Testing
+org_path: /docs/app/building-your-application/testing
+is_empty: false
+---
+
+React や Next.js では、それぞれが独自の目的と使用事例を持ついくつかの異なる type のテストを書くことができます。このページでは、アプリケーションを test するために使用できる type と一般的に使用されるツールの概要を提供しています。
+
+## Types of tests
+
+- **ユニットテスト**は、個々のユニット(または code のブロック)を単独でテストすることを含みます。 React では、ユニットは単一の関数、 hook 、または component であることができます。
+- **Component テスト**は、テストの主要な対象が React コンポーネントであるユニットテストのより焦点を絞った version です。これには、コンポーネントがどのようにレンダリングされるか、 props との相互作用、ユーザーイベントに対する response の動作などのテストが含まれる場合があります。
+- **統合テスト**は、複数のユニットがどのように連携して動作するかをテストすることを含みます。これは、コンポーネント、hooks 、および関数の組み合わせになる可能性があります。
+- **End-to-End (E2E) テスト** は、ブラウザなど、実際のユーザーシナリオを模倣した環境でユーザーフローをテストすることを含みます。つまり、Production ライクな環境で特定のタスク(例えば、サインアップフロー)をテストすることを意味します。
+- **スナップショットテスト**は、 component のレンダリング出力をキャプチャし、それをスナップショットファイルに保存することを含みます。テストが実行されると、 component の現在のレンダリング出力は保存されたスナップショットと比較されます。スナップショットの変更は、予想外の挙動の変化を示すために使用されます。
+
+<AppOnly>
+
+## Async Server Components
+
+`async` Server Components は React エコシステムにとって新しいため、一部のツールでは完全にサポートされていません。その間、`async`Component については、**Unit Testing**よりも**End-to-End Testing**を使用することをお勧めします。
+
+</AppOnly>
+
+## Guides
+
+以下のガイドを参照して、これらの一般的に使用されるテストツールを Next.js と一緒に設定する方法を学んでください：

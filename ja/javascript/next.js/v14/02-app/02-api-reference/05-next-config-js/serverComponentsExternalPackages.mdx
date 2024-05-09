@@ -1,0 +1,78 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/serverComponentsExternalPackages.mdx
+title: serverComponentsExternalPackages
+description: Opt-out specific dependencies from the Server Components bundling and use native Node.js 'require'.
+org_title: serverComponentsExternalPackages
+org_path: /docs/app/api-reference/next-config-js/serverComponentsExternalPackages
+is_empty: false
+---
+
+[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)や[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)の中で使われる依存関係は、自動的に Next.js によってバンドルされます。
+
+依存関係が Node.js 固有の機能を使用している場合、特定の依存関係を Server Components バンドルからオプトアウトさせ、ネイティブの Node.js の `require` を使用することを選択できます。
+
+```js:next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    serverComponentsExternalPackages: ['@acme/ui'],
+  },
+}
+
+module.exports = nextConfig
+```
+
+Next.js には、現在互換性に取り組んでおり自動的にオプトアウトされている[人気パッケージの短いリスト](https://github.com/vercel/next.js/blob/canary/packages/next/src/lib/server-external-packages.json)が含まれています：
+
+- `@aws-sdk/client-s3`
+- `@aws-sdk/s3-presigned-post`
+- `@blockfrost/blockfrost-js`
+- `@highlight-run/node`
+- `@libsql/client`
+- `@jpg-store/lucid-cardano`
+- `@mikro-orm/core`
+- `@mikro-orm/knex`
+- `@prisma/client`
+- `@sentry/nextjs`
+- `@sentry/node`
+- `@swc/core`
+- `argon2`
+- `autoprefixer`
+- `aws-crt`
+- `bcrypt`
+- `better-sqlite3`
+- `canvas`
+- `cpu-features`
+- `cypress`
+- `eslint`
+- `express`
+- `firebase-admin`
+- `jest`
+- `jsdom`
+- `libsql`
+- `lodash`
+- `mdx-bundler`
+- `mongodb`
+- `mongoose`
+- `next-mdx-remote`
+- `next-seo`
+- `node-pty`
+- `node-web-audio-api`
+- `payload`
+- `pg`
+- `playwright`
+- `postcss`
+- `prettier`
+- `prisma`
+- `puppeteer`
+- `puppeteer-core`
+- `rimraf`
+- `sharp`
+- `shiki`
+- `sqlite3`
+- `tailwindcss`
+- `ts-node`
+- `typescript`
+- `vscode-oniguruma`
+- `webpack`
+- `websocket`

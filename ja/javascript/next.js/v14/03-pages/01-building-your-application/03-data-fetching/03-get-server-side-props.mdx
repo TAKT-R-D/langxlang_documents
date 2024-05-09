@@ -1,0 +1,128 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props.mdx
+title: getServerSideProps
+description: Fetch data on each request with 'getServerSideProps'.
+org_title: getServerSideProps
+org_path: /docs/pages/building-your-application/data-fetching/get-server-side-props
+is_empty: false
+---
+
+`getServerSideProps`は、fetch データと render ページの内容を request 時間に行うことができる、Next.js の関数です。
+
+## Example
+
+`getServerSideProps`を使用するには、ページの Component からそれを export します。以下の例は、`getServerSideProps`内で 3rd パーティの API から fetch データを取得し、そのデータをページの props として渡す方法を示しています：
+
+```tsx:pages/index.tsx
+import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
+
+type Repo = {
+  name: string
+  stargazers_count: number
+}
+
+export const getServerSideProps = (async () => {
+  // Fetch data from external API
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo: Repo = await res.json()
+  // Pass data to the page via props
+  return { props: { repo } }
+}) satisfies GetServerSideProps<{ repo: Repo }>
+
+export default function Page({
+  repo,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  return (
+    <main>
+      <p>{repo.stargazers_count}</p>
+    </main>
+  )
+}
+```
+
+```jsx:pages/index.js
+export async function getServerSideProps() {
+  // Fetch data from external API
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo = await res.json()
+  // Pass data to the page via props
+  return { props: { repo } }
+}
+
+export default function Page({ repo }) {
+  return (
+    <main>
+      <p>{repo.stargazers_count}</p>
+    </main>
+  )
+}
+```
+
+## When should I use `getServerSideProps`?
+
+`getServerSideProps`は、パーソナライズされたユーザーデータに依存するページを render する必要がある場合、または request の時点でのみ知ることができる情報に基づいている場合に使用する必要があります。例えば、`authorization` headers やジオロケーションです。
+
+データを fetch する必要が request 時にない、またはデータを cache し、予めレンダリングされた HTML を好むなら、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)の使用をお勧めします。
+
+## Behavior
+
+- `getServerSideProps`は server 上で実行されます。
+- `getServerSideProps`は**ページ**からのみ export できます。
+- `getServerSideProps`は JSON を返します。
+- ユーザーがページを訪れると、`getServerSideProps`が request の時間に fetch でデータを取得するために使用され、そのデータはページの初期 HTML を render するために使用されます。
+- `props` は、ページの component に渡され、初期の HTML の一部として client 上で表示することができます。これは、ページが[hydrated](https://react.dev/reference/react-dom/hydrate)されるのを正しく許可するためです。 `props` に client で利用可能であってはならない機密情報を渡さないように注意してください。
+- ユーザーが[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)または[`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を経由してページを訪れると、Next.js は server へ API request を送信し、`getServerSideProps`が実行されます。
+- `getServerSideProps`を使用する際、データを fetch するために Next.js の[API Route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes)を呼び出す必要はありません。なぜなら、その関数は server 上で実行されるからです。代わりに、CMS、データベース、または他のサードパーティの API を`getServerSideProps`の内部から直接呼び出すことができます。
+
+> **Good to know:**
+>
+> - [`getServerSideProps` API reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-server-side-props)を参照して、`getServerSideProps`で使用できるパラメータと props について確認してください。
+> - [next-code-elimination tool](https://next-code-elimination.vercel.app/)を使用して、Next.js が Client サイドバンドルから何を削除するかを確認できます。
+
+## Error Handling
+
+`getServerSideProps`内で error がスローされた場合、`pages/500.js`ファイルが表示されます。それの作成方法については、[500 ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#500-page)のドキュメンテーションをチェックしてみてください。 development 中は、このファイルは使用されず、代わりに development error のオーバーレイが表示されます。
+
+## Edge Cases
+
+### Edge Runtime
+
+`getServerSideProps`は[Serverless および Edge Runtimes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/06-edge-and-nodejs-runtimes)の両方で使用でき、また両方で props を設定することもできます。
+
+しかし、現在の Edge Runtime では、response object へのアクセスができません。つまり、例えば `getServerSideProps` で cookies を追加することができないということです。 response object へのアクセスを持つには、 default runtime である **Node.js runtime** を引き続き使用するべきです。
+
+`config`を修正して、ページごとに runtime を明示的に設定することができます。例えば：
+
+```jsx:pages/index.js
+export const config = {
+  runtime: 'nodejs', // or "edge"
+}
+
+export const getServerSideProps = async () => {}
+```
+
+### Server-Side Rendering ( SSR )によるキャッシング
+
+`getServerSideProps`の中で`Cache-Control`(キャッシュ制御)という headers を使って、cache dynamic な Response をキャッシュすることができます。例えば、[`stale-while-revalidate`](https://web.dev/stale-while-revalidate/)を使用します。
+
+```jsx
+// This value is considered fresh for ten seconds (s-maxage=10).
+// If a request is repeated within the next 10 seconds, the previously
+// cached value will still be fresh. If the request is repeated before 59 seconds,
+// the cached value will be stale but still render (stale-while-revalidate=59).
+//
+// In the background, a revalidation request will be made to populate the cache
+// with a fresh value. If you refresh the page, you will see the new value.
+export async function getServerSideProps({ req, res }) {
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59"
+  );
+
+  return {
+    props: {},
+  };
+}
+```
+
+しかし、`cache-control`に手を伸ばす前に、我々はあなたのユースケースに[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と[ISR](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)がより適しているかどうかを確認することをお勧めします。

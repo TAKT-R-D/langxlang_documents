@@ -1,0 +1,165 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/use-router.mdx
+title: useRouter
+description: API reference for the useRouter hook.
+org_title: useRouter
+org_path: /docs/app/api-reference/functions/use-router
+is_empty: false
+---
+
+`useRouter` hook は、プログラムによる routes の変更を[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)内で許可します。
+
+> **推奨：**特別な要件が`useRouter`を使用する場合を除き、ナビゲーションには[`<Link>` component](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#link-component) を使用してください。
+
+```tsx:app/example-client-component.tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.push('/dashboard')}>
+      Dashboard
+    </button>
+  )
+}
+```
+
+```jsx:app/example-client-component.js
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button type="button" onClick={() => router.push('/dashboard')}>
+      Dashboard
+    </button>
+  )
+}
+```
+
+## `useRouter()`
+
+- `router.push(href: string, { scroll: boolean })`: 提供された route へのクライアントサイドナビゲーションを実行します。新たなエントリーを[ブラウザの履歴](https://developer.mozilla.org/docs/Web/API/History_API)の stack に追加します。
+- `router.replace(href: string, { scroll: boolean })`: これは、新たなエントリを[ブラウザの履歴 stack](https://developer.mozilla.org/docs/Web/API/History_API)に追加することなく、指定された route への client 側のナビゲーションを行います。
+- `router.refresh()`: 現在の route を Refresh します。新しい request を server に送り、データのリクエストを再取得し、 Server Components を再レンダリングします。 client は、影響を受けないクライアン側の React (例：`useState`)やブラウザの状態(例： scroll 位置)を失うことなく、更新された React Server Component “”のペイロードをマージします。
+- `router.prefetch(href: string)`: 提供された route を[Prefetch](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#2-prefetching) し、クライアント側の遷移を高速化します。
+- `router.back()`：ブラウザの履歴 stack で前の route に戻ります。
+- `router.forward()`: ブラウザの履歴 stack 内の next のページに進む。
+
+> **Good to know**:
+>
+> - `<Link>` component は、それが viewport で可視化されると自動的に prefetch routes を行います。
+> - `refresh()`は、fetch の Request がキャッシュされている場合、同じ結果を再生産することができます。`cookies`や`headers`のような他の dynamic 関数も response を変更することができます。
+
+### `next/router`からの移行
+
+- `useRouter` hook は、App Router を使用するときに `next/router`ではなく`next/navigation`からインポートされるべきです。
+- `pathname` string は削除され、[`usePathname()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)に置き換えられました
+- `query`という object は削除され、代わりに[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params)が使用されました。
+- `router.events`は置き換えられました。[下を参照してください。](#router-events)
+
+[完全なマイグレーションガイドを見る](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration).
+
+## Examples
+
+### Router イベント
+
+あなたは `usePathname` や `useSearchParams` などの他の Client Component hook を組み合わせて、ページ変更を聞くことができます。
+
+```jsx:app/components/navigation-events.js
+'use client'
+
+import { useEffect } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
+
+export function NavigationEvents() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const url = `${pathname}?${searchParams}`
+    console.log(url)
+    // You can now use the current URL
+    // ...
+  }, [pathname, searchParams])
+
+  return null
+}
+```
+
+どれが layout にインポートできますか。
+
+```jsx:app/layout.js
+import { Suspense } from 'react'
+import { NavigationEvents } from './components/navigation-events'
+
+export default function Layout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+
+        <Suspense fallback={null}>
+          <NavigationEvents />
+        </Suspense>
+      </body>
+    </html>
+  )
+}
+```
+
+> **Good to know**: `<NavigationEvents>`は、[静的レンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)中に[`useSearchParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params)が最も近い`Suspense`境界までのクライアントサイドレンダリングを引き起こすため、[`Suspense`境界](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#example)でラップされています。 [詳しくはこちら](/docs/app/api-reference/functions/use-search-params#behavior)。
+
+### scroll 復元の無効化
+
+default では、Next.js は新しい route に移動するときにページのトップまで scroll します。この動作は、`scroll: false`を`router.push()`または`router.replace()`に渡すことで無効化できます。
+
+```tsx:app/example-client-component.tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button
+      type="button"
+      onClick={() => router.push('/dashboard', { scroll: false })}
+    >
+      Dashboard
+    </button>
+  )
+}
+```
+
+```jsx:app/example-client-component.jsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    <button
+      type="button"
+      onClick={() => router.push('/dashboard', { scroll: false })}
+    >
+      Dashboard
+    </button>
+  )
+}
+```
+
+## Version History
+
+| Version   | Changes                                    |
+| --------- | ------------------------------------------ |
+| `v13.0.0` | `next/navigation`から導入された`useRouter` |
