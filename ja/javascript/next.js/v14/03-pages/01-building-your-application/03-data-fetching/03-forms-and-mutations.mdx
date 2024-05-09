@@ -8,19 +8,19 @@ is_empty: false
 nav_title: Forms and Mutations
 ---
 
-FormsはWebアプリケーションでデータを作成および更新するのに役立ちます。Next.jsは、**API Routes**を使用したフォームの送信とデータの変更を処理する強力な方法を提供します。
+Forms は Web アプリケーションでデータを作成および更新するのに役立ちます。Next.js は、**API Routes**を使用したフォームの送信とデータの変更を処理する強力な方法を提供します。
 
 > **Good to know:**
 >
-> - 間もなく、App Routerの[徐々に採用](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration)を推奨し、フォームの送信やデータの変更を処理するために[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)の使用を始めることをお勧めします。Server Actionsは、手動でAPI Routeを作成することなく、あなたのComponentから直接呼び出すことができる非同期server関数を定義することを可能にします。
-> - APIRoutesは[CORS headersを指定しない](https://developer.mozilla.org/docs/Web/HTTP/CORS)ことを意味し、それらはdefaultで同一オリジンのみになります。
-> - API Routesはserver上で動作するため、私たちは(APIキーのような)センシティブな値を、それらをclientに公開することなく、[Environment Variables](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/03-environment-variables)を介して使用することができます。これは、アプリケーションのセキュリティにとって重要なことです。
+> - 間もなく、App Router の[徐々に採用](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration)を推奨し、フォームの送信やデータの変更を処理するために[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)の使用を始めることをお勧めします。Server Actions は、手動で API Route を作成することなく、あなたの Component から直接呼び出すことができる非同期 server 関数を定義することを可能にします。
+> - APIRoutes は[CORS headers を指定しない](https://developer.mozilla.org/docs/Web/HTTP/CORS)ことを意味し、それらは default で同一オリジンのみになります。
+> - API Routes は server 上で動作するため、私たちは(API キーのような)センシティブな値を、それらを client に公開することなく、[Environment Variables](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/03-environment-variables)を介して使用することができます。これは、アプリケーションのセキュリティにとって重要なことです。
 
 ## Examples
 
-### server専用フォーム
+### server 専用フォーム
 
-Pages Routerを使用すると、server上のデータを安全に変更するためのAPIエンドポイントを手動で作成する必要があります。
+Pages Router を使用すると、server 上のデータを安全に変更するための API エンドポイントを手動で作成する必要があります。
 
 ```ts:pages/api/submit.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -43,7 +43,7 @@ export default function handler(req, res) {
 }
 ```
 
-次に、イベントhandlerを使ってclientからAPI Routeを呼び出します。
+次に、イベント handler を使って client から API Route を呼び出します。
 
 ```tsx:pages/index.tsx
 import { FormEvent } from 'react'
@@ -99,9 +99,9 @@ export default function Page() {
 
 ## Form validation
 
-We recommend using HTML validation like `required` and `type="email"` for basic client-side form validation.
+基本的なクライアントサイドのフォームバリデーションには、`required` や `type="email"` などの HTML バリデーションの使用を推奨します。
 
-より高度なserver-side検証のためには、データを変更する前にフォームフィールドを確認するために[zod](https://zod.dev/)のようなスキーマ検証libraryを使用できます。
+より高度な server-side 検証のためには、データを変更する前にフォームフィールドを確認するために[zod](https://zod.dev/)のようなスキーマ検証 library を使用できます。
 
 ```ts:pages/api/submit.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
 
 ### Error ハンドリング
 
-フォームの送信が失敗した場合に、Reactのステートを使用してerror messageを表示することができます:
+フォームの送信が失敗した場合に、React のステートを使用して error message を表示することができます:
 
 ```tsx:pages/index.tsx
 import React, { useState, FormEvent } from 'react'
@@ -237,7 +237,7 @@ export default function Page() {
 
 ## Displaying loading state
 
-フォームがserverで送信されているときに、loading状態を表示するために、Reactの状態を使用することができます:
+フォームが server で送信されているときに、loading 状態を表示するために、React の状態を使用することができます:
 
 ```tsx:pages/index.tsx
 import React, { useState, FormEvent } from 'react'
@@ -340,7 +340,7 @@ export default async function handler(req, res) {
 }
 ```
 
-### cookiesの設定
+### cookies の設定
 
 `setHeader` を使用して、 API Route 内に cookies を設定できます。これは response の method です。
 
@@ -363,9 +363,9 @@ export default async function handler(req, res) {
 }
 ```
 
-### cookiesを読む
+### cookies を読む
 
-あなたは、[`cookies`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes#request-helpers) requestヘルパーを使用して、APIRouteの中でcookiesを読むことができます。
+あなたは、[`cookies`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes#request-helpers) request ヘルパーを使用して、API Route の中で cookies を読むことができます。
 
 ```ts:pages/api/cookie.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -386,9 +386,9 @@ export default async function handler(req, res) {
 }
 ```
 
-### cookiesの削除
+### cookies の削除
 
-あなたは `setHeader` methodを response上で使用して、API Routesdelete cookiesCookiesを削除できます：
+あなたは `setHeader` method を response 上で使用して、API Routes cookies を削除できます：
 
 ```ts:pages/api/cookie.ts
 import type { NextApiRequest, NextApiResponse } from 'next'

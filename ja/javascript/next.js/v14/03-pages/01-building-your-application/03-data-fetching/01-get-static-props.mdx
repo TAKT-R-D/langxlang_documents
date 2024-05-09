@@ -7,7 +7,7 @@ org_path: /docs/pages/building-your-application/data-fetching/get-static-props
 is_empty: false
 ---
 
-もしあなたが`getStaticProps`という機能をexportするなら(Static Site Generationからのページ)、 Next.jsはこのページをbuildの時に`getStaticProps`から返されるpropsを使用して事前にレンダリングします。
+もしあなたが`getStaticProps`という機能を export するなら(Static Site Generation からのページ)、 Next.js はこのページを build の時に`getStaticProps`から返される props を使用して事前にレンダリングします。
 
 ```tsx:pages/index.tsx
 import type { InferGetStaticPropsType, GetStaticProps } from 'next'
@@ -44,34 +44,34 @@ export default function Page({ repo }) {
 }
 ```
 
-> typeに関係なく、任意の`props`はページcomponentに渡され、 初期のHTMLでclient側で表示することができます。これは、ページが [適切に水和化される](https://react.dev/reference/react-dom/hydrate)ためのものです。`props`でclient側で利用可能であるべきではない機密情報を渡さないように注意してください。
+> type に関係なく、任意の`props`はページ component に渡され、 初期の HTML で client 側で表示することができます。これは、ページが [適切に水和化される](https://react.dev/reference/react-dom/hydrate)ためのものです。`props`で client 側で利用可能であるべきではない機密情報を渡さないように注意してください。
 
 ## When should I use getStaticProps?
 
 `getStaticProps`を使用すべき場合：
 
-- ページをrenderするために必要なデータは、ユーザーのrequestより前のbuild時間で利用可能です。
-- データはヘッドレスCMSから提供されています
-- このページは事前にレンダリングする必要があります(SEO用)で、非常に早い反応速度が求められます - `getStaticProps`は`HTML`と`JSON`の両方のファイルを生成し、パフォーマンスのためにCDNでキャッシュすることができます。
-- データは公開キャッシュ(ユーザー固有ではない)できます。この条件は、特定の状況でMiddlewareを使用してpathをrewriteすることにより回避することができます。
+- ページを render するために必要なデータは、ユーザーの request より前の build 時間で利用可能です。
+- データはヘッドレス CMS から提供されています
+- このページは事前にレンダリングする必要があります(SEO 用)で、非常に早い反応速度が求められます - `getStaticProps`は`HTML`と`JSON`の両方のファイルを生成し、パフォーマンスのために CDN でキャッシュすることができます。
+- データは公開キャッシュ(ユーザー固有ではない)できます。この条件は、特定の状況で Middleware を使用して path を rewrite することにより回避することができます。
 
 ## When does getStaticProps run
 
-`getStaticProps`は常にserver上で実行され、never上では決して実行されません。あなたは[このツール](https://next-code-elimination.vercel.app/)で`getStaticProps`内に書かれたcodeがclientサイドのバンドルから削除されることを検証することができます。
+`getStaticProps`は常に server 上で実行され、never 上では決して実行されません。あなたは[このツール](https://next-code-elimination.vercel.app/)で`getStaticProps`内に書かれた code が client サイドのバンドルから削除されることを検証することができます。
 
 - `getStaticProps`は常に`next build`の間に実行されます
 - `getStaticProps`は、[`fallback: true`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true)を使用しているときにバックグラウンドで実行されます。
-- `getStaticProps`は、[`fallback: blocking`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-blocking)を使用して初期のrenderの前に呼び出されます。
+- `getStaticProps`は、[`fallback: blocking`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-blocking)を使用して初期の render の前に呼び出されます。
 - `getStaticProps`は`revalidate`を使用するときにバックグラウンドで実行されます
 - `getStaticProps`は、[`revalidate()`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)を使用するときにバックグラウンドでオンデマンドで実行されます。
 
-[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)と組み合わせると、`getStaticProps`はstaleページが再検証されている間にバックグラウンドで実行され、新鮮なページがブラウザに提供されます。
+[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)と組み合わせると、`getStaticProps`は stale ページが再検証されている間にバックグラウンドで実行され、新鮮なページがブラウザに提供されます。
 
 `getStaticProps`は静的な HTML を生成するため、入力される request (例えば query パラメータや HTTP headers )にアクセスできません。ページの request にアクセスが必要な場合は、`getStaticProps`に加えて、[Middleware](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/11-middleware)を検討してみてください。
 
 ## Using getStaticProps to fetch data from a CMS
 
-次の例は、CMSからブログ投稿のリストをfetchする方法を示しています。
+次の例は、CMS からブログ投稿のリストを fetch する方法を示しています。
 
 ```tsx:pages/blog.tsx
 // posts will be populated at build time by getStaticProps()
@@ -135,15 +135,15 @@ export async function getStaticProps() {
 }
 ```
 
-[`getStaticProps` API reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-props)は、`getStaticProps`で使用できるすべてのパラメータとpropsをカバーしています。
+[`getStaticProps` API reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-props)は、`getStaticProps`で使用できるすべてのパラメータと props をカバーしています。
 
 ## Write server-side code directly
 
-`getStaticProps`は server-side でのみ実行されるため、clientサイドで実行されることは never ありません。それはブラウザのJSバンドルにさえ含まれないので、データベースへの直接のクエリをブラウザに送信されることなく書くことができます。
+`getStaticProps`は server-side でのみ実行されるため、client サイドで実行されることは never ありません。それはブラウザの JS バンドルにさえ含まれないので、データベースへの直接のクエリをブラウザに送信されることなく書くことができます。
 
 これは、`getStaticProps`(それ自体が外部の source からデータをフェッチします)から**API route**をフェッチする代わりに、`getStaticProps`内に直接 server-side code を書くことができるということを意味します。
 
-次の例をご覧ください。 API routeは、CMSからデータをfetchするために使用されます。その API routeは、次に`getStaticProps`から直接呼び出されます。これにより余分な呼び出しが発生し、パフォーマンスが低下します。代わりに、CMSからデータを取得するためのロジックは`lib/`ディレクトリを使用して共有できます。そしてそれは`getStaticProps`と共有することができます。
+次の例をご覧ください。 API route は、CMS からデータを fetch するために使用されます。その API route は、次に`getStaticProps`から直接呼び出されます。これにより余分な呼び出しが発生し、パフォーマンスが低下します。代わりに、CMS からデータを取得するためのロジックは`lib/`ディレクトリを使用して共有できます。そしてそれは`getStaticProps`と共有することができます。
 
 ```js:lib/load-posts.js
 // The following function is shared
@@ -173,32 +173,32 @@ export async function getStaticProps() {
 }
 ```
 
-あるいは、もしあなたがAPIroutesを使ってデータをフェッチしないのであれば、[`fetch()`](https://developer.mozilla.org/docs/Web/API/fetch_API) APIは直接`getStaticProps`でデータをフェッチするために使うことが_できます_。
+あるいは、もしあなたが APIroutes を使ってデータをフェッチしないのであれば、[`fetch()`](https://developer.mozilla.org/docs/Web/API/fetch_API) API は直接`getStaticProps`でデータをフェッチするために使うことが**できます**。
 
-Clientサイドのバンドルから Next.js が何を除去するかを確認するために、[next-code-elimination tool](https://next-code-elimination.vercel.app/)を使用できます。
+Client サイドのバンドルから Next.js が何を除去するかを確認するために、[next-code-elimination tool](https://next-code-elimination.vercel.app/)を使用できます。
 
 ## Statically generates both HTML and JSON
 
-`getStaticProps`が含まれるページがbuild時に事前にレンダリングされると、ページのHTMLファイルに加えて、Next.jsは`getStaticProps`の実行結果を保持するJSONファイルを生成します。
+`getStaticProps`が含まれるページが build 時に事前にレンダリングされると、ページの HTML ファイルに加えて、Next.js は`getStaticProps`の実行結果を保持する JSON ファイルを生成します。
 
-このJSONファイルは、[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)または[`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を通じたClientサイドルーティングで使用されます。 `getStaticProps`を使用して事前にレンダリングされたページに移動すると、Next.jsはこのJSONファイル(build時に事前に計算された)をフェッチし、ページのcomponentのpropsとして使用します。これは、Clientサイドのページ遷移では`getStaticProps`は**呼び出されない**ことを意味し、exportされたJSONのみが使用されることを意味します。
+この JSON ファイルは、[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)または[`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を通じた Client サイドルーティングで使用されます。 `getStaticProps`を使用して事前にレンダリングされたページに移動すると、Next.js はこの JSON ファイル(build 時に事前に計算された)をフェッチし、ページの component の props として使用します。これは、Client サイドのページ遷移では`getStaticProps`は**呼び出されない**ことを意味し、export された JSON のみが使用されることを意味します。
 
-Incremental Static Generationを使用すると、`getStaticProps`がバックグラウンドで実行され、クライアントサイドナビゲーションに必要な JSON を生成します。これは、同じページに対して複数のリクエストが行われる形式で表示されるかもしれませんが、これは意図的なものであり、エンドユーザーのパフォーマンスには影響を与えません。
+Incremental Static Generation を使用すると、`getStaticProps`がバックグラウンドで実行され、クライアントサイドナビゲーションに必要な JSON を生成します。これは、同じページに対して複数のリクエストが行われる形式で表示されるかもしれませんが、これは意図的なものであり、エンドユーザーのパフォーマンスには影響を与えません。
 
 ## Where can I use getStaticProps
 
 `getStaticProps`は**ページ**からのみエクスポートできます。非ページファイル、`_app`、`_document`、または`_error`から export することは**できません**。
 
-この制限の理由の一つは、ページがレンダリングされる前にReactが必要な全てのデータを持っている必要があるからです。
+この制限の理由の一つは、ページがレンダリングされる前に React が必要な全てのデータを持っている必要があるからです。
 
-また、export `getStaticProps`を独立した関数として使用する必要があります - ページのcomponentのプロパティとして`getStaticProps`を追加すると**動作しません**。
+また、export `getStaticProps`を独立した関数として使用する必要があります - ページの component のプロパティとして`getStaticProps`を追加すると**動作しません**。
 
-> **Good to know**：[カスタム アプリ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を作成した場合は、リンクされたドキュメントに示されているように`pageProps`をページcomponentに渡すことを確認してください。そうしないと、プロップスは空になります。
+> **Good to know**：[カスタム アプリ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を作成した場合は、リンクされたドキュメントに示されているように`pageProps`をページ component に渡すことを確認してください。そうしないと、プロップスは空になります。
 
 ## Runs on every request in development
 
- development (`next dev`)では、`getStaticProps` はすべての request ごとに呼び出されます。
+development (`next dev`)では、`getStaticProps` はすべての request ごとに呼び出されます。
 
 ## Preview Mode
 
-Yあなたは一時的に静的生成を回避し、[**Preview Mode**](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)を使用して build の時間ではなく、**request 時間**に render してページを表示できます。たとえば、ヘッドレスCMSを使用していて、公開前に preview して下書きを確認したい場合などです。
+あなたは一時的に静的生成を回避し、[**Preview Mode**](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)を使用して build の時間ではなく、**request 時間**に render してページを表示できます。たとえば、ヘッドレス CMS を使用していて、公開前に preview して下書きを確認したい場合などです。

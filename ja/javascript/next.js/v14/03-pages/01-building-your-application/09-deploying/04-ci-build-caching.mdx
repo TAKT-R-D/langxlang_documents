@@ -7,17 +7,17 @@ org_path: /docs/pages/building-your-application/deploying/ci-build-caching
 is_empty: false
 ---
 
-buildのパフォーマンスを向上させるために、Next.jsはbuild間で共有されるcacheを`.next/cache`に保存します。
+build のパフォーマンスを向上させるために、Next.js は build 間で共有される cache を`.next/cache`に保存します。
 
-この cache を継続的インテグレーション(CI)環境で利用するためには、CIワークフローがbuild間で cache を正しく保持するように設定する必要があります。
+この cache を継続的インテグレーション(CI)環境で利用するためには、CI ワークフローが build 間で cache を正しく保持するように設定する必要があります。
 
-> あなたのCIがbuild間で `.next/cache` を継続して設定されていない場合、[No Cache Detected](/docs/messages/no-cache) errorが表示されるかもしれません。
+> あなたの CI が build 間で `.next/cache` を継続して設定されていない場合、[No Cache Detected](/docs/messages/no-cache) error が表示されるかもしれません。
 
-ここには、一般的なCIプロバイダー用のいくつかの例のcache設定があります：
+ここには、一般的な CI プロバイダー用のいくつかの例の cache 設定があります：
 
 ## Vercel
 
-Next.jsのキャッシングは自動的に設定されています。あなたが何かをする必要はありません。
+Next.js のキャッシングは自動的に設定されています。あなたが何かをする必要はありません。
 
 ## CircleCI
 
@@ -32,7 +32,7 @@ steps:
         - ./.next/cache
 ```
 
-`save_cache`キーがない場合は、CircleCIの[buildキャッシングの設定に関するドキュメンテーション](https://circleci.com/docs/2.0/caching/)に従ってください。
+`save_cache`キーがない場合は、CircleCI の[build キャッシングの設定に関するドキュメンテーション](https://circleci.com/docs/2.0/caching/)に従ってください。
 
 ## Travis CI
 
@@ -69,13 +69,13 @@ cache:
 ```yaml
 cache:
   paths:
-    - 'node_modules/**/*' # Cache `node_modules` for faster `yarn` or `npm i`
-    - '.next/cache/**/*' # Cache Next.js for faster application rebuilds
+    - "node_modules/**/*" # Cache `node_modules` for faster `yarn` or `npm i`
+    - ".next/cache/**/*" # Cache Next.js for faster application rebuilds
 ```
 
 ## GitHub Actions
 
-GitHubの[actions/cache](https://github.com/actions/cache)を使用して、ワークフローファイルに次のステップを追加します：
+GitHub の[actions/cache](https://github.com/actions/cache)を使用して、ワークフローファイルに次のステップを追加します：
 
 ```yaml
 uses: actions/cache@v4
@@ -113,7 +113,7 @@ definitions:
 
 ## Heroku
 
-Herokuの[カスタムcache](https://devcenter.heroku.com/articles/nodejs-support#custom-caching)を使用して、トップレベルのpackage.jsonに`cacheDirectories`配列を追加してください。
+Heroku の[カスタム cache](https://devcenter.heroku.com/articles/nodejs-support#custom-caching)を使用して、トップレベルの package.json に`cacheDirectories`配列を追加してください。
 
 ```javascript
 "cacheDirectories": [".next/cache"]
@@ -121,19 +121,19 @@ Herokuの[カスタムcache](https://devcenter.heroku.com/articles/nodejs-suppor
 
 ## Azure Pipelines
 
-Azure Pipelinesの[Cache task](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/cache)を使用し、`next build`を実行するタスクの前の何らかの場所に、パイプラインyamlファイルに次のタスクを追加してください：
+Azure Pipelines の[Cache task](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/cache)を使用し、`next build`を実行するタスクの前の何らかの場所に、パイプライン yaml ファイルに次のタスクを追加してください：
 
 ```yaml
 - task: Cache@2
-  displayName: 'Cache .next/cache'
+  displayName: "Cache .next/cache"
   inputs:
     key: next | $(Agent.OS) | yarn.lock
-    path: '$(System.DefaultWorkingDirectory)/.next/cache'
+    path: "$(System.DefaultWorkingDirectory)/.next/cache"
 ```
 
 ## Jenkins (Pipeline)
 
-`Jenkinsfile`の中で、通常`next build`や`npm install`を実行するところに、Jenkinsの[Job Cacher](https://www.jenkins.io/doc/pipeline/steps/jobcacher/) pluginを使って、次のbuildステップを追加します:
+`Jenkinsfile`の中で、通常`next build`や`npm install`を実行するところに、Jenkins の[Job Cacher](https://www.jenkins.io/doc/pipeline/steps/jobcacher/) plugin を使って、次の build ステップを追加します:
 
 ```yaml
 stage("Restore npm packages") {

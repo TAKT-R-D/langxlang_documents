@@ -45,18 +45,18 @@ export default function Document() {
 
 > **Good to know**
 >
-> - `_document`はserver上だけでレンダリングされるため、`onClick`のようなイベントハンドラはこのファイルで使うことができません。
+> - `_document`は server 上だけでレンダリングされるため、`onClick`のようなイベントハンドラはこのファイルで使うことができません。
 > - `<Html>`、`<Head />`、`<Main />`および`<NextScript />`は、ページが適切にレンダリングされるために必要です。
 
 ## Caveats
 
 - `_document`で使用される`<Head />` component は、[`next/head`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/head)とは異なります。ここで使用される`<Head />` component は、すべてのページに共通の`<head>` code に対してのみ使用すべきです。`<title>`タグなど、他のすべてのケースでは、ページまたはコンポーネントで[`next/head`](/docs/pages/api-reference/components/head)を使用することをお勧めします。
-- `<Main />`の外側のReactComponentは、ブラウザーによって初期化されません。ここにアプリケーションロジックを追加したり、カスタムのCSS(`styled-jsx`のような)を追加しないでください。すべてのページで共有Component(メニューやツールバーなど)が必要な場合は、代わりに[Layout](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#layout-pattern)を参照してください。
-- `Document`は現在、Next.jsの[Data Fetching methods](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、 [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)をサポートしていません。
+- `<Main />`の外側の ReactComponent は、ブラウザーによって初期化されません。ここにアプリケーションロジックを追加したり、カスタムの CSS(`styled-jsx`のような)を追加しないでください。すべてのページで共有 Component(メニューやツールバーなど)が必要な場合は、代わりに[Layout](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts#layout-pattern)を参照してください。
+- `Document`は現在、Next.js の[Data Fetching methods](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、 [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)をサポートしていません。
 
 ## Customizing `renderPage`
 
-`renderPage`のカスタマイズは高度なもので、CSS-in-JSのようなライブラリがserver-side renderingをサポートするためにのみ必要です。これは組み込みの`styled-jsx`サポートには必要ありません。
+`renderPage`のカスタマイズは高度なもので、CSS-in-JS のようなライブラリが server-side rendering をサポートするためにのみ必要です。これは組み込みの`styled-jsx`サポートには必要ありません。
 
 **We do not recommend using this pattern.** Instead, consider [incrementally adopting](/docs/app/building-your-application/upgrading/app-router-migration) the App Router, which allows you to more easily fetch data for [pages and layouts](/docs/app/building-your-application/routing/pages-and-layouts).
 
@@ -147,5 +147,5 @@ export default MyDocument
 
 > **Good to know**
 >
-> - `getInitialProps`は`_document`内で、Clientサイドの遷移中には呼び出されません。
-> - T`_document`のための `ctx` objectは [`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props#context-object)で受け取ったものと同等で、`renderPage`が追加されています。
+> - `getInitialProps`は`_document`内で、Client サイドの遷移中には呼び出されません。
+> - `_document`のための `ctx` object は [`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props#context-object)で受け取ったものと同等で、`renderPage`が追加されています。

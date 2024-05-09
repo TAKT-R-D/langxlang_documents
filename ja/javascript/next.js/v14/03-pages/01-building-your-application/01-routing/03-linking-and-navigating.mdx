@@ -7,12 +7,12 @@ org_path: /docs/pages/building-your-application/routing/linking-and-navigating
 is_empty: false
 ---
 
-Next.js routerは、シングルページアプリケーションと同様に、ページ間でClientサイドのroute遷移を可能にします。
+Next.js router は、シングルページアプリケーションと同様に、ページ間で Client サイドの route 遷移を可能にします。
 
 クライアントサイドの route 遷移を行うために、`Link`と呼ばれる React component が提供されています。
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Home() {
   return (
@@ -27,26 +27,26 @@ function Home() {
         <Link href="/blog/hello-world">Blog Post</Link>
       </li>
     </ul>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
-上記の例では複数のリンクを使用しています。それぞれがpath (`href`) を既知のページにマッピングします：
+上記の例では複数のリンクを使用しています。それぞれが path (`href`) を既知のページにマッピングします：
 
 - `/` → `pages/index.js`
 - `/about` → `pages/about.js`
 - `/blog/hello-world` → `pages/blog/[slug].js`
 
-`<Link />`はviewport(初期またはscrollを通じて)内にある場合、 [Static Generation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用するページについて、対応するデータを含めてdefaultでプリフェッチされます。[server-rendered](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props) routesの対応データは、`<Link />`がクリックされたときのみ取得されます。
+`<Link />`は viewport(初期または scroll を通じて)内にある場合、 [Static Generation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用するページについて、対応するデータを含めて default でプリフェッチされます。[server-rendered](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props) routes の対応データは、`<Link />`がクリックされたときのみ取得されます。
 
 ## Linking to dynamic paths
 
-あなたはまた、補間を使用して path を作成することもできます。これは [dynamic route segments](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes) に便利です。たとえば、componentとしてpropで渡された投稿リストを表示するためには：
+あなたはまた、補間を使用して path を作成することもできます。これは [dynamic route segments](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes) に便利です。たとえば、component として prop で渡された投稿リストを表示するためには：
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Posts({ posts }) {
   return (
@@ -59,18 +59,18 @@ function Posts({ posts }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-export default Posts
+export default Posts;
 ```
 
-> 例の中で[`encodeURIComponent`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent)は、pathをutf-8と互換性を保つために使用されています。
+> 例の中で[`encodeURIComponent`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent)は、path を utf-8 と互換性を保つために使用されています。
 
-あるいは、URL Objectを使用する場合：
+あるいは、URL Object を使用する場合：
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Posts({ posts }) {
   return (
@@ -79,7 +79,7 @@ function Posts({ posts }) {
         <li key={post.id}>
           <Link
             href={{
-              pathname: '/blog/[slug]',
+              pathname: "/blog/[slug]",
               query: { slug: post.slug },
             }}
           >
@@ -88,23 +88,23 @@ function Posts({ posts }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-export default Posts
+export default Posts;
 ```
 
-今では、pathを作成するために補間を使用する代わりに、`href`でURL objectを使用します。ここで:
+今では、path を作成するために補間を使用する代わりに、`href`で URL object を使用します。ここで:
 
 - `pathname`は`pages`ディレクトリ内のページ名です。この場合、`/blog/[slug]`です。
-- `query`はdynamicセグメントを持つobjectです。この場合、`slug`。
+- `query`は dynamic セグメントを持つ object です。この場合、`slug`。
 
 ## Injecting the router
 
 <details>
   <summary>Examples</summary>
 
-- [Dynamicルーティング](https://github.com/vercel/next.js/tree/canary/examples/dynamic-routing)
+- [Dynamic ルーティング](https://github.com/vercel/next.js/tree/canary/examples/dynamic-routing)
 
 </details>
 
@@ -114,21 +114,21 @@ React component で[`router` object](/ja/javascript/next.js/v14/03-pages/02-api-
 
 ## Imperative Routing
 
-[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)はあなたのルーティングの要求事項の大部分を満たすべきですが、これなしでもClientサイドのナビゲーションを実行することができます。[`next/router`のドキュメンテーション](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を参照してみてください。
+[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)はあなたのルーティングの要求事項の大部分を満たすべきですが、これなしでも Client サイドのナビゲーションを実行することができます。[`next/router`のドキュメンテーション](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を参照してみてください。
 
 次の例は、基本的なページナビゲーションを[`useRouter`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を用いて行う方法を示しています:
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function ReadMore() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <button onClick={() => router.push('/about')}>
+    <button onClick={() => router.push("/about")}>
       Click here to read more
     </button>
-  )
+  );
 }
 ```
 
@@ -141,36 +141,36 @@ export default function ReadMore() {
 
 </details>
 
-Shallowルーティングを使用すると、データフェッチMethodを再度実行せずにURLを変更できます。これには、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、および[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)が含まれます。
+Shallow ルーティングを使用すると、データフェッチ Method を再度実行せずに URL を変更できます。これには、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、および[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)が含まれます。
 
 `pathname`と`query`のアップデートは、[`router` object](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#router-object)を経由して([`useRouter`](/docs/pages/api-reference/functions/use-router)または[`withRouter`](/docs/pages/api-reference/functions/use-router#withrouter)によって追加され)、状態を失うことなく受け取ることができます。
 
 shallow ルーティングを有効にするには、`shallow` オプションを `true` に設定します。次の例を考えてみてください：
 
 ```jsx
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 // Current URL is '/'
 function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     // Always do navigations after the first render
-    router.push('/?counter=10', undefined, { shallow: true })
-  }, [])
+    router.push("/?counter=10", undefined, { shallow: true });
+  }, []);
 
   useEffect(() => {
     // The counter changed!
-  }, [router.query.counter])
+  }, [router.query.counter]);
 }
 
-export default Page
+export default Page;
 ```
 
-URLは`/?counter=10`に更新され、ページは置き換えられず、routeの状態だけが変更されます。
+URL は`/?counter=10`に更新され、ページは置き換えられず、route の状態だけが変更されます。
 
-以下に示すように、[`componentDidUpdate`](https://react.dev/reference/react/Component#componentdidupdate)を通じてURLの変更も監視することができます。
+以下に示すように、[`componentDidUpdate`](https://react.dev/reference/react/Component#componentdidupdate)を通じて URL の変更も監視することができます。
 
 ```jsx
 componentDidUpdate(prevProps) {
@@ -184,12 +184,12 @@ componentDidUpdate(prevProps) {
 
 ### Caveats
 
-Shallowルーティングは、現在のページでのURL変更に**だけ**対応しています。 例えば、もう一つのページ`pages/about.js`があり、それを実行するという状況を想定してみてください。
+Shallow ルーティングは、現在のページでの URL 変更に**だけ**対応しています。 例えば、もう一つのページ`pages/about.js`があり、それを実行するという状況を想定してみてください。
 
 ```js
-router.push('/?counter=10', '/about?counter=10', { shallow: true })
+router.push("/?counter=10", "/about?counter=10", { shallow: true });
 ```
 
-それが新しいページなので、現在のページをアンロードし、新しいページをロードし、データのフェッチングを待つことになります。それは我々がshallowルーティングを行うように頼んだにも関わらずです。
+それが新しいページなので、現在のページをアンロードし、新しいページをロードし、データのフェッチングを待つことになります。それは我々が shallow ルーティングを行うように頼んだにも関わらずです。
 
-shallowルーティングがmiddlewareと共に使用される場合、以前middlewareなしで行われていたように、新しいページが現在のページと一致することを保証しません。これはmiddlewareが動的にrewriteでき、データfetchなしではclient側で検証できないためです。fetchはshallowでスキップされるため、shallow routeの変更は常にshallowとして扱われなければなりません。
+shallow ルーティングが middleware と共に使用される場合、以前 middleware なしで行われていたように、新しいページが現在のページと一致することを保証しません。これは middleware が動的に rewrite でき、データ fetch なしでは client 側で検証できないためです。fetch は shallow でスキップされるため、shallow route の変更は常に shallow として扱われなければなりません。

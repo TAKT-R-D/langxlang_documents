@@ -15,14 +15,14 @@ is_empty: false
 
 </details>
 
-defaultで、Next.jsは`next start`と共に独自のserverを含んでいます。既存のバックエンドがある場合でも、Next.js(これはカスタムserverではありません)と共にそれを使用することができます。カスタムNext.jsserverを使うと、カスタムserverパターンを使用するためにserverを100％プログラムで開始することができます。ほとんどの場合、これは必要ないでしょう - ただし、完全なカスタマイズのために利用可能です。
+default で、Next.js は`next start`と共に独自の server を含んでいます。既存のバックエンドがある場合でも、Next.js(これはカスタム server ではありません)と共にそれを使用することができます。カスタム Next.jsserver を使うと、カスタム server パターンを使用するために server を 100％プログラムで開始することができます。ほとんどの場合、これは必要ないでしょう - ただし、完全なカスタマイズのために利用可能です。
 
 > **Good to know**:
 >
 > - カスタム server を使用する前に、統合 router の Next.js があなたの app 要件を満たせない場合にのみ使用すべきであることを覚えておいてください。カスタム server は、**serverless functions** や **[Automatic Static Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)** のような重要なパフォーマンス最適化を削除します。
-> - カスタムのserverは[Vercel](https://vercel.com/solutions/nextjs)上に**デプロイできません**。
+> - カスタムの server は[Vercel](https://vercel.com/solutions/nextjs)上に**デプロイできません**。
 
-次のカスタムのserverの例を見てみてください：
+次のカスタムの server の例を見てみてください：
 
 ```js:server.js
 const { createServer } = require('http')
@@ -67,9 +67,9 @@ app.prepare().then(() => {
 })
 ```
 
-> `server.js`はbabelやwebpackを経由しません。このファイルが必要とするsyntaxやソースが、実行中のnodeversionと互換性があることを確認してください。
+> `server.js`は babel や webpack を経由しません。このファイルが必要とする syntax やソースが、実行中の nodeversion と互換性があることを確認してください。
 
-カスタムのserverを実行するには、`package.json`の`scripts`を以下のように更新する必要があります。
+カスタムの server を実行するには、`package.json`の`scripts`を以下のように更新する必要があります。
 
 ```json:package.json
 {
@@ -86,28 +86,28 @@ app.prepare().then(() => {
 カスタムの server は、以下の import を使用して server を Next.js アプリケーションに接続します:
 
 ```js
-const next = require('next')
-const app = next({})
+const next = require("next");
+const app = next({});
 ```
 
 上記の `next` import は、以下の options を持つ object を受け取る機能です：
 
-| オプション | Type | Description |
-| -------------- | ------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `Object` | object | [next.`conf`ig.js](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js)で使用するのと同じobject。defaultは`{}`です |
-| `customServer` | `Boolean` | (_オプショナル_) server が Next.js によって作成されたときは false に設定します |
-| `dev` | `Boolean` | (_オプション_) Next.js を dev モードで起動するかどうか。defaultは`false` |
-| `dir` | `String` | (_オプション_) Next.js プロジェクトの場所。defaultは `'.'` |
-| `quiet` | `Boolean` | (_任意_) error メッセージに含まれる server 情報を非表示にします。defaultは`false`です。|
-| `hostname` | `String` | (_オプション_)' server 'が動作している' hostname ' |
-| `port` | `Number` | (_任意_) server が動作している port |
-| `httpServer` | `node:http#Server` | (_オプション_) Next.js が動作している HTTP Server |
+| オプション     | Type               | Description                                                                                                                             |
+| -------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `Object`       | object             | [next.`conf`ig.js](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js)で使用するのと同じ object。default は`{}`です |
+| `customServer` | `Boolean`          | (_オプショナル_) server が Next.js によって作成されたときは false に設定します                                                          |
+| `dev`          | `Boolean`          | (_オプション_) Next.js を dev モードで起動するかどうか。default は`false`                                                               |
+| `dir`          | `String`           | (_オプション_) Next.js プロジェクトの場所。default は `'.'`                                                                             |
+| `quiet`        | `Boolean`          | (_任意_) error メッセージに含まれる server 情報を非表示にします。default は`false`です。                                                |
+| `hostname`     | `String`           | (_オプション_)' server 'が動作している' hostname '                                                                                      |
+| `port`         | `Number`           | (_任意_) server が動作している port                                                                                                     |
+| `httpServer`   | `node:http#Server` | (_オプション_) Next.js が動作している HTTP Server                                                                                       |
 
 返された `app` は、必要に応じて Next.js にリクエストを処理させるために使用できます。
 
 ## Disabling file-system routing
 
- default で、`Next`は`pages`フォルダ内の各ファイルをファイル名に一致する pathname の下で提供します。プロジェクトがカスタム server を使用している場合、この動作は同じコンテンツが複数の paths から提供される可能性があり、 SEO やUXに問題をもたらす可能性があります。
+default で、`Next`は`pages`フォルダ内の各ファイルをファイル名に一致する pathname の下で提供します。プロジェクトがカスタム server を使用している場合、この動作は同じコンテンツが複数の paths から提供される可能性があり、 SEO や UX に問題をもたらす可能性があります。
 
 この動作を無効にし、`pages`内のファイルに基づいたルーティングを防ぐには、`next.config.js`を開き、`useFileSystemPublicRoutes` config を無効にします：
 
@@ -117,6 +117,6 @@ module.exports = {
 }
 ```
 
-> `useFileSystemPublicRoutes`がSSRからのファイル名 routes を無効化することに注意してください。クライアントサイドのルーティングはまだそれらの paths にアクセスすることができます。このオプションを使用する場合、プログラムにより routes に移動しないように警戒する必要があります。
+> `useFileSystemPublicRoutes`が SSR からのファイル名 routes を無効化することに注意してください。クライアントサイドのルーティングはまだそれらの paths にアクセスすることができます。このオプションを使用する場合、プログラムにより routes に移動しないように警戒する必要があります。
 
 > また、クライアント側の router を設定して、クライアント側の redirects をファイル名のルートに対して禁止することもできます。その方法については、[`router.beforePopState`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#routerbeforepopstate)を参照してください。

@@ -14,24 +14,24 @@ is_empty: false
 
 </details>
 
-ゾーンは、Next.js appの単一のデプロイメントです。複数のゾーンを持ち、それらを単一のappとして統合することができます。
+ゾーンは、Next.js app の単一のデプロイメントです。複数のゾーンを持ち、それらを単一の app として統合することができます。
 
 例えば、次のようなアプリがあるとします：
 
-- `/blog/**`を提供するためのapp
-- 他のすべてのページを提供するための別のapp
+- `/blog/**`を提供するための app
+- 他のすべてのページを提供するための別の app
 
-マルチゾーンに対応しているため、これらのアプリを一つに統合し、お客様が一つのURLを使用してそれを閲覧できるようにすることが可能です。しかし、これらのアプリはそれぞれ独立して開発し、deployすることができます。
+マルチゾーンに対応しているため、これらのアプリを一つに統合し、お客様が一つの URL を使用してそれを閲覧できるようにすることが可能です。しかし、これらのアプリはそれぞれ独立して開発し、deploy することができます。
 
 ## How to define a zone
 
-ゾーン関連のAPIはありません。以下のことだけを行う必要があります：
+ゾーン関連の API はありません。以下のことだけを行う必要があります：
 
 - 自分の app に必要なページのみを保持するようにしてください。つまり、 app は他の app からページを持つことができず、 app `A`が`/blog`を持っている場合、 app `B`はそれを持つべきではありません。
 - ページや静的ファイルとの競合を避けるために、必ず[basePath](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/basePath)を設定してください。
 
 ## How to merge zones
 
-[`rewrites`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/rewrites)を使って、アプリの1つや任意のHTTPプロキシでゾーンをマージすることができます。
+[`rewrites`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/rewrites)を使って、アプリの 1 つや任意の HTTP プロキシでゾーンをマージすることができます。
 
-F[Next.js on Vercel](https://vercel.com?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)アプリケーションでは、[monorepo](https://vercel.com/blog/monorepos-are-changing-how-teams-build-software?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)を使って両方のアプリケーションを単一の `git push` でdeployすることができます。
+[Next.js on Vercel](https://vercel.com?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)アプリケーションでは、[monorepo](https://vercel.com/blog/monorepos-are-changing-how-teams-build-software?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)を使って両方のアプリケーションを単一の `git push` で deploy することができます。

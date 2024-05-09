@@ -26,38 +26,38 @@ is_empty: false
 - [Storyblok Example](https://github.com/vercel/next.js/tree/canary/examples/cms-storyblok) ([Demo](https://next-blog-storyblok.vercel.app/))
 - [GraphCMS Example](https://github.com/vercel/next.js/tree/canary/examples/cms-graphcms) ([Demo](https://next-blog-graphcms.vercel.app/))
 - [Kontent Example](https://github.com/vercel/next.js/tree/canary/examples/cms-kontent-ai) ([Demo](https://next-blog-kontent.vercel.app//))
-- [[Umbraco Heartcore Example](https://github.com/vercel/next.js/tree/canary/examples/cms-umbraco-heartcore)]([デモ](https://next-blog-umbraco-heartcore.vercel.app/))
+- [Umbraco Heartcore Example](https://github.com/vercel/next.js/tree/canary/examples/cms-umbraco-heartcore) ([Demo](https://next-blog-umbraco-heartcore.vercel.app/))
 - [Plasmic Example](https://github.com/vercel/next.js/tree/canary/examples/cms-plasmic) ([Demo](https://nextjs-plasmic-example.vercel.app/))
 - [Enterspeed Example](https://github.com/vercel/next.js/tree/canary/examples/cms-enterspeed) ([Demo](https://next-blog-demo.enterspeed.com/))
 - [Makeswift Example](https://github.com/vercel/next.js/tree/canary/examples/cms-makeswift) ([Demo](https://nextjs-makeswift-example.vercel.app/))
 
 </details>
 
-In the [Pages documentation](/docs/pages/building-your-application/routing/pages-and-layouts) and the [Data Fetching documentation](/docs/pages/building-your-application/data-fetching), we talked about how to pre-render a page at build time (**Static Generation**) using `getStaticProps` and `getStaticPaths`.
+[Pages ドキュメント](/docs/pages/building-your-application/routing/pages-and-layouts)と[Data Fetching ドキュメント](/docs/pages/building-your-application/data-fetching)で、`getStaticProps` と `getStaticPaths` を使用してビルド時にページをプレレンダリングする方法（**Static Generation**）について説明しました。
 
-Static GenerationはページがヘッドレスCMSからfetchデータを取得するときに便利です。しかし、ヘッドレスCMSで下書きを書いて、その下書きをページですぐに**preview**したい場合には理想的ではありません。この場合、あなたはNext.jsにこれらのページをbuild時間ではなく、**request時**にrenderし、公開されたコンテンツではなく下書きのコンテンツをfetchするようにしたいでしょう。あなたはこの特定のケースだけでNext.jsにStatic Generationをバイpathしてもらいたいのです。
+Static Generation はページがヘッドレス CMS から fetch データを取得するときに便利です。しかし、ヘッドレス CMS で下書きを書いて、その下書きをページですぐに**preview**したい場合には理想的ではありません。この場合、あなたは Next.js にこれらのページを build 時間ではなく、**request 時**に render し、公開されたコンテンツではなく下書きのコンテンツを fetch するようにしたいでしょう。あなたはこの特定のケースだけで Next.js に Static Generation をバイ path してもらいたいのです。
 
-Next.jsは、この問題を解決する**Previewモード**という機能を持っています。それの使い方についての指示は以下の通りです。
+Next.js は、この問題を解決する**Preview モード**という機能を持っています。それの使い方についての指示は以下の通りです。
 
 ## Step 1: Create and access a preview API route
 
-> Take a look at the [API Routes documentation](/docs/pages/building-your-application/routing/api-routes) first if you’re not familiar with Next.js API Routes.
+> Next.js の API Routes に慣れていない場合は、まず [API Routes ドキュメント](/docs/pages/building-your-application/routing/api-routes)をご覧ください。
 
-まず、**preview API route**を作成します。任意の名前を付けることができます - 例えば `pages/api/preview.js` (あるいは TypeScriptを使用している場合は `.ts`)。
+まず、**preview API route**を作成します。任意の名前を付けることができます - 例えば `pages/api/preview.js` (あるいは TypeScript を使用している場合は `.ts`)。
 
-このAPI routeでは、response objectで`setPreviewData`を呼び出す必要があります。`setPreviewData`の引数はobjectであり、これは`getStaticProps`で使用できます(これについては後ほど詳しく説明します)。今のところ、我々は`{}`を使用します。
+この API route では、response object で`setPreviewData`を呼び出す必要があります。`setPreviewData`の引数は object であり、これは`getStaticProps`で使用できます(これについては後ほど詳しく説明します)。今のところ、我々は`{}`を使用します。
 
 ```js
 export default function handler(req, res) {
   // ...
-  res.setPreviewData({})
+  res.setPreviewData({});
   // ...
 }
 ```
 
-`res.setPreviewData`はブラウザにいくつかの**cookies**を設定し、previewモードをオンにします。これらのcookiesを含むNext.jsへのすべてのRequestは、**previewモード**とみなされ、静的に生成されたページの動作が変更されます(詳しくは後述します)。
+`res.setPreviewData`はブラウザにいくつかの**cookies**を設定し、preview モードをオンにします。これらの cookies を含む Next.js へのすべての Request は、**preview モード**とみなされ、静的に生成されたページの動作が変更されます(詳しくは後述します)。
 
-You can test this manually by creating an API route like below and accessing it from your browser manually:
+以下のような API ルートを作成し、ブラウザから手動でアクセスすることで、これを手動でテストすることができます：
 
 ```js:pages/api/preview.js
 // simple example for testing it manually from your browser.
@@ -71,65 +71,65 @@ export default function handler(req, res) {
 
 ### Securely accessing it from your Headless CMS
 
-In practice, you’d want to call this API route _securely_ from your headless CMS. The specific steps will vary depending on which headless CMS you’re using, but here are some common steps you could take.
+実際には、ヘッドレス CMS からこの API ルートを _安全に_ 呼び出すことを望むでしょう。使用しているヘッドレス CMS によって具体的なステップは異なりますが、ここにいくつかの一般的なステップを示します。
 
-これらの手順は、使用しているヘッドレスCMSが**カスタムpreviewURLの**設定をサポートしていることを前提としています。もしサポートしていない場合でも、このmethodを使用してpreviewURLを保護することは可能ですが、手動でpreview URLを構築しアクセスする必要があります。
+これらの手順は、使用しているヘッドレス CMS が**カスタム previewURL の**設定をサポートしていることを前提としています。もしサポートしていない場合でも、この method を使用して previewURL を保護することは可能ですが、手動で preview URL を構築しアクセスする必要があります。
 
-**まず**、お好みのトークンジェネレーターを使用して、**secret トークン string**を作成する必要があります。この secret は、あなたの Next.js app とヘッドレスCMSだけが知っています。この secret は、CMSへのアクセス権がない人々が preview URLにアクセスするのを防ぎます。
+**まず**、お好みのトークンジェネレーターを使用して、**secret トークン string**を作成する必要があります。この secret は、あなたの Next.js app とヘッドレス CMS だけが知っています。この secret は、CMS へのアクセス権がない人々が preview URL にアクセスするのを防ぎます。
 
-**Second**、ヘッドレスCMSがカスタム preview URLの設定をサポートしている場合は、次のURLを preview URL として指定します。これは、 preview API route が`pages/api/preview.js`に位置していることを前提としています。
+**次に**、ヘッドレス CMS がカスタム preview URL の設定をサポートしている場合は、次の URL を preview URL として指定します。これは、 preview API route が`pages/api/preview.js`に位置していることを前提としています。
 
 ```bash:Terminal
 https://<your-site>/api/preview?secret=<token>&slug=<path>
 ```
 
-- `<your-site>` should be your deployment domain.
-- `<token>` should be replaced with the secret token you generated.
-- `<path>`は、previewしたいページのpathであるべきです。 `/posts/foo`をpreviewしたい場合は、`&slug=/posts/foo`を使用するべきです。
+- `<your-site>`はデプロイメントドメインであるべきです。
+- `<token>`は生成したシークレットトークンに置き換えるべきです。
+- `<path>`は、preview したいページの path であるべきです。 `/posts/foo`を preview したい場合は、`&slug=/posts/foo`を使用するべきです。
 
-あなたのヘッドレスCMSでは、`<path>`がCMSのデータに基づいて動的に設定できるように、variableをpreview URLに含めることが可能かもしれません。例えば、`&slug=/posts/{entry.fields.slug}`のようにします。
+あなたのヘッドレス CMS では、`<path>`が CMS のデータに基づいて動的に設定できるように、variable を preview URL に含めることが可能かもしれません。例えば、`&slug=/posts/{entry.fields.slug}`のようにします。
 
 **最後に**、 preview API route で：
 
-- Check that the secret matches and that the `slug` parameter exists (if not, the request should fail). -
+- secret が一致していること、そして`slug`パラメータが存在することを確認します（存在しない場合、リクエストは失敗するべきです）。
 - `res.setPreviewData`を呼び出してください。
-- Then redirect the browser to the path specified by `slug`. (The following example uses a [307 redirect](https://developer.mozilla.org/docs/Web/HTTP/Status/307)).
+- 次に、`slug`で指定されたパスにブラウザをリダイレクトします（以下の例では[307 リダイレクト](https://developer.mozilla.org/docs/Web/HTTP/Status/307)を使用しています）。
 
 ```js
 export default async (req, res) => {
   // Check the secret and next parameters
   // This secret should only be known to this API route and the CMS
-  if (req.query.secret !== 'MY_SECRET_TOKEN' || !req.query.slug) {
-    return res.status(401).json({ message: 'Invalid token' })
+  if (req.query.secret !== "MY_SECRET_TOKEN" || !req.query.slug) {
+    return res.status(401).json({ message: "Invalid token" });
   }
 
   // Fetch the headless CMS to check if the provided `slug` exists
   // getPostBySlug would implement the required fetching logic to the headless CMS
-  const post = await getPostBySlug(req.query.slug)
+  const post = await getPostBySlug(req.query.slug);
 
   // If the slug doesn't exist prevent preview mode from being enabled
   if (!post) {
-    return res.status(401).json({ message: 'Invalid slug' })
+    return res.status(401).json({ message: "Invalid slug" });
   }
 
   // Enable Preview Mode by setting the cookies
-  res.setPreviewData({})
+  res.setPreviewData({});
 
   // Redirect to the path from the fetched post
   // We don't redirect to req.query.slug as that might lead to open redirect vulnerabilities
-  res.redirect(post.slug)
-}
+  res.redirect(post.slug);
+};
 ```
 
-成功すれば、ブラウザはあなたがpreviewモードでcookiesが設定された状態でpreviewしたいpathにRedirectされます。
+成功すれば、ブラウザはあなたが preview モードで cookies が設定された状態で preview したい path に Redirect されます。
 
 ## Step 2: Update `getStaticProps`
 
 次の next ステップは、 preview モードをサポートするために`getStaticProps`を更新することです。
 
-もし、`getStaticProps`を持つページを request し、その際に preview モードの cookies が `res.setPreviewData` によってセットされた場合、`getStaticProps`は ** request time**( build 時間ではなく)で呼び出されます。
+もし、`getStaticProps`を持つページを request し、その際に preview モードの cookies が `res.setPreviewData` によってセットされた場合、`getStaticProps`は **request 時**( build 時ではなく)で呼び出されます。
 
-さらに、それは`context` objectで呼び出されます。その場合、次のようになります：
+さらに、それは`context` object で呼び出されます。その場合、次のようになります：
 
 - `context.preview`は`true`になります。
 - `context.previewData`は`setPreviewData`に使用される引数と同じになります。
@@ -144,29 +144,29 @@ export async function getStaticProps(context) {
 }
 ```
 
-私たちは preview API routeで`res.setPreviewData({})`を使用したので、`context.previewData`は`{}`になります。必要であれば、この機能を使ってpreview API routeから`getStaticProps`にセッション情報を送ることができます。
+私たちは preview API route で`res.setPreviewData({})`を使用したので、`context.previewData`は`{}`になります。必要であれば、この機能を使って preview API route から`getStaticProps`にセッション情報を送ることができます。
 
-If you’re also using `getStaticPaths`, then `context.params` will also be available.
+`getStaticPaths`も使用している場合は、`context.params`も利用可能になります。
 
 ### Fetch preview データ
 
-あなたは`getStaticProps`を更新して、`context.preview`および/または`context.previewData`に基づいて異なるデータをfetchできます。
+あなたは`getStaticProps`を更新して、`context.preview`および/または`context.previewData`に基づいて異なるデータを fetch できます。
 
-例えば、あなたのヘッドレスCMSは、下書きの投稿用の異なるAPIエンドポイントを持つかもしれません。その場合、`context.preview`を使用して、以下のようにAPIエンドポイントのURLを変更することができます：
+例えば、あなたのヘッドレス CMS は、下書きの投稿用の異なる API エンドポイントを持つかもしれません。その場合、`context.preview`を使用して、以下のように API エンドポイントの URL を変更することができます：
 
 ```js
 export async function getStaticProps(context) {
   // If context.preview is true, append "/preview" to the API endpoint
   // to request draft data instead of published data. This will vary
   // based on which headless CMS you're using.
-  const res = await fetch(`https://.../${context.preview ? 'preview' : ''}`)
+  const res = await fetch(`https://.../${context.preview ? "preview" : ""}`);
   // ...
 }
 ```
 
-それで終わりです！あなたがヘッドレスCMSから、または手動で preview API route(`secret`および`slug`を使用して)にアクセスすると、今ではpreview コンテンツを見ることができるはずです。また、公開せずにドラフトを更新すると、ドラフトを preview することができるはずです。
+それで終わりです！あなたがヘッドレス CMS から、または手動で preview API route(`secret`および`slug`を使用して)にアクセスすると、今では preview コンテンツを見ることができるはずです。また、公開せずにドラフトを更新すると、ドラフトを preview することができるはずです。
 
-このURLをヘッドレスCMSのpreview URLに設定するか、手動でアクセスすれば、previewを見ることができるはずです。
+この URL をヘッドレス CMS の preview URL に設定するか、手動でアクセスすれば、preview を見ることができるはずです。
 
 ```bash:Terminal
 https://<your-site>/api/preview?secret=<token>&slug=<path>
@@ -176,25 +176,25 @@ https://<your-site>/api/preview?secret=<token>&slug=<path>
 
 > **Good to know**: レンダリング中に、`next/router`は `isPreview` フラグを公開します。詳細については、[router object ドキュメント](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#router-object)をご覧ください。
 
-### Previewモードの持続時間を指定してください
+### Preview モードの持続時間を指定してください
 
-`setPreviewData`はオプショナルなsecondパラメータを取ります。これはoptions objectであるべきです。以下のキーを受け付けます：
+`setPreviewData`はオプショナルな second パラメータを取ります。これは options object であるべきです。以下のキーを受け付けます：
 
 - `maxAge`: preview セッションが続く number (秒単位)を指定します。
-- `path`: cookie が適用されるべき paths を指定します。defaultでは、`/`が設定され、全ての path に対して preview モードが有効になります。
+- `path`: cookie が適用されるべき paths を指定します。default では、`/`が設定され、全ての path に対して preview モードが有効になります。
 
 ```js
 setPreviewData(data, {
   maxAge: 60 * 60, // The preview mode cookies expire in 1 hour
-  path: '/about', // The preview mode cookies apply to paths with /about
-})
+  path: "/about", // The preview mode cookies apply to paths with /about
+});
 ```
 
-### Previewモードのcookiesをクリアする
+### Preview モードの cookies をクリアする
 
- default では、 Preview モードの cookies に有効期限の date が設定されていません。したがって、 preview セッションは、ブラウザを閉じたときに終了します。
+default では、 Preview モードの cookies に有効期限の date が設定されていません。したがって、 preview セッションは、ブラウザを閉じたときに終了します。
 
-Previewモードのcookiesを手動でクリアするには、`clearPreviewData()` を呼び出すAPI routeを作成します。
+Preview モードの cookies を手動でクリアするには、`clearPreviewData()` を呼び出す API route を作成します。
 
 ```js:pages/api/clear-preview-mode-cookies.js
 export default function handler(req, res) {
@@ -202,9 +202,9 @@ export default function handler(req, res) {
 }
 ```
 
-次に、`/api/clear-preview-mode-cookies`に対して request を送信して、 API Route を呼び出します。この route を[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)を使用して呼び出す場合、`clearPreviewData`が link のprefetching中に呼び出されるのを防ぐために`prefetch={false}`を渡す必要があります。
+次に、`/api/clear-preview-mode-cookies`に対して request を送信して、 API Route を呼び出します。この route を[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link)を使用して呼び出す場合、`clearPreviewData`が link の prefetching 中に呼び出されるのを防ぐために`prefetch={false}`を渡す必要があります。
 
-`setPreviewData`の呼び出しでpathが指定された場合、同じpathを`clearPreviewData`に渡さなければなりません。
+`setPreviewData`の呼び出しで path が指定された場合、同じ path を`clearPreviewData`に渡さなければなりません。
 
 ```js:pages/api/clear-preview-mode-cookies.js
 export default function handler(req, res) {
@@ -216,22 +216,22 @@ export default function handler(req, res) {
 
 ### `previewData` size の制限
 
-`setPreviewData`にobjectを渡して、`getStaticProps`で利用できるようにすることが可能です。ただし、データはcookieに保存されるため、size制限があります。現在、previewデータは2KBに制限されています。
+`setPreviewData`に object を渡して、`getStaticProps`で利用できるようにすることが可能です。ただし、データは cookie に保存されるため、size 制限があります。現在、preview データは 2KB に制限されています。
 
 ### Works with `getServerSideProps`
 
 `getServerSideProps`でも preview モードが機能します。これはまた、`preview`と`previewData`を含む`context` object でも利用可能になります。
 
-> **Good to know**: `Cache-Control`の header を Preview モードで使用する際に設定するべきではありません。これはバイpathできません。代わりに、[ISR](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)の使用をお勧めします。
+> **Good to know**: `Cache-Control`の header を Preview モードで使用する際に設定するべきではありません。これはバイパスできません。代わりに、[ISR](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)の使用をお勧めします。
 
 ### Works with API Routes
 
-API Routesは、request objectの下で`preview`および`previewData`にアクセスできます。例えば：
+API Routes は、request object の下で`preview`および`previewData`にアクセスできます。例えば：
 
 ```js
 export default function myApiRoute(req, res) {
-  const isPreview = req.preview
-  const previewData = req.previewData
+  const isPreview = req.preview;
+  const previewData = req.previewData;
   // ...
 }
 ```

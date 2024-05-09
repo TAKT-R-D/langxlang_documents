@@ -13,27 +13,27 @@ is_empty: false
 
 </details>
 
-Next.jsを使うと、Reactのページを最小限のconfigで、そしてReactから離れずにAMPページに変換することができます。
+Next.js を使うと、React のページを最小限の config で、そして React から離れずに AMP ページに変換することができます。
 
-あなたは公式の [amp.dev](https://amp.dev/) サイトでAMPについてさらに詳しく読むことができます。
+あなたは公式の [amp.dev](https://amp.dev/) サイトで AMP についてさらに詳しく読むことができます。
 
 ## Enabling AMP
 
-ページにAMPサポートを有効にし、さまざまなAMP設定について詳しく学ぶには、[`next/amp`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/07-amp)の[APIドキュメンテーション]をお読みください。
+ページに AMP サポートを有効にし、さまざまな AMP 設定について詳しく学ぶには、[`next/amp`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/07-amp)の[API ドキュメンテーション]をお読みください。
 
 ## Caveats
 
-- CSS-in-JSのみがサポートされています。現時点ではAMPページは [CSS Modules](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling) をサポートしていません。 [Next.jsへのCSS Modulesサポートを投稿](https://github.com/vercel/next.js/issues/10549)できます。
+- CSS-in-JS のみがサポートされています。現時点では AMP ページは [CSS Modules](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling) をサポートしていません。 [Next.js への CSS Modules サポートを投稿](https://github.com/vercel/next.js/issues/10549)できます。
 
 ## Adding AMP Components
 
-AMPコミュニティは、AMPページをよりインタラクティブにするための[多くのComponent](https://amp.dev/documentation/components/) を提供しています。Next.jsは自動的にページで使用されているすべてのComponentをimportし、手動でAMPのcomponent scriptsをimportする必要はありません。
+AMP コミュニティは、AMP ページをよりインタラクティブにするための[多くの Component](https://amp.dev/documentation/components/) を提供しています。Next.js は自動的にページで使用されているすべての Component を import し、手動で AMP の component scripts を import する必要はありません。
 
 ```jsx
-export const config = { amp: true }
+export const config = { amp: true };
 
 function MyAmpPage() {
-  const date = new Date()
+  const date = new Date();
 
   return (
     <div>
@@ -47,23 +47,23 @@ function MyAmpPage() {
         .
       </amp-timeago>
     </div>
-  )
+  );
 }
 
-export default MyAmpPage
+export default MyAmpPage;
 ```
 
-上記の例では、[`amp-timeago`](https://amp.dev/documentation/components/amp-timeago/?format=websites)のcomponentが使用されています。
+上記の例では、[`amp-timeago`](https://amp.dev/documentation/components/amp-timeago/?format=websites)の component が使用されています。
 
-defaultとして、componentの最新のversionが常にインポートされます。versionをカスタマイズしたい場合は、次の例のように`next/head`を使用できます。
+default として、component の最新の version が常にインポートされます。version をカスタマイズしたい場合は、次の例のように`next/head`を使用できます。
 
 ```jsx
-import Head from 'next/head'
+import Head from "next/head";
 
-export const config = { amp: true }
+export const config = { amp: true };
 
 function MyAmpPage() {
-  const date = new Date()
+  const date = new Date();
 
   return (
     <div>
@@ -86,62 +86,62 @@ function MyAmpPage() {
         .
       </amp-timeago>
     </div>
-  )
+  );
 }
 
-export default MyAmpPage
+export default MyAmpPage;
 ```
 
 ## AMP Validation
 
-AMPページは、[amphtml-validator](https://www.npmjs.com/package/amphtml-validator)によって development の間に自動的に検証されます。エラーや警告は、 Next.js を開始したターミナルに表示されます。
+AMP ページは、[amphtml-validator](https://www.npmjs.com/package/amphtml-validator)によって development の間に自動的に検証されます。エラーや警告は、 Next.js を開始したターミナルに表示されます。
 
-ページは[Static HTML export](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)の間でも検証され、警告/errorはすべてターミナルに表示されます。なお、AMPerrorがある場合、exportはcodeが`1`となります。なぜなら、exportは有効なAMPではないからです。
+ページは[Static HTML export](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)の間でも検証され、警告/error はすべてターミナルに表示されます。なお、AMPerror がある場合、export は code が`1`となります。なぜなら、export は有効な AMP ではないからです。
 
 ### カスタムバリデータ
 
-以下に示すように、`next.config.js`でカスタムAMPバリデーターを設定することができます：
+以下に示すように、`next.config.js`でカスタム AMP バリデーターを設定することができます：
 
 ```js
 module.exports = {
   amp: {
-    validator: './custom_validator.js',
+    validator: "./custom_validator.js",
   },
-}
+};
 ```
 
-### AMP検証をスキップ
+### AMP 検証をスキップ
 
-`next.config.js`に以下のcodeを追加してAMP検証をオフにします。
+`next.config.js`に以下の code を追加して AMP 検証をオフにします。
 
 ```js
 experimental: {
   amp: {
-    skipValidation: true
+    skipValidation: true;
   }
 }
 ```
 
-### 静的なHTML Exportの中のAMP
+### 静的な HTML Export の中の AMP
 
-[Static HTML export](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用して静的にプレレンダリングページを作成するとき、Next.jsはそのページがAMPをサポートしているかどうかを検出し、それに基づいてexportの動作を変更します。
+[Static HTML export](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用して静的にプレレンダリングページを作成するとき、Next.js はそのページが AMP をサポートしているかどうかを検出し、それに基づいて export の動作を変更します。
 
-例えば、ハイブリッドAMPページ `pages/about.js` は以下のように出力されます：
+例えば、ハイブリッド AMP ページ `pages/about.js` は以下のように出力されます：
 
-- `out/about.html` - ClientサイドのReact runtimeを持つHTMLページ
-- `out/about.amp.html` - AMPページ
+- `out/about.html` - Client サイドの React runtime を持つ HTML ページ
+- `out/about.amp.html` - AMP ページ
 
-そして、`pages/about.js`がAMP専用ページである場合、それは次のように出力されます：
+そして、`pages/about.js`が AMP 専用ページである場合、それは次のように出力されます：
 
-- `out/about.html` - 最適化されたAMPページ
+- `out/about.html` - 最適化された AMP ページ
 
- Next.js は、あなたが手動で行う必要なく、ページのAMP version への link を自動的に HTML version に挿入します。その具体的な方法は以下の通りです。
+Next.js は、あなたが手動で行う必要なく、ページの AMP version への link を自動的に HTML version に挿入します。その具体的な方法は以下の通りです。
 
 ```jsx
 <link rel="amphtml" href="/about.amp.html" />
 ```
 
-そしてあなたのページのAMP versionは、HTMLページへのlinkを含むでしょう：
+そしてあなたのページの AMP version は、HTML ページへの link を含むでしょう：
 
 ```jsx
 <link rel="canonical" href="/about" />
@@ -150,10 +150,10 @@ experimental: {
 [`trailingSlash`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/trailingSlash)が有効化されている場合、`pages/about.js`のためにエクスポートされたページは以下のようになります：
 
 - `out/about/index.html` - HTML ページ
-- `out/about.amp/index.html` - AMPページ
+- `out/about.amp/index.html` - AMP ページ
 
 ## TypeScript
 
-AMPは現在、TypeScriptに対するビルトインtypeを持っていませんが、それは彼らのロードマップ([#13791](https://github.com/ampproject/amphtml/issues/13791))に含まれています。
+AMP は現在、TypeScript に対するビルトイン type を持っていませんが、それは彼らのロードマップ([#13791](https://github.com/ampproject/amphtml/issues/13791))に含まれています。
 
-A回避策として、あなたのプロジェクト内に手動で`amp.d.ts`というファイルを作成し、これらの[カスタムtype](https://stackoverflow.com/a/50601125)を追加することができます。
+回避策として、あなたのプロジェクト内に手動で`amp.d.ts`というファイルを作成し、これらの[カスタム type](https://stackoverflow.com/a/50601125)を追加することができます。

@@ -10,15 +10,15 @@ is_empty: false
 <details>
   <summary>Examples</summary>
 
-- [babel設定のカスタマイズ](https://github.com/vercel/next.js/tree/canary/examples/with-custom-babel-config)
+- [babel 設定のカスタマイズ](https://github.com/vercel/next.js/tree/canary/examples/with-custom-babel-config)
 
 </details>
 
-Next.jsは、あなたのappに`next/babel`プリセットを含めています。これにはReactアプリケーションやserver-side codeをコンパイルするために必要な全てが含まれています。しかし、もしあなたがdefault Babelの設定を拡張したい場合には、それも可能です。
+Next.js は、あなたの app に`next/babel`プリセットを含めています。これには React アプリケーションや server-side code をコンパイルするために必要な全てが含まれています。しかし、もしあなたが default Babel の設定を拡張したい場合には、それも可能です。
 
 ## Adding Presets and Plugins
 
-startするには、プロジェクトのrootディレクトリに `.babelrc` ファイル(または `babel.config.js`)を定義するだけでよいです。そのようなファイルが見つかった場合、それは _source of truth_と見なされ、したがって、`next/babel` プリセットとして Next.jsが必要とするものを定義する必要があります。
+start するには、プロジェクトの root ディレクトリに `.babelrc` ファイル(または `babel.config.js`)を定義するだけでよいです。そのようなファイルが見つかった場合、それは **source of truth**と見なされ、したがって、`next/babel` プリセットとして Next.js が必要とするものを定義する必要があります。
 
 ここに `.babelrc` ファイルの例があります：
 
@@ -61,9 +61,9 @@ startするには、プロジェクトのrootディレクトリに `.babelrc` �
 }
 ```
 
-各々のconfigに対する利用可能なoptionsについて詳しく学びたいなら、babelの[documentation](https://babeljs.io/docs/)サイトを訪れてください。
+各々の config に対する利用可能な options について詳しく学びたいなら、babel の[documentation](https://babeljs.io/docs/)サイトを訪れてください。
 
 > **Good to know**:
 >
-> - Next.jsは、 [**現行の** Node.js version](https://github.com/nodejs/release#release-schedule) を server-sideのコンパイルに使用します。
-> - T"`"preset-env"`"にある`modules`オプションは`false`に保持すべきです、そうでないとwebpack codeの分割がオフになります。
+> - Next.js は、 [**現行の** Node.js version](https://github.com/nodejs/release#release-schedule) を server-side のコンパイルに使用します。
+> - `"preset-env"`にある`modules`オプションは`false`に保持すべきです、そうでないと webpack code の分割がオフになります。

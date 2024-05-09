@@ -8,7 +8,7 @@ is_empty: false
 nav_title: Version 9
 ---
 
-version 9にアップグレードするには、次のコマンドを実行してください：
+version 9 にアップグレードするには、次のコマンドを実行してください：
 
 ```bash:Terminal
 npm i next@9
@@ -26,21 +26,21 @@ pnpm up next@9
 bun add next@9
 ```
 
-> **知っておくべきこと:** TypeScript を使用している場合は、`@types/react`と`@types/react-dom`も対応するバージョンにアップグレードすることを確認してください。
+> **Good to know:** TypeScript を使用している場合は、`@types/react`と`@types/react-dom`も対応するバージョンにアップグレードすることを確認してください。
 
 ## Production Deployment on Vercel
 
 もし以前に `routes` を `vercel.json` ファイルで設定して dynamic routes を使用していた場合、これらのルールは Next.js 9 の新しい[Dynamic ルーティング機能](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を利用するときに削除できます。
 
-Next.js 9のdynamic routesは、[Vercel](https://vercel.com/)で**自動的に設定され、`vercel.json`のカスタマイズをrequireする必要はありません。
+Next.js 9 の dynamic routes は、[Vercel](https://vercel.com/)で**自動的に**設定され、`vercel.json`のカスタマイズを require する必要はありません。
 
-ここで[Dynamicルーティングについての詳細](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を読むことができます。
+ここで[Dynamic ルーティングについての詳細](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を読むことができます。
 
 ## Check your Custom App File (`pages/_app.js`)
 
 以前に[Custom `<App>`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)の例をコピーした場合、`getInitialProps`を削除することができるかもしれません。
 
-`getInitialProps`を`pages/_app.js`から削除すること(可能な場合)は、新しいNext.jsの機能を活用するために重要です！
+`getInitialProps`を`pages/_app.js`から削除すること(可能な場合)は、新しい Next.js の機能を活用するために重要です！
 
 次の `getInitialProps` は何も行わず、削除しても問題ありません：
 
@@ -48,13 +48,13 @@ Next.js 9のdynamic routesは、[Vercel](https://vercel.com/)で**自動的に�
 class MyApp extends App {
   // Remove me, I do nothing!
   static async getInitialProps({ Component, ctx }) {
-    let pageProps = {}
+    let pageProps = {};
 
     if (Component.getInitialProps) {
-      pageProps = await Component.getInitialProps(ctx)
+      pageProps = await Component.getInitialProps(ctx);
     }
 
-    return { pageProps }
+    return { pageProps };
   }
 
   render() {
@@ -67,66 +67,66 @@ class MyApp extends App {
 
 ### `@zeit/next-typescript`はもう必要ありません
 
-Next.jsは今後、`@zeit/next-typescript`の使用を無視し、それを削除するように警告します。`next.config.js`からこのpluginを削除してください。
+Next.js は今後、`@zeit/next-typescript`の使用を無視し、それを削除するように警告します。`next.config.js`からこの plugin を削除してください。
 
 あなたのカスタム `.babelrc` から `@zeit/next-typescript/babel` への参照を削除します(存在する場合)。
 
 あなたの`next.config.js`から[`fork-ts-checker-webpack-plugin`](https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues)の使用も削除するべきです。
 
-TypeScriptの定義は`next`パッケージで公開されているため、競合すると困るので`@types/next`をアンインストールする必要があります。
+TypeScript の定義は`next`パッケージで公開されているため、競合すると困るので`@types/next`をアンインストールする必要があります。
 
-次のtypeは異なります：
+次の type は異なります：
 
-> このリストは、コミュニティによって作成され、あなたがアップグレードするのを助けるためのものです。他の違いを見つけた場合は、他のユーザーを助けるために、このリストにpull-requestを送信してください。
+> このリストは、コミュニティによって作成され、あなたがアップグレードするのを助けるためのものです。他の違いを見つけた場合は、他のユーザーを助けるために、このリストに pull-request を送信してください。
 
 From:
 
 ```tsx
-import { NextContext } from 'next'
-import { NextAppContext, DefaultAppIProps } from 'next/app'
-import { NextDocumentContext, DefaultDocumentIProps } from 'next/document'
+import { NextContext } from "next";
+import { NextAppContext, DefaultAppIProps } from "next/app";
+import { NextDocumentContext, DefaultDocumentIProps } from "next/document";
 ```
 
 to
 
 ```tsx
-import { NextPageContext } from 'next'
-import { AppContext, AppInitialProps } from 'next/app'
-import { DocumentContext, DocumentInitialProps } from 'next/document'
+import { NextPageContext } from "next";
+import { AppContext, AppInitialProps } from "next/app";
+import { DocumentContext, DocumentInitialProps } from "next/document";
 ```
 
 ### `config`キーは現在、ページ上の export になりました
 
-あなたはもはやカスタムのvariableである `config`をページからexportできなくなりました(つまり、`export { config }` / `export const config ...`)。このエクスポートされたvariableは、今ではOpt-in AMPやAPI RouteなどのページレベルのNext.jsの設定を指定するために使用されています。
+あなたはもはやカスタムの variable である `config`をページから export できなくなりました(つまり、`export { config }` / `export const config ...`)。このエクスポートされた variable は、今では Opt-in AMP や API Route などのページレベルの Next.js の設定を指定するために使用されています。
 
-あなたは、Next.jsに特化していない`config`のexportを別のものに名前を変更する必要があります。
+あなたは、Next.js に特化していない`config`の export を別のものに名前を変更する必要があります。
 
 ### `next/dynamic`は、 default で " loading ..." と表示することがなくなりました
 
- Dynamic コンポーネントは、 loading している間、 default では何も render しません。ただし、`loading`プロパティを設定することで、この動作をカスタマイズすることができます：
+Dynamic コンポーネントは、 loading している間、 default では何も render しません。ただし、`loading`プロパティを設定することで、この動作をカスタマイズすることができます：
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const DynamicComponentWithCustomLoading = dynamic(
-  () => import('../components/hello2'),
+  () => import("../components/hello2"),
   {
     loading: () => <p>Loading</p>,
   }
-)
+);
 ```
 
-### `withAmp`は、exportされた設定objectを優先して削除されました
+### `withAmp`は、export された設定 object を優先して削除されました
 
-Next.jsは現在、ページレベルの設定の概念を持つようになったので、一貫性のために`withAmp`の上位componentが削除されました。
+Next.js は現在、ページレベルの設定の概念を持つようになったので、一貫性のために`withAmp`の上位 component が削除されました。
 
-この変更は、あなたのNext.jsプロジェクトのrootで以下のコマンドを実行することにより**自動的に移行することができます：**
+この変更は、あなたの Next.js プロジェクトの root で以下のコマンドを実行することにより**自動的に移行することができます：**
 
 ```bash:Terminal
 curl -L https://github.com/vercel/next-codemod/archive/master.tar.gz | tar -xz --strip=2 next-codemod-master/transforms/withamp-to-config.js npx jscodeshift -t ./withamp-to-config.js pages/**/*.js
 ```
 
-このマイグレーションを手動で実行するか、またはcodemodが生成する内容を表示するには、以下を参照してください：
+このマイグレーションを手動で実行するか、または codemod が生成する内容を表示するには、以下を参照してください：
 
 **Before**
 
@@ -146,19 +146,19 @@ export default withAmp(Home, { hybrid: true })
 
 ```jsx
 export default function Home() {
-  return <h1>My AMP Page</h1>
+  return <h1>My AMP Page</h1>;
 }
 
 export const config = {
   amp: true,
   // or
-  amp: 'hybrid',
-}
+  amp: "hybrid",
+};
 ```
 
-### `next export`はもうページを`index.html`としてexportしません
+### `next export`はもうページを`index.html`として export しません
 
-以前は、`pages/about.js`をexportすると`out/about/index.html`が生成されました。この挙動は変更され、`out/about.html`が生成されるようになりました。
+以前は、`pages/about.js`を export すると`out/about/index.html`が生成されました。この挙動は変更され、`out/about.html`が生成されるようになりました。
 
 以下の内容で`next.config.js`を作成することで、以前の動作に戻すことができます：
 
@@ -176,23 +176,23 @@ module.exports = {
 
 ### `next/dynamic`は、一度に複数の modules を““ loading することを非推奨としています
 
-`next/dynamic`では、Reactの実装(`React.lazy`および`Suspense`)に近づけるため、複数のmodulesを一度にロードする機能が非推奨となりました。
+`next/dynamic`では、React の実装(`React.lazy`および`Suspense`)に近づけるため、複数の modules を一度にロードする機能が非推奨となりました。
 
-この振る舞いに依存するcodeの更新は比較的簡単です！ あなたのアプリケーションの移行を助けるために、前後の例を提供しました：
+この振る舞いに依存する code の更新は比較的簡単です！ あなたのアプリケーションの移行を助けるために、前後の例を提供しました：
 
 **Before**
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const HelloBundle = dynamic({
   modules: () => {
     const components = {
-      Hello1: () => import('../components/hello1').then((m) => m.default),
-      Hello2: () => import('../components/hello2').then((m) => m.default),
-    }
+      Hello1: () => import("../components/hello1").then((m) => m.default),
+      Hello2: () => import("../components/hello2").then((m) => m.default),
+    };
 
-    return components
+    return components;
   },
   render: (props, { Hello1, Hello2 }) => (
     <div>
@@ -201,22 +201,22 @@ const HelloBundle = dynamic({
       <Hello2 />
     </div>
   ),
-})
+});
 
 function DynamicBundle() {
-  return <HelloBundle title="Dynamic Bundle" />
+  return <HelloBundle title="Dynamic Bundle" />;
 }
 
-export default DynamicBundle
+export default DynamicBundle;
 ```
 
 **After**
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const Hello1 = dynamic(() => import('../components/hello1'))
-const Hello2 = dynamic(() => import('../components/hello2'))
+const Hello1 = dynamic(() => import("../components/hello1"));
+const Hello2 = dynamic(() => import("../components/hello2"));
 
 function HelloBundle({ title }) {
   return (
@@ -225,12 +225,12 @@ function HelloBundle({ title }) {
       <Hello1 />
       <Hello2 />
     </div>
-  )
+  );
 }
 
 function DynamicBundle() {
-  return <HelloBundle title="Dynamic Bundle" />
+  return <HelloBundle title="Dynamic Bundle" />;
 }
 
-export default DynamicBundle
+export default DynamicBundle;
 ```

@@ -9,13 +9,13 @@ is_empty: false
 
 ## 404 Page
 
-404ページは非常に頻繁にアクセスされます。すべての訪問に対してerror pageをserverレンダリングすると、Next.js serverの負荷が増えます。これにより、コストが増加し、体験が遅くなる可能性があります。
+404 ページは非常に頻繁にアクセスされます。すべての訪問に対して error page を server レンダリングすると、Next.js server の負荷が増えます。これにより、コストが増加し、体験が遅くなる可能性があります。
 
-上記の問題を避けるために、Next.jsは追加ファイルを一切追加せずに、defaultで静的な404ページを提供します。
+上記の問題を避けるために、Next.js は追加ファイルを一切追加せずに、default で静的な 404 ページを提供します。
 
-### 404ページのカスタマイズ
+### 404 ページのカスタマイズ
 
-カスタム404ページを作成するには、`pages/404.js` ファイルを作成できます。このファイルはbuild 時に静的に生成されます。
+カスタム 404 ページを作成するには、`pages/404.js` ファイルを作成できます。このファイルは build 時に静的に生成されます。
 
 ```jsx:pages/404.js
 export default function Custom404() {
@@ -23,15 +23,15 @@ export default function Custom404() {
 }
 ```
 
-> **Good to know**: このページ内で[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用すると、build時にデータをフェッチする必要がある場合に便利です。
+> **Good to know**: このページ内で[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用すると、build 時にデータをフェッチする必要がある場合に便利です。
 
 ## 500 Page
 
-error pageを毎回serverレンダリングすることは、errorへの対応に複雑性を加えます。ユーザーがerrorへのResponseをできるだけ速く取得できるように、Next.jsは追加ファイルを追加せずに、defaultで静的な500ページを提供します。
+error page を毎回 server レンダリングすることは、error への対応に複雑性を加えます。ユーザーが error への Response をできるだけ速く取得できるように、Next.js は追加ファイルを追加せずに、default で静的な 500 ページを提供します。
 
-### 500ページのカスタマイズ
+### 500 ページのカスタマイズ
 
-500ページをカスタマイズするために、`pages/500.js`ファイルを作成できます。このファイルはbuild時間に静的に生成されます。
+500 ページをカスタマイズするために、`pages/500.js`ファイルを作成できます。このファイルは build 時間に静的に生成されます。
 
 ```jsx:pages/500.js
 export default function Custom500() {
@@ -41,9 +41,9 @@ export default function Custom500() {
 
 > **Good to know**: このページ内で [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) を使うことができます。 build 時にデータを fetch する必要がある場合に利用できます。
 
-### より高度なError Pageのカスタマイズ
+### より高度な Error Page のカスタマイズ
 
-500エラーは、クライアント側と server-side の両方で、`Error` component によって処理されます。これを上書きしたい場合は、`pages/_error.js` ファイルを定義し、以下の code を追加してください：
+500 エラーは、クライアント側と server-side の両方で、`Error` component によって処理されます。これを上書きしたい場合は、`pages/_error.js` ファイルを定義し、以下の code を追加してください：
 
 ```jsx
 function Error({ statusCode }) {
@@ -51,52 +51,52 @@ function Error({ statusCode }) {
     <p>
       {statusCode
         ? `An error ${statusCode} occurred on server`
-        : 'An error occurred on client'}
+        : "An error occurred on client"}
     </p>
-  )
+  );
 }
 
 Error.getInitialProps = ({ res, err }) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404
-  return { statusCode }
-}
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+  return { statusCode };
+};
 
-export default Error
+export default Error;
 ```
 
-> `pages/_error.js`はproduction内でのみ使用されます。developmentでは、errorが発生し、そのerrorがどこから発生したのかを知るためのstackを呼び出します。
+> `pages/_error.js`は production 内でのみ使用されます。development では、error が発生し、その error がどこから発生したのかを知るための stack を呼び出します。
 
-### 組み込みのerror pageの再利用
+### 組み込みの error page の再利用
 
 組み込みの error page を render したい場合は、`Error` component をインポートすることで可能です：
 
 ```jsx
-import Error from 'next/error'
+import Error from "next/error";
 
 export async function getServerSideProps() {
-  const res = await fetch('https://api.github.com/repos/vercel/next.js')
-  const errorCode = res.ok ? false : res.status
-  const json = await res.json()
+  const res = await fetch("https://api.github.com/repos/vercel/next.js");
+  const errorCode = res.ok ? false : res.status;
+  const json = await res.json();
 
   return {
     props: { errorCode, stars: json.stargazers_count },
-  }
+  };
 }
 
 export default function Page({ errorCode, stars }) {
   if (errorCode) {
-    return <Error statusCode={errorCode} />
+    return <Error statusCode={errorCode} />;
   }
 
-  return <div>Next stars: {stars}</div>
+  return <div>Next stars: {stars}</div>;
 }
 ```
 
-`Error` componentは、テキストのmessageと一緒に`statusCode`を渡したい場合、`title`もプロパティとして受け取ります。
+`Error` component は、テキストの message と一緒に`statusCode`を渡したい場合、`title`もプロパティとして受け取ります。
 
-`Error` componentがカスタムである場合は、その代わりにそれをインポートするようにしてください。 `next/error`は、Next.jsで使用されるdefaultコンポーネントをエクスポートします。
+`Error` component がカスタムである場合は、その代わりにそれをインポートするようにしてください。 `next/error`は、Next.js で使用される default コンポーネントをエクスポートします。
 
 ### Caveats
 
-- `Error`は現在、Next.jsの[Data Fetching methods](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、例えば[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)をサポートしていません。
-- `_error`は、`_app`と同様に、予約されたpathnameです。`_error`は、errorページのカスタマイズされたLayoutと振る舞いを定義するために使用されます。直接[routing](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing)を通じてアクセスしたり、[カスタムserver](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server)でレンダリングすると、`/_error`は404をrenderします。
+- `Error`は現在、Next.js の[Data Fetching methods](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、例えば[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)をサポートしていません。
+- `_error`は、`_app`と同様に、予約された pathname です。`_error`は、error ページのカスタマイズされた Layout と振る舞いを定義するために使用されます。直接[routing](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing)を通じてアクセスしたり、[カスタム server](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server)でレンダリングすると、`/_error`は 404 を render します。

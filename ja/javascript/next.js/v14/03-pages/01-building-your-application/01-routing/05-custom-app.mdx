@@ -7,15 +7,15 @@ org_path: /docs/pages/building-your-application/routing/custom-app
 is_empty: false
 ---
 
-Next.jsは、ページを初期化するために`App` componentを使用します。それを上書きして、ページの初期化と：
+Next.js は、ページを初期化するために`App` component を使用します。それを上書きして、ページの初期化と：
 
-- ページ変更間で共有のlayoutを作成する
+- ページ変更間で共有の layout を作成する
 - ページに追加データを注入する
-- [グローバルCSSを追加する](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling)
+- [グローバル CSS を追加する](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling)
 
 ## Usage
 
-`App`のdefaultをオーバーライドするには、以下に示すように`pages/_app`というファイルを作成してください：
+`App`の default をオーバーライドするには、以下に示すように`pages/_app`というファイルを作成してください：
 
 ```tsx:pages/_app.tsx
 import type { AppProps } from 'next/app'
@@ -31,14 +31,14 @@ export default function MyApp({ Component, pageProps }) {
 }
 ```
 
-`Component`プロップはアクティブな`page`で、routes間を移動するたびに、`Component`は新しい`page`に変わります。したがって、`Component`に送信したpropsはすべて`page`が受け取ります。
+`Component`プロップはアクティブな`page`で、routes 間を移動するたびに、`Component`は新しい`page`に変わります。したがって、`Component`に送信した props はすべて`page`が受け取ります。
 
-`pageProps`は、私たちの[データ取得Method](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)のいずれかによってページのために事前にロードされた初期のpropsを含むempty objectです。それ以外の場合は、空のobjectです。
+`pageProps`は、私たちの[データ取得 Method](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)のいずれかによってページのために事前にロードされた初期の props を含む empty object です。それ以外の場合は、空の object です。
 
 > **Good to know**
 >
 > - あなたの app が稼働していて、カスタム`App`を追加した場合、 development server を再起動する必要があります。`pages/_app.js`が以前に存在しなかった場合にのみ必要です。
-> - `App`は、Next.jsの[データ取得方法](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、 [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props) などをサポートしていません。
+> - `App`は、Next.js の[データ取得方法](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、 [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props) などをサポートしていません。
 
 ## `getInitialProps` with `App`
 

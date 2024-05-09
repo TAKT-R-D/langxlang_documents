@@ -7,29 +7,29 @@ org_path: /docs/pages/building-your-application/rendering/automatic-static-optim
 is_empty: false
 ---
 
-Next.jsは、ページにブロッキングデータの要件がない場合、自動的にページが静的(先読み可能)であると判断します。この判断は、ページに`getServerSideProps`および`getInitialProps`が存在しないことによって行われます。
+Next.js は、ページにブロッキングデータの要件がない場合、自動的にページが静的(先読み可能)であると判断します。この判断は、ページに`getServerSideProps`および`getInitialProps`が存在しないことによって行われます。
 
-この機能により、Next.jsは**server側でレンダリングされたページと静的に生成されたページの両方**を含むハイブリッドアプリケーションを出力することができます。
+この機能により、Next.js は**server 側でレンダリングされたページと静的に生成されたページの両方**を含むハイブリッドアプリケーションを出力することができます。
 
-> 静的に生成されたページもまだリアクティブです：Next.jsはClient側であなたのアプリケーションをハイドレートし、それに完全な対話型性を与えます。
+> 静的に生成されたページもまだリアクティブです：Next.js は Client 側であなたのアプリケーションをハイドレートし、それに完全な対話型性を与えます。
 
-この機能の主な利点の一つは、最適化されたページがrequireserver側のserver-side計算を必要とせず、複数のCDNロケーションからエンドユーザーに即座にStreamingできることです。結果として、あなたのユーザーには超高速なloading体験が提供されます。
+この機能の主な利点の一つは、最適化されたページが requireserver 側の server-side 計算を必要とせず、複数の CDN ロケーションからエンドユーザーに即座に Streaming できることです。結果として、あなたのユーザーには超高速な loading 体験が提供されます。
 
 ## How it works
 
-ページに`getServerSideProps`または`getInitialProps`が存在する場合、Next.jsは、オンデマンドで、Requestごとにページをrenderするように切り替わります(つまり[Server-Side Rendering](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/01-server-side-rendering)を意味します)。
+ページに`getServerSideProps`または`getInitialProps`が存在する場合、Next.js は、オンデマンドで、Request ごとにページを render するように切り替わります(つまり[Server-Side Rendering](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/01-server-side-rendering)を意味します)。
 
-上記が話されている状況でない場合、Next.jsは、ページを静的なHTMLにプレレンダリングすることで、あなたのページを**静的に最適化**します。
+上記が話されている状況でない場合、Next.js は、ページを静的な HTML にプレレンダリングすることで、あなたのページを**静的に最適化**します。
 
-プレrendering中、routersの `query` objectは、このフェーズ中に提供する `query` 情報がないため、emptyになります。ハイドレーション後、Next.jsはあなたのアプリケーションに更新をトリガーして、`query` objectの中にrouteパラメータを提供します。
+プレ rendering 中、routers の `query` object は、このフェーズ中に提供する `query` 情報がないため、empty になります。ハイドレーション後、Next.js はあなたのアプリケーションに更新をトリガーして、`query` object の中に route パラメータを提供します。
 
-hydrationがトリガーされた後にqueryが更新されるケースで、もう一度renderがトリガーされるケースは以下の通りです：
+hydration がトリガーされた後に query が更新されるケースで、もう一度 render がトリガーされるケースは以下の通りです：
 
 - そのページは[dynamic-route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)です。
-- そのページはURL内にqueryの値を持っています。
+- そのページは URL 内に query の値を持っています。
 - [Rewrites](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/rewrites)はあなたの`next.config.js`に設定されています。これらはパースされ、`query`で提供する必要がある可能性のあるパラメーターを持つことができます。
 
-queryが完全に更新され、使用の準備ができているかどうかを区別するために、 [`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#router-object)の `isReady` フィールドを利用できます。
+query が完全に更新され、使用の準備ができているかどうかを区別するために、 [`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#router-object)の `isReady` フィールドを利用できます。
 
 > **Good to know**: [dynamic routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)でページに追加されたパラメータは、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用しているページでも常に`query` object 内で利用可能です。
 
@@ -48,5 +48,5 @@ queryが完全に更新され、使用の準備ができているかどうかを
 ## Caveats
 
 - もし[custom `App`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を持っていて、`getInitialProps`がある場合、この最適化は[Static Generation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)がないページではオフになります。
-- あなたが[カスタム `Document`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/06-custom-document)を持っていて、`getInitialProps`がある場合は、ページがserver-sideでレンダリングされていると想定する前に `ctx.req`が定義されているか確認してください。プレレンダリングされたページの `ctx.req` は `undefined` になります。
-- Aレンダリングツリーで[`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#router-object)の`asPath` valueを使用するのは、routerの`isReady`フィールドが`true`になるまで避けてください。静的に最適化されたページは、`asPath`をclientではなくserverでのみ認識するため、プロパティとして使用するとミスマッチerrorを引き起こす可能性があります。 [`active-class-name` example](https://github.com/vercel/next.js/tree/canary/examples/active-class-name)は、`asPath`をプロパティとして使用する1つの方法を示しています。
+- あなたが[カスタム `Document`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/06-custom-document)を持っていて、`getInitialProps`がある場合は、ページが server-side でレンダリングされていると想定する前に `ctx.req`が定義されているか確認してください。プレレンダリングされたページの `ctx.req` は `undefined` になります。
+- レンダリングツリーで[`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router#router-object)の`asPath` value を使用するのは、router の`isReady`フィールドが`true`になるまで避けてください。静的に最適化されたページは、`asPath`を client ではなく server でのみ認識するため、プロパティとして使用するとミスマッチ error を引き起こす可能性があります。 [`active-class-name` example](https://github.com/vercel/next.js/tree/canary/examples/active-class-name)は、`asPath`をプロパティとして使用する 1 つの方法を示しています。

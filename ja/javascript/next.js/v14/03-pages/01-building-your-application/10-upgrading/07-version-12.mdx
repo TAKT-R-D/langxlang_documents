@@ -7,7 +7,7 @@ org_path: /docs/pages/building-your-application/upgrading/version-12
 is_empty: false
 ---
 
-version 12にアップグレードするには、次のコマンドを実行します：
+version 12 にアップグレードするには、次のコマンドを実行します：
 
 ```bash:Terminal
 npm i next@12 react@17 react-dom@17 eslint-config-next@12
@@ -25,17 +25,17 @@ pnpm up next@12 react@17 react-dom@17 eslint-config-next@12
 bun add next@12 react@17 react-dom@17 eslint-config-next@12
 ```
 
-> **知っておくべきこと：** TypeScript を使用している場合、`@types/react`と`@types/react-dom`もそれぞれ対応するバージョンにアップグレードしてください。
+> **Good to know：** TypeScript を使用している場合、`@types/react`と`@types/react-dom`もそれぞれ対応するバージョンにアップグレードしてください。
 
-### 12.2へのアップグレード
+### 12.2 へのアップグレード
 
-[Middleware](/docs/messages/middleware-upgrade-guide) - もし`12.2`より前にMiddlewareを使用していた場合、詳細な情報については[アップグレードガイド](/docs/messages/middleware-upgrade-guide)をご覧ください。
+[Middleware](/docs/messages/middleware-upgrade-guide) - もし`12.2`より前に Middleware を使用していた場合、詳細な情報については[アップグレードガイド](/docs/messages/middleware-upgrade-guide)をご覧ください。
 
-### 12.0へのアップグレード
+### 12.0 へのアップグレード
 
-[最低の Node.js Version](https://nodejs.org/en/) - 最低 Node.js version は`12.0.0`から`12.22.0`に引き上げられました。これがネイティブES Modules サポートを持つ最初の version の Node.js です。
+[最低の Node.js Version](https://nodejs.org/en/) - 最低 Node.js version は`12.0.0`から`12.22.0`に引き上げられました。これがネイティブ ES Modules サポートを持つ最初の version の Node.js です。
 
-[最低限必要なReact Version](https://reactjs.org/docs/add-react-to-a-website.html) - 最低限必要なReact versionは `17.0.2`です。アップグレードするためには、ターミナルで以下のコマンドを実行できます。
+[最低限必要な React Version](https://reactjs.org/docs/add-react-to-a-website.html) - 最低限必要な React version は `17.0.2`です。アップグレードするためには、ターミナルで以下のコマンドを実行できます。
 
 ```bash:Terminal
 npm install react@latest react-dom@latest
@@ -47,25 +47,25 @@ pnpm update react@latest react-dom@latest
 bun add react@latest react-dom@latest
 ```
 
-#### SWCがBabelを置き換える
+#### SWC が Babel を置き換える
 
-Next.jsは現在、JavaScript/TypeScriptをコンパイルするためにRustベースのcompiler[SWC](https://swc.rs/)を使用しています。この新しいcompilerは、個々のファイルをコンパイルする際にBabelよりも最大17倍高速で、FastRefreshに対しては最大5倍高速です。
+Next.js は現在、JavaScript/TypeScript をコンパイルするために Rust ベースの compiler[SWC](https://swc.rs/)を使用しています。この新しい compiler は、個々のファイルをコンパイルする際に Babel よりも最大 17 倍高速で、FastRefresh に対しては最大 5 倍高速です。
 
-Next.jsは、[カスタムのBabel設定](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/08-babel)を持つアプリケーションと完全に後方互換性を提供します。`getStaticProps` / `getStaticPaths` / `getServerSideProps`のstyled-jsxやtree-shakingのように Next.jsが defaultで扱うすべての変換はRustに移植されています。
+Next.js は、[カスタムの Babel 設定](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/08-babel)を持つアプリケーションと完全に後方互換性を提供します。`getStaticProps` / `getStaticPaths` / `getServerSideProps`の styled-jsx や tree-shaking のように Next.js が default で扱うすべての変換は Rust に移植されています。
 
-アプリケーションがカスタムの Babel 設定を持っている場合、Next.js は自動的に SWC の使用をオプトアウトし、Javascript / Typescriptのコンパイルに Babel を同じように使用するように Next.js 11で使用されていました。
+アプリケーションがカスタムの Babel 設定を持っている場合、Next.js は自動的に SWC の使用をオプトアウトし、Javascript / Typescript のコンパイルに Babel を同じように使用するように Next.js 11 で使用されていました。
 
-現在、Babelのカスタム変換を必要とする多くの外部ライブラリとの統合は、近い将来、RustベースのSWC変換に移植される予定です。これには以下が含まれますが、それに限定されません：
+現在、Babel のカスタム変換を必要とする多くの外部ライブラリとの統合は、近い将来、Rust ベースの SWC 変換に移植される予定です。これには以下が含まれますが、それに限定されません：
 
 - Styled Components
 - Emotion
 - Relay
 
-SWCを採用するのに役立つ変換を優先するために、あなたの `.babelrc` を[このフィードバック thread](https://github.com/vercel/next.js/discussions/30174)に提供してください。
+SWC を採用するのに役立つ変換を優先するために、あなたの `.babelrc` を[このフィードバック thread](https://github.com/vercel/next.js/discussions/30174)に提供してください。
 
-#### SWCがminificationのためのTerserを置き換え
+#### SWC が minification のための Terser を置き換え
 
-`next.config.js`のフラグを使用して、Terserを SWC に置き換えて、 JavaScript を最大7倍速く最小化するオプトインが可能です：
+`next.config.js`のフラグを使用して、Terser を SWC に置き換えて、 JavaScript を最大 7 倍速く最小化するオプトインが可能です：
 
 ```js:next.config.js
 module.exports = {
@@ -73,29 +73,29 @@ module.exports = {
 }
 ```
 
-SWCを使用したMinificationは、それがNext.js12.1でdefaultになる前に、より多くの実際のNext.jsアプリケーションでテストできるように、オプトインフラグです。minificationに関するフィードバックがある場合は、[このフィードバックのthread](https://github.com/vercel/next.js/discussions/30237)にコメントを残してください。
+SWC を使用した Minification は、それが Next.js12.1 で default になる前に、より多くの実際の Next.js アプリケーションでテストできるように、オプトインフラグです。minification に関するフィードバックがある場合は、[このフィードバックの thread](https://github.com/vercel/next.js/discussions/30237)にコメントを残してください。
 
 #### styled-jsx CSS 解析の改善
 
-我々はRustベースのcompilerの上に、styled-jsx Babel transformのために使用されるものに基づく新たなCSSパーサーを実装しました。この新パーサーはCSSの取り扱いを改善し、以前は見逃されがちだった無効なCSSの使用に対してerrorを出すようになり、予期しない挙動を引き起こすことがありました。
+我々は Rust ベースの compiler の上に、styled-jsx Babel transform のために使用されるものに基づく新たな CSS パーサーを実装しました。この新パーサーは CSS の取り扱いを改善し、以前は見逃されがちだった無効な CSS の使用に対して error を出すようになり、予期しない挙動を引き起こすことがありました。
 
-この変更のため、無効なCSSは、developmentと`next build`の間にerrorをスローします。この変更は、styled-jsxの使用にのみ影響を与えます。
+この変更のため、無効な CSS は、development と`next build`の間に error をスローします。この変更は、styled-jsx の使用にのみ影響を与えます。
 
 #### `next/image` はラッピング要素を変更しました
 
 `next/image`は今、`<img>`を`<div>`の代わりに`<span>`内でレンダリングします。
 
-もしもあなたのアプリケーションが、`.container span`のような特定のCSSをターゲットにしている場合、Next.js 12にアップグレードすると、`<Image>` component内のラッピング要素が誤ってマッチする可能性があります。これを避けるには、セレクタを `.container span.item` のように特定のクラスに限定し、関連する component をその className で更新することで対処できます。たとえば、`<span className="item" />` のようにします。
+もしもあなたのアプリケーションが、`.container span`のような特定の CSS をターゲットにしている場合、Next.js 12 にアップグレードすると、`<Image>` component 内のラッピング要素が誤ってマッチする可能性があります。これを避けるには、セレクタを `.container span.item` のように特定のクラスに限定し、関連する component をその className で更新することで対処できます。たとえば、`<span className="item" />` のようにします。
 
-あなたのアプリケーションが特定のCSSを `next/image` `<div>` タグに適用している場合、たとえば `.container div` など、それはもう一致しないかもしれません。セレクター `.container span` を更新するか、できれば、新しい `<div className="wrapper">` を `<Image>` componentに追加して、その代わりに targetを設定してみてください。たとえば `.container .wrapper` のような形になります。
+あなたのアプリケーションが特定の CSS を `next/image` `<div>` タグに適用している場合、たとえば `.container div` など、それはもう一致しないかもしれません。セレクター `.container span` を更新するか、できれば、新しい `<div className="wrapper">` を `<Image>` component に追加して、その代わりに target を設定してみてください。たとえば `.container .wrapper` のような形になります。
 
 `className`プロップは変更されておらず、基本となる`<img>`要素に引き続き渡されます。
 
 詳細については、[ドキュメンテーション](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#styling)をご覧ください。
 
-#### HMR接続は現在、WebSocketを使用しています
+#### HMR 接続は現在、WebSocket を使用しています
 
-以前、Next.jsは、HMRイベントを受信するために[server-sent events](https://developer.mozilla.org/docs/Web/API/Server-sent_events)接続を使用していました。Next.js12は現在、WebSocket接続を使用しています。
+以前、Next.js は、HMR イベントを受信するために[server-sent events](https://developer.mozilla.org/docs/Web/API/Server-sent_events)接続を使用していました。Next.js12 は現在、WebSocket 接続を使用しています。
 
 一部のケースでは、 Next.js dev server へのリクエストをプロキシする際に、 request のアップグレードが正しく処理されることを確認する必要があります。たとえば、`nginx`では次の構成を追加する必要があります：
 
@@ -108,7 +108,7 @@ location /_next/webpack-hmr {
 }
 ```
 
-もしApache(2.x)を使っているなら、以下の設定を追加することで、serverにウェブソケットを有効にすることができます。port、hostの名前、そしてserverの名前を確認してください。
+もし Apache(2.x)を使っているなら、以下の設定を追加することで、server にウェブソケットを有効にすることができます。port、host の名前、そして server の名前を確認してください。
 
 ```
 <VirtualHost *:443>
@@ -129,28 +129,28 @@ location /_next/webpack-hmr {
 </VirtualHost>
 ```
 
-カスタムserverの場合、例えば`express`のようなものでは、requestが正しく渡されることを確保するために、`app.all`を使用する必要があるかもしれません。例えば：
+カスタム server の場合、例えば`express`のようなものでは、request が正しく渡されることを確保するために、`app.all`を使用する必要があるかもしれません。例えば：
 
 ```js
-app.all('/_next/webpack-hmr', (req, res) => {
-  nextjsRequestHandler(req, res)
-})
+app.all("/_next/webpack-hmr", (req, res) => {
+  nextjsRequestHandler(req, res);
+});
 ```
 
-#### Webpack 4のサポートは削除されました
+#### Webpack 4 のサポートは削除されました
 
-すでにwebpack5を使用している場合は、このセクションをスキップできます。
+すでに webpack5 を使用している場合は、このセクションをスキップできます。
 
-Next.jsは、Next.js11のコンパイルのためのdefaultとしてwebpack5を採用しました。[webpack 5 のアップグレードドキュメンテーション](/docs/messages/webpack5)で伝えられた通り、Next.js 12はwebpack 4のサポートを削除します。
+Next.js は、Next.js11 のコンパイルのための default として webpack5 を採用しました。[webpack 5 のアップグレードドキュメンテーション](/docs/messages/webpack5)で伝えられた通り、Next.js 12 は webpack 4 のサポートを削除します。
 
-あなたのアプリケーションがまだwebpack 4をopt-outフラグを使って使用している場合、今後、errorが表示され、[webpack 5のアップグレードドキュメンテーション](/docs/messages/webpack5)へのリンクが表示されます。
+あなたのアプリケーションがまだ webpack 4 を opt-out フラグを使って使用している場合、今後、error が表示され、[webpack 5 のアップグレードドキュメンテーション](/docs/messages/webpack5)へのリンクが表示されます。
 
 #### `target` オプションは廃止予定です
 
 `next.config.js`に`target`がない場合、このセクションをスキップすることができます。
 
-targetオプションは、ページの実行に必要な依存関係を追跡するための組み込みサポートを優先するため、非推奨となりました。
+target オプションは、ページの実行に必要な依存関係を追跡するための組み込みサポートを優先するため、非推奨となりました。
 
-`next build`の間に、Next.jsは自動的に各ページとその依存関係を追跡し、アプリケーションのproduction versionをデプロイするために必要なすべてのファイルを決定します。
+`next build`の間に、Next.js は自動的に各ページとその依存関係を追跡し、アプリケーションの production version をデプロイするために必要なすべてのファイルを決定します。
 
-Iあなたが現在 `target` オプションを `serverless` に設定して使っている場合は、[新しいアウトプットを活用する方法についての文書](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/output)をご覧ください。
+あなたが現在 `target` オプションを `serverless` に設定して使っている場合は、[新しいアウトプットを活用する方法についての文書](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/output)をご覧ください。
