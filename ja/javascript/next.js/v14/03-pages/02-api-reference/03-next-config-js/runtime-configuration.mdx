@@ -13,7 +13,7 @@ is_empty: false
 > - You can run code on server startup using the [`register` function](/docs/app/building-your-application/optimizing/instrumentation).
 > - この機能は[Automatic Static Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)、[Output File Tracing](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/output#automatically-copying-traced-files)、または[React Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)とは機能しません。
 
-あなたのappにruntime設定を追加するには、`next.config.js`を開いて、`publicRuntimeConfig`と`serverRuntimeConfig`の設定を追加します：
+あなたの app に runtime 設定を追加するには、`next.config.js`を開いて、`publicRuntimeConfig`と`serverRuntimeConfig`の設定を追加します：
 
 ```js:next.config.js
 module.exports = {
@@ -29,24 +29,24 @@ module.exports = {
 }
 ```
 
-任意のserver専用のruntime configを `serverRuntimeConfig` の下に置いてください。
+任意の server 専用の runtime config を `serverRuntimeConfig` の下に置いてください。
 
-client と server-side codeの双方からアクセス可能なものは、すべて `publicRuntimeConfig` の下にあるべきです。
+client と server-side code の双方からアクセス可能なものは、すべて `publicRuntimeConfig` の下にあるべきです。
 
-> `publicRuntimeConfig`に依存するページは、`getInitialProps`または`getServerSideProps`を**必ず**使用するか、またはあなたのアプリケーションは[カスタムApp](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を`getInitialProps`を使って[自動静的最適化](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)からオプトアウトする必要があります。Runtime設定は、server-sideレンダリングされていないページ(またはページ内のcomponent)には利用できません。
+> `publicRuntimeConfig`に依存するページは、`getInitialProps`または`getServerSideProps`を**必ず**使用するか、またはあなたのアプリケーションは[カスタム App](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)を`getInitialProps`を使って[自動静的最適化](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)からオプトアウトする必要があります。Runtime 設定は、server-side レンダリングされていないページ(またはページ内の component)には利用できません。
 
-`next/config`を使用して、あなたのappでruntime設定にアクセスするには、次のようにします。：
+`next/config`を使用して、あなたの app で runtime 設定にアクセスするには、次のようにします。：
 
 ```jsx
-import getConfig from 'next/config'
-import Image from 'next/image'
+import getConfig from "next/config";
+import Image from "next/image";
 
 // Only holds serverRuntimeConfig and publicRuntimeConfig
-const { serverRuntimeConfig, publicRuntimeConfig } = getConfig()
+const { serverRuntimeConfig, publicRuntimeConfig } = getConfig();
 // Will only be available on the server-side
-console.log(serverRuntimeConfig.mySecret)
+console.log(serverRuntimeConfig.mySecret);
 // Will be available on both server-side and client-side
-console.log(publicRuntimeConfig.staticFolder)
+console.log(publicRuntimeConfig.staticFolder);
 
 function MyImage() {
   return (
@@ -57,8 +57,8 @@ function MyImage() {
         layout="fill"
       />
     </div>
-  )
+  );
 }
 
-export default MyImage
+export default MyImage;
 ```

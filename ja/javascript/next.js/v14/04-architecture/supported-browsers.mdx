@@ -7,7 +7,7 @@ org_path: /docs/architecture/supported-browsers
 is_empty: false
 ---
 
-Next.jsはゼロ設定で**モダンブラウザ**をサポートします。
+Next.js はゼロ設定で**モダンブラウザ**をサポートします。
 
 - Chrome 64+
 - Edge 79+
@@ -17,7 +17,7 @@ Next.jsはゼロ設定で**モダンブラウザ**をサポートします。
 
 ## Browserslist
 
-特定のブラウザや機能を target したい場合、Next.js は `package.json` ファイル内で [Browserslist](https://browsersl.ist) の設定をサポートしています。 Next.js は default で以下のBrowserslist設定を使用します:
+特定のブラウザや機能を target したい場合、Next.js は `package.json` ファイル内で [Browserslist](https://browsersl.ist) の設定をサポートしています。 Next.js は default で以下の Browserslist 設定を使用します:
 
 ```json:package.json
 {
@@ -33,38 +33,38 @@ Next.jsはゼロ設定で**モダンブラウザ**をサポートします。
 
 ## Polyfills
 
-私たちは、以下を含む[広く使用されているpolyfills](https://github.com/vercel/next.js/blob/canary/packages/next-polyfill-nomodule/src/index.js)を注入します：
+私たちは、以下を含む[広く使用されている polyfills](https://github.com/vercel/next.js/blob/canary/packages/next-polyfill-nomodule/src/index.js)を注入します：
 
 - [**fetch()**](https://developer.mozilla.org/docs/Web/API/Fetch_API) — 置き換え：`whatwg-fetch`と`unfetch`。
 - [**URL**](https://developer.mozilla.org/docs/Web/API/URL) — 交換： [`url`パッケージ ( Node.js API )](https://nodejs.org/api/url.html)。
 - [**Object.assign()**](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) — 置換: `object-assign`, `object.assign`, そして `core-js/object/assign`.
 
-もし依存関係にこれらのpolyfillsが含まれている場合、重複を避けるためにそれらは自動的にproduction buildから排除されます。
+もし依存関係にこれらの polyfills が含まれている場合、重複を避けるためにそれらは自動的に production build から排除されます。
 
-さらに、バンドルのsizeを削減するために、Next.jsはこれらのpolyfillsをrequireするブラウザだけで読み込みます。全世界のウェブトラフィックの大部分では、これらのpolyfillsをダウンロードしないでしょう。
+さらに、バンドルの size を削減するために、Next.js はこれらの polyfills を require するブラウザだけで読み込みます。全世界のウェブトラフィックの大部分では、これらの polyfills をダウンロードしないでしょう。
 
 ### カスタム Polyfills
 
-あなた自身のcodeまたは外部のnpm依存関係が、あなたのtargetのブラウザー(例：IE 11など)でサポートされていないrequireの機能を必要とする場合は、自分でpolyfillsを追加する必要があります。
+あなた自身の code または外部の npm 依存関係が、あなたの target のブラウザー(例：IE 11 など)でサポートされていない require の機能を必要とする場合は、自分で polyfills を追加する必要があります。
 
-この場合、特定の**polyfill**を必要とするあなたの[Custom `<App>`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)または個々のcomponentに対してトップレベルのimportを追加すべきです。
+この場合、特定の**polyfill**を必要とするあなたの[Custom `<App>`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/05-custom-app)または個々の component に対してトップレベルの import を追加すべきです。
 
 ## JavaScript Language Features
 
-Next.jsは、最新のJavaScriptの機能をすぐに利用することを可能にします。[ES6の機能](https://github.com/lukehoban/es6features)に加えて、Next.jsは以下もサポートしています。
+Next.js は、最新の JavaScript の機能をすぐに利用することを可能にします。[ES6 の機能](https://github.com/lukehoban/es6features)に加えて、Next.js は以下もサポートしています。
 
 - [Async/await](https://github.com/tc39/ecmascript-asyncawait) (ES2017)
 - [Object レスト/スプレッドプロパティ](https://github.com/tc39/proposal-object-rest-spread) (ES2018)
 - [Dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (ES2020)
 - [Optional Chaining](https://github.com/tc39/proposal-optional-chaining) (ES2020)
 - [Nullish Coalescing](https://github.com/tc39/proposal-nullish-coalescing) (ES2020)
-- [Class Fields](https://github.com/tc39/proposal-class-fields)と[Static Properties](https://github.com/tc39/proposal-static-class-features) (ステージ3提案の一部)
+- [Class Fields](https://github.com/tc39/proposal-class-fields)と[Static Properties](https://github.com/tc39/proposal-static-class-features) (ステージ 3 提案の一部)
 - そしてもっと！
 
-### TypeScriptの特徴
+### TypeScript の特徴
 
-Next.jsは組み込みのTypeScriptサポートがあります。[ここで詳細を学びましょう](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/01-typescript)。
+Next.js は組み込みの TypeScript サポートがあります。[ここで詳細を学びましょう](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/01-typescript)。
 
-### Babel Configのカスタマイズ (上級者向け)
+### Babel Config のカスタマイズ (上級者向け)
 
-Ybabel設定をカスタマイズすることができます。[こちらで詳細を学びましょう](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/08-babel)。
+babel 設定をカスタマイズすることができます。[こちらで詳細を学びましょう](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/08-babel)。

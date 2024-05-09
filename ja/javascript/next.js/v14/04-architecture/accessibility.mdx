@@ -7,19 +7,19 @@ org_path: /docs/architecture/accessibility
 is_empty: false
 ---
 
-Next.jsチームは、全ての開発者(及びそのエンドユーザー)がNext.jsを利用できるように専念しています。アクセシビリティ機能をNext.jsにdefaultで追加することで、私たちはすべての人々にとってより包括的なWebを作成することを目指しています。
+Next.js チームは、全ての開発者(及びそのエンドユーザー)が Next.js を利用できるように専念しています。アクセシビリティ機能を Next.js に default で追加することで、私たちはすべての人々にとってより包括的な Web を作成することを目指しています。
 
 ## Route Announcements
 
-server上でレンダリングされたページ間を移行する際(たとえば、`<a href>`タグを使用して)、スクリーンリーダーやその他の支援技術はページの読み込み時にページタイトルを発表し、ユーザーがページが変更されたことを理解するようにします。
+server 上でレンダリングされたページ間を移行する際(たとえば、`<a href>`タグを使用して)、スクリーンリーダーやその他の支援技術はページの読み込み時にページタイトルを発表し、ユーザーがページが変更されたことを理解するようにします。
 
-従来のページナビゲーションに加えて、Next.jsは、パフォーマンスの向上(`next/link`を使用)のためのClient側の遷移もサポートしています。Client側の遷移が支援技術にも通知されるように、Next.jsにはdefaultでrouteアナウンサーが含まれています。
+従来のページナビゲーションに加えて、Next.js は、パフォーマンスの向上(`next/link`を使用)のための Client 側の遷移もサポートしています。Client 側の遷移が支援技術にも通知されるように、Next.js には default で route アナウンサーが含まれています。
 
-Next.js routeアナウンサーは、まず`document.title`を調べ、次に`<h1>`要素を調べ、最後にURL pathnameを調べて、アナウンスするページ名を探します。最もアクセシブルなユーザーエクスペリエンスを提供するために、アプリケーションの各ページに独自で詳細なタイトルがあることを確認してください。
+Next.js route アナウンサーは、まず`document.title`を調べ、次に`<h1>`要素を調べ、最後に URL pathname を調べて、アナウンスするページ名を探します。最もアクセシブルなユーザーエクスペリエンスを提供するために、アプリケーションの各ページに独自で詳細なタイトルがあることを確認してください。
 
 ## Linting
 
-Next.jsは、箱を開けるだけで[統合されたESLint体験](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/02-eslint)を提供します。これには、Next.jsのカスタムルールが含まれています。defaultでは、Next.jsは `eslint-plugin-jsx-a11y` を含むことで早期にアクセシビリティ問題をキャッチするのに役立ちます。これには、次の警告が含まれます：
+Next.js は、箱を開けるだけで[統合された ESLint 体験](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/02-eslint)を提供します。これには、Next.js のカスタムルールが含まれています。default では、Next.js は `eslint-plugin-jsx-a11y` を含むことで早期にアクセシビリティ問題をキャッチするのに役立ちます。これには、次の警告が含まれます：
 
 - [aria-props](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-props.md?rgh-link-date=2021-06-04T02%3A10%3A36Z)
 - [aria-proptypes](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/aria-proptypes.md?rgh-link-date=2021-06-04T02%3A10%3A36Z)
@@ -27,7 +27,7 @@ Next.jsは、箱を開けるだけで[統合されたESLint体験](/ja/javascrip
 - [role-has-required-aria-props](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/role-has-required-aria-props.md?rgh-link-date=2021-06-04T02%3A10%3A36Z)
 - [role-supports-aria-props](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/role-supports-aria-props.md?rgh-link-date=2021-06-04T02%3A10%3A36Z)
 
-たとえば、この pluginは、`img`タグに altテキストを追加したり、正しい`aria-*`属性を使用したり、正しい`role`属性を使用したりするのを確認するのに役立ちます等。
+たとえば、この plugin は、`img`タグに alt テキストを追加したり、正しい`aria-*`属性を使用したり、正しい`role`属性を使用したりするのを確認するのに役立ちます等。
 
 ## Accessibility Resources
 
@@ -35,4 +35,4 @@ Next.jsは、箱を開けるだけで[統合されたESLint体験](/ja/javascrip
 - [WCAG 2.2 ガイドライン](https://www.w3.org/TR/WCAG22/)
 - [The A11y Project](https://www.a11yproject.com/)
 - 前景と背景要素の間の[color contrast ratios](https://developer.mozilla.org/docs/Web/Accessibility/Understanding_WCAG/Perceivable/Color_contrast)を確認してください
-- Uアニメーションを操作するときは、[`prefers-reduced-motion`](https://web.dev/prefers-reduced-motion/) を使用してください。
+- アニメーションを操作するときは、[`prefers-reduced-motion`](https://web.dev/prefers-reduced-motion/) を使用してください。

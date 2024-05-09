@@ -14,20 +14,20 @@ is_empty: false
 
 </details>
 
-> AMP対応は私たちの高度な機能の1つで、[ここでAMPについて詳しく読むことができます](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/07-amp)。
+> AMP 対応は私たちの高度な機能の 1 つで、[ここで AMP について詳しく読むことができます](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/07-amp)。
 
-AMPを有効にするには、以下のconfigをページに追加してください:
+AMP を有効にするには、以下の config をページに追加してください:
 
 ```jsx:pages/index.js
 export const config = { amp: true }
 ```
 
-`amp` configは以下の値を受け入れます：
+`amp` config は以下の値を受け入れます：
 
-- `true` - そのページはAMP専用となります
-- `'hybrid'` - このページには2つのVersionがあり、一つはAMP、もう一つはHTMLとなります。
+- `true` - そのページは AMP 専用となります
+- `'hybrid'` - このページには 2 つの Version があり、一つは AMP、もう一つは HTML となります。
 
-`amp`やconfigについて詳しく知りたい場合は、以下のセクションをお読みください。
+`amp`や config について詳しく知りたい場合は、以下のセクションをお読みください。
 
 ## AMP First Page
 
@@ -43,11 +43,11 @@ function About(props) {
 export default About
 ```
 
-上記のページはAMP-onlyページであり、それはつまり：
+上記のページは AMP-only ページであり、それはつまり：
 
-- そのページにはNext.jsやReactのClientサイドのruntimeがありません
-- このページは、AMPキャッシュと同じ変換を適用する最適化ツールである[AMP Optimizer](https://github.com/ampproject/amp-toolbox/tree/master/packages/optimizer)によって自動的に最適化され、パフォーマンスは最大42％向上します
-- このページには、ユーザーがアクセス可能な(最適化された)versionのページと、検索エンジンがインデックス化可能な(unoptimized)versionのページがあります。
+- そのページには Next.js や React の Client サイドの runtime がありません
+- このページは、AMP キャッシュと同じ変換を適用する最適化ツールである[AMP Optimizer](https://github.com/ampproject/amp-toolbox/tree/master/packages/optimizer)によって自動的に最適化され、パフォーマンスは最大 42％向上します
+- このページには、ユーザーがアクセス可能な(最適化された)version のページと、検索エンジンがインデックス化可能な(unoptimized)version のページがあります。
 
 ## Hybrid AMP Page
 
@@ -82,9 +82,9 @@ function About(props) {
 export default About
 ```
 
-上記のページは、ハイブリッドAMPページで、それは次の意味です：
+上記のページは、ハイブリッド AMP ページで、それは次の意味です：
 
-- 該当のページは、伝統的なHTML(default)とAMP HTML(`?amp=1`をURLに追加することで)でレンダリングされます。
-- そのページのAMP versionは、AMP Optimizerを使用して有効な最適化のみが適用され、検索エンジンで索引付けできるようになっています
+- 該当のページは、伝統的な HTML(default)と AMP HTML(`?amp=1`を URL に追加することで)でレンダリングされます。
+- そのページの AMP version は、AMP Optimizer を使用して有効な最適化のみが適用され、検索エンジンで索引付けできるようになっています
 
-Tこのページは`useAmp`を使ってモードを区別し、それは[React Hook](https://react.dev/reference/react)という、ページがAMPを使っている場合は`true`を、それ以外の場合は`false`を返すものです。
+このページは`useAmp`を使ってモードを区別し、それは[React Hook](https://react.dev/reference/react)という、ページが AMP を使っている場合は`true`を、それ以外の場合は`false`を返すものです。

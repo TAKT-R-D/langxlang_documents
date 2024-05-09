@@ -7,7 +7,7 @@ org_path: /docs/pages/api-reference/functions/get-static-props
 is_empty: false
 ---
 
-`getStaticProps`と呼ばれる関数をexportすると、関数から返されたpropsを使用して、build時間にページをプレレンダリングします。
+`getStaticProps`と呼ばれる関数を export すると、関数から返された props を使用して、build 時間にページをプレレンダリングします。
 
 ```tsx:pages/index.tsx
 import type { InferGetStaticPropsType, GetStaticProps } from 'next'
@@ -44,49 +44,49 @@ export default function Page({ repo }) {
 }
 ```
 
-`getStaticProps`内で使用するために、トップレベルの scope で import modules することができます。使用されるimportは、**クライアントサイドにはバンドルされません**。これは、あなたが`getStaticProps`内で直接** server-side code を書くことができる**ということを意味します、データベースからのデータの取得を含む。
+`getStaticProps`内で使用するために、トップレベルの scope で import modules することができます。使用される import は、**クライアントサイドにはバンドルされません**。これは、あなたが`getStaticProps`内で直接** server-side code を書くことができる**ということを意味します、データベースからのデータの取得を含む。
 
 ## Context parameter
 
 The `context` parameter is an object containing the following keys:
 
-| Name | Description |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `params` | [dynamic routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を使用しているページの route パラメータを格納します。例えば、ページ名が `[id].js`の場合、`params`は `{ id:... }` のようになります。これは後で説明する`getStaticPaths`と一緒に使用するべきです。|
-| `preview` | (`draftMode`に非推奨) `preview`は、ページが[Preview Mode](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)にある場合`true`、そうでなければ`false`となります。|
-| `previewData` | (`draftMode`用に非推奨) `setPreviewData`によって設定された[preview](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)データセット。|
-| `draftMode` | ページが[ドラフトモード](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/11-draft-mode)にある場合、`draftMode`は`true`となり、それ以外の場合は`false`となります。|
-| `locale` | アクティブな locale (有効になっている場合)を含みます。|
-| `locales` | すべてのサポートされている locales (有効にした場合)が含まれています。 |
-| `defaultLocale` | 設定された default locale (有効にした場合)が含まれます。|
+| Name            | Description                                                                                                                                                                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `params`        | [dynamic routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を使用しているページの route パラメータを格納します。例えば、ページ名が `[id].js`の場合、`params`は `{ id:... }` のようになります。これは後で説明する`getStaticPaths`と一緒に使用するべきです。 |
+| `preview`       | (`draftMode`に非推奨) `preview`は、ページが[Preview Mode](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)にある場合`true`、そうでなければ`false`となります。                                                                                                  |
+| `previewData`   | (`draftMode`用に非推奨) `setPreviewData`によって設定された[preview](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/14-preview-mode)データセット。                                                                                                                             |
+| `draftMode`     | ページが[ドラフトモード](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/11-draft-mode)にある場合、`draftMode`は`true`となり、それ以外の場合は`false`となります。                                                                                                              |
+| `locale`        | アクティブな locale (有効になっている場合)を含みます。                                                                                                                                                                                                                                                         |
+| `locales`       | すべてのサポートされている locales (有効にした場合)が含まれています。                                                                                                                                                                                                                                          |
+| `defaultLocale` | 設定された default locale (有効にした場合)が含まれます。                                                                                                                                                                                                                                                       |
 
 ## getStaticProps return values
 
-`getStaticProps`関数は、`props`、`redirect`、または`notFound`のいずれかを含むobjectを返すべきであり、その後には**任意の**`revalidate`プロパティが続くべきです。
+`getStaticProps`関数は、`props`、`redirect`、または`notFound`のいずれかを含む object を返すべきであり、その後には**任意の**`revalidate`プロパティが続くべきです。
 
 ### `props`
 
-`props` objectはキーとvalueのペアで、各valueはページのcomponentによって受け取られます。それは[シリアライザブルなobject](https://developer.mozilla.org/docs/Glossary/Serialization)であるべきで、渡された任意のpropsが[`JSON.stringify`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)でシリアライズできるようにするためです。
+`props` object はキーと value のペアで、各 value はページの component によって受け取られます。それは[シリアライザブルな object](https://developer.mozilla.org/docs/Glossary/Serialization)であるべきで、渡された任意の props が[`JSON.stringify`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)でシリアライズできるようにするためです。
 
 ```jsx
 export async function getStaticProps(context) {
   return {
     props: { message: `Next.js is awesome` }, // will be passed to the page component as props
-  }
+  };
 }
 ```
 
 ### `revalidate`
 
-`revalidate`プロパティは、ページの再生成が可能になる秒数です(defaultは`false`または再検証なし)。
+`revalidate`プロパティは、ページの再生成が可能になる秒数です(default は`false`または再検証なし)。
 
 ```js
 // This function gets called at build time on server-side.
 // It may be called again, on a serverless function, if
 // revalidation is enabled and a new request comes in
 export async function getStaticProps() {
-  const res = await fetch('https://.../posts')
-  const posts = await res.json()
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
 
   return {
     props: {
@@ -96,13 +96,13 @@ export async function getStaticProps() {
     // - When a request comes in
     // - At most once every 10 seconds
     revalidate: 10, // In seconds
-  }
+  };
 }
 ```
 
 [Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)についてさらに学びましょう。
 
-ISRを活用したページのcache状況は、`x-nextjs-cache`のvalueを読むことで判断できます。response headerが取り得る値は以下の通りです：
+ISR を活用したページの cache 状況は、`x-nextjs-cache`の value を読むことで判断できます。response header が取り得る値は以下の通りです：
 
 - `MISS` - the path is not in the cache (occurs at most once, on the first visit)
 - `STALE` - the path is in the cache but exceeded the revalidate time so it will be updated in the background
@@ -110,22 +110,22 @@ ISRを活用したページのcache状況は、`x-nextjs-cache`のvalueを読む
 
 ### `notFound`
 
-`notFound`の boolean は、ページが `404` ステータスと[404ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#404-page)を返すことを可能にします。`notFound: true`の場合、前に正常に生成されたページがあったとしても、ページは `404` を返します。これは、ユーザー生成のコンテンツがその著者によって削除されるといったユースケースをサポートすることを意図したものです。なお、`notFound`は同じ`revalidate`の振舞いを追従します。[ここで説明されています](#revalidate)。
+`notFound`の boolean は、ページが `404` ステータスと[404 ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/08-custom-error#404-page)を返すことを可能にします。`notFound: true`の場合、前に正常に生成されたページがあったとしても、ページは `404` を返します。これは、ユーザー生成のコンテンツがその著者によって削除されるといったユースケースをサポートすることを意図したものです。なお、`notFound`は同じ`revalidate`の振舞いを追従します。[ここで説明されています](#revalidate)。
 
 ```js
 export async function getStaticProps(context) {
-  const res = await fetch(`https://.../data`)
-  const data = await res.json()
+  const res = await fetch(`https://.../data`);
+  const data = await res.json();
 
   if (!data) {
     return {
       notFound: true,
-    }
+    };
   }
 
   return {
     props: { data }, // will be passed to the page component as props
-  }
+  };
 }
 ```
 
@@ -133,46 +133,46 @@ export async function getStaticProps(context) {
 
 ### `redirect`
 
-`redirect`objectは、内部または外部リソースへのリダイレクトを可能にします。それは`{ destination: string, permanent: boolean }`の形状と一致するべきです。
+`redirect`object は、内部または外部リソースへのリダイレクトを可能にします。それは`{ destination: string, permanent: boolean }`の形状と一致するべきです。
 
-まれに、古い`HTTP`Clientが正しくredirectするためにカスタムステータスcodeを割り当てる必要があるかもしれません。そのような場合、`permanent`プロパティの代わりに`statusCode`プロパティを使用できますが、**両方とも使用することはできません**。また、`next.config.js`のredirectsと同様に`basePath: false`を設定することもできます。
+まれに、古い`HTTP`Client が正しく redirect するためにカスタムステータス code を割り当てる必要があるかもしれません。そのような場合、`permanent`プロパティの代わりに`statusCode`プロパティを使用できますが、**両方とも使用することはできません**。また、`next.config.js`の redirects と同様に`basePath: false`を設定することもできます。
 
 ```js
 export async function getStaticProps(context) {
-  const res = await fetch(`https://...`)
-  const data = await res.json()
+  const res = await fetch(`https://...`);
+  const data = await res.json();
 
   if (!data) {
     return {
       redirect: {
-        destination: '/',
+        destination: "/",
         permanent: false,
         // statusCode: 301
       },
-    }
+    };
   }
 
   return {
     props: { data }, // will be passed to the page component as props
-  }
+  };
 }
 ```
 
-もしredirectsがbuild時に既知であれば、それらは代わりに [`next.config.js`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/redirects) に追加すべきです。
+もし redirects が build 時に既知であれば、それらは代わりに [`next.config.js`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/redirects) に追加すべきです。
 
 ## Reading files: Use `process.cwd()`
 
 `getStaticProps`内でファイルシステムから直接ファイルを読むことができます。
 
-それを行うためには、ファイルへの完全なpathを取得する必要があります。
+それを行うためには、ファイルへの完全な path を取得する必要があります。
 
-Next.jsがあなたのcodeを別のディレクトリにコンパイルするため、`__dirname`を使うことはできません。なぜなら、それが返すpathはPages Routerとは異なるからです。
+Next.js があなたの code を別のディレクトリにコンパイルするため、`__dirname`を使うことはできません。なぜなら、それが返す path は Pages Router とは異なるからです。
 
-代わりに、`process.cwd()`を使用できます。これにより、Next.jsが実行されているディレクトリが表示されます。
+代わりに、`process.cwd()`を使用できます。これにより、Next.js が実行されているディレクトリが表示されます。
 
 ```jsx
-import { promises as fs } from 'fs'
-import path from 'path'
+import { promises as fs } from "fs";
+import path from "path";
 
 // posts will be populated at build time by getStaticProps()
 function Blog({ posts }) {
@@ -185,19 +185,19 @@ function Blog({ posts }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
 // This function gets called at build time on server-side.
 // It won't be called on client-side, so you can even do
 // direct database queries.
 export async function getStaticProps() {
-  const postsDirectory = path.join(process.cwd(), 'posts')
-  const filenames = await fs.readdir(postsDirectory)
+  const postsDirectory = path.join(process.cwd(), "posts");
+  const filenames = await fs.readdir(postsDirectory);
 
   const posts = filenames.map(async (filename) => {
-    const filePath = path.join(postsDirectory, filename)
-    const fileContents = await fs.readFile(filePath, 'utf8')
+    const filePath = path.join(postsDirectory, filename);
+    const fileContents = await fs.readFile(filePath, "utf8");
 
     // Generally you would parse/transform the contents
     // For example you can transform markdown to HTML here
@@ -205,28 +205,28 @@ export async function getStaticProps() {
     return {
       filename,
       content: fileContents,
-    }
-  })
+    };
+  });
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
   return {
     props: {
       posts: await Promise.all(posts),
     },
-  }
+  };
 }
 
-export default Blog
+export default Blog;
 ```
 
 ## Version History
 
-| Version | Changes |
+| Version   | Changes                                                                                                                                                               |
 | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `v13.4.0` | [App Router](/docs/app/building-your-application/data-fetching) is now stable with simplified data fetching |
-| `v12.2.0` | [On-Demand Incremental Static Regeneration](/docs/pages/building-your-application/data-fetching/incremental-static-regeneration#on-demand-revalidation) is stable. |
+| `v13.4.0` | [App Router](/docs/app/building-your-application/data-fetching) is now stable with simplified data fetching                                                           |
+| `v12.2.0` | [On-Demand Incremental Static Regeneration](/docs/pages/building-your-application/data-fetching/incremental-static-regeneration#on-demand-revalidation) is stable.    |
 | `v12.1.0` | [On-Demand Incremental Static Regeneration](/docs/pages/building-your-application/data-fetching/incremental-static-regeneration#on-demand-revalidation) added (beta). |
-| `v10.0.0` | `locale`, `locales`, `defaultLocale`, and `notFound` options added. |
-| `v10.0.0` | `fallback: 'blocking'`リターンオプションが追加されました。 |
-| `v9.5.0` | Stable [Incremental Static Regeneration](/docs/pages/building-your-application/data-fetching/incremental-static-regeneration) |
-| `v9.3.0` | `getStaticProps`が導入されました。|
+| `v10.0.0` | `locale`, `locales`, `defaultLocale`, and `notFound` options added.                                                                                                   |
+| `v10.0.0` | `fallback: 'blocking'`リターンオプションが追加されました。                                                                                                            |
+| `v9.5.0`  | Stable [Incremental Static Regeneration](/docs/pages/building-your-application/data-fetching/incremental-static-regeneration)                                         |
+| `v9.3.0`  | `getStaticProps`が導入されました。                                                                                                                                    |

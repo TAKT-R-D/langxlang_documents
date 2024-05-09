@@ -76,7 +76,7 @@ export default function Page({ repo }) {
 
 ## getStaticPaths return values
 
-`getStaticPaths`関数は、以下の**必須**プロパティを持つobjectを返す必要があります：
+`getStaticPaths`関数は、以下の**必須**プロパティを持つ object を返す必要があります：
 
 ### `paths`
 
@@ -96,12 +96,12 @@ return {
 }
 ```
 
-その後、Next.jsは`pages/posts/[id].js`のページcomponentを使用して、`next build`の間に`/posts/1`と`/posts/2`を静的に生成します。
+その後、Next.js は`pages/posts/[id].js`のページ component を使用して、`next build`の間に`/posts/1`と`/posts/2`を静的に生成します。
 
-各`params`のobjectのvalueは、ページ名で使用されているパラメータと一致しなければなりません:
+各`params`の object の value は、ページ名で使用されているパラメータと一致しなければなりません:
 
 - ページの名前が `pages/posts/[postId]/[commentId]` である場合、`params`は `postId`と `commentId`を含むべきです。
-- ページ名が[catch-all routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#catch-all-segments)を使う場合、つまり`pages/[...slug]`のような形式である場合、`params`は`slug`(配列)を含むべきです。この配列が`['hello', 'world']`である場合、Next.jsは`/hello/world`でページを静的に生成します。
+- ページ名が[catch-all routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#catch-all-segments)を使う場合、つまり`pages/[...slug]`のような形式である場合、`params`は`slug`(配列)を含むべきです。この配列が`['hello', 'world']`である場合、Next.js は`/hello/world`でページを静的に生成します。
 - ページが[オプショナルな catch-all route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#optional-catch-all-segments)を使用している場合は、`null`、`[]`、`undefined`、または`false`を用いて最もルートの route を render してください。例えば、`pages/[[...slug]]`に対して`slug: false`を提供すると、 Next.js はページ`/`を静的に生成します。
 
 `params` 文字列は**大文字と小文字を区別します**。理想的には、 paths が正しく生成されるように正規化するべきです。例えば、`World`がパラメータに対して返された場合、それは`WoRLD`が訪れた実際の path と一致するだけで、`WoRLD`や`world`では一致しません。
@@ -110,11 +110,11 @@ return {
 
 ### `fallback: false`
 
-`fallback`が`false`である場合、`getStaticPaths`によって返されないpathsは**404ページ**が出力されます。
+`fallback`が`false`である場合、`getStaticPaths`によって返されない paths は**404 ページ**が出力されます。
 
-`next build`が実行されるとき、Next.jsは`getStaticPaths`が`fallback: false`を返したかどうかを確認し、その場合、`getStaticPaths`によって返されたpathsのみをbuildします。このオプションは、作成するpathsのnumberが少ない、または新しいページデータが頻繁に追加されない場合に便利です。もし新たなpathsを追加する必要があると分かり、そして`fallback: false`を持っている場合、新しいpathsを生成できるように再度`next build`を実行する必要があります。
+`next build`が実行されるとき、Next.js は`getStaticPaths`が`fallback: false`を返したかどうかを確認し、その場合、`getStaticPaths`によって返された paths のみを build します。このオプションは、作成する paths の number が少ない、または新しいページデータが頻繁に追加されない場合に便利です。もし新たな paths を追加する必要があると分かり、そして`fallback: false`を持っている場合、新しい paths を生成できるように再度`next build`を実行する必要があります。
 
-次の例では、`pages/posts/[id].js`という1ページごとに1つのブログのpostを事前レンダリングします。ブログの投稿のリストはCMSからフェッチされ、`getStaticPaths`によって返されます。その後、各ページはCMSからpostデータを[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用してフェッチします。
+次の例では、`pages/posts/[id].js`という 1 ページごとに 1 つのブログの post を事前レンダリングします。ブログの投稿のリストは CMS からフェッチされ、`getStaticPaths`によって返されます。その後、各ページは CMS から post データを[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用してフェッチします。
 
 ```jsx:pages/posts/[id].js
 function Post({ post }) {
@@ -156,54 +156,54 @@ export default Post
 <details>
   <summary>Examples</summary>
 
-- [大量のnumberページの静的生成](https://static-tweet.vercel.app)
+- [大量の number ページの静的生成](https://static-tweet.vercel.app)
 
 </details>
 
 `fallback`が`true`の場合、`getStaticProps`の動作は以下のように変わります：
 
-- `getStaticPaths`から返されるpathsは、`getStaticProps`によって`HTML`へとbuild時にレンダリングされます。
-- まだbuild時に生成されていないpathsは、404ページが表示され**ない**結果になります。その代わり、Next.jsはそのようなpathへの最初のrequestで、ページの[fallback](#fallback-pages)versionを提供します。GoogleなどのWebクローラは、fallbackが提供されることはなく、代わりにpathは、[`fallback: 'blocking'`](#fallback-blocking)のように動作します。
-- `fallback: true`のページが`next/link`や`next/router`(Client側)を通じて移動した場合、Next.jsはfallbackを提供_しない_代わりに、ページは[`fallback: 'blocking'`](#fallback-blocking)のように振る舞います。
-- バックグラウンドで、Next.jsは要求されたpathの`HTML`と`JSON`を静的に生成します。これには`getStaticProps`の実行が含まれます。
-- 完了すると、ブラウザは生成されたpathの`JSON`を受信します。これは、必要なpropsでページを自動的にrenderするために使用されます。ユーザーの視点からすると、ページはfallbackページからフルページに切り替わります。
-- 同時に、Next.jsはこのpathを事前レンダリングされたページのリストに追加します。同じpathへの後続のRequestは、build時に事前レンダリングされた他のページと同様に、生成されたページを提供します。
+- `getStaticPaths`から返される paths は、`getStaticProps`によって`HTML`へと build 時にレンダリングされます。
+- まだ build 時に生成されていない paths は、404 ページが表示され**ない**結果になります。その代わり、Next.js はそのような path への最初の request で、ページの[fallback](#fallback-pages)version を提供します。Google などの Web クローラは、fallback が提供されることはなく、代わりに path は、[`fallback: 'blocking'`](#fallback-blocking)のように動作します。
+- `fallback: true`のページが`next/link`や`next/router`(Client 側)を通じて移動した場合、Next.js は fallback を提供**しない**代わりに、ページは[`fallback: 'blocking'`](#fallback-blocking)のように振る舞います。
+- バックグラウンドで、Next.js は要求された path の`HTML`と`JSON`を静的に生成します。これには`getStaticProps`の実行が含まれます。
+- 完了すると、ブラウザは生成された path の`JSON`を受信します。これは、必要な props でページを自動的に render するために使用されます。ユーザーの視点からすると、ページは fallback ページからフルページに切り替わります。
+- 同時に、Next.js はこの path を事前レンダリングされたページのリストに追加します。同じ path への後続の Request は、build 時に事前レンダリングされた他のページと同様に、生成されたページを提供します。
 
 > **Good to know**: `fallback: true`は、[`output: 'export'`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用する場合にはサポートされていません。
 
 #### `fallback: true`はいつ役立つのでしょうか？
 
-`fallback: true`は、あなたのappがデータに依存する静的ページのnumberが非常に多い場合(大規模なe-commerceサイトなど)に役立ちます。すべての商品ページを事前にレンダリングしたい場合、buildには非常に長い時間がかかります。
+`fallback: true`は、あなたの app がデータに依存する静的ページの number が非常に多い場合(大規模な e-commerce サイトなど)に役立ちます。すべての商品ページを事前にレンダリングしたい場合、build には非常に長い時間がかかります。
 
-それよりも、ページの小さな部分を静的に生成し、残りは `fallback: true` を使用することができます。まだ生成されていないページを誰かが要求したとき、ユーザーは loadingインジケーターや componentスケルトンと共にそのページを見ることになります。
+それよりも、ページの小さな部分を静的に生成し、残りは `fallback: true` を使用することができます。まだ生成されていないページを誰かが要求したとき、ユーザーは loading インジケーターや component スケルトンと共にそのページを見ることになります。
 
-その後すぐに、`getStaticProps`が完了し、Requestされたデータでページがレンダリングされます。これからは、同じページをRequestする全ての人が静的に事前レンダリングされたページを取得します。
+その後すぐに、`getStaticProps`が完了し、Request されたデータでページがレンダリングされます。これからは、同じページを Request する全ての人が静的に事前レンダリングされたページを取得します。
 
-これにより、ユーザーは常に高速な体験を持つことが保証される一方で、高速なbuildとStatic Generationの利点が保持されます。
+これにより、ユーザーは常に高速な体験を持つことが保証される一方で、高速な build と Static Generation の利点が保持されます。
 
-`fallback: true`は生成されたページを_更新_しません、それについては[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)を参照してみてください。
+`fallback: true`は生成されたページを**更新**しません、それについては[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)を参照してみてください。
 
 ### `fallback: 'blocking'`
 
-`fallback`が`'blocking'`の場合、新しい paths は、`getStaticPaths`によって返されないため、`HTML`が生成されるのを待ち、それは SSR (それが_ blocking _である理由)と同じで、その後、将来のリクエストのためにキャッシュされます。そのため、 path ごとに一度だけ起こります。
+`fallback`が`'blocking'`の場合、新しい paths は、`getStaticPaths`によって返されないため、`HTML`が生成されるのを待ち、それは SSR (それが**blocking**である理由)と同じで、その後、将来のリクエストのためにキャッシュされます。そのため、 path ごとに一度だけ起こります。
 
 `getStaticProps`は以下のように動作します：
 
-- `getStaticPaths`から返されるpathsは、`getStaticProps`によって`HTML`へとbuild時にレンダリングされます。
-- build時に生成されていないpathsは404ページを**生じません**。代わりに、Next.jsは初回のrequestでSSRを行い、生成された`HTML`を返します。
-- 完了時には、ブラウザは生成されたpathの`HTML`を受け取ります。ユーザーから見ると、"ブラウザがページを要求している"から"フルページがロードされた"へと遷移します。Loading/フォールバックの状態が一瞬表示されることはありません。
-- 同時に、Next.jsはこのpathを事前レンダリングされたページのリストに追加します。同じpathへの後続のRequestは、build時に事前レンダリングされた他のページと同様に、生成されたページを提供します。
+- `getStaticPaths`から返される paths は、`getStaticProps`によって`HTML`へと build 時にレンダリングされます。
+- build 時に生成されていない paths は 404 ページを**生じません**。代わりに、Next.js は初回の request で SSR を行い、生成された`HTML`を返します。
+- 完了時には、ブラウザは生成された path の`HTML`を受け取ります。ユーザーから見ると、"ブラウザがページを要求している"から"フルページがロードされた"へと遷移します。Loading/フォールバックの状態が一瞬表示されることはありません。
+- 同時に、Next.js はこの path を事前レンダリングされたページのリストに追加します。同じ path への後続の Request は、build 時に事前レンダリングされた他のページと同様に、生成されたページを提供します。
 
-`fallback: 'blocking'`はdefaultでは生成されたページを_更新_しません。生成されたページを更新するためには、`fallback: 'blocking'`と組み合わせて[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)を使用してください。
+`fallback: 'blocking'`は default では生成されたページを**更新**しません。生成されたページを更新するためには、`fallback: 'blocking'`と組み合わせて[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)を使用してください。
 
 > **Good to know**: `fallback: 'blocking'`は[`output: 'export'`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用する際にはサポートされていません。
 
 ### Fallback ページ
 
-ページのfallbackのversionでは：
+ページの fallback の version では：
 
-- そのページのpropsはemptyになります。
-- [router](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router) を使用すると、fallbackがレンダリングされているかどうかを検出できます。`router.isFallback`は`true`になります。
+- そのページの props は empty になります。
+- [router](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router) を使用すると、fallback がレンダリングされているかどうかを検出できます。`router.isFallback`は`true`になります。
 
 次の例は、`isFallback`の使用を示しています：
 
@@ -254,10 +254,10 @@ export default Post
 
 ## Version History
 
-| Version | Changes |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Version   | Changes                                                                                                                                                                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `v13.4.0` | [App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)は、[`generateStaticParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)を含む単純化されたデータフェッチで安定しています |
-| `v12.2.0` | [オンデマンド Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)は安定しています。|
-| `v12.1.0` | [オンデマンド Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)追加(ベータ版)。|
-| `v9.5.0` | 安定版 [Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration) |
-| `v9.3.0` | `getStaticPaths`が導入されました。|
+| `v12.2.0` | [オンデマンド Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)は安定しています。                                                       |
+| `v12.1.0` | [オンデマンド Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)追加(ベータ版)。                                                         |
+| `v9.5.0`  | 安定版 [Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)                                                                                                      |
+| `v9.3.0`  | `getStaticPaths`が導入されました。                                                                                                                                                                                                                                  |
