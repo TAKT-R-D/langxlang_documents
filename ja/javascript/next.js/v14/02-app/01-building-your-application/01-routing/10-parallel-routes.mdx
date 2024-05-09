@@ -75,7 +75,7 @@ export default function Layout({ children, team, analytics }) {
 
 default として、Next.js は各スロットのアクティブな*状態*(またはサブページ)を追跡します。ただし、スロット内にレンダリングされる内容は type のナビゲーションに依存します：
 
-- [**ソフトナビゲーション**](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#5-soft-navigation): クライアントサイドナビゲーション中、 Next.js は[部分的な render](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/linking-and-navigating#4-partial-rendering)を行い、スロット内のサブページを変更しながら、他のスロットのアクティブなサブページを保持します、たとえそれらが現在の URL と一致しなくても。
+- [**ソフトナビゲーション**](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#5-soft-navigation): クライアントサイドナビゲーション中、 Next.js は[部分的な render](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)を行い、スロット内のサブページを変更しながら、他のスロットのアクティブなサブページを保持します、たとえそれらが現在の URL と一致しなくても。
 - **難解なナビゲーション**: フルページのロード(ブラウザの refresh )後、 Next.js は現在の URL に一致しないスロットのアクティブ状態を決定できません。代わりに、一致しないスロットには [`default.js`](#defaultjs) ファイルが render されます。もし `default.js`が存在しない場合は、`404`が出力されます。
 
 > **Good to know**:
