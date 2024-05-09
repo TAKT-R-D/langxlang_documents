@@ -9,9 +9,9 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.js generates an ID during `next build` to identify which version of your application is being served. The same build should be used and boot up multiple containers.
+Next.js は`next build`の間に ID を生成して、どのバージョンのアプリケーションが提供されているかを識別します。同じビルドを使用して複数のコンテナを起動する必要があります。
 
-If you are rebuilding for each stage of your environment, you will need to generate a consistent build ID to use between containers. Use the `generateBuildId` command in `next.config.js`:
+環境の各段階で再ビルドする場合、コンテナ間で使用する一貫したビルド ID を生成する必要があります。`next.config.js`で`generateBuildId`コマンドを使用してください：
 
 ```jsx:next.config.js
 module.exports = {

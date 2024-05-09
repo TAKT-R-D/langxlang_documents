@@ -11,11 +11,11 @@ is_empty: false
 
 <AppOnly>
 
-あなたがcodeを編集し、Next.jsがアプリケーションをコンパイルしているとき、コンパイルインジケーターがページの右下隅に表示されます。
+あなたが code を編集し、Next.js がアプリケーションをコンパイルしているとき、コンパイルインジケーターがページの右下隅に表示されます。
 
-> **Good to know**: このインジケータは development モードにのみ存在し、 app を production モードでbuildおよび実行するときには表示されません。
+> **Good to know**: このインジケータは development モードにのみ存在し、 app を production モードで build および実行するときには表示されません。
 
-場合によっては、このインジケーターはページ上で誤って配置されることがあります。例えば、チャットランチャーと競合している場合などです。その位置を変更するには、`next.config.js`を開き、`devIndicators`のobject内の`buildActivityPosition`を`bottom-right`(default)、`bottom-left`、`top-right`、`top-left`に設定してください。
+場合によっては、このインジケーターはページ上で誤って配置されることがあります。例えば、チャットランチャーと競合している場合などです。その位置を変更するには、`next.config.js`を開き、`devIndicators`の object 内の`buildActivityPosition`を`bottom-right`(default)、`bottom-left`、`top-right`、`top-left`に設定してください。
 
 ```js:next.config.js
 module.exports = {
@@ -25,7 +25,7 @@ module.exports = {
 }
 ```
 
-場合によっては、このインジケーターが役に立たないかもしれません。それを削除するには、`next.config.js`を開き、`devIndicators` objectの中で`buildActivity` configを無効にしてください。
+場合によっては、このインジケーターが役に立たないかもしれません。それを削除するには、`next.config.js`を開き、`devIndicators` object の中で`buildActivity` config を無効にしてください。
 
 ```js:next.config.js
 module.exports = {
@@ -39,13 +39,13 @@ module.exports = {
 
 <PagesOnly>
 
-> **Good to know**: このインディケーターは Next.js version 10.0.1で削除されました。最新の version の Next.js にアップグレードすることをお勧めします。
+> **Good to know**: このインディケーターは Next.js version 10.0.1 で削除されました。最新の version の Next.js にアップグレードすることをお勧めします。
 
 ページが[Automatic Static Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)の対象となった場合、それを知らせるためにインジケーターを表示します。
 
 これは自動的な静的最適化が非常に有益であり、development がページに適しているかどうかすぐに知ることができるので、役立ちます。
 
-場合によっては、このインディケーターが役に立たないこともあります。例えば、electronアプリケーションの操作時などです。それを削除するには、`next.config.js`を開き、`devIndicators`の中の`autoPrerender` configを無効にしてください。
+場合によっては、このインディケーターが役に立たないこともあります。例えば、electron アプリケーションの操作時などです。それを削除するには、`next.config.js`を開き、`devIndicators`の中の`autoPrerender` config を無効にしてください。
 
 ```js:next.config.js
 module.exports = {

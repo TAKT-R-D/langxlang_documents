@@ -9,13 +9,13 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.js fails your **production build** (`next build`) when TypeScript errors are present in your project.
+Next.js はプロジェクトに TypeScript のエラーがある場合、**production build**（`next build`）で失敗します。
 
-If you'd like Next.js to dangerously produce production code even when your application has errors, you can disable the built-in type checking step.
+アプリケーションにエラーがある場合でも、Next.js による本番コードの生成を強行したい場合は、組み込みの型チェックステップを無効にすることができます。
 
-If disabled, be sure you are running type checks as part of your build or deploy process, otherwise this can be very dangerous.
+無効にした場合、ビルドまたはデプロイプロセスの一部として型チェックを実行していることを確認してください。そうでないと非常に危険です。
 
-Open `next.config.js` and enable the `ignoreBuildErrors` option in the `typescript` config:
+`next.config.js`を開いて、`typescript`設定で`ignoreBuildErrors`オプションを有効にします：
 
 ```js:next.config.js
 module.exports = {

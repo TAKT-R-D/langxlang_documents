@@ -8,7 +8,7 @@ is_empty: false
 nav_title: cacheHandler
 ---
 
-Next.jsでは、PagesとApp Routerの[defaultキャッシュハンドラー](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)はファイルシステムのcacheを使用します。これは設定が不要ですが、`next.config.js`の `cacheHandler`フィールドを使用してキャッシュハンドラーをカスタマイズすることができます。
+Next.js では、Pages と App Router の[default キャッシュハンドラー](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)はファイルシステムの cache を使用します。これは設定が不要ですが、`next.config.js`の `cacheHandler`フィールドを使用してキャッシュハンドラーをカスタマイズすることができます。
 
 ```js:next.config.js
 module.exports = {
@@ -21,43 +21,43 @@ module.exports = {
 
 ## API Reference
 
-cache handlerは以下のMethodを実装できます：`get`、`set`、そして`revalidateTag`。
+cache handler は以下の Method を実装できます：`get`、`set`、そして`revalidateTag`。
 
 ### `get()`
 
-| Parameter | Type | Description |
-| --------- | -------- | ---------------------------- |
-| `key` | `string` | キャッシュされた value への鍵。|
+| Parameter | Type     | Description                     |
+| --------- | -------- | ------------------------------- |
+| `key`     | `string` | キャッシュされた value への鍵。 |
 
-キャッシュされたvalueを返すか、見つからない場合は`null`を返します。
+キャッシュされた value を返すか、見つからない場合は`null`を返します。
 
 ### `set()`
 
-| Parameter | Type | Description |
-| --------- | -------------- | -------------------------------- |
-| `key` | `string` | データを保存するためのキー。|
-| `data` | データまたは`null` | キャッシュするデータ。 |
-| `ctx` | `{ tags: [] }` | 提供された cache タグ。|
+| Parameter | Type               | Description                  |
+| --------- | ------------------ | ---------------------------- |
+| `key`     | `string`           | データを保存するためのキー。 |
+| `data`    | データまたは`null` | キャッシュするデータ。       |
+| `ctx`     | `{ tags: [] }`     | 提供された cache タグ。      |
 
 `Promise<void>`を返します。
 
 ### `revalidateTag()`
 
-| Parameter | Type | Description |
-| --------- | -------- | ---------------------------- |
-| `tag` | `string` | cache タグを revalidate する。|
+| Parameter | Type     | Description                    |
+| --------- | -------- | ------------------------------ |
+| `tag`     | `string` | cache タグを revalidate する。 |
 
 `Promise<void>`を返します。[データの再検証](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)や[`revalidateTag()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/revalidateTag)関数について詳しく学びましょう。
 
 **Good to know:**
 
-- `revalidatePath`はcacheタグの上に便利なレイヤーです。`revalidatePath` を呼び出すと、`revalidateTag`関数が呼び出され、それを使って、pathに基づいてcacheキーをタグ付けするかどうかを選択できます。
+- `revalidatePath`は cache タグの上に便利なレイヤーです。`revalidatePath` を呼び出すと、`revalidateTag`関数が呼び出され、それを使って、path に基づいて cache キーをタグ付けするかどうかを選択できます。
 
 ## Version History
 
-| Version | Changes |
-| --------- | ------------------------------------------------------------------------ |
-| `v14.1.0` | 名前が変更された `cacheHandler` は安定しています。|
-| `v13.4.0` | 実験的に `incrementalCacheHandlerPath` は `revalidateTag`をサポートします。|
-| `v13.4.0` | `incrementalCacheHandlerPath` (実験的)はスタンドアロン出力をサポートします。|
-| `v12.2.0` | 実験的に `incrementalCacheHandlerPath` が追加されました。|
+| Version   | Changes                                                                      |
+| --------- | ---------------------------------------------------------------------------- |
+| `v14.1.0` | 名前が変更された `cacheHandler` は安定しています。                           |
+| `v13.4.0` | 実験的に `incrementalCacheHandlerPath` は `revalidateTag`をサポートします。  |
+| `v13.4.0` | `incrementalCacheHandlerPath` (実験的)はスタンドアロン出力をサポートします。 |
+| `v12.2.0` | 実験的に `incrementalCacheHandlerPath` が追加されました。                    |

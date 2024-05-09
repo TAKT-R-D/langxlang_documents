@@ -7,11 +7,11 @@ org_path: /docs/app/api-reference/functions/not-found
 is_empty: false
 ---
 
-`notFound`関数により、[`not-found file`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found)をrouteセグメント内にrenderするとともに、`<meta name="robots" content="noindex" />` タグを注入することができます。
+`notFound`関数により、[`not-found file`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found)を route セグメント内に render するとともに、`<meta name="robots" content="noindex" />` タグを注入することができます。
 
 ## `notFound()`
 
-`notFound()`関数を呼び出すと、`NEXT_NOT_FOUND` error が発生し、それがスローされた route セクメントのrenderingが終了します。[**not-found**ファイル](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found)を指定することで、そのセグメント内のNot Found UIをrenderingすることで、このようなエラーをうまく処理することができます。
+`notFound()`関数を呼び出すと、`NEXT_NOT_FOUND` error が発生し、それがスローされた route セクメントの rendering が終了します。[**not-found**ファイル](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/not-found)を指定することで、そのセグメント内の Not Found UI を rendering することで、このようなエラーをうまく処理することができます。
 
 ```jsx:app/user/[id]/page.js
 import { notFound } from 'next/navigation'
@@ -33,10 +33,10 @@ export default async function Profile({ params }) {
 }
 ```
 
-> **Good to know**: `notFound()`は、TypeScriptの [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) typeを使用しているため、`return notFound()`を使用することが必要ではありません。
+> **Good to know**: `notFound()`は、TypeScript の [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) type を使用しているため、`return notFound()`を使用することが必要ではありません。
 
 ## Version History
 
-| Version | Changes |
-| --------- | ---------------------- |
-| `v13.0.0` | `notFound` が導入されました。|
+| Version   | Changes                       |
+| --------- | ----------------------------- |
+| `v13.0.0` | `notFound` が導入されました。 |

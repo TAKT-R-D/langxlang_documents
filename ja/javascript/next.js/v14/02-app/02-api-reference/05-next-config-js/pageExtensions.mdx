@@ -11,7 +11,7 @@ is_empty: false
 
 <AppOnly>
 
- default として、 Next.js は次の拡張子を持つファイルを受け入れます：`.tsx`、`.ts`、`.jsx`、`.js`。これは、markdown(`.md`、`.mdx`)などの他の拡張子を許可するように変更することができます。
+default として、 Next.js は次の拡張子を持つファイルを受け入れます：`.tsx`、`.ts`、`.jsx`、`.js`。これは、markdown(`.md`、`.mdx`)などの他の拡張子を許可するように変更することができます。
 
 ```js:next.config.js
 const withMDX = require('@next/mdx')()
@@ -39,7 +39,7 @@ module.exports = {
 }
 ```
 
-これらの値を変更すると、_全て_のNext.jsページに影響を与えます。これには次のものが含まれます:
+これらの値を変更すると、**全て**の Next.js ページに影響を与えます。これには次のものが含まれます:
 
 - [`middleware.js`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/11-middleware)
 - [`instrumentation.js`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/09-instrumentation)
@@ -51,7 +51,7 @@ module.exports = {
 
 ## Including non-page files in the `pages` directory
 
-あなたは `pages` ディレクトリ内でComponentによって使用される他のファイルまたはtestファイルをコロケーションできます。`next.config.js`の中に、`pageExtensions` configを追加します：
+あなたは `pages` ディレクトリ内で Component によって使用される他のファイルまたは test ファイルをコロケーションできます。`next.config.js`の中に、`pageExtensions` config を追加します：
 
 ```js:next.config.js
 module.exports = {

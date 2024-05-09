@@ -9,15 +9,15 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.js CLIは、アプリケーションをstart、build、そしてexportすることを許可します。
+Next.js CLI は、アプリケーションを start、build、そして export することを許可します。
 
-利用可能なCLIコマンドのリストを取得するには、プロジェクトディレクトリ内で次のコマンドを実行します。
+利用可能な CLI コマンドのリストを取得するには、プロジェクトディレクトリ内で次のコマンドを実行します。
 
 ```bash:Terminal
 npx next -h
 ```
 
-_([npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b)はnpm 5.2+以上と一緒になっています)_
+_([npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b)は npm 5.2+以上と一緒になっています)_
 
 出力は次のようになるべきです：
 
@@ -48,22 +48,22 @@ NODE_OPTIONS='--inspect' next
 
 ## Build
 
-`next build`は、アプリケーションの最適化されたproduction buildを作成します。出力は、各routeに関する情報を表示します。
+`next build`は、アプリケーションの最適化された production build を作成します。出力は、各 route に関する情報を表示します。
 
 - **Size** – ページにクライアント側から移動したときにダウンロードされるアセットの number 。各 route の size は、その依存関係のみを含みます。
-- **First Load JS** – ページを server から訪れたときにダウンロードしたアセットの number 。すべてが共有するJSの量は別の指標として表示されます。
+- **First Load JS** – ページを server から訪れたときにダウンロードしたアセットの number 。すべてが共有する JS の量は別の指標として表示されます。
 
 これらの値は両方とも**compressed with gzip**で圧縮されています。最初のロードは緑、黄色、または赤で示されます。パフォーマンスの高いアプリケーションを目指して、緑を目指してください。
 
-`next build`で`--profile`フラグを使用して、Reactの製造プロファイリングを有効にすることができます。これには[Next.js9.5](https://nextjs.org/blog/next-9-5)が必要です。
+`next build`で`--profile`フラグを使用して、React の製造プロファイリングを有効にすることができます。これには[Next.js9.5](https://nextjs.org/blog/next-9-5)が必要です。
 
 ```bash:Terminal
 next build --profile
 ```
 
-その後、developmentで使用するのと同じ方法でプロファイラを使用できます。
+その後、development で使用するのと同じ方法でプロファイラを使用できます。
 
-`next build`で`--debug`フラグを使用すると、より詳細なbuildの出力を有効にすることができます。これには、Next.js 9.5.3が必要です：
+`next build`で`--debug`フラグを使用すると、より詳細な build の出力を有効にすることができます。これには、Next.js 9.5.3 が必要です：
 
 ```bash:Terminal
 next build --debug
@@ -73,21 +73,21 @@ next build --debug
 
 ## Development
 
-`next dev`はHot-code リLoading、errorレポーティングなどで、アプリケーションをdevelopmentモードで起動します：
+`next dev`は Hot-code リ Loading、error レポーティングなどで、アプリケーションを development モードで起動します：
 
-アプリケーションはdefault portで `http://localhost:3000` から start します。 defaultポート は `-p` を使って、以下のように変更することができます:
+アプリケーションは default port で `http://localhost:3000` から start します。 default ポート は `-p` を使って、以下のように変更することができます:
 
 ```bash:Terminal
 npx next dev -p 4000
 ```
 
-または、`PORT`環境のvariableを使用して：
+または、`PORT`環境の variable を使用して：
 
 ```bash:Terminal
 PORT=4000 npx next dev
 ```
 
-> ** Good to know : `PORT`は`.env`で設定することができません。というのも HTTP server の起動は、他のすべての code が初期化される前に行われるからです。
+> **Good to know:** `PORT`は`.env`で設定することができません。というのも HTTP server の起動は、他のすべての code が初期化される前に行われるからです。
 
 hostname を `0.0.0.0` の default とは異なるものに設定することもできます。これは、ネットワーク上の他のデバイスでアプリケーションを利用可能にするために有用です。 default hostname は `-H` を用いて次のように変更することができます：
 
@@ -95,33 +95,33 @@ hostname を `0.0.0.0` の default とは異なるものに設定することも
 npx next dev -H 192.168.1.2
 ```
 
-### ローカルのDevelopmentのためのHTTPS
+### ローカルの Development のための HTTPS
 
-特定の使用例、たとえばwebhooksや認証では、`localhost`で安全な環境を持つためにHTTPSを使用する必要があるかもしれません。Next.jsは、`next dev`を用いて自己署名証明書を生成することができます。それは次のように行います：
+特定の使用例、たとえば webhooks や認証では、`localhost`で安全な環境を持つために HTTPS を使用する必要があるかもしれません。Next.js は、`next dev`を用いて自己署名証明書を生成することができます。それは次のように行います：
 
 ```bash:Terminal
 next dev --experimental-https
 ```
 
-あなたはまた、`--experimental-https-key`と`--experimental-https-cert`でカスタム証明書とキーを提供することもできます。オプションで、`--experimental-https-ca`でカスタムCA証明書を提供することもできます。
+あなたはまた、`--experimental-https-key`と`--experimental-https-cert`でカスタム証明書とキーを提供することもできます。オプションで、`--experimental-https-ca`でカスタム CA 証明書を提供することもできます。
 
 ```bash:Terminal
 next dev --experimental-https --experimental-https-key ./certificates/localhost-key.pem --experimental-https-cert ./certificates/localhost.pem
 ```
 
-`next dev --experimental-https`は `mkcert`を使用してローカルで信頼された証明書を作成するためのものであり、 development 用途にのみ意図されています。 production では、信頼された機関から正しく発行された証明書を使用してください。Vercelにデプロイすると、あなたの Next.js アプリケーションに対してHTTPSは[自動的に設定](https://vercel.com/docs/security/encryption)されます。
+`next dev --experimental-https`は `mkcert`を使用してローカルで信頼された証明書を作成するためのものであり、 development 用途にのみ意図されています。 production では、信頼された機関から正しく発行された証明書を使用してください。Vercel にデプロイすると、あなたの Next.js アプリケーションに対して HTTPS は[自動的に設定](https://vercel.com/docs/security/encryption)されます。
 
 ## Production
 
 `next start`は、アプリケーションを production モードで起動します。アプリケーションは、最初に[`next build`](#build)でコンパイルする必要があります。
 
-アプリケーションはdefault portで `http://localhost:3000` から start します。 defaultポート は `-p` を使って、以下のように変更することができます:
+アプリケーションは default port で `http://localhost:3000` から start します。 default ポート は `-p` を使って、以下のように変更することができます:
 
 ```bash:Terminal
 npx next start -p 4000
 ```
 
-または、`PORT`環境のvariableを使用して：
+または、`PORT`環境の variable を使用して：
 
 ```bash:Terminal
 PORT=4000 npx next start
@@ -133,11 +133,11 @@ PORT=4000 npx next start
 >
 > - `next start`は`output: 'standalone'`や`output: 'export'`と一緒に使用することはできません。
 
-### Keep Alive Timeoutを維持する
+### Keep Alive Timeout を維持する
 
-ダウンストリームプロキシ(例：AWS ELB/ALBのようなロードバランサー)の背後でNext.jsをデプロイする際は、ダウンストリームプロキシのタイムアウトよりも_大きい_ [キープアライブのタイムアウト](https://nodejs.org/api/http.html#http_server_keepalivetimeout)をHTTP serverで設定することが重要です。さもなければ、特定のTCP接続のキープアライブタイムアウトが達成されると、Node.jsはその接続をダウンストリームプロキシに通知せずにすぐに終了します。これは、Node.jsが既に終了した接続を再利用しようとするたびに、プロキシがerrorを起こす結果となります。
+ダウンストリームプロキシ(例：AWS ELB/ALB のようなロードバランサー)の背後で Next.js をデプロイする際は、ダウンストリームプロキシのタイムアウトよりも _大きい_ [キープアライブのタイムアウト](https://nodejs.org/api/http.html#http_server_keepalivetimeout)を HTTP server で設定することが重要です。さもなければ、特定の TCP 接続のキープアライブタイムアウトが達成されると、Node.js はその接続をダウンストリームプロキシに通知せずにすぐに終了します。これは、Node.js が既に終了した接続を再利用しようとするたびに、プロキシが error を起こす結果となります。
 
-production Next.js serverのタイムアウト値を設定するには、`--keepAliveTimeout`(ミリ秒単位)を`next start`に渡します。以下のように行います：
+production Next.js server のタイムアウト値を設定するには、`--keepAliveTimeout`(ミリ秒単位)を`next start`に渡します。以下のように行います：
 
 ```bash:Terminal
 npx next start --keepAliveTimeout 70000
@@ -145,9 +145,9 @@ npx next start --keepAliveTimeout 70000
 
 ## Info
 
-`next info`は、現在のシステムに関する関連詳細を出力し、これを使用してNext.jsのバグを報告することができます。この情報には、オペレーティングシステムのプラットフォーム/アーキテクチャ/versions、バイナリ(Node.js、npm、Yarn、pnpm)およびnpmパッケージversions(`next`、`react`、`react-dom`)が含まれます。
+`next info`は、現在のシステムに関する関連詳細を出力し、これを使用して Next.js のバグを報告することができます。この情報には、オペレーティングシステムのプラットフォーム/アーキテクチャ/versions、バイナリ(Node.js、npm、Yarn、pnpm)および npm パッケージ versions(`next`、`react`、`react-dom`)が含まれます。
 
-あなたのプロジェクトのrootディレクトリで以下を実行：
+あなたのプロジェクトの root ディレクトリで以下を実行：
 
 ```bash:Terminal
 next info
@@ -177,7 +177,7 @@ Next.js Config:
 
 ```
 
-この情報はその後、GitHubのIssuesに貼り付けるべきです。
+この情報はその後、GitHub の Issues に貼り付けるべきです。
 
 あなたはまた`next info --verbose`を実行することも可能で、これによりシステムや、`next`に関連するパッケージのインストールについての追加情報が出力されます。
 
@@ -195,4 +195,4 @@ next lint --dir utils
 
 Next.js は一般的な使用に関する**完全に匿名の**テレメトリーデータを収集します。この匿名プログラムへの参加は任意で、情報を共有したくない場合はオプトアウトすることができます。
 
-Tテレメトリーについてもっと学びたい方は、[こちらのdocument](https://nextjs.org/telemetry/)をご覧ください。
+テレメトリーについてもっと学びたい方は、[こちらの document](https://nextjs.org/telemetry/)をご覧ください。

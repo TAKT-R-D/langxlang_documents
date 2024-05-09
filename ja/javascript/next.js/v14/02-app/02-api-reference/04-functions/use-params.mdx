@@ -46,32 +46,32 @@ export default function ExampleClientComponent() {
 ## Parameters
 
 ```tsx
-const params = useParams()
+const params = useParams();
 ```
 
 `useParams`はパラメータを取りません。
 
 ## Returns
 
-`useParams`は現在のルートの[dynamic パラメーター](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を埋めたobjectを返します。
+`useParams`は現在のルートの[dynamic パラメーター](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を埋めた object を返します。
 
-- object内の各プロパティはアクティブなdynamicセグメントです。
-- プロパティの名前はセグメントの名前であり、プロパティのvalueは、そのセグメントが何で埋められているかです。
+- object 内の各プロパティはアクティブな dynamic セグメントです。
+- プロパティの名前はセグメントの名前であり、プロパティの value は、そのセグメントが何で埋められているかです。
 - プロパティの value は、[type の dynamic セグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)によって、`string` または `string` の配列のどちらかになります。
-- もしrouteがdynamicパラメーターを含まない場合、`useParams`はempty objectを返します。
-- Pages Routerで使用された場合、`useParams`は初期のrender時に`null`を返し、上記のルールに従ったプロパティでrouterが準備ができたら更新します。
+- もし route が dynamic パラメーターを含まない場合、`useParams`は empty object を返します。
+- Pages Router で使用された場合、`useParams`は初期の render 時に`null`を返し、上記のルールに従ったプロパティで router が準備ができたら更新します。
 
 For example:
 
-| Route | URL | `useParams()` |
+| Route                           | URL         | `useParams()`             |
 | ------------------------------- | ----------- | ------------------------- |
-| `app/shop/page.js` | `/shop` | `{}` |
-| `app/shop/[slug]/page.js` | `/shop/1` | `{ slug: '1' }` |
+| `app/shop/page.js`              | `/shop`     | `{}`                      |
+| `app/shop/[slug]/page.js`       | `/shop/1`   | `{ slug: '1' }`           |
 | `app/shop/[tag]/[item]/page.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
-| `app/shop/[...slug]/page.js` | `/shop/1/2` | `{ slug: ['1', '2'] }` |
+| `app/shop/[...slug]/page.js`    | `/shop/1/2` | `{ slug: ['1', '2'] }`    |
 
 ## Version History
 
-| Version | Changes |
-| --------- | ----------------------- |
-| `v13.3.0` | `useParams` 導入されました。|
+| Version   | Changes                      |
+| --------- | ---------------------------- |
+| `v13.3.0` | `useParams` 導入されました。 |

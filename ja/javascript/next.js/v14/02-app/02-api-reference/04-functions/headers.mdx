@@ -7,11 +7,11 @@ org_path: /docs/app/api-reference/functions/headers
 is_empty: false
 ---
 
-次の `headers` 関数を使用すると、[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)からの HTTPの受信 requestヘッダ を読み取ることができます。
+次の `headers` 関数を使用すると、[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)からの HTTP の受信 request ヘッダ を読み取ることができます。
 
 ## `headers()`
 
-このAPIは[Web Headers API](https://developer.mozilla.org/docs/Web/API/Headers)を拡張します。これは**読み取り専用**であり、つまり、送信するrequest headersを `set` / `delete`することはできません。
+この API は[Web Headers API](https://developer.mozilla.org/docs/Web/API/Headers)を拡張します。これは**読み取り専用**であり、つまり、送信する request headers を `set` / `delete`することはできません。
 
 ```tsx:app/page.tsx
 import { headers } from 'next/headers'
@@ -37,12 +37,12 @@ export default function Page() {
 
 > **Good to know**:
 >
-> - `headers()`は**[Dynamic Function](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)**であり、返される値は事前には知ることができません。これをlayoutまたはページで使用すると、routeはrequest時に**[dynamic rendering](/docs/app/building-your-application/rendering/server-components#dynamic-rendering)**を選択します。
+> - `headers()`は**[Dynamic Function](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions)**であり、返される値は事前には知ることができません。これを layout またはページで使用すると、route は request 時に**[dynamic rendering](/docs/app/building-your-application/rendering/server-components#dynamic-rendering)**を選択します。
 
 ### API Reference
 
 ```tsx
-const headersList = headers()
+const headersList = headers();
 ```
 
 #### Parameters
@@ -57,8 +57,8 @@ const headersList = headers()
 - [`Headers.forEach()`](https://developer.mozilla.org/docs/Web/API/Headers/forEach): この `Headers` object 内の各 key/value ペアに対して、指定された関数を一度実行します。
 - [`Headers.get()`](https://developer.mozilla.org/docs/Web/API/Headers/get): 与えられた名前を持つ `Headers` object 内の header のすべての値の[`String`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)シーケンスを返します。
 - [`Headers.has()`](https://developer.mozilla.org/docs/Web/API/Headers/has): `Headers` object が特定の header を含んでいるかどうかを示す boolean を返します。
-- [`Headers.keys()`](https://developer.mozilla.org/docs/Web/API/Headers/keys)：このobjectに含まれるキー/値のペアのすべてのキーを通過するための[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。
-- [`Headers.values()`](https://developer.mozilla.org/docs/Web/API/Headers/values)：このobjectに含まれるキー/値のペアのすべての値を通過することができる[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。
+- [`Headers.keys()`](https://developer.mozilla.org/docs/Web/API/Headers/keys)：この object に含まれるキー/値のペアのすべてのキーを通過するための[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。
+- [`Headers.values()`](https://developer.mozilla.org/docs/Web/API/Headers/values)：この object に含まれるキー/値のペアのすべての値を通過することができる[`iterator`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Iteration_protocols)を返します。
 
 ### Examples
 
@@ -89,9 +89,9 @@ export default function Page() {
 }
 ```
 
-#### IPアドレス
+#### IP アドレス
 
-`headers()`は、clientのIPアドレスを取得するために使用できます。
+`headers()`は、client の IP アドレスを取得するために使用できます。
 
 ```jsx:app/page.js
 import { Suspense } from 'react'
@@ -126,6 +126,6 @@ export default function Page() {
 
 ## Version History
 
-| Version | Changes |
-| --------- | --------------------- |
-| `v13.0.0` | `headers` 導入されました。|
+| Version   | Changes                    |
+| --------- | -------------------------- |
+| `v13.0.0` | `headers` 導入されました。 |

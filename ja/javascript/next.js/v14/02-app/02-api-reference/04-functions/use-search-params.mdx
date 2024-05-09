@@ -7,9 +7,9 @@ org_path: /docs/app/api-reference/functions/use-search-params
 is_empty: false
 ---
 
-`useSearchParams`は、現在のURLの**query string**を読み取ることができる**Client Component**のhookです。
+`useSearchParams`は、現在の URL の**query string**を読み取ることができる**Client Component**の hook です。
 
-`useSearchParams`は、[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)インターフェースの**読み取り専用**のversionを返します。
+`useSearchParams`は、[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)インターフェースの**読み取り専用**の version を返します。
 
 ```tsx:app/dashboard/search-bar.tsx
 'use client'
@@ -46,45 +46,45 @@ export default function SearchBar() {
 ## Parameters
 
 ```tsx
-const searchParams = useSearchParams()
+const searchParams = useSearchParams();
 ```
 
 `useSearchParams`はパラメータを取りません。
 
 ## Returns
 
-`useSearchParams`は、URLのquery stringを読み取るためのユーティリティMethodを含む[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)インターフェースの**読み取り専用**のversionを返します。
+`useSearchParams`は、URL の query string を読み取るためのユーティリティ Method を含む[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)インターフェースの**読み取り専用**の version を返します。
 
-- [`URLSearchParams.get()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/get)：検索パラメータに関連付けられた最初のvalueを返します。例えば：
+- [`URLSearchParams.get()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/get)：検索パラメータに関連付けられた最初の value を返します。例えば：
 
- | URL | `searchParams.get("a")` |
- | -------------------- | --------------------------------------------------------------------------------------------------------------- |
- | `/dashboard?a=1` | `'1'` |
- | `/dashboard?a=` | `''` |
- | `/dashboard?b=3` | `null` |
- | `/dashboard?a=1&a=2` | `'1'` _- [`getAll()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/getAll)を使用してすべての値を取得します_ |
+| URL                  | `searchParams.get("a")`                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `/dashboard?a=1`     | `'1'`                                                                                                                     |
+| `/dashboard?a=`      | `''`                                                                                                                      |
+| `/dashboard?b=3`     | `null`                                                                                                                    |
+| `/dashboard?a=1&a=2` | `'1'` _- [`getAll()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/getAll)を使用してすべての値を取得します_ |
 
-- [`URLSearchParams.has()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/has)：指定されたパラメータが存在するかどうかを示すboolean valueを返します。例えば：
+- [`URLSearchParams.has()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/has)：指定されたパラメータが存在するかどうかを示す boolean value を返します。例えば：
 
- | URL | `searchParams.has("a")` |
- | ---------------- | ----------------------- |
- | `/dashboard?a=1` | `true` |
- | `/dashboard?b=3` | `false` |
+| URL              | `searchParams.has("a")` |
+| ---------------- | ----------------------- |
+| `/dashboard?a=1` | `true`                  |
+| `/dashboard?b=3` | `false`                 |
 
-- 他の**read-only**Methodについてもっと学びましょう。[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)、[`getAll()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/getAll)、[`keys()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/keys)、[`values()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/values)、[`entries()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/entries)、[`forEach()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/forEach)、そして[`toString()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/toString)を含む。
+- 他の**read-only** Method についてもっと学びましょう。[`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams)、[`getAll()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/getAll)、[`keys()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/keys)、[`values()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/values)、[`entries()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/entries)、[`forEach()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/forEach)、そして[`toString()`](https://developer.mozilla.org/docs/Web/API/URLSearchParams/toString)を含む。
 
 > **Good to know**:
 >
 > - `useSearchParams` は[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の hook であり、[部分的なレンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)中の stale 値を防ぐために、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)では**サポートされていません**。
-> - アプリケーションが`/pages`ディレクトリを含んでいる場合、`useSearchParams`は`ReadonlyURLSearchParams | null`を返します。`null`のvalueは、`getServerSideProps`を使用しないページの事前レンダリング中に検索paramsがわからないため、移行中の互換性のためです。
+> - アプリケーションが`/pages`ディレクトリを含んでいる場合、`useSearchParams`は`ReadonlyURLSearchParams | null`を返します。`null`の value は、`getServerSideProps`を使用しないページの事前レンダリング中に検索 params がわからないため、移行中の互換性のためです。
 
 ### 静的レンダリング
 
-routeが[静的にレンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されている場合、`useSearchParams`を呼び出すと、最も近い[`Suspense` boundary](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#example)までのClient ComponentツリーがClientサイドでレンダリングされます。
+route が[静的にレンダリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されている場合、`useSearchParams`を呼び出すと、最も近い[`Suspense` boundary](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#example)までの Client Component ツリーが Client サイドでレンダリングされます。
 
-これにより、`useSearchParams`を使用するdynamic部分がClientサイドでレンダリングされる一方で、routeの一部を静的にレンダリングすることが可能になります。
+これにより、`useSearchParams`を使用する dynamic 部分が Client サイドでレンダリングされる一方で、route の一部を静的にレンダリングすることが可能になります。
 
-`useSearchParams`を使用するClient Componentを`<Suspense/>`境界でラップすることをお勧めします。これにより、それより上にある任意のClient Componentsが静的にレンダリングされ、初期のHTMLの一部として送信されます。[例](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params#static-rendering)。
+`useSearchParams`を使用する Client Component を`<Suspense/>`境界でラップすることをお勧めします。これにより、それより上にある任意の Client Components が静的にレンダリングされ、初期の HTML の一部として送信されます。[例](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params#static-rendering)。
 
 For example:
 
@@ -178,7 +178,7 @@ export default function Page() {
 
 ### Dynamic Rendering
 
-もしrouteが[dynamically rendered](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)されている場合、`useSearchParams` は初期のserver render 等でClient Componentのserver上で利用可能になります。
+もし route が[dynamically rendered](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)されている場合、`useSearchParams` は初期の server render 等で Client Component の server 上で利用可能になります。
 
 For example:
 
@@ -258,13 +258,13 @@ export default function Page() {
 
 #### Pages
 
-[Pages](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)(Server Components)でparams検索にアクセスするには、[`searchParams`](/docs/app/api-reference/file-conventions/page#searchparams-optional) プロップを使用します。
+[Pages](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page)(Server Components)で params 検索にアクセスするには、[`searchParams`](/docs/app/api-reference/file-conventions/page#searchparams-optional) プロップを使用します。
 
 #### Layouts
 
-Pagesとは異なり、[layouts](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)(Server Components)は、`searchParams`プロップを**受け取りません**。これは、共有されるlayoutが[ナビゲーション中に再renderingされない](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)ため、ナビゲーション間でstaleな`searchParams`が発生する可能性があるからです。[詳細な説明](/docs/app/api-reference/file-conventions/layout#layouts-do-not-receive-searchparams)をご覧ください。
+Pages とは異なり、[layouts](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)(Server Components)は、`searchParams`プロップを**受け取りません**。これは、共有される layout が[ナビゲーション中に再 rendering されない](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)ため、ナビゲーション間で stale な`searchParams`が発生する可能性があるからです。[詳細な説明](/docs/app/api-reference/file-conventions/layout#layouts-do-not-receive-searchparams)をご覧ください。
 
-代わりに、Page [`searchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page) propまたは[`useSearchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) hookを Client Componentで使用してください。これは、最新の`searchParams`でclient上で再レンダリングされます。
+代わりに、Page [`searchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page) prop または[`useSearchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) hook を Client Component で使用してください。これは、最新の`searchParams`で client 上で再レンダリングされます。
 
 ## Examples
 
@@ -366,6 +366,6 @@ export default function ExampleClientComponent() {
 
 ## Version History
 
-| Version | Changes |
-| --------- | ----------------------------- |
-| `v13.0.0` | `useSearchParams` が導入されました。|
+| Version   | Changes                              |
+| --------- | ------------------------------------ |
+| `v13.0.0` | `useSearchParams` が導入されました。 |

@@ -53,7 +53,7 @@ export async function OPTIONS(request) {}
 
 ### `request`(オプション)
 
-`request` objectは、Web[request](https://developer.mozilla.org/docs/Web/API/Request) APIの拡張である[NextRequest](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request) objectです。`NextRequest`を使用すると、`cookies`への容易なアクセスや拡張された解析されたURLobjectの`nextUrl`など、来るrequestをより詳細に制御できます。
+`request` object は、Web[request](https://developer.mozilla.org/docs/Web/API/Request) API の拡張である[NextRequest](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request) object です。`NextRequest`を使用すると、`cookies`への容易なアクセスや拡張された解析された URLobject の`nextUrl`など、来る request をより詳細に制御できます。
 
 ### `context` (オプション)
 
@@ -65,18 +65,18 @@ export async function GET(request, context: { params }) {
 
 現在、`context`の唯一の value は、現在の route に対する[dynamic route parameters](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を含む object である`params`です。
 
-| Example | URL | `params` |
+| Example                          | URL            | `params`                  |
 | -------------------------------- | -------------- | ------------------------- |
-| `app/dashboard/[team]/route.js` | `/dashboard/1` | `{ team: '1' }` |
-| `app/shop/[tag]/[item]/route.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
-| `app/blog/[...slug]/route.js` | `/blog/1/2` | `{ slug: ['1', '2'] }` |
+| `app/dashboard/[team]/route.js`  | `/dashboard/1` | `{ team: '1' }`           |
+| `app/shop/[tag]/[item]/route.js` | `/shop/1/2`    | `{ tag: '1', item: '2' }` |
+| `app/blog/[...slug]/route.js`    | `/blog/1/2`    | `{ slug: ['1', '2'] }`    |
 
 ## NextResponse
 
-Routeハンドラは、`NextResponse` objectを返すことにより、WebのResponse APIを拡張できます。これにより、cookies、headers、redirect、およびrewriteを簡単に設定できます。[API referenceを見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-response)。
+Route ハンドラは、`NextResponse` object を返すことにより、Web の Response API を拡張できます。これにより、cookies、headers、redirect、および rewrite を簡単に設定できます。[API reference を見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-response)。
 
 ## Version History
 
-| Version | Changes |
-| --------- | ------------------------------ |
-| `v13.2.0` | Routeハンドラーが導入されました。|
+| Version   | Changes                            |
+| --------- | ---------------------------------- |
+| `v13.2.0` | Route ハンドラーが導入されました。 |

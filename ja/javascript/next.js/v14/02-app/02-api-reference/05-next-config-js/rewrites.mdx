@@ -9,17 +9,17 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
- Rewrites は、着信する request path を異なる destination path に map することを可能にします。
+Rewrites は、着信する request path を異なる destination path に map することを可能にします。
 
 <AppOnly>
 
-Rewritesは、URLのプロキシとして動作し、destination pathをマスクして、ユーザーがサイト上の位置を変えていないように見せます。対照的に、[redirects](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects)は新しいページにリルートし、URLの変更を表示します。
+Rewrites は、URL のプロキシとして動作し、destination path をマスクして、ユーザーがサイト上の位置を変えていないように見せます。対照的に、[redirects](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects)は新しいページにリルートし、URL の変更を表示します。
 
 </AppOnly>
 
 <PagesOnly>
 
-RewritesはURLプロキシとして機能し、destination pathを隠し、ユーザーがサイト上の場所を変えていないように見せます。対照的に、[redirects](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/redirects)は新しいページにRedirectし、URLの変化を表示します。
+Rewrites は URL プロキシとして機能し、destination path を隠し、ユーザーがサイト上の場所を変えていないように見せます。対照的に、[redirects](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/redirects)は新しいページに Redirect し、URL の変化を表示します。
 
 </PagesOnly>
 
@@ -38,12 +38,12 @@ module.exports = {
 }
 ```
 
-RewritesはClient側のルーティングに適用され、`<Link href="/about">`は上の例のようにrewriteが適用されます。"
+Rewrites は Client 側のルーティングに適用され、`<Link href="/about">`は上の例のように rewrite が適用されます。"
 
 `rewrites`は、`source`と`destination`プロパティを持つオブジェクトを保持する配列、または配列の object (以下参照)を返すことを期待する async 関数です。
 
-- `source`: `String` - これは着信のrequest path パターンです。
-- `destination`: `String` は、あなたがrouteしたいpathです。
+- `source`: `String` - これは着信の request path パターンです。
+- `destination`: `String` は、あなたが route したい path です。
 - `basePath`: `false` or `undefined` - if false the basePath won't be included when matching, can be used for external rewrites only.
 - `locale`: `false` or `undefined` - whether the locale should not be included when matching.
 - `has` is an array of [has objects](#header-cookie-and-query-matching) with the `type`, `key` and `value` properties.
@@ -88,16 +88,16 @@ module.exports = {
 
 > **Good to know**: `beforeFiles`の rewrites は、 source と一致した直後にファイルシステム/動的な routes をチェックしません、すべての`beforeFiles`がチェックされるまで続きます。
 
-Next.js routesの順番は次の通りです：
+Next.js routes の順番は次の通りです：
 
 <AppOnly>
 
 1. [headers](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/headers)が確認/適用されています
 2. [redirects](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects)がチェック/適用されています
-3. `beforeFiles` rewritesがチェック/適用される
+3. `beforeFiles` rewrites がチェック/適用される
 4. [public ディレクトリ](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/11-static-assets)からの静的ファイル、`_next/static`ファイル、および動的でないページが確認/提供されます
-5. `afterFiles`のrewritesがチェック/適用された後、これらのrewritesのいずれかが一致する場合、それぞれの一致後にdynamicルート/静的ファイルをチェックします。
-6. `fallback`の書き換えはチェック/適用され、これらは404ページのrendering前とdynamicroutes/全静的アセットがチェックされた後に適用されます。[fallback: true/'blocking'](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true)を`getStaticPaths`で使用する場合、あなたの`next.config.js`で定義されたfallbackの`rewrites`は_実行されません_。
+5. `afterFiles`の rewrites がチェック/適用された後、これらの rewrites のいずれかが一致する場合、それぞれの一致後に dynamic ルート/静的ファイルをチェックします。
+6. `fallback`の書き換えはチェック/適用され、これらは 404 ページの rendering 前と dynamicroutes/全静的アセットがチェックされた後に適用されます。[fallback: true/'blocking'](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true)を`getStaticPaths`で使用する場合、あなたの`next.config.js`で定義された fallback の`rewrites`は**実行されません**。
 
 </AppOnly>
 
@@ -105,16 +105,16 @@ Next.js routesの順番は次の通りです：
 
 1. [headers](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/headers)は確認/適用されます
 2. [redirects](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/redirects)が確認/適用されています
-3. `beforeFiles` rewritesがチェック/適用される
-4. [publicディレクトリ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/05-static-assets)からの静的ファイル、`_next/static`ファイル、および非動的ページが確認/提供されます。
-5. `afterFiles`のrewritesがチェック/適用された後、これらのrewritesのいずれかが一致する場合、それぞれの一致後にdynamicルート/静的ファイルをチェックします。
-6. `fallback`のrewritesはチェック/適用され、これらは404ページのrendering前とdynamicなroutes/すべての静的アセットがチェックされた後に適用されます。もし `getStaticPaths` で [fallback: true/'blocking'](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true) を使用すると、あなたの `next.config.js` で定義されたfallbackの `rewrites` が _実行されません_。
+3. `beforeFiles` rewrites がチェック/適用される
+4. [public ディレクトリ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/05-static-assets)からの静的ファイル、`_next/static`ファイル、および非動的ページが確認/提供されます。
+5. `afterFiles`の rewrites がチェック/適用された後、これらの rewrites のいずれかが一致する場合、それぞれの一致後に dynamic ルート/静的ファイルをチェックします。
+6. `fallback`の rewrites はチェック/適用され、これらは 404 ページの rendering 前と dynamic な routes/すべての静的アセットがチェックされた後に適用されます。もし `getStaticPaths` で [fallback: true/'blocking'](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true) を使用すると、あなたの `next.config.js` で定義された fallback の `rewrites` が _実行されません_。
 
 </PagesOnly>
 
 ## Rewrite parameters
 
-パラメータを rewriteで使うとき、どのパラメータも`destination`で使われていない場合、パラメータは queryで defaultで渡されます。
+パラメータを rewrite で使うとき、どのパラメータも`destination`で使われていない場合、パラメータは query で default で渡されます。
 
 ```js:next.config.js
 module.exports = {
@@ -129,7 +129,7 @@ module.exports = {
 }
 ```
 
-パラメータがdestinationで使用されると、どのパラメータも自動的にqueryに渡されません。
+パラメータが destination で使用されると、どのパラメータも自動的に query に渡されません。
 
 ```js:next.config.js
 module.exports = {
@@ -162,11 +162,11 @@ module.exports = {
 }
 ```
 
-> **Good to know**: [Automatic Static Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)または[prerendering](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)からの静的ページは、hydration後にclientで解析され、queryで提供されます。
+> **Good to know**: [Automatic Static Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)または[prerendering](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)からの静的ページは、hydration 後に client で解析され、query で提供されます。
 
 ## Path Matching
 
-Path matches are allowed, for example `/blog/:slug` will match `/blog/hello-world` (no nested paths):
+Path の一致が許可されています。例えば、`/blog/:slug`は`/blog/hello-world`と一致します（ネストされたパスはありません）：
 
 ```js:next.config.js
 module.exports = {
@@ -183,7 +183,7 @@ module.exports = {
 
 ### Wildcard Path Matching
 
-To match a wildcard path you can use `*` after a parameter, for example `/blog/:slug*` will match `/blog/a/b/c/d/hello-world`:
+ワイルドカードパスに一致させたい場合、パラメーターの後に`*`を使用できます。例えば、`/blog/:slug*`は`/blog/a/b/c/d/hello-world`と一致します：
 
 ```js:next.config.js
 module.exports = {
@@ -200,7 +200,7 @@ module.exports = {
 
 ### Regex Path Matching
 
-To match a regex path you can wrap the regex in parenthesis after a parameter, for example `/blog/:slug(\\d{1,})` will match `/blog/123` but not `/blog/abc`:
+正規表現パスに一致させたい場合、パラメーターの後に括弧で正規表現を囲むことができます。例えば、`/blog/:slug(\\d{1,})`は`/blog/123`と一致しますが、`/blog/abc`とは一致しません：
 
 ```js:next.config.js
 module.exports = {
@@ -215,7 +215,7 @@ module.exports = {
 }
 ```
 
-次の文字`(`、`)`、`{`、`}`、`[`、`]`、`|`、`\`、`^`、`.`、`:`、`*`、`+`、`-`、`$`はregex path のマッチングに使用されるため、`source` 内で特殊でない値として使用される場合、それらの前に`\\`を追加してエスケープする必要があります。
+次の文字`(`、`)`、`{`、`}`、`[`、`]`、`|`、`\`、`^`、`.`、`:`、`*`、`+`、`-`、`$`は regex path のマッチングに使用されるため、`source` 内で特殊でない値として使用される場合、それらの前に`\\`を追加してエスケープする必要があります。
 
 ```js:next.config.js
 module.exports = {
@@ -233,13 +233,13 @@ module.exports = {
 
 ## Header, Cookie, and Query Matching
 
-`has`フィールドと一致するか、`missing`フィールドと一致しないときにのみ、rewriteがheader、cookie、またはqueryの値と一致するようにすることができます。`source`とすべての`has`アイテムが一致しなければならず、すべての`missing`アイテムが一致してはならない場合にのみ、rewriteが適用されます。
+`has`フィールドと一致するか、`missing`フィールドと一致しないときにのみ、rewrite が header、cookie、または query の値と一致するようにすることができます。`source`とすべての`has`アイテムが一致しなければならず、すべての`missing`アイテムが一致してはならない場合にのみ、rewrite が適用されます。
 
-`has` and `missing` items can have the following fields:
+`has` と `missing` アイテムは以下のフィールドを持つことができます：
 
-- `type`: `String` - must be either `header`, `cookie`, `host`, or `query`.
-- `key`: `String` - the key from the selected type to match against.
-- `value`: `String` or `undefined` - the value to check for, if undefined any value will match. A regex like string can be used to capture a specific part of the value, e.g. if the value `first-(?<paramName>.*)` is used for `first-second` then `second` will be usable in the destination with `:paramName`.
+- `type`: `String` - `header`、`cookie`、`host`、または `query` のいずれかでなければなりません。
+- `key`: `String` - 選択されたタイプから一致させるためのキー。
+- `value`: `String` または `undefined` - 確認する値、未定義の場合はどの値でも一致します。特定の値の一部をキャプチャするために正規表現のような文字列が使用される場合があります。例えば、`first-(?<paramName>.*)` の値が `first-second` で使用された場合、`second` は目的地で `:paramName` を使用して利用可能になります。
 
 ```js:next.config.js
 module.exports = {
@@ -325,12 +325,12 @@ module.exports = {
 <details>
   <summary>Examples</summary>
 
-- [Next.jsの段階的な採用](https://github.com/vercel/next.js/tree/canary/examples/custom-routes-proxying)
+- [Next.js の段階的な採用](https://github.com/vercel/next.js/tree/canary/examples/custom-routes-proxying)
 - [複数のゾーンを使用する](https://github.com/vercel/next.js/tree/canary/examples/with-zones)
 
 </details>
 
-Rewritesを使用すると、外部のurlにrewriteできます。これは特に、Next.jsの段階的な導入に非常に便利です。以下は、メインのappの`/blog` routeを外部サイトにRedirectするためのrewriteの例です。
+Rewrites を使用すると、外部の url に rewrite できます。これは特に、Next.js の段階的な導入に非常に便利です。以下は、メインの app の`/blog` route を外部サイトに Redirect するための rewrite の例です。
 
 ```js:next.config.js
 module.exports = {
@@ -369,9 +369,9 @@ module.exports = {
 }
 ```
 
-### Next.jsの段階的な採用
+### Next.js の段階的な採用
 
-Next.jsが全てのNext.js routesをチェックした後、既存のウェブサイトへのプロキシ化にフォールバックすることもできます。
+Next.js が全ての Next.js routes をチェックした後、既存のウェブサイトへのプロキシ化にフォールバックすることもできます。
 
 この方法を使用すれば、より多くのページを Next.js に移行する際に、 rewrites の設定を変更する必要がありません
 
@@ -390,7 +390,7 @@ module.exports = {
 }
 ```
 
-### RewritesはbasePathをサポートしています
+### Rewrites は basePath をサポートしています
 
 [`basePath`サポート](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/basePath)を使用する際に、 rewrite ごとに各`source`と`destination`は、`basePath: false`を rewrites に追加しない限り、自動的に `basePath` が接頭辞として付けられます。
 
@@ -426,7 +426,7 @@ module.exports = {
 
 <PagesOnly>
 
-[`i18n`サポート](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)をrewritesと共に利用する際、それぞれの`source`と`destination`は、あなたが`locale: false`をrewriteに追加しない限り、設定された`locales`の処理を自動的にプレフィックスします。 `locale: false` が使用される場合、それが正しく一致するためには、 `source`と `destination` をlocaleでプレフィックスする必要があります。
+[`i18n`サポート](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)を rewrites と共に利用する際、それぞれの`source`と`destination`は、あなたが`locale: false`を rewrite に追加しない限り、設定された`locales`の処理を自動的にプレフィックスします。 `locale: false` が使用される場合、それが正しく一致するためには、 `source`と `destination` を locale でプレフィックスする必要があります。
 
 </PagesOnly>
 
@@ -474,8 +474,8 @@ module.exports = {
 
 ## Version History
 
-| Version | Changes |
+| Version   | Changes          |
 | --------- | ---------------- |
 | `v13.3.0` | `missing` added. |
-| `v10.2.0` | `has` added. |
-| `v9.5.0` | Headers added. |
+| `v10.2.0` | `has` added.     |
+| `v9.5.0`  | Headers added.   |

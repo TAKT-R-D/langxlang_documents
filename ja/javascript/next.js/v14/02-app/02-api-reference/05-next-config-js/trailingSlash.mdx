@@ -9,9 +9,9 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-defaultでは、 default Next.js は末尾にスラッシュが付いたURLを、末尾にスラッシュがない同等のURLに redirect します。例えば、`/about/`は`/about`に redirect されます。この挙動は設定で変更可能で、末尾にスラッシュがないURLがスラッシュ付きの同等のURLにリダイレクトされるようにすることもできます。
+default では、 default Next.js は末尾にスラッシュが付いた URL を、末尾にスラッシュがない同等の URL に redirect します。例えば、`/about/`は`/about`に redirect されます。この挙動は設定で変更可能で、末尾にスラッシュがない URL がスラッシュ付きの同等の URL にリダイレクトされるようにすることもできます。
 
-`next.config.js`を開いて、`trailingSlash`のconfigを追加してください。
+`next.config.js`を開いて、`trailingSlash`の config を追加してください。
 
 ```js:next.config.js
 module.exports = {
@@ -19,12 +19,12 @@ module.exports = {
 }
 ```
 
-このオプションが設定されていると、 `/about`のようなURLは `/about/`へredirectします。
+このオプションが設定されていると、 `/about`のような URL は `/about/`へ redirect します。
 
-「[`output: "export"`](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)設定を用いた場合、`/about` ページはdefaultの `/about.html` ではなく、`/about/index.html` を出力します。
+[`output: "export"`](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)設定を用いた場合、`/about` ページは default の `/about.html` ではなく、`/about/index.html` を出力します。
 
 ## Version History
 
-| Version | Changes |
-| -------- | ---------------------- |
-| `v9.5.0` | `trailingSlash`が追加されました。|
+| Version  | Changes                           |
+| -------- | --------------------------------- |
+| `v9.5.0` | `trailingSlash`が追加されました。 |

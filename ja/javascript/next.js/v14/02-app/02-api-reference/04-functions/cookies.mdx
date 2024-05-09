@@ -45,7 +45,7 @@ export default function Page() {
 
 ## `cookies().has(name)`
 
-cookieの名前を入力し、cookieが存在する(`true`)か否か(`false`)に基づいて`boolean`を返すmethod。
+cookie の名前を入力し、cookie が存在する(`true`)か否か(`false`)に基づいて`boolean`を返す method。
 
 ```jsx:app/page.js
 import { cookies } from 'next/headers'
@@ -59,7 +59,7 @@ export default function Page() {
 
 ## `cookies().set(name, value, options)`
 
-cookie名、value、およびoptionsを取り、出力用のrequest cookieを設定するmethod。
+cookie 名、value、および options を取り、出力用の request cookie を設定する method。
 
 > **Good to know**: HTTP はストリーミングが開始した後に cookies を設定することは許可していませんので、[Server Action](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)で`.set()`を使用する必要があります。
 
@@ -86,11 +86,11 @@ async function create(data) {
 
 > **Good to know**: [Server Action](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)または[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)でのみ delete cookies を行うことができます。
 
-cookieを削除するためのいくつかのoptionsがあります：
+cookie を削除するためのいくつかの options があります：
 
 ### `cookies().delete(name)`
 
-あなたは特定の名前のcookieを明示的にdeleteすることができます。
+あなたは特定の名前の cookie を明示的に delete することができます。
 
 ```js:app/actions.js
 'use server'
@@ -104,7 +104,7 @@ async function delete(data) {
 
 ### `cookies().set(name, '')`
 
-あるいは、同じ名前とempty valueを持つ新しいcookieを設定することもできます。
+あるいは、同じ名前と empty value を持つ新しい cookie を設定することもできます。
 
 ```js:app/actions.js
 'use server'
@@ -120,7 +120,7 @@ async function delete(data) {
 
 ### `cookies().set(name, value, { maxAge: 0 })`
 
-`maxAge`を0に設定すると、cookieはすぐに期限切れになります。
+`maxAge`を 0 に設定すると、cookie はすぐに期限切れになります。
 
 ```js:app/actions.js
 'use server'
@@ -134,7 +134,7 @@ async function delete(data) {
 
 ### `cookies().set(name, value, { expires: timestamp })`
 
-`expires`を過去のvalueに設定すると、cookieはすぐに期限切れになります。
+`expires`を過去の value に設定すると、cookie はすぐに期限切れになります。
 
 ```js:app/actions.js
 'use server'
@@ -151,6 +151,6 @@ async function delete(data) {
 
 ## Version History
 
-| Version | Changes |
-| --------- | --------------------- |
-| `v13.0.0` | `cookies` が導入されました。|
+| Version   | Changes                      |
+| --------- | ---------------------------- |
+| `v13.0.0` | `cookies` が導入されました。 |

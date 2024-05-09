@@ -11,13 +11,13 @@ is_empty: false
 
 > **Good to know**:
 >
-> - `viewport` objectと`generateViewport`関数のexportは**Server Componentsでのみ**サポートされています。
-> - あなたは同じrouteセグメントから、`viewport` objectと `generateViewport` 関数の両方をexportすることはできません。
-> - `metadata`exportの移行から来ている場合、[metadata-to-viewport-export codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#metadata-to-viewport-export)を使用して変更を更新できます。
+> - `viewport` object と`generateViewport`関数の export は**Server Components でのみ**サポートされています。
+> - あなたは同じ route セグメントから、`viewport` object と `generateViewport` 関数の両方を export することはできません。
+> - `metadata`export の移行から来ている場合、[metadata-to-viewport-export codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#metadata-to-viewport-export)を使用して変更を更新できます。
 
 ## The `viewport` object
 
- viewport options を定義するには、`layout.jsx`または`page.jsx`ファイルから`viewport` object を export します。
+viewport options を定義するには、`layout.jsx`または`page.jsx`ファイルから`viewport` object を export します。
 
 ```tsx:layout.tsx
 import type { Viewport } from 'next'
@@ -173,16 +173,16 @@ export const viewport = {
 
 ## Types
 
-`Viewport` type を使用することで、ご自身の viewport object に type の安全性を追加することができます。もし、ご自身のIDEで[ビルトインの TypeScript plugin](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript)を使用している場合、手動で type を追加する必要はありませんが、もし必要であれば明示的に追加することもできます。
+`Viewport` type を使用することで、ご自身の viewport object に type の安全性を追加することができます。もし、ご自身の IDE で[ビルトインの TypeScript plugin](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript)を使用している場合、手動で type を追加する必要はありませんが、もし必要であれば明示的に追加することもできます。
 
 ### `viewport` object
 
 ```tsx
-import type { Viewport } from 'next'
+import type { Viewport } from "next";
 
 export const viewport: Viewport = {
-  themeColor: 'black',
-}
+  themeColor: "black",
+};
 ```
 
 ### `generateViewport` 関数
@@ -190,29 +190,29 @@ export const viewport: Viewport = {
 #### Regular function
 
 ```tsx
-import type { Viewport } from 'next'
+import type { Viewport } from "next";
 
 export function generateViewport(): Viewport {
   return {
-    themeColor: 'black',
-  }
+    themeColor: "black",
+  };
 }
 ```
 
 #### With segment props
 
 ```tsx
-import type { Viewport } from 'next'
+import type { Viewport } from "next";
 
 type Props = {
-  params: { id: string }
-  searchParams: { [key: string]: string | string[] | undefined }
-}
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
 export function generateViewport({ params, searchParams }: Props): Viewport {
   return {
-    themeColor: 'black',
-  }
+    themeColor: "black",
+  };
 }
 
 export default function Page({ params, searchParams }: Props) {}
@@ -220,17 +220,17 @@ export default function Page({ params, searchParams }: Props) {}
 
 #### JavaScript Projects
 
-For JavaScript projects, you can use JSDoc to add type safety.
+JavaScript のプロジェクトには、JSDoc を使用して type の安全性を追加することができます。
 
 ```js
 /** @type {import("next").Viewport} */
 export const viewport = {
-  themeColor: 'black',
-}
+  themeColor: "black",
+};
 ```
 
 ## Version History
 
-| Version | Changes |
-| --------- | --------------------------------------------- |
+| Version   | Changes                                          |
+| --------- | ------------------------------------------------ |
 | `v14.0.0` | `viewport`と`generateViewport`が導入されました。 |

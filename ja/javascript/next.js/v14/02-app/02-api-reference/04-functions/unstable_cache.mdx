@@ -7,7 +7,7 @@ org_path: /docs/app/api-reference/functions/unstable_cache
 is_empty: false
 ---
 
-`unstable_cache`は、データベースのクエリなどの高費用の操作の結果をcacheし、それらを複数のRequestで再利用することを可能にします。
+`unstable_cache`は、データベースのクエリなどの高費用の操作の結果を cache し、それらを複数の Request で再利用することを可能にします。
 
 ```jsx
 import { getUser } from './data';
@@ -27,26 +27,26 @@ export default async function Component({ userID }) {
 > **Good to know**:
 > `headers` や `cookies` などの dynamic データソースに cache scope 内でアクセスすることはサポートされていません。キャッシュされた関数内でこのデータが必要な場合は、キャッシュされた関数の外部で `headers` を使用し、必要な dynamic データを引数として渡してください。
 
-> **警告**：この API は不安定で、将来的に変更される可能性があります。この API が安定するときに必要に応じて、移行ドキュメントとcodemodsを提供します。
+> **警告**：この API は不安定で、将来的に変更される可能性があります。この API が安定するときに必要に応じて、移行ドキュメントと codemods を提供します。
 
 ## Parameters
 
 ```jsx
-const data = unstable_cache(fetchData, keyParts, options)()
+const data = unstable_cache(fetchData, keyParts, options)();
 ```
 
-- `fetchData`：これは、cacheしたいデータを取得する非同期関数です。これは`Promise`を返す関数でなければなりません。
-- `keyParts`：これはキャッシュされたキーを識別する配列です。これは、キャッシュされたデータのキーを識別するために、全世界で一意の値を含んでいなければなりません。cacheキーには、関数に渡された引数も含まれます。
-- `options`：これはcacheの動作を制御するobjectです。次のプロパティを含むことができます：
-  - `tags`：cacheの無効化を制御するために使用できるタグの配列。
+- `fetchData`：これは、cache したいデータを取得する非同期関数です。これは`Promise`を返す関数でなければなりません。
+- `keyParts`：これはキャッシュされたキーを識別する配列です。これは、キャッシュされたデータのキーを識別するために、全世界で一意の値を含んでいなければなりません。cache キーには、関数に渡された引数も含まれます。
+- `options`：これは cache の動作を制御する object です。次のプロパティを含むことができます：
+  - `tags`：cache の無効化を制御するために使用できるタグの配列。
 - `revalidate`: cache が再検証されるべき秒数の number 。
 
 ## Returns
 
-`unstable_cache`は、呼び出すと、キャッシュされたデータへの解決を約束する関数を返します。データがcache内にない場合、提供された関数が呼び出され、その結果がキャッシュされて返されます。
+`unstable_cache`は、呼び出すと、キャッシュされたデータへの解決を約束する関数を返します。データが cache 内にない場合、提供された関数が呼び出され、その結果がキャッシュされて返されます。
 
 ## Version History
 
-| Version | Changes |
-| --------- | ---------------------------- |
-| `v14.0.0` | `unstable_cache` 導入されました。|
+| Version   | Changes                           |
+| --------- | --------------------------------- |
+| `v14.0.0` | `unstable_cache` 導入されました。 |

@@ -9,11 +9,11 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Web Vitalsに関連する問題を debugging する際には、問題の source を特定できると役立つことがよくあります。例えば、Cumulative Layout Shift (CLS)の場合、最大の layout shiftが発生したときに最初にshiftした要素が何であったかを知りたいかもしれません。また、Largest Contentful Paint (LCP)の場合、ページのLCPに対応する要素を特定したいかもしれません。LCP要素が image である場合、 image リソースの URL を知ることで、最適化する必要があるアセットを見つけるのに役立つかもしれません。
+Web Vitals に関連する問題を debugging する際には、問題の source を特定できると役立つことがよくあります。例えば、Cumulative Layout Shift (CLS)の場合、最大の layout shift が発生したときに最初に shift した要素が何であったかを知りたいかもしれません。また、Largest Contentful Paint (LCP)の場合、ページの LCP に対応する要素を特定したいかもしれません。LCP 要素が image である場合、 image リソースの URL を知ることで、最適化する必要があるアセットを見つけるのに役立つかもしれません。
 
-Web Vitalsスコア、別名 [attribution](https://github.com/GoogleChrome/web-vitals/blob/4ca38ae64b8d1e899028c692f94d4c56acfc996c/README.md#attribution)、に最も大きく寄与する要素を特定することで、[PerformanceEventTiming](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming)、[PerformanceNavigationTiming](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming)、[PerformanceResourceTiming](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming)などのエントリに関するより詳細な情報を入手することができます。
+Web Vitals スコア、別名 [attribution](https://github.com/GoogleChrome/web-vitals/blob/4ca38ae64b8d1e899028c692f94d4c56acfc996c/README.md#attribution)、に最も大きく寄与する要素を特定することで、[PerformanceEventTiming](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming)、[PerformanceNavigationTiming](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming)、[PerformanceResourceTiming](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming)などのエントリに関するより詳細な情報を入手することができます。
 
-属性設定は、defaultではNext.jsで無効になっていますが、`next.config.js`で以下を指定することで、**メトリックごとに**有効にすることができます。
+属性設定は、default では Next.js で無効になっていますが、`next.config.js`で以下を指定することで、**メトリックごとに**有効にすることができます。
 
 ```js:next.config.js
 experimental: {
@@ -21,4 +21,4 @@ experimental: {
 }
 ```
 
-V有効な属性値は、全て[`NextWebVitalsMetric`](https://github.com/vercel/next.js/blob/442378d21dd56d6e769863eb8c2cb521a463a2e0/packages/next/shared/lib/utils.ts#L43)のtypeで指定された`web-vitals`メトリクスです。
+有効な属性値は、全て[`NextWebVitalsMetric`](https://github.com/vercel/next.js/blob/442378d21dd56d6e769863eb8c2cb521a463a2e0/packages/next/shared/lib/utils.ts#L43)の type で指定された`web-vitals`メトリクスです。

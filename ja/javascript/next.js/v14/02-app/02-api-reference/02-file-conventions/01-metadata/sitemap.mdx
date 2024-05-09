@@ -7,11 +7,11 @@ org_path: /docs/app/api-reference/file-conventions/metadata/sitemap
 is_empty: false
 ---
 
-`sitemap.(xml|js|ts)`は、[Sitemaps XML format](https://www.sitemaps.org/protocol.html)に対応して、検索エンジンのクローラがあなたのサイトをより効率的にindexするのに役立つ特別なファイルです。
+`sitemap.(xml|js|ts)`は、[Sitemaps XML format](https://www.sitemaps.org/protocol.html)に対応して、検索エンジンのクローラがあなたのサイトをより効率的に index するのに役立つ特別なファイルです。
 
 ### Sitemap ファイル (.xml)
 
-より小さなアプリケーションの場合、 `sitemap.xml` ファイルを作成し、`app`ディレクトリのrootに配置することができます。
+より小さなアプリケーションの場合、 `sitemap.xml` ファイルを作成し、`app`ディレクトリの root に配置することができます。
 
 ```xml:app/sitemap.xml
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -36,9 +36,9 @@ is_empty: false
 </urlset>
 ```
 
-### code(.js、.ts)を使ってsitemapを生成する
+### code(.js、.ts)を使って sitemap を生成する
 
-`sitemap.(js|ts)`ファイルの慣例を利用して、URLの配列を返す default 関数をエクスポートすることで、プログラム的に**生成**する sitemap を利用することができます。 TypeScript を使用する場合、[`Sitemap`](#returns) type が利用可能です。
+`sitemap.(js|ts)`ファイルの慣例を利用して、URL の配列を返す default 関数をエクスポートすることで、プログラム的に**生成**する sitemap を利用することができます。 TypeScript を使用する場合、[`Sitemap`](#returns) type が利用可能です。
 
 ```ts:app/sitemap.ts
 import { MetadataRoute } from 'next'
@@ -119,14 +119,14 @@ Output:
 
 ### 複数のサイトマップの生成
 
-一つの sitemap は、ほとんどのアプリケーションで機能します。しかし、大規模なウェブアプリケーションの場合、sitemapを複数のファイルに分割する必要があるかもしれません。
+一つの sitemap は、ほとんどのアプリケーションで機能します。しかし、大規模なウェブアプリケーションの場合、sitemap を複数のファイルに分割する必要があるかもしれません。
 
-複数のサイトマップを作成するための2つの方法があります：
+複数のサイトマップを作成するための 2 つの方法があります：
 
 - `sitemap.(xml|js|ts)` を複数の route セグメント内にネストすることで、例えば `app/sitemap.xml` や `app/products/sitemap.xml` といったようになります。
 - [`generateSitemaps`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-sitemaps) 関数を使用することにより。
 
-たとえば、`generateSitemaps`を使用してsitemapを分割するには、sitemapの`id`を持つObjectの配列を返します。その後、その`id`を使用してユニークなサイトマップを生成します。
+たとえば、`generateSitemaps`を使用して sitemap を分割するには、sitemap の`id`を持つ Object の配列を返します。その後、その`id`を使用してユニークなサイトマップを生成します。
 
 ```ts:app/product/sitemap.ts
 import { BASE_URL } from '@/app/lib/constants'
@@ -176,35 +176,35 @@ export default async function sitemap({ id }) {
 }
 ```
 
-productionでは、生成したサイトマップは`/.../sitemap/[id].xml`で利用できます。例えば、`/product/sitemap/1.xml`のようになります。
+production では、生成したサイトマップは`/.../sitemap/[id].xml`で利用できます。例えば、`/product/sitemap/1.xml`のようになります。
 
-developmentでは、生成されたsitemapを`/.../sitemap.xml/[id]`で閲覧することができます。たとえば、`/product/sitemap.xml/1`です。この違いは一時的なもので、製造の形式に従います。
+development では、生成された sitemap を`/.../sitemap.xml/[id]`で閲覧することができます。たとえば、`/product/sitemap.xml/1`です。この違いは一時的なもので、製造の形式に従います。
 
 詳細については、[`generateSitemaps` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-sitemaps)をご覧ください。
 
 ## Returns
 
-`sitemap.(xml|ts|js)`からexportされるdefault関数は、以下のプロパティを持つObjectの配列を返すべきです：
+`sitemap.(xml|ts|js)`から export される default 関数は、以下のプロパティを持つ Object の配列を返すべきです：
 
 ```tsx
 type Sitemap = Array<{
-  url: string
-  lastModified?: string | Date
+  url: string;
+  lastModified?: string | Date;
   changeFrequency?:
-    | 'always'
-    | 'hourly'
-    | 'daily'
-    | 'weekly'
-    | 'monthly'
-    | 'yearly'
-    | 'never'
-  priority?: number
-}>
+    | "always"
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "yearly"
+    | "never";
+  priority?: number;
+}>;
 ```
 
 ## Version History
 
-| Version | Changes |
-| --------- | ------------------------------------------------------------ |
+| Version   | Changes                                                           |
+| --------- | ----------------------------------------------------------------- |
 | `v13.4.5` | サイトマップに `changeFrequency` と `priority` 属性を追加します。 |
-| `v13.3.0` | `sitemap` 導入されました。|
+| `v13.3.0` | `sitemap` 導入されました。                                        |

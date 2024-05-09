@@ -9,9 +9,9 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-あなたは、代わりに`.next`を使用するのではなく、カスタムのbuildディレクトリに使用する名前を指定することができます。
+あなたは、代わりに`.next`を使用するのではなく、カスタムの build ディレクトリに使用する名前を指定することができます。
 
-`next.config.js`を開いて、`distDir` configを追加してください：
+`next.config.js`を開いて、`distDir` config を追加してください：
 
 ```js:next.config.js
 module.exports = {
@@ -19,6 +19,6 @@ module.exports = {
 }
 ```
 
-もし今、`next build`を実行すると、Next.jsは`build`を使い、defaultの `.next` フォルダの代わりになります。
+もし今、`next build`を実行すると、Next.js は`build`を使い、default の `.next` フォルダの代わりになります。
 
 > `distDir`はプロジェクトディレクトリから出ては**いけません**。例えば、`../build`は**無効な**ディレクトリです。

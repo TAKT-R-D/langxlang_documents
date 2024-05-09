@@ -7,11 +7,11 @@ org_path: /docs/app/api-reference/functions/fetch
 is_empty: false
 ---
 
-Next.jsはネイティブの[Web `fetch()` API](https://developer.mozilla.org/docs/Web/API/Fetch_API)を拡張して、server上の各requestが自身の持続的なキャッシングセマンティクスを設定できるようにします。
+Next.js はネイティブの[Web `fetch()` API](https://developer.mozilla.org/docs/Web/API/Fetch_API)を拡張して、server 上の各 request が自身の持続的なキャッシングセマンティクスを設定できるようにします。
 
-ブラウザでは、`cache`オプションは、 fetch request が_ブラウザの_ HTTP cache とどのようにやり取りするかを示します。この拡張機能では、`cache`は、_ server-side _ の fetch request がフレームワークの永続的な HTTP cache とどのようにやり取りするかを示します。
+ブラウザでは、`cache`オプションは、 fetch request が _ブラウザの_ HTTP cache とどのようにやり取りするかを示します。この拡張機能では、`cache`は、_ server-side _ の fetch request がフレームワークの永続的な HTTP cache とどのようにやり取りするかを示します。
 
-`fetch`を`async`および`await`で直接Server Components内で呼び出すことができます。
+`fetch`を`async`および`await`で直接 Server Components 内で呼び出すことができます。
 
 ```tsx:app/page.tsx
 export default async function Page() {
@@ -57,33 +57,33 @@ export default async function Page() {
 
 ## `fetch(url, options)`
 
- Next.js は、[Web `fetch()` API](https://developer.mozilla.org/docs/Web/API/Fetch_API)を拡張しているので、[使用可能なネイティブの options](https://developer.mozilla.org/docs/Web/API/fetch#parameters)を利用することができます。
+Next.js は、[Web `fetch()` API](https://developer.mozilla.org/docs/Web/API/Fetch_API)を拡張しているので、[使用可能なネイティブの options](https://developer.mozilla.org/docs/Web/API/fetch#parameters)を利用することができます。
 
 ### `options.cache`
 
-requestがNext.jsとどのように対話するべきかを設定してください。 [Data Cache](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#data-cache)。
+request が Next.js とどのように対話するべきかを設定してください。 [Data Cache](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#data-cache)。
 
 ```ts
-fetch(`https://...`, { cache: 'force-cache' | 'no-store' })
+fetch(`https://...`, { cache: "force-cache" | "no-store" });
 ```
 
 - **`force-cache`** ( default ) - Next.js は、そのデータ Cache 内で一致する request を探します。
-  - マッチがあり、それが新鮮であれば、cacheから返されます。
-  - 一致がないか、staleな一致の場合、Next.jsはリモートのserverからリソースをfetchし、ダウンロードしたリソースでcacheを更新します。
+  - マッチがあり、それが新鮮であれば、cache から返されます。
+  - 一致がないか、stale な一致の場合、Next.js はリモートの server からリソースを fetch し、ダウンロードしたリソースで cache を更新します。
 - **`no-store`** - Next.js は、 cache を確認せずに毎回 request ごとにリモートの server からリソースを取得し、ダウンロードしたリソースで cache を更新しません。
 
 > **Good to know**:
 >
-> - `cache` オプションを提供しない場合、Next.jsは `force-cache`にdefaultし、[dynamic function](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions) である `cookies()` が使用される場合は、`no-store` にdefaultします。
-> - `no-cache`オプションは、Next.jsの`no-store`と同じように動作します。
+> - `cache` オプションを提供しない場合、Next.js は `force-cache`に default し、[dynamic function](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#server-rendering-strategies#dynamic-functions) である `cookies()` が使用される場合は、`no-store` に default します。
+> - `no-cache`オプションは、Next.js の`no-store`と同じように動作します。
 
 ### `options.next.revalidate`
 
 ```ts
-fetch(`https://...`, { next: { revalidate: false | 0 | number } })
+fetch(`https://...`, { next: { revalidate: false | 0 | number } });
 ```
 
-リソースのcacheライフタイム(秒単位)を設定します。
+リソースの cache ライフタイム(秒単位)を設定します。
 
 - **`false`** - リソースを無期限に Cache します。これは `revalidate: Infinity` と意味的に同等です。 HTTP cache は、時間の経過と共に古いリソースが追い出される場合があります。
 - **`0`** - リソースがキャッシュされるのを防ぎます。
@@ -91,21 +91,21 @@ fetch(`https://...`, { next: { revalidate: false | 0 | number } })
 
 > **Good to know**:
 >
-> - 個々の`fetch()`requestが、[defaultの `revalidate`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#revalidate)よりも低い番号の`revalidate`を設定する場合、全体のrouteの再検証間隔が短くなります。
-> - もし同じ URL を持つ2つの fetch Requestが同じ route 内で異なる `revalidate` 値を持つ場合、低い value が使用されます。
+> - 個々の`fetch()`request が、[default の `revalidate`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#revalidate)よりも低い番号の`revalidate`を設定する場合、全体の route の再検証間隔が短くなります。
+> - もし同じ URL を持つ 2 つの fetch Request が同じ route 内で異なる `revalidate` 値を持つ場合、低い value が使用されます。
 > - 便宜上、`revalidate`が number に設定されている場合、`cache`オプションを設定する必要はありません。なぜなら、`0`は`cache: 'no-store'`を意味し、正の value は`cache: 'force-cache'`を意味するからです。
-> - `{ revalidate: 0, cache: 'force-cache' }`や `{ revalidate: 10, cache: 'no-store' }`のような、競合するoptionsはerrorを引き起こします。
+> - `{ revalidate: 0, cache: 'force-cache' }`や `{ revalidate: 10, cache: 'no-store' }`のような、競合する options は error を引き起こします。
 
 ### `options.next.tags`
 
 ```ts
-fetch(`https://...`, { next: { tags: ['collection'] } })
+fetch(`https://...`, { next: { tags: ["collection"] } });
 ```
 
-リソースのcacheタグを設定します。その後、データは[`revalidateTag`](https://nextjs.org/docs/app/api-reference/functions/revalidateTag)を使用してオンデマンドで再検証できます。カスタムタグの最大長は256文字です。
+リソースの cache タグを設定します。その後、データは[`revalidateTag`](https://nextjs.org/docs/app/api-reference/functions/revalidateTag)を使用してオンデマンドで再検証できます。カスタムタグの最大長は 256 文字です。
 
 ## Version History
 
-| Version | Changes |
-| --------- | ------------------- |
-| `v13.0.0` | `fetch` 導入されました。|
+| Version   | Changes                  |
+| --------- | ------------------------ |
+| `v13.0.0` | `fetch` 導入されました。 |

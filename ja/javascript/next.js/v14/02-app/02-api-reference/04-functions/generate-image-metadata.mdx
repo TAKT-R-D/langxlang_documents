@@ -7,7 +7,7 @@ org_path: /docs/app/api-reference/functions/generate-image-metadata
 is_empty: false
 ---
 
-あなたは`generateImageMetadata`を使用して、一つのimageの異なるVersionを生成したり、一つのrouteセグメントに対して複数の画像を返すことができます。これは、アイコンなどのmetadata値をハードコーディングしたくない場合に便利です。
+あなたは`generateImageMetadata`を使用して、一つの image の異なる Version を生成したり、一つの route セグメントに対して複数の画像を返すことができます。これは、アイコンなどの metadata 値をハードコーディングしたくない場合に便利です。
 
 ## Parameters
 
@@ -33,23 +33,23 @@ export function generateImageMetadata({ params }) {
 }
 ```
 
-| Route | URL | `params` |
+| Route                           | URL         | `params`                  |
 | ------------------------------- | ----------- | ------------------------- |
-| `app/shop/icon.js` | `/shop` | `undefined` |
-| `app/shop/[slug]/icon.js` | `/shop/1` | `{ slug: '1' }` |
+| `app/shop/icon.js`              | `/shop`     | `undefined`               |
+| `app/shop/[slug]/icon.js`       | `/shop/1`   | `{ slug: '1' }`           |
 | `app/shop/[tag]/[item]/icon.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
-| `app/shop/[...slug]/icon.js` | `/shop/1/2` | `{ slug: ['1', '2'] }` |
+| `app/shop/[...slug]/icon.js`    | `/shop/1/2` | `{ slug: ['1', '2'] }`    |
 
 ## Returns
 
 `generateImageMetadata` 関数は、`alt` や `size` などの画像の metadata を含むオブジェクトの `array` を返すべきです。さらに、各項目には `id` value が **必ず** 含まれ、これは image 生成関数の props に渡されます。
 
-| Image Metadata Object | Type |
+| Image Metadata Object | Type                                |
 | --------------------- | ----------------------------------- |
-| `id` | `string` (必須) |
-| `alt` | `string` |
-| `size` | `{ width: number; height: number }` |
-| `contentType` | `string` |
+| `id`                  | `string` (必須)                     |
+| `alt`                 | `string`                            |
+| `size`                | `{ width: number; height: number }` |
+| `contentType`         | `string`                            |
 
 ```tsx:icon.tsx
 import { ImageResponse } from 'next/og'
@@ -135,7 +135,7 @@ export default function Icon({ id }) {
 
 #### Using external data
 
-この例では、`params` objectと外部データを使用して、routeセグメントのための複数の[Open Graphイメージ](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image)を生成します。
+この例では、`params` object と外部データを使用して、route セグメントのための複数の[Open Graph イメージ](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image)を生成します。
 
 ```tsx:app/products/[id]/opengraph-image.tsx
 import { ImageResponse } from 'next/og'
@@ -221,6 +221,6 @@ export default async function Image({ params, id }) {
 
 ## Version History
 
-| Version | Changes |
-| --------- | ----------------------------------- |
-| `v13.3.0` | `generateImageMetadata`が導入されました。|
+| Version   | Changes                                   |
+| --------- | ----------------------------------------- |
+| `v13.3.0` | `generateImageMetadata`が導入されました。 |

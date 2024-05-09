@@ -7,9 +7,9 @@ org_path: /docs/app/api-reference/functions/use-selected-layout-segment
 is_empty: false
 ---
 
-`useSelectedLayoutSegment`は、呼び出し元のLayoutの**1つ下の階層**のアクティブなrouteセグメントを読み取ることができる**Client Component**のhookです。
+`useSelectedLayoutSegment`は、呼び出し元の Layout の**1 つ下の階層**のアクティブな route セグメントを読み取ることができる**Client Component**の hook です。
 
-layoutの親としてのタブなどのナビゲーションUIに便利であり、アクティブな子セグメントに応じてstyleが変わります。
+layout の親としてのタブなどのナビゲーション UI に便利であり、アクティブな子セグメントに応じて style が変わります。
 
 ```tsx:app/example-client-component.tsx
 'use client'
@@ -46,28 +46,28 @@ export default function ExampleClientComponent() {
 const segment = useSelectedLayoutSegment(parallelRoutesKey?: string)
 ```
 
-`useSelectedLayoutSegment` はオプションで [`parallelRoutesKey`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#useselectedlayoutsegments) を受け付けます。これにより、そのスロット内のアクティブなrouteセグメントを読み取ることができます。
+`useSelectedLayoutSegment` はオプションで [`parallelRoutesKey`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes#useselectedlayoutsegments) を受け付けます。これにより、そのスロット内のアクティブな route セグメントを読み取ることができます。
 
 ## Returns
 
-`useSelectedLayoutSegment`はアクティブなセグメントのstringを返すか、存在しない場合は`null`を返します。
+`useSelectedLayoutSegment`はアクティブなセグメントの string を返すか、存在しない場合は`null`を返します。
 
-たとえば、以下のLayoutとURLが与えられた場合、返されるセグメントは以下のようになります：
+たとえば、以下の Layout と URL が与えられた場合、返されるセグメントは以下のようになります：
 
-| Layout | 訪問した URL | 返されたセグメント |
-| ------------------------- | ------------------------------ | ---------------- |
-| `app/layout.js` | `/` | `null` |
-| `app/layout.js` | `/dashboard` | `'dashboard'` |
-| `app/dashboard/layout.js` | `/dashboard` | `null` |
-| `app/dashboard/layout.js` | `/dashboard/settings` | `'settings'` |
-| `app/dashboard/layout.js` | `/dashboard/analytics` | `'analytics'` |
-| `app/dashboard/layout.js` | `/dashboard/analytics/monthly` | `'analytics'` |
+| Layout                    | 訪問した URL                   | 返されたセグメント |
+| ------------------------- | ------------------------------ | ------------------ |
+| `app/layout.js`           | `/`                            | `null`             |
+| `app/layout.js`           | `/dashboard`                   | `'dashboard'`      |
+| `app/dashboard/layout.js` | `/dashboard`                   | `null`             |
+| `app/dashboard/layout.js` | `/dashboard/settings`          | `'settings'`       |
+| `app/dashboard/layout.js` | `/dashboard/analytics`         | `'analytics'`      |
+| `app/dashboard/layout.js` | `/dashboard/analytics/monthly` | `'analytics'`      |
 
 ## Examples
 
 ### アクティブな link component を作成する
 
-`useSelectedLayoutSegment`を使用して、アクティブなlink componentを作成し、アクティブなセグメントに応じてstyleが変化することができます。例えば、ブログのサイドバーにある注目の投稿リスト:
+`useSelectedLayoutSegment`を使用して、アクティブな link component を作成し、アクティブなセグメントに応じて style が変化することができます。例えば、ブログのサイドバーにある注目の投稿リスト:
 
 ```tsx:app/blog/blog-nav-link.tsx
 'use client'
@@ -171,6 +171,6 @@ export default async function Layout({ children }) {
 
 ## Version History
 
-| Version | Changes |
-| --------- | -------------------------------------- |
-| `v13.0.0` | `useSelectedLayoutSegment`が導入されました。|
+| Version   | Changes                                      |
+| --------- | -------------------------------------------- |
+| `v13.0.0` | `useSelectedLayoutSegment`が導入されました。 |

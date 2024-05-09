@@ -9,66 +9,66 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-NextResponseは、追加の便利なMethodを用いて[Web Response API](https://developer.mozilla.org/docs/Web/API/Response)を拡張します。
+NextResponse は、追加の便利な Method を用いて[Web Response API](https://developer.mozilla.org/docs/Web/API/Response)を拡張します。
 
 ## `cookies`
 
-[`Set-Cookie`](https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie)のresponseのheaderを読み込むか変更します。
+[`Set-Cookie`](https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie)の response の header を読み込むか変更します。
 
 ### `set(name, value)`
 
-名前が与えられた場合、与えられたvalueを使用して、response上にcookieを設定します。
+名前が与えられた場合、与えられた value を使用して、response 上に cookie を設定します。
 
 ```ts
 // Given incoming request /home
-let response = NextResponse.next()
+let response = NextResponse.next();
 // Set a cookie to hide the banner
-response.cookies.set('show-banner', 'false')
+response.cookies.set("show-banner", "false");
 // Response will have a `Set-Cookie:show-banner=false;path=/home` header
-return response
+return response;
 ```
 
 ### `get(name)`
 
-Given a cookie name, return the value of the cookie. If the cookie is not found, `undefined` is returned. If multiple cookies are found, the first one is returned.
+Cookie 名が与えられた場合、そのクッキーの値を返します。クッキーが見つからない場合は、`undefined`が返されます。複数のクッキーが見つかった場合は、最初のものが返されます。
 
 ```ts
 // Given incoming request /home
-let response = NextResponse.next()
+let response = NextResponse.next();
 // { name: 'show-banner', value: 'false', Path: '/home' }
-response.cookies.get('show-banner')
+response.cookies.get("show-banner");
 ```
 
 ### `getAll()`
 
-cookieの名前が与えられた場合、そのcookieの値を返します。名前が与えられていない場合、responseにあるすべてのcookiesを返します。
+cookie の名前が与えられた場合、その cookie の値を返します。名前が与えられていない場合、response にあるすべての cookies を返します。
 
 ```ts
 // Given incoming request /home
-let response = NextResponse.next()
+let response = NextResponse.next();
 // [
 //   { name: 'experiments', value: 'new-pricing-page', Path: '/home' },
 //   { name: 'experiments', value: 'winter-launch', Path: '/home' },
 // ]
-response.cookies.getAll('experiments')
+response.cookies.getAll("experiments");
 // Alternatively, get all cookies for the response
-response.cookies.getAll()
+response.cookies.getAll();
 ```
 
 ### `delete(name)`
 
-cookie名が与えられたら、そのcookieをresponseからdeleteしてください。
+cookie 名が与えられたら、その cookie を response から delete してください。
 
 ```ts
 // Given incoming request /home
-let response = NextResponse.next()
+let response = NextResponse.next();
 // Returns true for deleted, false is nothing is deleted
-response.cookies.delete('experiments')
+response.cookies.delete("experiments");
 ```
 
 ## `json()`
 
-指定されたJSON本文でresponseを生成してください。
+指定された JSON 本文で response を生成してください。
 
 ```ts:app/api/route.ts
 import { NextResponse } from 'next/server'
@@ -88,63 +88,63 @@ export async function GET(request) {
 
 ## `redirect()`
 
-[URL](https://developer.mozilla.org/docs/Web/API/URL)へのredirectsを行うresponseを生成します。
+[URL](https://developer.mozilla.org/docs/Web/API/URL)への redirects を行う response を生成します。
 
 ```ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
-return NextResponse.redirect(new URL('/new', request.url))
+return NextResponse.redirect(new URL("/new", request.url));
 ```
 
 [URL](https://developer.mozilla.org/docs/Web/API/URL)は、`NextResponse.redirect()` method を使用する前に作成および変更することができます。例えば、現在の URL を取得するために`request.nextUrl`プロパティを使用し、それを別の URL に redirect させるために変更することができます。
 
 ```ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 // Given an incoming request...
-const loginUrl = new URL('/login', request.url)
+const loginUrl = new URL("/login", request.url);
 // Add ?from=/incoming-url to the /login URL
-loginUrl.searchParams.set('from', request.nextUrl.pathname)
+loginUrl.searchParams.set("from", request.nextUrl.pathname);
 // And redirect to the new URL
-return NextResponse.redirect(loginUrl)
+return NextResponse.redirect(loginUrl);
 ```
 
 ## `rewrite()`
 
-与えられた[URL](https://developer.mozilla.org/docs/Web/API/URL)を(プロキシとして)rewrites responseを生成しながら、元のURLを保持してください。
+与えられた[URL](https://developer.mozilla.org/docs/Web/API/URL)を(プロキシとして)rewrites response を生成しながら、元の URL を保持してください。
 
 ```ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 // Incoming request: /about, browser shows /about
 // Rewritten request: /proxy, browser shows /about
-return NextResponse.rewrite(new URL('/proxy', request.url))
+return NextResponse.rewrite(new URL("/proxy", request.url));
 ```
 
 ## `next()`
 
-`next()` methodは、早期に戻りルーティングを続けることを可能にするため、Middlewareにとって有用です。
+`next()` method は、早期に戻りルーティングを続けることを可能にするため、Middleware にとって有用です。
 
 ```ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
-return NextResponse.next()
+return NextResponse.next();
 ```
 
-また、responseを生成するときに`headers`を転送することもできます：
+また、response を生成するときに`headers`を転送することもできます：
 
 ```ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 // Given an incoming request...
-const newHeaders = new Headers(request.headers)
+const newHeaders = new Headers(request.headers);
 // Add a new header
-newHeaders.set('x-version', '123')
+newHeaders.set("x-version", "123");
 // And produce a response with the new headers
 return NextResponse.next({
   request: {
     // New request headers
     headers: newHeaders,
   },
-})
+});
 ```

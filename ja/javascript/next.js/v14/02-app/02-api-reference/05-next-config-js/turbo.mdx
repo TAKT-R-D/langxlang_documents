@@ -14,9 +14,9 @@ nav_title: turbo
 
 ## webpack loaders
 
-現在、Turbopackはwebpackのloader APIの一部をサポートしており、一部のwebpackローダーを使用してTurbopack内でtransform codeを行うことができます。
+現在、Turbopack は webpack の loader API の一部をサポートしており、一部の webpack ローダーを使用して Turbopack 内で transform code を行うことができます。
 
-ローダーを設定するには、インストールしたローダーの名前と、`next.config.js`内のoptionsを追加し、ファイル拡張子をローダーのリストにマッピングします：
+ローダーを設定するには、インストールしたローダーの名前と、`next.config.js`内の options を追加し、ファイル拡張子をローダーのリストにマッピングします：
 
 ```js:next.config.js
 module.exports = {
@@ -40,19 +40,19 @@ module.exports = {
 }
 ```
 
-それでは、上記の設定が与えられた場合、あなたは自身のappから変換されたcodeを使用することができます：
+それでは、上記の設定が与えられた場合、あなたは自身の app から変換された code を使用することができます：
 
 ```js
-import MyDoc from './my-doc.mdx'
+import MyDoc from "./my-doc.mdx";
 
 export default function Home() {
-  return <MyDoc />
+  return <MyDoc />;
 }
 ```
 
 ## Resolve Alias
 
-`next.config.js`を通じて、Turbopackは、webpackの[`resolve.alias`](https://webpack.js.org/configuration/resolve/#resolvealias)設定と同様に、エイリアスを通じてモジュール解決を変更するように設定することができます。
+`next.config.js`を通じて、Turbopack は、webpack の[`resolve.alias`](https://webpack.js.org/configuration/resolve/#resolvealias)設定と同様に、エイリアスを通じてモジュール解決を変更するように設定することができます。
 
 `next.config.js`でリゾルブエイリアスを設定するには、インポートされたパターンを新しい destination に map します。
 
@@ -71,13 +71,13 @@ module.exports = {
 
 このエイリアスは`underscore`パッケージのインポートを`lodash`パッケージに変更します。つまり、`import underscore from 'underscore'`とすると、`underscore`ではなく`lodash`モジュールがロードされます。
 
-Turbopackは、Node.jsの[条件付きexport](https://nodejs.org/docs/latest-v18.x/api/packages.html#conditional-exports)と同様に、このフィールドを通じて条件付きエイリアスをサポートしています。現時点では、`browser`条件のみがサポートされています。上記のケースでは、`mocha`モジュールのインポートは、Turbopackがブラウザ環境を対象とする場合、`mocha/browser-entry.js`にエイリアス化されます。
+Turbopack は、Node.js の[条件付き export](https://nodejs.org/docs/latest-v18.x/api/packages.html#conditional-exports)と同様に、このフィールドを通じて条件付きエイリアスをサポートしています。現時点では、`browser`条件のみがサポートされています。上記のケースでは、`mocha`モジュールのインポートは、Turbopack がブラウザ環境を対象とする場合、`mocha/browser-entry.js`にエイリアス化されます。
 
 ## Resolve Extensions
 
-`next.config.js`を通じて、Turbopackは、webpackの[`resolve.extensions`](https://webpack.js.org/configuration/resolve/#resolveextensions)設定と同様に、カスタム拡張子を持つmodulesを解決するように設定することができます。
+`next.config.js`を通じて、Turbopack は、webpack の[`resolve.extensions`](https://webpack.js.org/configuration/resolve/#resolveextensions)設定と同様に、カスタム拡張子を持つ modules を解決するように設定することができます。
 
-resolve extensionを設定するには、`next.config.js`内の`resolveExtensions`フィールドを使用します：
+resolve extension を設定するには、`next.config.js`内の`resolveExtensions`フィールドを使用します：
 
 ```js:next.config.js
 module.exports = {
@@ -97,6 +97,6 @@ module.exports = {
 }
 ```
 
-これにより、元のresolve拡張機能が提供されたリストで上書きされます。default拡張機能を含めるように注意してください。
+これにより、元の resolve 拡張機能が提供されたリストで上書きされます。default 拡張機能を含めるように注意してください。
 
-F詳細な情報と、あなたのappをwebpackからTurbopackに移行する方法についてのガイダンスは、[Turbopackのwebpack互換性に関するドキュメンテーション](https://turbo.build/pack/docs/migrating-from-webpack)をご覧ください。
+F 詳細な情報と、あなたの app を webpack から Turbopack に移行する方法についてのガイダンスは、[Turbopack の webpack 互換性に関するドキュメンテーション](https://turbo.build/pack/docs/migrating-from-webpack)をご覧ください。

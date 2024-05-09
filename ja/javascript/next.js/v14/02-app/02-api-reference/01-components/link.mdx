@@ -14,14 +14,14 @@ is_empty: false
 <details>
   <summary>Examples</summary>
 
-- [こんにちはWorld](https://github.com/vercel/next.js/tree/canary/examples/hello-world)
+- [Hello World](https://github.com/vercel/next.js/tree/canary/examples/hello-world)
 - [Link 上のアクティブな className](https://github.com/vercel/next.js/tree/canary/examples/active-class-name)
 
 </details>
 
 </PagesOnly>
 
-`<Link>`は、React componentであり、HTMLの`<a>`要素を拡張し[prefetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#2-prefetching)とClientサイドのroutes間のナビゲーションを提供します。これはNext.jsでroutes間を移動する主要な方法です。
+`<Link>`は、React component であり、HTML の`<a>`要素を拡張し[prefetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#2-prefetching)と Client サイドの routes 間のナビゲーションを提供します。これは Next.js で routes 間を移動する主要な方法です。
 
 <AppOnly>
 
@@ -51,10 +51,10 @@ export default function Page() {
 - `pages/about.js`
 - `pages/blog/[slug].js`
 
-これらの各ページにlinkを以下のように設定することができます：
+これらの各ページに link を以下のように設定することができます：
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Home() {
   return (
@@ -69,58 +69,58 @@ function Home() {
         <Link href="/blog/hello-world">Blog Post</Link>
       </li>
     </ul>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 </PagesOnly>
 
 ## Props
 
-ここにLink Componentの利用可能なpropsの要約があります：
+ここに Link Component の利用可能な props の要約があります：
 
 <PagesOnly>
 
-| Prop | 例 | Type | 必須 |
-| ------------------------ | ------------------- | ---------------- | -------- |
+| Prop                     | 例                  | Type                 | 必須 |
+| ------------------------ | ------------------- | -------------------- | ---- |
 | [`href`](#href-required) | `href="/dashboard"` | String または Object | はい |
-| [`replace`](#replace) | `replace={false}` | Boolean | - |
-| [`scroll`](#scroll) | `scroll={false}` | Boolean | - |
-| [`prefetch`](#prefetch) | `prefetch={false}` | Boolean | - |
+| [`replace`](#replace)    | `replace={false}`   | Boolean              | -    |
+| [`scroll`](#scroll)      | `scroll={false}`    | Boolean              | -    |
+| [`prefetch`](#prefetch)  | `prefetch={false}`  | Boolean              | -    |
 
 </PagesOnly>
 
 <AppOnly>
 
-| Prop | 例 | Type | 必須 |
-| ------------------------ | ------------------- | ---------------- | -------- |
+| Prop                     | 例                  | Type                 | 必須 |
+| ------------------------ | ------------------- | -------------------- | ---- |
 | [`href`](#href-required) | `href="/dashboard"` | String または Object | はい |
-| [`replace`](#replace) | `replace={false}` | Boolean | - |
-| [`scroll`](#scroll) | `scroll={false}` | Boolean | - |
-| [`prefetch`](#prefetch) | `prefetch={false}` | Boolean または null | - |
+| [`replace`](#replace)    | `replace={false}`   | Boolean              | -    |
+| [`scroll`](#scroll)      | `scroll={false}`    | Boolean              | -    |
+| [`prefetch`](#prefetch)  | `prefetch={false}`  | Boolean または null  | -    |
 
 </AppOnly>
 
-> **「 Good to know 」**: `<a>`タグの属性、例えば`className`や`target="_blank"` は、" props "として`<Link>`に追加することができ、基礎となる`<a>`要素に渡されます。
+> **Good to know**: `<a>`タグの属性、例えば`className`や`target="_blank"` は、" props "として`<Link>`に追加することができ、基礎となる`<a>`要素に渡されます。
 
 ### `href`(必須)
 
-ナビゲートするためのURLまたはpath。
+ナビゲートするための URL または path。
 
 ```jsx
 <Link href="/dashboard">Dashboard</Link>
 ```
 
-`href`はまた、objectを受け入れることもできます、例えば：
+`href`はまた、object を受け入れることもできます、例えば：
 
 ```jsx
 // Navigate to /about?name=test
 <Link
   href={{
-    pathname: '/about',
-    query: { name: 'test' },
+    pathname: "/about",
+    query: { name: "test" },
   }}
 >
   About
@@ -129,7 +129,7 @@ export default Home
 
 ### `replace`
 
-**defaultは `false` です。** `true` の場合、`next/link`は、新しい URL を [ブラウザの履歴](https://developer.mozilla.org/docs/Web/API/History_API) stack に追加する代わりに、現在の履歴の状態を 置き換えます。
+**default は `false` です。** `true` の場合、`next/link`は、新しい URL を [ブラウザの履歴](https://developer.mozilla.org/docs/Web/API/History_API) stack に追加する代わりに、現在の履歴の状態を 置き換えます。
 
 ```tsx:app/page.tsx
 import Link from 'next/link'
@@ -157,7 +157,7 @@ export default function Page() {
 
 ### `scroll`
 
-**defaultは `true` です。** `<Link>`のdefaultの挙動は、新しいrouteのトップにscrollするか、バックワードとフォワードのナビゲーションのためにscrollポジションを維持することです。`false`の場合、`next/link` はナビゲーション後にページのトップにscroll _しません_ 。
+**default は `true` です。** `<Link>`の default の挙動は、新しい route のトップに scroll するか、バックワードとフォワードのナビゲーションのために scroll ポジションを維持することです。`false`の場合、`next/link` はナビゲーション後にページのトップに scroll _しません_ 。
 
 ```tsx:app/page.tsx
 import Link from 'next/link'
@@ -187,10 +187,10 @@ export default function Page() {
 
 <AppOnly>
 
-`<Link />` component がユーザーの viewport に入ると(初めてまたは scroll により)、プリフェッチが行われます。 Next.js は、clientサイドのナビゲーションのパフォーマンスを向上させるために、リンク先の route (`href`で示される)とそのデータをバックグラウンドでプリフェッチおよびロードします。プリフェッチは production でのみ有効になります。
+`<Link />` component がユーザーの viewport に入ると(初めてまたは scroll により)、プリフェッチが行われます。 Next.js は、client サイドのナビゲーションのパフォーマンスを向上させるために、リンク先の route (`href`で示される)とそのデータをバックグラウンドでプリフェッチおよびロードします。プリフェッチは production でのみ有効になります。
 
-- **`null`(default)**: Prefetchの振る舞いは、そのrouteが静的か動的かによります。静的なroutesの場合、完全なrouteが事前にフェッチされます(そのすべてのデータを含む)。 dynamic routesの場合、最も近いセグメントへの部分的なrouteが事前にフェッチされます.そのセグメントは、[`loading.js`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#instant-loading-states) の境界を持っています。
-- `true`:全てのrouteは、静的であろうとdynamic routesであろうと事前にフェッチされます。
+- **`null`(default)**: Prefetch の振る舞いは、その route が静的か動的かによります。静的な routes の場合、完全な route が事前にフェッチされます(そのすべてのデータを含む)。 dynamic routes の場合、最も近いセグメントへの部分的な route が事前にフェッチされます.そのセグメントは、[`loading.js`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#instant-loading-states) の境界を持っています。
+- `true`:全ての route は、静的であろうと dynamic routes であろうと事前にフェッチされます。
 - `false`: プリフェッチは、''viewport''に入るときとホバーするときの両方で、''決して''行われません。
 
 ```tsx:app/page.tsx
@@ -221,7 +221,7 @@ export default function Page() {
 
 <PagesOnly>
 
-`<Link />` component がユーザーの viewport に入ると(初期化または scroll により)、 Next.js はリンクされた route (`href`によって表示)とデータをバックグラウンドでプリフェッチおよびロードし、client側のナビゲーションのパフォーマンスを向上させます。プリフェッチは production でのみ有効になります。
+`<Link />` component がユーザーの viewport に入ると(初期化または scroll により)、 Next.js はリンクされた route (`href`によって表示)とデータをバックグラウンドでプリフェッチおよびロードし、client 側のナビゲーションのパフォーマンスを向上させます。プリフェッチは production でのみ有効になります。
 
 - **`true`( default )**：完全な route およびそのデータがプリフェッチされます。
 - `false`： viewport に入るときにはプリフェッチは行われませんが、ホバーしたときには行われます。ホバー時のフェッチも完全に無効にしたい場合は、`<a>`タグを使用するか、[徐々に導入](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration)することでホバー時のプリフェッチも無効にできる App Router を検討してみてください。
@@ -254,21 +254,21 @@ export default function Page() {
 
 ### `legacyBehavior`
 
-`<a>`要素は、`<Link>`の子として必要なくなりました。`legacyBehavior`のプロパティを追加して旧来の動作を使用するか、`<a>`を削除してアップグレードします。あなたのcodeを自動的にアップグレードするための[codemodが利用可能です](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#new-link)。
+`<a>`要素は、`<Link>`の子として必要なくなりました。`legacyBehavior`のプロパティを追加して旧来の動作を使用するか、`<a>`を削除してアップグレードします。あなたの code を自動的にアップグレードするための[codemod が利用可能です](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#new-link)。
 
 > **Good to know**: `legacyBehavior`が`true`に設定されていない場合、すべての[`anchor`](https://developer.mozilla.org/docs/Web/HTML/Element/a)タグのプロパティは、`className`、`onClick`などと共に`next/link`にも渡すことができます。
 
 ### `passHref`
 
-`Link`に強制的にその子に`href`プロパティを送信させます。defaultは`false`です。
+`Link`に強制的にその子に`href`プロパティを送信させます。default は`false`です。
 
 ### `scroll`
 
-Scrollをナビゲーション後にページの最上部に移動します。defaultは`true`です。
+Scroll をナビゲーション後にページの最上部に移動します。default は`true`です。
 
 ### `shallow`
 
-現在のページのpathを更新し、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)を再実行せずに更新します。defaultは`false`です。
+現在のページの path を更新し、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)を再実行せずに更新します。default は`false`です。
 
 ### `locale`
 
@@ -278,13 +278,13 @@ Scrollをナビゲーション後にページの最上部に移動します。de
 
 ## Examples
 
-### Dynamic Routesへのリンク作成
+### Dynamic Routes へのリンク作成
 
-dynamic routesについては、templateリテラルを使用してリンクのpathを作成すると便利です。
+dynamic routes については、template リテラルを使用してリンクの path を作成すると便利です。
 
 <PagesOnly>
 
-例えば、`pages/blog/[slug].js`というdynamic routeへのリンクリストを生成することができます。
+例えば、`pages/blog/[slug].js`という dynamic route へのリンクリストを生成することができます。
 
 ```jsx:pages/blog/index.js
 import Link from 'next/link'
@@ -328,49 +328,49 @@ function Page({ posts }) {
 
 </AppOnly>
 
-### もし子供が `<a>` タグをラップするカスタムのcomponentであるならば
+### もし子供が `<a>` タグをラップするカスタムの component であるならば
 
 <AppOnly>
 
-`Link`の子要素が`<a>`タグをラップするカスタムのcomponentである場合、`Link`に`passHref`を追加する必要があります。これは[styled-components](https://styled-components.com/)のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなくなり、あなたのサイトのアクセシビリティが損なわれ、SEOに影響を及ぼすかもしれません。もし、[ESLint](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/02-eslint#eslint-plugin)を使用している場合は、`passHref`の正しい使用を保証するための組み込みルール`next/link-passhref`があります。
+`Link`の子要素が`<a>`タグをラップするカスタムの component である場合、`Link`に`passHref`を追加する必要があります。これは[styled-components](https://styled-components.com/)のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなくなり、あなたのサイトのアクセシビリティが損なわれ、SEO に影響を及ぼすかもしれません。もし、[ESLint](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/02-eslint#eslint-plugin)を使用している場合は、`passHref`の正しい使用を保証するための組み込みルール`next/link-passhref`があります。
 
 </AppOnly>
 
 <PagesOnly>
 
-`Link`の子供が`<a>`タグをラップするカスタムのcomponentである場合、`Link`に`passHref`を追加する必要があります。これは、[styled-components](https://styled-components.com/)のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなく、あなたのサイトのアクセシビリティが悪化し、SEOに影響を与える可能性があります。[ESLint](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/02-eslint#eslint-plugin)を使っている場合、`next/link-passhref`というビルトインルールがあるので、`passHref`の正しい使用法を確認することができます。
+`Link`の子供が`<a>`タグをラップするカスタムの component である場合、`Link`に`passHref`を追加する必要があります。これは、[styled-components](https://styled-components.com/)のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなく、あなたのサイトのアクセシビリティが悪化し、SEO に影響を与える可能性があります。[ESLint](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/02-eslint#eslint-plugin)を使っている場合、`next/link-passhref`というビルトインルールがあるので、`passHref`の正しい使用法を確認することができます。
 
 </PagesOnly>
 
 ```jsx
-import Link from 'next/link'
-import styled from 'styled-components'
+import Link from "next/link";
+import styled from "styled-components";
 
 // This creates a custom component that wraps an <a> tag
 const RedLink = styled.a`
   color: red;
-`
+`;
 
 function NavLink({ href, name }) {
   return (
     <Link href={href} passHref legacyBehavior>
       <RedLink>{name}</RedLink>
     </Link>
-  )
+  );
 }
 
-export default NavLink
+export default NavLink;
 ```
 
-- あなたが[emotion](https://emotion.sh/)のJSX pragma機能(`@jsx jsx`)を使用している場合、 `<a>` タグを直接使用する場合でも `passHref` を使用する必要があります。
-- componentは、ナビゲーションを正しくトリガーするために`onClick`プロパティをサポートする必要があります
+- あなたが[emotion](https://emotion.sh/)の JSX pragma 機能(`@jsx jsx`)を使用している場合、 `<a>` タグを直接使用する場合でも `passHref` を使用する必要があります。
+- component は、ナビゲーションを正しくトリガーするために`onClick`プロパティをサポートする必要があります
 
-### もし子供が機能的なcomponentである場合
+### もし子供が機能的な component である場合
 
 `Link`の子が機能的な component である場合、`passHref`と`legacyBehavior`を使用することに加えて、その component を[`React.forwardRef`](https://react.dev/reference/react/forwardRef)でラップする必要があります：
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 // `onClick`, `href`, and `ref` need to be passed to the DOM element
 // for proper handling
@@ -379,26 +379,26 @@ const MyButton = React.forwardRef(({ onClick, href }, ref) => {
     <a href={href} onClick={onClick} ref={ref}>
       Click Me
     </a>
-  )
-})
+  );
+});
 
 function Home() {
   return (
     <Link href="/about" passHref legacyBehavior>
       <MyButton />
     </Link>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
-### URL Objectと共に
+### URL Object と共に
 
-`Link`はまた、URL objectを受け取ることもでき、それを自動的にフォーマットしてURL stringを作成します。それのやり方は次の通りです：
+`Link`はまた、URL object を受け取ることもでき、それを自動的にフォーマットして URL string を作成します。それのやり方は次の通りです：
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Home() {
   return (
@@ -406,8 +406,8 @@ function Home() {
       <li>
         <Link
           href={{
-            pathname: '/about',
-            query: { name: 'test' },
+            pathname: "/about",
+            query: { name: "test" },
           }}
         >
           About us
@@ -416,30 +416,30 @@ function Home() {
       <li>
         <Link
           href={{
-            pathname: '/blog/[slug]',
-            query: { slug: 'my-post' },
+            pathname: "/blog/[slug]",
+            query: { slug: "my-post" },
           }}
         >
           Blog Post
         </Link>
       </li>
     </ul>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 上記の例には link へのリンクがあります：
 
-- 事前に定義されたroute：`/about?name=test`
+- 事前に定義された route：`/about?name=test`
 - [dynamic route](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes): `/blog/my-post`
 
-[Node.js URLモジュールのドキュメンテーション](https://nodejs.org/api/url.html#url_url_strings_and_url_objects)で定義されているすべてのプロパティを使用することができます。
+[Node.js URL モジュールのドキュメンテーション](https://nodejs.org/api/url.html#url_url_strings_and_url_objects)で定義されているすべてのプロパティを使用することができます。
 
-### Replaceを使ってURLをプッシュする代わりに置き換えてください
+### Replace を使って URL をプッシュする代わりに置き換えてください
 
-`Link` componentのdefaultの動作は、新しいURLを`history` stackに`push`することです。以下の例のように、新しいエントリの追加を防ぐために`replace`プロップを使用することができます。
+`Link` component の default の動作は、新しい URL を`history` stack に`push`することです。以下の例のように、新しいエントリの追加を防ぐために`replace`プロップを使用することができます。
 
 ```jsx
 <Link href="/about" replace>
@@ -447,9 +447,9 @@ export default Home
 </Link>
 ```
 
-### ページのトップへのScrollを無効にする
+### ページのトップへの Scroll を無効にする
 
-`Link`のdefaultの動作はページのトップへscrollすることです。ハッシュが定義されている場合、通常の`<a>`タグのように、特定のidへscrollします。トップやハッシュへのscrollを防ぐためには、`scroll={false}`を`Link`に追加することができます:
+`Link`の default の動作はページのトップへ scroll することです。ハッシュが定義されている場合、通常の`<a>`タグのように、特定の id へ scroll します。トップやハッシュへの scroll を防ぐためには、`scroll={false}`を`Link`に追加することができます:
 
 ```jsx
 <Link href="/#hashid" scroll={false}>
@@ -459,9 +459,9 @@ export default Home
 
 ### Middleware
 
-認証やユーザーを別のページにrewritesするその他の目的で[middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)を使用することは一般的です。 `<Link />` componentがrewritesを介してリンクを適切にprefetchするためには、Next.jsに対してdisplayするURLと、prefetchするためのURLの両方を伝える必要があります。これは、正しいrouteをprefetchするためにmiddlewareに対して不要なフェッチを回避するために必要となります。
+認証やユーザーを別のページに rewrites するその他の目的で[middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)を使用することは一般的です。 `<Link />` component が rewrites を介してリンクを適切に prefetch するためには、Next.js に対して display する URL と、prefetch するための URL の両方を伝える必要があります。これは、正しい route を prefetch するために middleware に対して不要なフェッチを回避するために必要となります。
 
-例えば、認証済みと訪問者のビューを持つ`/dashboard` routeを提供したい場合、ユーザーを正しいページにredirectするために、Middlewareに以下のようなものを追加することができます。
+例えば、認証済みと訪問者のビューを持つ`/dashboard` route を提供したい場合、ユーザーを正しいページに redirect するために、Middleware に以下のようなものを追加することができます。
 
 ```js:middleware.js
 export function middleware(req) {
@@ -476,34 +476,34 @@ export function middleware(req) {
 }
 ```
 
-この場合、あなたは以下のcodeをあなたの`<Link />` componentに使用したいでしょう:
+この場合、あなたは以下の code をあなたの`<Link />` component に使用したいでしょう:
 
 ```js
-import Link from 'next/link'
-import useIsAuthed from './hooks/useIsAuthed'
+import Link from "next/link";
+import useIsAuthed from "./hooks/useIsAuthed";
 
 export default function Page() {
-  const isAuthed = useIsAuthed()
-  const path = isAuthed ? '/auth/dashboard' : '/public/dashboard'
+  const isAuthed = useIsAuthed();
+  const path = isAuthed ? "/auth/dashboard" : "/public/dashboard";
   return (
     <Link as="/dashboard" href={path}>
       Dashboard
     </Link>
-  )
+  );
 }
 ```
 
 <PagesOnly>
 
-> **Good to know**: もし[Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を使用しているなら、`as` と `href` propsを調整する必要があります。例えば、`/dashboard/authed/[user]` のような"Dynamic Route"があり、それを"middleware" を通じて異なる形で表示したいときは、次のように記述します: `<Link href={{ pathname: '/dashboard/authed/[user]', query: { user: username } }} as="/dashboard/[user]">Profile</Link>`.
+> **Good to know**: もし[Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を使用しているなら、`as` と `href` props を調整する必要があります。例えば、`/dashboard/authed/[user]` のような"Dynamic Route"があり、それを"middleware" を通じて異なる形で表示したいときは、次のように記述します: `<Link href={{ pathname: '/dashboard/authed/[user]', query: { user: username } }} as="/dashboard/[user]">Profile</Link>`.
 
 </PagesOnly>
 
 ## Version History
 
-| Version | Changes |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `v13.0.0` | 子の`<a>`タグが必要なくなりました。[codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#remove-a-tags-from-link-components)が提供されており、あなたのCodeベースを自動的に更新します。|
-| `v10.0.0` | `href` props は自動的に解決され、 dynamic route への指示はもはや`as`プロパティを require する必要はありません。|
-| `v8.0.0` | プリフェッチのパフォーマンスが向上しました。|
-| `v1.0.0` | `next/link` 導入されました。|
+| Version   | Changes                                                                                                                                                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `v13.0.0` | 子の`<a>`タグが必要なくなりました。[codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#remove-a-tags-from-link-components)が提供されており、あなたの Code ベースを自動的に更新します。 |
+| `v10.0.0` | `href` props は自動的に解決され、 dynamic route への指示はもはや`as`プロパティを require する必要はありません。                                                                                                                      |
+| `v8.0.0`  | プリフェッチのパフォーマンスが向上しました。                                                                                                                                                                                         |
+| `v1.0.0`  | `next/link` 導入されました。                                                                                                                                                                                                         |

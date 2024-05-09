@@ -7,7 +7,7 @@ org_path: /docs/app/api-reference/file-conventions/not-found
 is_empty: false
 ---
 
-**not-found** ファイルは、[`notFound`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found) 関数が route セグメント内でスローされた時、UIをrenderするために使用されます。カスタムUIを提供するとともに、Next.jsは、ストリーム化された応答に対しては `200` のHTTPステータスcodeを、ストリーム化されていない応答に対しては `404` を返します。
+**not-found** ファイルは、[`notFound`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found) 関数が route セグメント内でスローされた時、UI を render するために使用されます。カスタム UI を提供するとともに、Next.js は、ストリーム化された応答に対しては `200` の HTTP ステータス code を、ストリーム化されていない応答に対しては `404` を返します。
 
 ```tsx:app/not-found.tsx
 import Link from 'next/link'
@@ -37,15 +37,15 @@ export default function NotFound() {
 }
 ```
 
-> **Good to know**: 期待される `notFound()` errorの捕捉に加えて、 root `app/not-found.js` ファイルは、アプリケーション全体に対する一致しない app も処理します。つまり、ユーザーがアプリが処理していない URL を訪れると、`app/not-found.js` ファイルでエクスポートされたUIが表示されます。
+> **Good to know**: 期待される `notFound()` error の捕捉に加えて、 root `app/not-found.js` ファイルは、アプリケーション全体に対する一致しない app も処理します。つまり、ユーザーがアプリが処理していない URL を訪れると、`app/not-found.js` ファイルでエクスポートされた UI が表示されます。
 
 ## Props
 
-`not-found.js`Componentは、どんなpropsも受け入れません。
+`not-found.js` Component は、どんな props も受け入れません。
 
 ## Data Fetching
 
-defaultによると、`not-found`はServer Componentです。それを`async`としてマークして、フェッチしてディスプレイするデータ:
+default によると、`not-found`は Server Component です。それを`async`としてマークして、フェッチしてディスプレイするデータ:
 
 ```tsx:app/not-found.tsx
 import Link from 'next/link'
@@ -91,7 +91,7 @@ export default async function NotFound() {
 
 ## Version History
 
-| Version | Changes |
-| --------- | --------------------------------------------------- |
-| `v13.3.0` | Root はグローバルに一致しないURLを処理する `app/not-found` 。|
-| `v13.0.0` | `not-found` 導入されました。|
+| Version   | Changes                                                         |
+| --------- | --------------------------------------------------------------- |
+| `v13.3.0` | Root はグローバルに一致しない URL を処理する `app/not-found` 。 |
+| `v13.0.0` | `not-found` 導入されました。                                    |

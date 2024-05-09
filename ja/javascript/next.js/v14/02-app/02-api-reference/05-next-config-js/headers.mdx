@@ -9,9 +9,9 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Headersは、特定のpathに対する入力requestへのresponseにカスタムのHTTP headersを設定できるようにします。
+Headers は、特定の path に対する入力 request への response にカスタムの HTTP headers を設定できるようにします。
 
-カスタムのHTTP headersを設定するためには、`next.config.js`の`headers`キーを使用することができます：
+カスタムの HTTP headers を設定するためには、`next.config.js`の`headers`キーを使用することができます：
 
 ```js:next.config.js
 module.exports = {
@@ -35,20 +35,20 @@ module.exports = {
 }
 ```
 
-`headers`は、`source`と`headers`のプロパティを持つObjectを保持する配列を返すことを期待するasync関数です。
+`headers`は、`source`と`headers`のプロパティを持つ Object を保持する配列を返すことを期待する async 関数です。
 
-- `source`は、到着するrequest pathのパターンです。
+- `source`は、到着する request path のパターンです。
 - `headers`は、`key`と`value`プロパティを持つ response header オブジェクトの配列です。
 - `basePath`: `false`または`undefined` - false の場合、マッチング時に basePath は含まれず、 rewrites は外部だけで使用できます。
 - `locale`: `false` または `undefined` - locale がマッチング時に含まれないべきかどうか。
 - `has`は、`type`、`key`、`value`プロパティを持つ[has objects](#header-cookie-and-query-matching)の配列です。
 - `missing`は、`type`、`key`、`value`プロパティを持つ[missing オブジェクト](#header-cookie-and-query-matching)の配列です。
 
-Headersは、ページと`/public`ファイルを含むファイルシステムの前にチェックされます。
+Headers は、ページと`/public`ファイルを含むファイルシステムの前にチェックされます。
 
 ## Header Overriding Behavior
 
-二つのheadersが同じpathに一致し、同じheaderキーを設定した場合、最後のheaderキーが最初のものを上書きします。以下のheadersを使用すると、path `/hello`は最後に設定されたheader valueが`world`であるため、header `x-hello`が`world`になります。
+二つの headers が同じ path に一致し、同じ header キーを設定した場合、最後の header キーが最初のものを上書きします。以下の headers を使用すると、path `/hello`は最後に設定された header value が`world`であるため、header `x-hello`が`world`になります。
 
 ```js:next.config.js
 module.exports = {
@@ -79,7 +79,7 @@ module.exports = {
 
 ## Path Matching
 
-Pathの一致が許可されています。例えば、`/blog/:slug`は`/blog/hello-world`と一致します(ネストされたpathsはありません):
+Path の一致が許可されています。例えば、`/blog/:slug`は`/blog/hello-world`と一致します(ネストされた paths はありません):
 
 ```js:next.config.js
 module.exports = {
@@ -105,7 +105,7 @@ module.exports = {
 
 ### ワイルドカード Path マッチング
 
-ワイルドカードのpathに一致させるためには、パラメータの後に`*`を使用することができます。例えば、`/blog/:slug*`は`/blog/a/b/c/d/hello-world`に一致します。
+ワイルドカードの path に一致させるためには、パラメータの後に`*`を使用することができます。例えば、`/blog/:slug*`は`/blog/a/b/c/d/hello-world`に一致します。
 
 ```js:next.config.js
 module.exports = {
@@ -151,7 +151,7 @@ module.exports = {
 }
 ```
 
-次の文字 `(`、`)`、`{`、`}`、`:`、`*`、`+`、`?`は、regexのpathマッチングに使用されるため、それらを`source`で特別でない値として使用する場合、それらの前に`\\`を追加してエスケープする必要があります。
+次の文字 `(`、`)`、`{`、`}`、`:`、`*`、`+`、`?`は、regex の path マッチングに使用されるため、それらを`source`で特別でない値として使用する場合、それらの前に`\\`を追加してエスケープする必要があります。
 
 ```js:next.config.js
 module.exports = {
@@ -174,12 +174,12 @@ module.exports = {
 
 ## Header, Cookie, and Query Matching
 
-`has`フィールドと一致するか、あるいは`missing`フィールドと一致しない時にだけ、header、cookie、またはqueryの値と一緒にheaderを適用することができます。`source`と全ての`has`アイテムが一致し、全ての`missing`アイテムが一致しない場合にのみ、headerが適用されます。
+`has`フィールドと一致するか、あるいは`missing`フィールドと一致しない時にだけ、header、cookie、または query の値と一緒に header を適用することができます。`source`と全ての`has`アイテムが一致し、全ての`missing`アイテムが一致しない場合にのみ、header が適用されます。
 
 `has`と`missing`アイテムには次のフィールドが含まれることがあります：
 
 - `type`: `String` - これは、`header`、`cookie`、`host`、または`query`のいずれかでなければなりません。
-- `key`: `String` - 選択されたtypeに一致するためのキー。
+- `key`: `String` - 選択された type に一致するためのキー。
 - `value`: `String`または`undefined` - チェックする value 、 undefined の場合、任意の value に一致します。 string のような正規表現を使用して、 value の特定の部分をキャプチャできます。例えば、 value `first-(?<paramName>.*)`が `first-second`用に使用される場合、 `second`は destination で `:paramName`として使えます。
 
 ```js:next.config.js
@@ -330,7 +330,7 @@ module.exports = {
 
 <PagesOnly>
 
- headers を使用して [`i18n` サポート](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)を活用する際、各 `source`は自動的に接頭辞が付けられて設定された`locales`を処理します、ただし `locale: false` を header に追加した場合を除きます。`locale: false`が使用されている場合、`source`に locale を接頭辞として付ける必要があります。それが正しく一致するためで￿す。
+headers を使用して [`i18n` サポート](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)を活用する際、各 `source`は自動的に接頭辞が付けられて設定された`locales`を処理します、ただし `locale: false` を header に追加した場合を除きます。`locale: false`が使用されている場合、`source`に locale を接頭辞として付ける必要があります。それが正しく一致するためで ￿ す。
 
 </PagesOnly>
 
@@ -392,17 +392,17 @@ module.exports = {
 
 ## Cache-Control
 
-`Cache-Control`のheadersを`next.config.js`でページやアセットに設定することはできません。これらのheadersは、Responseと静的アセットが効果的にキャッシュされることを確認するために、productionで上書きされます。
+`Cache-Control`の headers を`next.config.js`でページやアセットに設定することはできません。これらの headers は、Response と静的アセットが効果的にキャッシュされることを確認するために、production で上書きされます。
 
 <AppOnly>
 
-App Routerを使った[caching](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)についてもっと学びましょう。
+App Router を使った[caching](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)についてもっと学びましょう。
 
 </AppOnly>
 
 <PagesOnly>
 
-[静的に生成](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/02-static-site-generation)されたページのcacheを再認証する必要がある場合は、ページの[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)関数内で `revalidate`プロパティを設定することで実行できます。
+[静的に生成](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/02-static-site-generation)されたページの cache を再認証する必要がある場合は、ページの[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)関数内で `revalidate`プロパティを設定することで実行できます。
 
 `Cache-Control` header を [API Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes) に設定することができます。これは `res.setHeader` method を使用することで行うことができます。
 
@@ -435,7 +435,7 @@ export default function handler(req, res) {
 
 ### CORS
 
-[Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/docs/Web/HTTP/CORS)は、どのサイトがあなたのリソースにアクセスできるかを制御するセキュリティ機能です。 `Access-Control-Allow-Origin` header を設定して、特定のオリジンがあなたの<PagesOnly>APIエンドポイント</PagesOnly><AppOnly>ルートハンドラ</AppOnly>にアクセスできるようにすることができます。
+[Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/docs/Web/HTTP/CORS)は、どのサイトがあなたのリソースにアクセスできるかを制御するセキュリティ機能です。 `Access-Control-Allow-Origin` header を設定して、特定のオリジンがあなたの<PagesOnly>API エンドポイント</PagesOnly><AppOnly>ルートハンドラ</AppOnly>にアクセスできるようにすることができます。
 
 ```js
 async headers() {
@@ -463,7 +463,7 @@ async headers() {
 
 ### X-DNS-Prefetch-Control
 
-[この header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control)はDNSプレフェッチを制御し、ブラウザが外部リンク、画像、 CSS 、 JavaScript などのドメイン名の解決を積極的に行うことを可能にします。このプレフェッチはバックグラウンドで実行されるため、参照されるアイテムが必要になる時点で[DNS](https://developer.mozilla.org/docs/Glossary/DNS)が解決される可能性が高くなります。これにより、ユーザーが link をクリックしたときの遅延を減らします。
+[この header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control)は DNS プレフェッチを制御し、ブラウザが外部リンク、画像、 CSS 、 JavaScript などのドメイン名の解決を積極的に行うことを可能にします。このプレフェッチはバックグラウンドで実行されるため、参照されるアイテムが必要になる時点で[DNS](https://developer.mozilla.org/docs/Glossary/DNS)が解決される可能性が高くなります。これにより、ユーザーが link をクリックしたときの遅延を減らします。
 
 ```js
 {
@@ -474,9 +474,9 @@ async headers() {
 
 ### Strict-Transport-Security
 
-この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security)は、ブラウザに対してHTTPSを使用してのみアクセスするよう指示します。これは、HTTPを使用する代わりになります。以下の設定を使用すると、現在および将来のすべてのサブドメインで`max-age` 2年間にわたりHTTPSを使用します。これにより、HTTPでのみ提供できるページやサブドメインへのアクセスがブロックされます。
+この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security)は、ブラウザに対して HTTPS を使用してのみアクセスするよう指示します。これは、HTTP を使用する代わりになります。以下の設定を使用すると、現在および将来のすべてのサブドメインで`max-age` 2 年間にわたり HTTPS を使用します。これにより、HTTP でのみ提供できるページやサブドメインへのアクセスがブロックされます。
 
-あなたが[Vercel](https://vercel.com/docs/concepts/edge-network/headers#strict-transport-security?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)にデプロイしている場合、このheaderは必要ありません。なぜなら、それはすべてのデプロイメントに自動的に追加されるからです。ただし、`next.config.js` で `headers` を明示的に宣言した場合は除きます。
+あなたが[Vercel](https://vercel.com/docs/concepts/edge-network/headers#strict-transport-security?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)にデプロイしている場合、この header は必要ありません。なぜなら、それはすべてのデプロイメントに自動的に追加されるからです。ただし、`next.config.js` で `headers` を明示的に宣言した場合は除きます。
 
 ```js
 {
@@ -489,7 +489,7 @@ async headers() {
 
 この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Frame-Options)は、サイトが`iframe`内で表示されるべきかどうかを示します。これにより、クリックジャッキング攻撃を防ぐことができます。
 
-**この header は、CSPの`frame-ancestors`オプションに置き換えられています**。これは、現代のブラウザではよりサポートが充実しています(設定の詳細は、[Content Security Policy](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/15-content-security-policy) を参照してください)。
+**この header は、CSP の`frame-ancestors`オプションに置き換えられています**。これは、現代のブラウザではよりサポートが充実しています(設定の詳細は、[Content Security Policy](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/15-content-security-policy) を参照してください)。
 
 ```js
 {
@@ -500,7 +500,7 @@ async headers() {
 
 ### Permissions-Policy
 
-[このheader](https://developer.mozilla.org/docs/Web/HTTP/Headers/Permissions-Policy)は、ブラウザでどの機能やAPIを使用できるかを制御できます。以前は`Feature-Policy`という名前でした。
+[この header](https://developer.mozilla.org/docs/Web/HTTP/Headers/Permissions-Policy)は、ブラウザでどの機能や API を使用できるかを制御できます。以前は`Feature-Policy`という名前でした。
 
 ```js
 {
@@ -511,9 +511,9 @@ async headers() {
 
 ### X-Content-Type-Options
 
-この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Content-Type-Options)は、`Content-Type`のheaderが明示的に設定されていない場合に、ブラウザがコンテンツのtypeを推測しようとするのを防ぎます。これにより、ユーザーがファイルをアップロードして共有できるウェブサイトのXSS攻撃を防ぐことができます。
+この[header](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Content-Type-Options)は、`Content-Type`の header が明示的に設定されていない場合に、ブラウザがコンテンツの type を推測しようとするのを防ぎます。これにより、ユーザーがファイルをアップロードして共有できるウェブサイトの XSS 攻撃を防ぐことができます。
 
-例えば、ユーザーがimageをダウンロードしようとしているが、それが実行可能なファイルなど、異なる`Content-Type`として扱われてしまう、という場合。これは悪意のある動作につながるかもしれません。このheaderは、ブラウザの拡張機能をダウンロードする場合にも適用されます。このheaderに対する唯一の有効なvalueは`nosniff`です。
+例えば、ユーザーが image をダウンロードしようとしているが、それが実行可能なファイルなど、異なる`Content-Type`として扱われてしまう、という場合。これは悪意のある動作につながるかもしれません。この header は、ブラウザの拡張機能をダウンロードする場合にも適用されます。この header に対する唯一の有効な value は`nosniff`です。
 
 ```js
 {
@@ -539,8 +539,8 @@ async headers() {
 
 ## Version History
 
-| Version | Changes |
-| --------- | ---------------- |
-| `v13.3.0` | `missing` が追加されました。|
-| `v10.2.0` | `has` が追加されました。|
-| `v9.5.0` | Headers 追加済み。|
+| Version   | Changes                      |
+| --------- | ---------------------------- |
+| `v13.3.0` | `missing` が追加されました。 |
+| `v10.2.0` | `has` が追加されました。     |
+| `v9.5.0`  | Headers 追加済み。           |

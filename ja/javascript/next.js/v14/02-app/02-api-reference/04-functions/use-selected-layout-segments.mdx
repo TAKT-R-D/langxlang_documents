@@ -9,7 +9,7 @@ is_empty: false
 
 `useSelectedLayoutSegments` は、呼び出し元の Layout の**以下**のアクティブな route セグメントを読み取ることができる **Client Component hook**です。
 
-breadcrumbsのようなアクティブな子セグメントの知識が必要な親LayoutでUIを作成するのに便利です。
+breadcrumbs のようなアクティブな子セグメントの知識が必要な親 Layout で UI を作成するのに便利です。
 
 ```tsx:app/example-client-component.tsx
 'use client'
@@ -50,7 +50,7 @@ export default function ExampleClientComponent() {
 > **Good to know**:
 >
 > - `useSelectedLayoutSegments`は[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の hook であり、レイアウトは[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)が default であるため、通常`useSelectedLayoutSegments`は Layout にインポートされた Client Component を介して呼び出されます。
-> - 返されるセグメントには、UIに含めたくない可能性がある[Route Groups](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups)が含まれます。`filter()`配列のmethodを使用して、括弧でstartするアイテムを削除することができます。
+> - 返されるセグメントには、UI に含めたくない可能性がある[Route Groups](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups)が含まれます。`filter()`配列の method を使用して、括弧で start するアイテムを削除することができます。
 
 ## Parameters
 
@@ -64,18 +64,18 @@ const segments = useSelectedLayoutSegments(parallelRoutesKey?: string)
 
 `useSelectedLayoutSegments`は、 hook が呼び出された layout から一つ下のレベルのアクティブなセグメントを含んだ文字列の配列を返します。もしそれが存在しない場合には、 empty 配列を返します。
 
-例えば、以下のLayoutsとURLsが与えられた場合、返されるセグメントは以下の通りです：
+例えば、以下の Layouts と URLs が与えられた場合、返されるセグメントは以下の通りです：
 
-| Layout | URL を訪れました | 戻されたセグメント |
+| Layout                    | URL を訪れました      | 戻されたセグメント          |
 | ------------------------- | --------------------- | --------------------------- |
-| `app/layout.js` | `/` | `[]` |
-| `app/layout.js` | `/dashboard` | `['dashboard']` |
-| `app/layout.js` | `/dashboard/settings` | `['dashboard', 'settings']` |
-| `app/dashboard/layout.js` | `/dashboard` | `[]` |
-| `app/dashboard/layout.js` | `/dashboard/settings` | `['settings']` |
+| `app/layout.js`           | `/`                   | `[]`                        |
+| `app/layout.js`           | `/dashboard`          | `['dashboard']`             |
+| `app/layout.js`           | `/dashboard/settings` | `['dashboard', 'settings']` |
+| `app/dashboard/layout.js` | `/dashboard`          | `[]`                        |
+| `app/dashboard/layout.js` | `/dashboard/settings` | `['settings']`              |
 
 ## Version History
 
-| Version | Changes |
-| --------- | --------------------------------------- |
-| `v13.0.0` | `useSelectedLayoutSegments` 導入されました。|
+| Version   | Changes                                      |
+| --------- | -------------------------------------------- |
+| `v13.0.0` | `useSelectedLayoutSegments` 導入されました。 |

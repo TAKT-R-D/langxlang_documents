@@ -9,7 +9,7 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-`useReportWebVitals`hookは、[Core Web Vitals](https://web.dev/vitals/)を報告するのに使用でき、あなたのanalyticsサービスと組み合わせて使用することができます。
+`useReportWebVitals`hook は、[Core Web Vitals](https://web.dev/vitals/)を報告するのに使用でき、あなたの analytics サービスと組み合わせて使用することができます。
 
 <PagesOnly>
 
@@ -56,25 +56,25 @@ export default function Layout({ children }) {
 }
 ```
 
-> Since the `useReportWebVitals` hook requires the `"use client"` directive, the most performant approach is to create a separate component that the root layout imports. This confines the client boundary exclusively to the `WebVitals` component.
+> `useReportWebVitals` フックは `"use client"` ディレクティブを必要とするため、最も効率的なアプローチは、ルートレイアウトがインポートする別のコンポーネントを作成することです。これにより、クライアントの境界を `WebVitals` コンポーネントに限定します。
 
 </AppOnly>
 
 ## useReportWebVitals
 
-hookの引数として渡される`metric` objectは、いくつかのnumberのプロパティで構成されています：
+hook の引数として渡される`metric` object は、いくつかの number のプロパティで構成されています：
 
 - `id`：現在のページ読み込みの context における、メトリックの一意の識別子
-- `name`：パフォーマンス指標の名前。可能な値には、Webアプリケーション特有の[Web Vitals](#web-vitals)メトリクス(TTFB、FCP、LCP、FID、CLS)の名前が含まれます。
-- `delta`：指標の現在のvalueと前回のvalueとの差。 valueは通常ミリ秒単位で、指標のvalueが時間経過とともにどのように変化したかを示します。
+- `name`：パフォーマンス指標の名前。可能な値には、Web アプリケーション特有の[Web Vitals](#web-vitals)メトリクス(TTFB、FCP、LCP、FID、CLS)の名前が含まれます。
+- `delta`：指標の現在の value と前回の value との差。 value は通常ミリ秒単位で、指標の value が時間経過とともにどのように変化したかを示します。
 - `entries`: このメトリックに関連付けられた[Performance Entries](https://developer.mozilla.org/docs/Web/API/PerformanceEntry)の配列です。これらのエントリは、メトリックに関連するパフォーマンスイベントの詳細情報を提供します。
 - "`navigationType`: これは、メトリックスの収集を引き起こす[type of navigation](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/type)を示します。可能な値には`"navigate"`、`"reload"`、`"back_forward"`、`"prerender"`が含まれます。
-- "`rating`：メトリックのvalueを評価する定性的な評価。可能な値は、`"good"`、`"needs-improvement"`、および`"poor"`です。評価は通常、メトリックのvalueをあらかじめ定義されたしきい値と比較することで決定され、これによりパフォーマンスが許容可能か、あるいは最適でないかを示します。
+- "`rating`：メトリックの value を評価する定性的な評価。可能な値は、`"good"`、`"needs-improvement"`、および`"poor"`です。評価は通常、メトリックの value をあらかじめ定義されたしきい値と比較することで決定され、これによりパフォーマンスが許容可能か、あるいは最適でないかを示します。
 - `value`: パフォーマンスエントリの実際の value または期間で、通常はミリ秒単位です。 value は、メトリックが追跡しているパフォーマンスの側面を定量的に測定します。 source の value は、測定されている特定のメトリックによりますし、さまざまな[Performance API](https://developer.mozilla.org/docs/Web/API/Performance_API)から得られます。
 
 ## Web Vitals
 
-[Web Vitals](https://web.dev/vitals/)は、ウェブページのユーザーエクスペリエンスをとらえることを目指す一連の有用な指標です。以下のWeb Vitalsがすべて含まれています：
+[Web Vitals](https://web.dev/vitals/)は、ウェブページのユーザーエクスペリエンスをとらえることを目指す一連の有用な指標です。以下の Web Vitals がすべて含まれています：
 
 - [Time to First Byte](https://developer.mozilla.org/docs/Glossary/Time_to_first_byte) (TTFB)
 - [First Contentful Paint](https://developer.mozilla.org/docs/Glossary/First_contentful_paint) (FCP)
@@ -83,7 +83,9 @@ hookの引数として渡される`metric` objectは、いくつかのnumberの�
 - [Cumulative Layout Shift](https://web.dev/cls/) (CLS)
 - [Interaction to Next Paint](https://web.dev/inp/) (INP)
 
-You can handle all the results of these metrics using the `name` property.
+`name` プロパティを使用して、これらのメトリックのすべての結果を処理できます。
+
+````js
 
 <PagesOnly>
 
@@ -159,62 +161,61 @@ export function WebVitals() {
 
 上記のコアメトリクスに加えて、ページがハイドレート(hydrate)し、 render するまでの時間を測定する追加のカスタムメトリクスがいくつかあります。
 
-- `Next.js-hydration`: Length of time it takes for the page to start and finish hydrating (in ms)
-- `Next.js-route-change-to-render`: route 変更後にページが start renderingを開始するまでの時間(ミリ秒単位)
-- `Next.js-render`: Length of time it takes for a page to finish render after a route change (in ms)
+- `Next.js-hydration`: ページがハイドレートを開始して終了するまでの時間(ミリ秒単位)
+- `Next.js-route-change-to-render`: route 変更後にページが start rendering を開始するまでの時間(ミリ秒単位)
+- `Next.js-render`: route 変更後にページが render を完了するまでの時間(ミリ秒単位)
 
-You can handle all the results of these metrics separately:
+すべてのメトリックの結果を個別に処理できます：
 
 ```js
 export function reportWebVitals(metric) {
   switch (metric.name) {
-    case 'Next.js-hydration':
+    case "Next.js-hydration":
       // handle hydration results
-      break
-    case 'Next.js-route-change-to-render':
+      break;
+    case "Next.js-route-change-to-render":
       // handle route-change to render results
-      break
-    case 'Next.js-render':
+      break;
+    case "Next.js-render":
       // handle render results
-      break
+      break;
     default:
-      break
+      break;
   }
 }
 ```
 
-These metrics work in all browsers that support the [User Timing API](https://caniuse.com/#feat=user-timing).
+これらのメトリクスは、[User Timing API](https://caniuse.com/#feat=user-timing)をサポートするすべてのブラウザで機能します。
 
 </PagesOnly>
 
 ## Usage on Vercel
 
-[Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) はVercelのデプロイに自動的に設定されており、`useReportWebVitals`の使用をrequireする必要はありません。このhookはローカルのdevelopmentや、別のanalyticsサービスを使用している場合に便利です。
+[Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights) は Vercel のデプロイに自動的に設定されており、`useReportWebVitals`の使用を require する必要はありません。この hook はローカルの development や、別の analytics サービスを使用している場合に便利です。
 
 ## Sending results to external systems
 
-You can send results to any endpoint to measure and track real user performance on your site. For example:
+サイトの実際のユーザーパフォーマンスを測定し追跡するために、結果を任意のエンドポイントに送信することができます。例えば：
+
 
 ```js
 useReportWebVitals((metric) => {
-  const body = JSON.stringify(metric)
-  const url = 'https://example.com/analytics'
+  const body = JSON.stringify(metric);
+  const url = "https://example.com/analytics";
 
   // Use `navigator.sendBeacon()` if available, falling back to `fetch()`.
   if (navigator.sendBeacon) {
-    navigator.sendBeacon(url, body)
+    navigator.sendBeacon(url, body);
   } else {
-    fetch(url, { body, method: 'POST', keepalive: true })
+    fetch(url, { body, method: "POST", keepalive: true });
   }
-})
+});
 ```
 
-> **Good to know**: If you use [Google Analytics](https://analytics.google.com/analytics/web/), using the
-> `id` value can allow you to construct metric distributions manually (to calculate percentiles,
-> etc.)
+> **Good to know**: [Google Analytics](https://analytics.google.com/analytics/web/)を使用する場合、`id` 値を使用すると、メトリックの分布を手動で構築することができます（パーセンタイルを計算するなど）。
 
 > ```js
-> useReportWebVitals(metric => { 
+> useReportWebVitals(metric => {
 >   // Use `window.gtag` if you initialized Google Analytics as this example:
 >   // https://github.com/vercel/next.js/blob/canary/examples/with-google-analytics/pages/_app.js
 >   window.gtag('event', metric.name, {
@@ -226,3 +227,4 @@ useReportWebVitals((metric) => {
 > ```
 >
 > Read more about [sending results to Google Analytics](https://github.com/GoogleChrome/web-vitals#send-the-results-to-google-analytics).
+````

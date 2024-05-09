@@ -12,17 +12,17 @@ nav_title: generateSitemaps
 
 ## Returns
 
-`generateSitemaps`は、`id`プロパティを持つObjectの配列を返します。
+`generateSitemaps`は、`id`プロパティを持つ Object の配列を返します。
 
 ## URLs
 
-In production, your generated sitemaps will be available at `/.../sitemap/[id].xml`. For example, `/product/sitemap/1.xml`.
+本番環境では、生成されたサイトマップは `/.../sitemap/[id].xml` で利用可能です。例えば、`/product/sitemap/1.xml`。
 
-In development, you can view the generated sitemap on `/.../sitemap.xml/[id]`. For example, `/product/sitemap.xml/1`. This difference is temporary and will follow the production format.
+開発中は、生成されたサイトマップを `/.../sitemap.xml/[id]` で確認できます。例えば、`/product/sitemap.xml/1`。この違いは一時的で、本番フォーマットに従うことになります。
 
 ## Example
 
-For example, to split a sitemap using `generateSitemaps`, return an array of objects with the sitemap `id`. Then, use the `id` to generate the unique sitemaps.
+たとえば、`generateSitemaps` を使用してサイトマップを分割する場合、サイトマップの `id` を持つオブジェクトの配列を返します。その後、`id` を使用してユニークなサイトマップを生成します。
 
 ```ts:app/product/sitemap.ts
 import { BASE_URL } from '@/app/lib/constants'

@@ -7,9 +7,9 @@ org_path: /docs/app/api-reference/next-config-js/serverComponentsExternalPackage
 is_empty: false
 ---
 
-[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)や[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)の中で使われる依存関係は、自動的にNext.jsによってバンドルされます。
+[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)や[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)の中で使われる依存関係は、自動的に Next.js によってバンドルされます。
 
-依存関係がNode.js固有の機能を使用している場合、特定の依存関係をServer Componentsバンドルからオプトアウトさせ、ネイティブのNode.jsの `require` を使用することを選択できます。
+依存関係が Node.js 固有の機能を使用している場合、特定の依存関係を Server Components バンドルからオプトアウトさせ、ネイティブの Node.js の `require` を使用することを選択できます。
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */
@@ -22,7 +22,7 @@ const nextConfig = {
 module.exports = nextConfig
 ```
 
-Next.jsには、現在互換性に取り組んでおり自動的にオプトアウトされている[人気パッケージの短いリスト](https://github.com/vercel/next.js/blob/canary/packages/next/src/lib/server-external-packages.json)が含まれています：
+Next.js には、現在互換性に取り組んでおり自動的にオプトアウトされている[人気パッケージの短いリスト](https://github.com/vercel/next.js/blob/canary/packages/next/src/lib/server-external-packages.json)が含まれています：
 
 - `@aws-sdk/client-s3`
 - `@aws-sdk/s3-presigned-post`

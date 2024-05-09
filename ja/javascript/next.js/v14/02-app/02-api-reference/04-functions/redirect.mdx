@@ -9,41 +9,41 @@ is_empty: false
 
 `redirect`関数により、ユーザーを他の URL に redirect することができます。 `redirect`は、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Route](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、および[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で使用することができます。
 
-[Streamingのcontext](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#what-is-streaming)で使用すると、これはclient側でredirectを発生させるmetaタグを挿入します。 server actionで使用すると、呼び出し元に対して303のHTTP redirect responseを提供します。それ以外の場合、呼び出し元に対して307のHTTP redirect responseを提供します。
+[Streaming の context](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#what-is-streaming)で使用すると、これは client 側で redirect を発生させる meta タグを挿入します。 server action で使用すると、呼び出し元に対して 303 の HTTP redirect response を提供します。それ以外の場合、呼び出し元に対して 307 の HTTP redirect response を提供します。
 
 If a resource doesn't exist, you can use the [`notFound` function](/docs/app/api-reference/functions/not-found) instead.
 
 > **Good to know**:
 >
-> - Server ActionsとRouteハンドラーにおいて、`redirect`は`try/catch`ブロックの後で呼び出されるべきです。
-> - もし307(一時的)ではなく、308(Permanent)のHTTP redirectを返すことを好む場合は、代わりに[`permanentRedirect`関数](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)を使用できます。
+> - Server Actions と Route ハンドラーにおいて、`redirect`は`try/catch`ブロックの後で呼び出されるべきです。
+> - もし 307(一時的)ではなく、308(Permanent)の HTTP redirect を返すことを好む場合は、代わりに[`permanentRedirect`関数](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)を使用できます。
 
 ## Parameters
 
-`redirect` 関数は2つの引数を受け入れます：
+`redirect` 関数は 2 つの引数を受け入れます：
 
 ```js
-redirect(path, type)
+redirect(path, type);
 ```
 
-| パラメータ | Type | Description |
-| --------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
-| `path` | `string` | redirect 先の URL 。相対パスまたは絶対 path を指定できます。|
-| `type` | `'replace'` ( default ) または `'push'` ( Server Actions での default ) | 実行する redirect の type 。|
+| パラメータ | Type                                                                    | Description                                                  |
+| ---------- | ----------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `path`     | `string`                                                                | redirect 先の URL 。相対パスまたは絶対 path を指定できます。 |
+| `type`     | `'replace'` ( default ) または `'push'` ( Server Actions での default ) | 実行する redirect の type 。                                 |
 
- default では、`redirect`は`push`(ブラウザの履歴 stack に新しいエントリを追加する)を [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で、そして`replace`(ブラウザの履歴 stack の現在の URL を置き換える)をそれ以外の所有所で使用します。この挙動は`type`パラメータを指定することで上書きできます。
+default では、`redirect`は`push`(ブラウザの履歴 stack に新しいエントリを追加する)を [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で、そして`replace`(ブラウザの履歴 stack の現在の URL を置き換える)をそれ以外の所有所で使用します。この挙動は`type`パラメータを指定することで上書きできます。
 
 The `type` parameter has no effect when used in Server Components.
 
 ## Returns
 
-`redirect`はどんなvalueも返しません。
+`redirect`はどんな value も返しません。
 
 ## Example
 
 ### Server Component
 
-`redirect()`関数を呼び出すと、`NEXT_REDIRECT`errorがスローされて、スローされたrouteセグメントのレンダリングが終了します。
+`redirect()`関数を呼び出すと、`NEXT_REDIRECT`error がスローされて、スローされた route セグメントのレンダリングが終了します。
 
 ```jsx:app/team/[id]/page.js
 import { redirect } from 'next/navigation'
@@ -64,7 +64,7 @@ export default async function Profile({ params }) {
 }
 ```
 
-> **良いことに気がついた**: `redirect`は、必要としません `return redirect()`の使用に対して、それはTypeScript [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) typeを使います。
+> **良いことに気がついた**: `redirect`は、必要としません `return redirect()`の使用に対して、それは TypeScript [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) type を使います。
 
 ### Client Component
 
@@ -128,17 +128,17 @@ export async function navigate(data) {
 
 次の `/users` から `/people` への redirect の例を考えてみましょう。新しいユーザーを作成するために `/users` に `POST` request を行い、 `302` の一時的な redirect に準拠していると、 request method は `POST` から `GET` request に変更されます。しかしこれは理にかなっていません。新しいユーザーを作成するには、 `/people` に対して `POST` request を行うべきであり、 `GET` request は行うべきではありません。
 
-`307`ステータスの導入は、request methodが`POST`として保持されることを意味します。
+`307`ステータスの導入は、request method が`POST`として保持されることを意味します。
 
-- `302` - 一時的なredirectは、request methodを `POST` から `GET` に変更します
+- `302` - 一時的な redirect は、request method を `POST` から `GET` に変更します
 - `307` - 一時的な redirect で、 request method を `POST` のまま保存します
 
-`redirect()` methodは、`302`の一時的なredirectではなく、defaultで`307`を使用します。これは、あなたのRequestが常に`POST`Requestとして保持されることを意味します。
+`redirect()` method は、`302`の一時的な redirect ではなく、default で`307`を使用します。これは、あなたの Request が常に`POST`Request として保持されることを意味します。
 
-[Learn more](https://developer.mozilla.org/docs/Web/HTTP/Redirections)についてHTTP Redirectsを学びましょう。
+[Learn more](https://developer.mozilla.org/docs/Web/HTTP/Redirections)について HTTP Redirects を学びましょう。
 
 ## Version History
 
-| Version | Changes |
-| --------- | ---------------------- |
-| `v13.0.0` | `redirect`が導入されました。|
+| Version   | Changes                      |
+| --------- | ---------------------------- |
+| `v13.0.0` | `redirect`が導入されました。 |

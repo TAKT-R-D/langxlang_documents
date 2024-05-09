@@ -9,9 +9,9 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-ドメインのサブpathの下にNext.jsアプリケーションを deploy するには、`basePath` config オプションを使用できます。
+ドメインのサブ path の下に Next.js アプリケーションを deploy するには、`basePath` config オプションを使用できます。
 
-`basePath`はアプリケーションのpathプレフィックスを設定することを可能にします。例えば、`''` (empty string、default)の代わりに`/docs`を使用するには、`next.config.js`を開き、`basePath` configを追加します：
+`basePath`はアプリケーションの path プレフィックスを設定することを可能にします。例えば、`''` (empty string、default)の代わりに`/docs`を使用するには、`next.config.js`を開き、`basePath` config を追加します：
 
 ```js:next.config.js
 module.exports = {
@@ -19,7 +19,7 @@ module.exports = {
 }
 ```
 
-> **Good to know**：この value は build 時に設定する必要があり、client側のバンドルに value がインライン化されているため、再buildせずに変更することはできません。
+> **Good to know**：この value は build 時に設定する必要があり、client 側のバンドルに value がインライン化されているため、再 build せずに変更することはできません。
 
 ### Links
 
@@ -33,7 +33,7 @@ export default function HomePage() {
     <>
       <Link href="/about">About Page</Link>
     </>
-  )
+  );
 }
 ```
 
@@ -43,7 +43,7 @@ export default function HomePage() {
 <a href="/docs/about">About Page</a>
 ```
 
-これにより、`basePath`のvalueを変更する際に、アプリケーション内のすべてのリンクを変更する必要がなくなります。
+これにより、`basePath`の value を変更する際に、アプリケーション内のすべてのリンクを変更する必要がなくなります。
 
 ### Images
 
@@ -55,14 +55,14 @@ export default function HomePage() {
 
 <PagesOnly>
 
-[`next/image`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/image) componentを使用する際には、`src`の前に`basePath`を追加する必要があります。
+[`next/image`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/image) component を使用する際には、`src`の前に`basePath`を追加する必要があります。
 
 </PagesOnly>
 
-例えば、`/docs/me.png`を使用すると、`basePath`が`/docs`に設定されている場合、適切にあなたのimageが提供されます。
+例えば、`/docs/me.png`を使用すると、`basePath`が`/docs`に設定されている場合、適切にあなたの image が提供されます。
 
 ```jsx
-import Image from 'next/image'
+import Image from "next/image";
 
 function Home() {
   return (
@@ -76,8 +76,8 @@ function Home() {
       />
       <p>Welcome to my homepage!</p>
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```

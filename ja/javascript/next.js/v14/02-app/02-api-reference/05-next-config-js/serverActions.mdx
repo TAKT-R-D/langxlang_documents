@@ -7,11 +7,11 @@ org_path: /docs/app/api-reference/next-config-js/serverActions
 is_empty: false
 ---
 
-Next.jsアプリケーションでのServer Actionsの動作を設定するためのOptions。
+Next.js アプリケーションでの Server Actions の動作を設定するための Options。
 
 ## `allowedOrigins`
 
-Server Actionsが呼び出される追加の安全な起源domainsのリスト。Next.jsはServer Action requestの起源とhostドメインを比較し、CSRF攻撃を防ぐために、それらが一致することを確認します。 提供されていない場合、同じ起源のみが許可されます。
+Server Actions が呼び出される追加の安全な起源 domains のリスト。Next.js は Server Action request の起源と host ドメインを比較し、CSRF 攻撃を防ぐために、それらが一致することを確認します。 提供されていない場合、同じ起源のみが許可されます。
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */
@@ -27,9 +27,9 @@ module.exports = {
 
 ## `bodySizeLimit`
 
-defaultでは、Server Actionに送信されるrequestボディの最大sizeは1MBで、大量のデータを解析する際の過剰なserverリソースの消費を防ぐとともに、潜在的なDDoS攻撃を防ぐためです。
+default では、Server Action に送信される request ボディの最大 size は 1MB で、大量のデータを解析する際の過剰な server リソースの消費を防ぐとともに、潜在的な DDoS 攻撃を防ぐためです。
 
-しかし、この制限は `serverActions.bodySizeLimit` オプションを使用して設定することができます。これは number のバイト数またはbytesがサポートする任意の string 形式を取ることができます。例えば、 `1000`、`'500kb'`、または、`'3mb'` です。
+しかし、この制限は `serverActions.bodySizeLimit` オプションを使用して設定することができます。これは number のバイト数または bytes がサポートする任意の string 形式を取ることができます。例えば、 `1000`、`'500kb'`、または、`'3mb'` です。
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */
@@ -45,7 +45,7 @@ module.exports = {
 
 ## Enabling Server Actions (v13)
 
-Server ActionsはNext.js14で安定した機能となり、defaultで有効化されています。ただし、早期のversionのNext.jsを使用している場合、`experimental.serverActions`を`true`に設定することで有効化できます。
+Server Actions は Next.js14 で安定した機能となり、default で有効化されています。ただし、早期の version の Next.js を使用している場合、`experimental.serverActions`を`true`に設定することで有効化できます。
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */

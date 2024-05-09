@@ -7,9 +7,9 @@ org_path: /docs/app/api-reference/file-conventions/loading
 is_empty: false
 ---
 
-**loading**ファイルは、[Suspense](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を基にした即時のloading状態を作成することができます。
+**loading**ファイルは、[Suspense](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を基にした即時の loading 状態を作成することができます。
 
-defaultで、このファイルは[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components) - ですが、`"use client"`ディレクティブを通じてClient Componentとしても使用できます。
+default で、このファイルは[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components) - ですが、`"use client"`ディレクティブを通じて Client Component としても使用できます。
 
 ```tsx:app/feed/loading.tsx
 export default function Loading() {
@@ -25,14 +25,14 @@ export default function Loading() {
 }
 ```
 
-Loading UIComponentは、パラメータを受け付けません。
+Loading UIComponent は、パラメータを受け付けません。
 
 > **Good to know**
 >
-> - loading UIを設計する際、[React Developer Tools](https://react.dev/learn/react-developer-tools)を使って手動でSuspenseバウンダリーを切り替えると役立つかもしれません。
+> - loading UI を設計する際、[React Developer Tools](https://react.dev/learn/react-developer-tools)を使って手動で Suspense バウンダリーを切り替えると役立つかもしれません。
 
 ## Version History
 
-| Version | Changes |
-| --------- | --------------------- |
-| `v13.0.0` | `loading` 導入されました。|
+| Version   | Changes                    |
+| --------- | -------------------------- |
+| `v13.0.0` | `loading` 導入されました。 |

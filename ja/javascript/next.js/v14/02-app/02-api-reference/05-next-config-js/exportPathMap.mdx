@@ -18,15 +18,15 @@ nav_title: exportPathMap
 
 </details>
 
-`exportPathMap`は、request pathsをページの目的地にマッピングすることを指定でき、exportの間に使用されます。Pathsは、 [`next dev`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#development)を使用するときにも`exportPathMap`で定義されるものと同じく利用可能です。
+`exportPathMap`は、request paths をページの目的地にマッピングすることを指定でき、export の間に使用されます。Paths は、 [`next dev`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#development)を使用するときにも`exportPathMap`で定義されるものと同じく利用可能です。
 
-例から始めましょう、カスタム `exportPathMap` を作成するための以下のページを持つapp：
+例から始めましょう、カスタム `exportPathMap` を作成するための以下のページを持つ app：
 
 - `pages/index.js`
 - `pages/about.js`
 - `pages/post.js`
 
-`next.config.js`を開き、次の`exportPathMap` configを追加してください：
+`next.config.js`を開き、次の`exportPathMap` config を追加してください：
 
 ```js:next.config.js
 module.exports = {
@@ -45,30 +45,32 @@ module.exports = {
 }
 ```
 
-> **Good to know**: `exportPathMap`の`query`フィールドは、[自動的に静的に最適化されたページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)や[`getStaticProps`ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と一緒に使用することはできません。これらはbuild時に HTML ファイルにレンダリングされ、追加の query 情報は`next export`中に提供できません。
+> **Good to know**: `exportPathMap`の`query`フィールドは、[自動的に静的に最適化されたページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)や[`getStaticProps`ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と一緒に使用することはできません。これらは build 時に HTML ファイルにレンダリングされ、追加の query 情報は`next export`中に提供できません。
 
-その後、ページは例えば、`/about` が `/about.html` になるように、HTMLファイルとしてexportされます。
+その後、ページは例えば、`/about` が `/about.html` になるように、HTML ファイルとして export されます。
 
-`exportPathMap`は`async`関数で、2つの引数を受け取ります。最初の引数は`defaultPathMap`で、これはNext.jsが使用するdefaultマップです。2つ目の引数は以下の要素を持つobjectです:
+`exportPathMap`は`async`関数で、2 つの引数を受け取ります。最初の引数は`defaultPathMap`で、これは Next.js が使用する default マップです。2 つ目の引数は以下の要素を持つ object です:
 
 - `dev` - `exportPathMap`が development で呼び出されているときは`true`。`next export`を実行しているときは`false`。 development では、`exportPathMap`は routes を定義するために使用されます。
-- `dir` - プロジェクトディレクトリへの絶対的なpath
-- `outDir` - `out/` ディレクトリへの絶対path(`-o`で[設定可能](#customizing-the-output-directory))。 `dev`が`true`の場合、`outDir`のvalueは`null`になります。
-- `distDir` - `.next/` ディレクトリへの絶対 path([`distDir`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/distDir) configで設定可能)
-- `buildId` - 生成されたbuild id
+- `dir` - プロジェクトディレクトリへの絶対的な path
+- `outDir` - `out/` ディレクトリへの絶対 path(`-o`で[設定可能](#customizing-the-output-directory))。 `dev`が`true`の場合、`outDir`の value は`null`になります。
+- `distDir` - `.next/` ディレクトリへの絶対 path([`distDir`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/distDir) config で設定可能)
+- `buildId` - 生成された build id
 
 返される object は、`key`が`pathname`で、`value`が以下のフィールドを受け入れる object であるページの map です。
 
-- `page`: `String` - `pages` ディレクトリ内のページをrenderします
-- `query`: `Object` - `getInitialProps`にプレrendering時に渡される`query` object 。defaultは`{}`です。
+- `page`: `String` - `pages` ディレクトリ内のページを render します
+- `query`: `Object` - `getInitialProps`にプレ rendering 時に渡される`query` object 。default は`{}`です。
 
-> exportされた `pathname` はファイlename(例えば、`/readme.md`)も可能ですが、内容がそれが `.html` と異なる場合、その内容を提供する際に `Content-Type` headerを `text/html` に設定する必要があるかもしれません。
+> export された `pathname` はファイ lename(例えば、`/readme.md`)も可能ですが、内容がそれが `.html` と異なる場合、その内容を提供する際に `Content-Type` header を `text/html` に設定する必要があるかもしれません
+>
+> 。
 
 ## Adding a trailing slash
 
-`index.html`ファイルとしてページをエクスポートするようにNext.jsを設定することが可能であり、`/about`が`/about/index.html`になり、`/about/`を介してルーティング可能になります。これはNext.js 9より前のdefaultの動作でした。
+`index.html`ファイルとしてページをエクスポートするように Next.js を設定することが可能であり、`/about`が`/about/index.html`になり、`/about/`を介してルーティング可能になります。これは Next.js 9 より前の default の動作でした。
 
-元に戻してトレーリングスラッシュを追加するには、`next.config.js` を開き、`trailingSlash` configを有効にします。
+元に戻してトレーリングスラッシュを追加するには、`next.config.js` を開き、`trailingSlash` config を有効にします。
 
 ```js:next.config.js
 module.exports = {
@@ -80,13 +82,13 @@ module.exports = {
 
 <AppOnly>
 
-[`next export`](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)は`out`をdefaultの出力ディレクトリとして使用します。これは`-o`引数を使用してカスタマイズすることができます。例えば、次のようになります：
+[`next export`](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)は`out`を default の出力ディレクトリとして使用します。これは`-o`引数を使用してカスタマイズすることができます。例えば、次のようになります：
 
 </AppOnly>
 
 <PagesOnly>
 
-[`next export`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)は、defaultの出力ディレクトリとして`out`を使用します。これは `-o` 引数を使ってカスタマイズすることができます。例えば、以下のようになります：
+[`next export`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)は、default の出力ディレクトリとして`out`を使用します。これは `-o` 引数を使ってカスタマイズすることができます。例えば、以下のようになります：
 
 </PagesOnly>
 

@@ -11,7 +11,7 @@ is_empty: false
 
 一部のパッケージでは、何百もの、あるいは何千もの modules を export することができ、これが development や production でパフォーマンスの問題を引き起こすことがあります。
 
-`experimental.optimizePackageImports`にパッケージを追加すると、実際に使用しているmodulesのみがロードされ、多数の名前付きexportでimportステートメントを書く便利さを保ちながらも、ロードされます。
+`experimental.optimizePackageImports`にパッケージを追加すると、実際に使用している modules のみがロードされ、多数の名前付き export で import ステートメントを書く便利さを保ちながらも、ロードされます。
 
 ```js:next.config.js
 module.exports = {
@@ -21,7 +21,7 @@ module.exports = {
 }
 ```
 
-次のライブラリはdefaultにより最適化されています：
+次のライブラリは default により最適化されています：
 
 - `lucide-react`
 - `date-fns`

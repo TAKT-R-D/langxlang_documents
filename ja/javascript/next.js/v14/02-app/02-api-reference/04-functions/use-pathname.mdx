@@ -7,7 +7,7 @@ org_path: /docs/app/api-reference/functions/use-pathname
 is_empty: false
 ---
 
-`usePathname`は、現在のURLの **pathname** を読み取ることができる**Client Componentshookhook** です。
+`usePathname`は、現在の URL の **pathname** を読み取ることができる**Client Components hook** です。
 
 ```tsx:app/example-client-component.tsx
 'use client'
@@ -33,11 +33,11 @@ export default function ExampleClientComponent() {
 
 `usePathname`は意図的に[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の使用を必要とします。 Client Components が非最適化ではないことに注意が必要です。それらは[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)アーキテクチャの不可欠な部分です。
 
-例えば、`usePathname`を持つClient Componentは初めてページを読み込んだときにHTMLにレンダリングされます。新しいrouteへ移動するとき、このcomponentを再度取得する必要はありません。代わりに、componentは一度だけ(client JavaScriptバンドル内で)ダウンロードされ、現在の状態に基づいて再レンダリングされます。
+例えば、`usePathname`を持つ Client Component は初めてページを読み込んだときに HTML にレンダリングされます。新しい route へ移動するとき、この component を再度取得する必要はありません。代わりに、component は一度だけ(client JavaScript バンドル内で)ダウンロードされ、現在の状態に基づいて再レンダリングされます。
 
 > **Good to know**:
 >
-> - 現在のURLを[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)から読み取ることはサポートされていません。この設計は、ページのナビゲーションをまたいでlayoutの状態が保持されることをサポートするための意図的なものです。
+> - 現在の URL を[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)から読み取ることはサポートされていません。この設計は、ページのナビゲーションをまたいで layout の状態が保持されることをサポートするための意図的なものです。
 > - 互換性モード：
 > - `usePathname`は、[fallback route](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-static-paths#fallback-true)がレンダリングされている場合や、 `pages`ディレクトリページが Next.js によって[自動的に静的に最適化](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)され、 router が準備できていない場合に`null`を返すことができます。
 > - Next.js は、プロジェクト内に`app`ディレクトリと`pages`ディレクトリの両方を検出した場合、自動的に型を更新します。
@@ -45,25 +45,25 @@ export default function ExampleClientComponent() {
 ## Parameters
 
 ```tsx
-const pathname = usePathname()
+const pathname = usePathname();
 ```
 
 `usePathname`はパラメータを取りません。
 
 ## Returns
 
-`usePathname`は現在のURLのpathnameをstringとして返します。例えば：
+`usePathname`は現在の URL の pathname を string として返します。例えば：
 
-| URL | 戻り値の value |
+| URL                 | 戻り値の value        |
 | ------------------- | --------------------- |
-| `/` | `'/'` |
-| `/dashboard` | `'/dashboard'` |
-| `/dashboard?v=2` | `'/dashboard'` |
+| `/`                 | `'/'`                 |
+| `/dashboard`        | `'/dashboard'`        |
+| `/dashboard?v=2`    | `'/dashboard'`        |
 | `/blog/hello-world` | `'/blog/hello-world'` |
 
 ## Examples
 
-### routeの変更に対して何かresponseをする
+### route の変更に対して何か response をする
 
 ```tsx:app/example-client-component.tsx
 'use client'
@@ -93,6 +93,6 @@ function ExampleClientComponent() {
 }
 ```
 
-| Version | Changes |
-| --------- | ------------------------- |
-| `v13.0.0` | `usePathname` 導入されました。|
+| Version   | Changes                        |
+| --------- | ------------------------------ |
+| `v13.0.0` | `usePathname` 導入されました。 |
