@@ -164,7 +164,7 @@ Cached data は、以下の 2 つの方法で再検証できます。:
 
 #### Time-based Revalidation
 
-To revalidate data at a timed interval, you can use the `next.revalidate` option of `fetch` to set the cache lifetime of a resource (in seconds).
+一定の間隔でデータを再検証するために、リソースのキャッシュ・ライフタイム（秒単位）を設定するために `fetch` の `next.revalidate` オプションを使用することができます。
 
 ```js
 // Revalidate at most every hour
@@ -227,7 +227,7 @@ fetch(`https://...`, { cache: "no-store" });
 export const dynamic = "force-dynamic";
 ```
 
-> **Vercel データ Cache **
+> **Vercel データ Cache**
 >
 > あなたの Next.js アプリケーションが Vercel にデプロイされている場合は、Vercel 特有の機能をより理解するために、[Vercel データ Cache](https://vercel.com/docs/infrastructure/data-cache) のドキュメンテーションを読むことをお勧めします。
 
@@ -252,7 +252,7 @@ server 上で、Next.js は React の API を使用してレンダリングを�
 
 これは、全てが render するのを待たなくても、作業をキャッシュしたり response を送信したりできることを意味します。代わりに、作業が完了するたびに response を Streaming できます。
 
-> ** React Server Component のペイロードとは何ですか？**
+> **React Server Component のペイロードとは何ですか？**
 >
 > React Server Component ペイロードは、レンダリングされた React Server Components ツリーのコンパクトな binary 表現です。React はこれを client 上で使用して、ブラウザの DOM を更新します。React Server Component ペイロードには以下が含まれています：
 >

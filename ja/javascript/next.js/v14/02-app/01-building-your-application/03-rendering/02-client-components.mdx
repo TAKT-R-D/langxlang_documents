@@ -58,7 +58,7 @@ export default function Counter() {
 }
 ```
 
-以下の図は、ネストされた「component」(`toggle.js`)で`onClick`と`useState`を使用すると、`"use client"`ディレクティブが定義されていない場合、「error」が発生することを示しています。これは、default では、component が「サーバ」上で rendering され、これらの API が利用できないからです。`toggle.js`内に`"use client"`ディレクティブを定義することで、「React」に「client」上で「component」とその「子」を「rendering」するよう指示することができ、そこでは API が利用可能です。
+以下の図は、ネストされた component(`toggle.js`) で`onClick`と`useState`を使用すると、`"use client"`ディレクティブが定義されていない場合、「error」が発生することを示しています。これは、default では、component が「サーバ」上で rendering され、これらの API が利用できないからです。`toggle.js`内に`"use client"`ディレクティブを定義することで、「React」に「client」上で「component」とその「子」を「rendering」するよう指示することができ、そこでは API が利用可能です。
 
 <Image
   alt="Use Client Directive and Network Boundary"
@@ -90,7 +90,7 @@ server 上で：
 次に、クライアントで:
 
 1. HTML は、すぐに高速で非対話的な最初の preview を route の表示するために使用されます。
-2. The React Server Components Payload is used to reconcile the Client and Server Component trees, and update the DOM.
+2. React Server Components Payload は、Client と Server Component のツリーを調整し、DOM を更新するために使用されます。
 3. JavaScript の指示は、[hydrate](https://react.dev/reference/react-dom/client/hydrateRoot)するために使われ、Client Components を活性化させ、その UI をインタラクティブにします。
 
 > **ハイドレーションとは何ですか？**

@@ -40,7 +40,7 @@ npx @next/codemod@latest next-og-import .
 
 この codemod は、[`next/server`]から[`next/og`]へのインポートを移動し、[Dynamic OG Image Generation](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/04-metadata#dynamic-image-generation)の使用のために変換します。
 
-For example:
+例:
 
 ```js
 import { ImageResponse } from "next/server";
@@ -62,7 +62,7 @@ npx @next/codemod@latest metadata-to-viewport-export .
 
 この codemod は、特定の viewport metadata を`viewport`の export に移行します。
 
-For example:
+例:
 
 ```js
 export const metadata = {
@@ -99,7 +99,7 @@ npx @next/codemod@latest built-in-next-font .
 
 この codemod は、`@next/font`パッケージをアンインストールし、`@next/font`のインポートを組み込みの`next/font`に変換します。
 
-For example:
+例:
 
 ```js
 import { Inter } from "@next/font/google";
@@ -123,7 +123,7 @@ npx @next/codemod@latest next-image-to-legacy-image .
 
 `next/image`のインポートを既存の Next.js10、11、または 12 のアプリケーションで安全に`next/legacy/image`に名前を変更します。Next.js 13 では、`next/future/image`も`next/image`に名前を変更します。
 
-For example:
+例:
 
 ```jsx:pages/index.js
 import Image1 from 'next/image'
@@ -193,7 +193,7 @@ npx @next/codemod@latest new-link .
 
 </PagesOnly>
 
-For example:
+例:
 
 ```jsx
 <Link href="/about">
@@ -253,7 +253,7 @@ npx @next/codemod add-missing-react-import
 
 `React`を import しないファイルを変換して、新しい[React JSX transform](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)が動作するように import を含めます。
 
-For example:
+例:
 
 ```jsx:my-component.js
 export default class Home extends React.Component {
@@ -288,7 +288,7 @@ npx @next/codemod name-default-component
 
 匿名の Component を名前付き Component に変換して、それらが[Fast Refresh](https://nextjs.org/blog/next-9-4#fast-refresh)と正常に動作するようにします。
 
-For example:
+例:
 
 ```jsx:my-component.js
 export default function () {
@@ -318,7 +318,7 @@ npx @next/codemod withamp-to-config
 
 `withAmp` HOC を Next.js 9 のページ設定に変換します。
 
-For example:
+例:
 
 ```js
 // Before
@@ -354,7 +354,7 @@ npx @next/codemod url-to-withrouter
 
 `url`プロパティを自動的に注入するという非推奨の操作を、トップレベルのページで`withRouter`とそれが注入する`router`プロパティを使用するように変換します。詳細はこちらをご覧ください：[https://nextjs.org/docs/messages/URL-deprecated](/docs/messages/URL-deprecated)
 
-For example:
+例:
 
 ```js:From
 import React from 'react'

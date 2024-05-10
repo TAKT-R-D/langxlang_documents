@@ -42,21 +42,17 @@ yarn lint
 次の 3 つの options のうちの 1 つを選択できます：
 
 - **Strict**： Next.js の基本的な ESLint 設定と、より厳格な[Core Web Vitals rule-set](#core-web-vitals)を含みます。これは、初めて ESLint を設定する開発者に推奨される設定です。
-
   ```json filename=".eslintrc.json"
   {
     "extends": "next/core-web-vitals"
   }
   ```
-
-- **Base**：' Next.js'の基本的な'' ESLint ''設定を含みます。
-
+- **Base**： Next.js の基本的な ESLint 設定を含みます。
   ```json filename=".eslintrc.json"
   {
     "extends": "next"
   }
   ```
-
 - **キャンセル**： ESLint の設定は含まれません。自分でカスタム ESLint の設定を行う予定がある場合のみ、このオプションを選択してください。
 
 もし二つの設定の options が選択された場合、 Next.js は自動的にあなたのアプリケーションに `eslint` と `eslint-config-next` を依存関係としてインストールし、選択した設定を含む `.eslintrc.json` ファイルをプロジェクトの root に作成します。
@@ -95,7 +91,7 @@ default 設定(`eslint-config-next`)は、Next.js で最適な箱から出した
 
 Next.js は、[`eslint-plugin-next`](https://www.npmjs.com/package/@next/eslint-plugin-next)という ESLint plugin を提供します。これは基本設定に既にバンドルされており、Next.js アプリケーションの一般的な問題や問題を検出することが可能になります。ルールの全体セットは次の通りです：
 
-<Check size={18} /> 推奨設定で有効化されています
+推奨設定で有効化されています
 
 |                     | ルール                                                                                                                   | Description                                                                                                                                 |
 | :-----------------: | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |

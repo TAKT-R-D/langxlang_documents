@@ -11,7 +11,7 @@ is_empty: false
 
 [Streaming の context](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#what-is-streaming)で使用すると、これは client 側で redirect を発生させる meta タグを挿入します。 server action で使用すると、呼び出し元に対して 303 の HTTP redirect response を提供します。それ以外の場合、呼び出し元に対して 307 の HTTP redirect response を提供します。
 
-If a resource doesn't exist, you can use the [`notFound` function](/docs/app/api-reference/functions/not-found) instead.
+リソースが存在しない場合は、代わりに[`notFound` 関数](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/not-found)を使用することができます。
 
 > **Good to know**:
 >
@@ -33,7 +33,7 @@ redirect(path, type);
 
 default では、`redirect`は`push`(ブラウザの履歴 stack に新しいエントリを追加する)を [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で、そして`replace`(ブラウザの履歴 stack の現在の URL を置き換える)をそれ以外の所有所で使用します。この挙動は`type`パラメータを指定することで上書きできます。
 
-The `type` parameter has no effect when used in Server Components.
+`type` パラメータは Server Components で使用すると効果がありません。
 
 ## Returns
 

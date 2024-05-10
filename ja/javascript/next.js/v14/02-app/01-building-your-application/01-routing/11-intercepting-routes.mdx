@@ -58,10 +58,10 @@ routes をインターセプトすることで、現在の layout 内でアプ�
 
 Routes をインターセプトすることは、モーダルを作成するために[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)と一緒に使用することができます。これにより、モーダルを作成する際によく遭遇する問題を解決できます。例えば：
 
-- Making the modal content **shareable through a URL**.
-- **Preserving context** when the page is refreshed, instead of closing the modal.
-- **Closing the modal on backwards navigation** rather than going to the previous route.
-- **Reopening the modal on forwards navigation**.
+- モーダルの内容を**URL を通じて共有可能**にする。
+- ページをリフレッシュしたときにモーダルを閉じるのではなく、**コンテキストを保持する**。
+- 前のルートに戻るのではなく、**後方ナビゲーションでモーダルを閉じる**。
+- **前方ナビゲーションでモーダルを再開する**。
 
 次の UI パターンを考えてみてください。ユーザーは、Client 側のナビゲーションを使用してギャラリーからフォトモーダルを開くことができます。または、共有可能な URL から直接フォトページに移動することもできます。
 

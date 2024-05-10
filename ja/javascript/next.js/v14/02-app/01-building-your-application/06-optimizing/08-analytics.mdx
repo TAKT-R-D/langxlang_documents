@@ -60,7 +60,7 @@ export default function Layout({ children }) {
 }
 ```
 
-> "`useReportWebVitals`hook は"`"use client"`" ディレクティブを必要とするため、最もパフォーマンスの高いアプローチは root layout がインポートする別の component を作成することです。これにより、"`WebVitals`component に対する client の境界を排他的に制限します。
+> `useReportWebVitals` hook は `"use client"` ディレクティブを必要とするため、最もパフォーマンスの高いアプローチは root layout がインポートする別の component を作成することです。これにより、`WebVitals` component に対する client の境界を排他的に制限します。
 
 詳細については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-report-web-vitals)をご覧ください。
 
@@ -200,8 +200,7 @@ useReportWebVitals((metric) => {
 ```
 
 > **Good to know**: もし[Google Analytics](https://analytics.google.com/analytics/web/)を使用しているなら、この
-> `id`value を使うと、手動でメトリック分布を構築することができます(パーセンタイルを計算するためなどに、)。
-> etc.)
+> `id` value を使うと、手動でメトリック分布を構築することができます(パーセンタイルを計算するためなどに)。
 
 > ```js
 > useReportWebVitals((metric) => {

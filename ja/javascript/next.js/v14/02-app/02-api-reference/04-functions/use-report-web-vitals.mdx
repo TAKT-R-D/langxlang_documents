@@ -85,8 +85,6 @@ hook の引数として渡される`metric` object は、いくつかの number 
 
 `name` プロパティを使用して、これらのメトリックのすべての結果を処理できます。
 
-````js
-
 <PagesOnly>
 
 ```jsx:pages/_app.js
@@ -197,7 +195,6 @@ export function reportWebVitals(metric) {
 
 サイトの実際のユーザーパフォーマンスを測定し追跡するために、結果を任意のエンドポイントに送信することができます。例えば：
 
-
 ```js
 useReportWebVitals((metric) => {
   const body = JSON.stringify(metric);
@@ -226,5 +223,4 @@ useReportWebVitals((metric) => {
 > }
 > ```
 >
-> Read more about [sending results to Google Analytics](https://github.com/GoogleChrome/web-vitals#send-the-results-to-google-analytics).
-````
+> [sending results to Google Analytics](https://github.com/GoogleChrome/web-vitals#send-the-results-to-google-analytics) について詳しく見る。

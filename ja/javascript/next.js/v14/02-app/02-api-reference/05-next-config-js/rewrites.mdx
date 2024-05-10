@@ -44,10 +44,10 @@ Rewrites は Client 側のルーティングに適用され、`<Link href="/abou
 
 - `source`: `String` - これは着信の request path パターンです。
 - `destination`: `String` は、あなたが route したい path です。
-- `basePath`: `false` or `undefined` - if false the basePath won't be included when matching, can be used for external rewrites only.
-- `locale`: `false` or `undefined` - whether the locale should not be included when matching.
-- `has` is an array of [has objects](#header-cookie-and-query-matching) with the `type`, `key` and `value` properties.
-- `missing` is an array of [missing objects](#header-cookie-and-query-matching) with the `type`, `key` and `value` properties.
+- `basePath`: `false`または`undefined` - false の場合、basePath はマッチング時に含まれません。外部の書き換えにのみ使用できます。
+- `locale`: `false`または`undefined` - ロケールをマッチング時に含めないかどうか。
+- `has`は`type`、`key`、`value`のプロパティを持つ[has objects](#header-cookie-and-query-matching)の配列です。
+- `missing`は`type`、`key`、`value`のプロパティを持つ[missing objects](#header-cookie-and-query-matching)の配列です。
 
 `rewrites`関数が配列を返すと、ファイルシステム(ページと`/public`ファイル)をチェックした後、そして dynamic routes の前に rewrites が適用されます。`rewrites`関数が特定の形状の配列の object を返すと、この動作は変更され、`v10.1`の Next.js からより細かく制御することが可能になります。
 

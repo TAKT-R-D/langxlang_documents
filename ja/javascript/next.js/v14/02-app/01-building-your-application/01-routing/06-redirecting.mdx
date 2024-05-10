@@ -77,13 +77,13 @@ export async function createPost(id) {
 
 > **Good to know**:
 >
-> - `redirect` returns a 307 (Temporary Redirect) status code by default. When used in a Server Action, it returns a 303 (See Other), which is commonly used for redirecting to a success page as a result of a POST request.
-> - `redirect` internally throws an error so it should be called outside of `try/catch` blocks.
-> - `redirect` can be called in Client Components during the rendering process but not in event handlers. You can use the [`useRouter` hook](#userouter-hook) instead.
-> - `redirect` also accepts absolute URLs and can be used to redirect to external links.
+> - `redirect`は default で 307（一時的 Redirect）のステータス code を返します。Server Action で使用される場合、303（他を参照）を返し、これは POST request の結果として成功ページに redirect するために一般的に使用されます。
+> - `redirect`は内部でエラーを投げるため、`try/catch`ブロックの外で呼び出すべきです。
+> - `redirect`はレンダリングプロセス中の Client Components で呼び出すことができますが、イベントハンドラーでは呼び出すことができません。代わりに[`useRouter` hook](#userouter-hook)を使用できます。
+> - `redirect`は絶対 URL も受け入れ、外部リンクに redirect するために使用することができます。
 > - render プロセスの前に redirect したい場合は、[`next.config.js`](#redirects-in-nextconfigjs)または[Middleware](#nextresponseredirect-in-middleware)を使用してください。
 
-See the [`redirect` API reference](/docs/app/api-reference/functions/redirect) for more information.
+詳細は [`redirect` API reference](/docs/app/api-reference/functions/redirect) をご覧ください。
 
 ## `permanentRedirect` function
 
@@ -327,7 +327,7 @@ export const config = {
 1. redirect map の作成と保存。
 2. データルックアップパフォーマンスの最適化。
 
-> ** Next.js の例**：以下の推奨事項の実装については、私たちの [Middleware とブルームフィルタ](https://redirects-bloom-filter.vercel.app/) の例をご覧ください。
+> **Next.js の例**：以下の推奨事項の実装については、私たちの [Middleware とブルームフィルタ](https://redirects-bloom-filter.vercel.app/) の例をご覧ください。
 
 ### 1. redirect マップの作成と保存
 

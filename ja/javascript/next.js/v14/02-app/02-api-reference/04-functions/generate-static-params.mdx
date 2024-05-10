@@ -7,7 +7,7 @@ org_path: /docs/app/api-reference/functions/generate-static-params
 is_empty: false
 ---
 
-The `generateStaticParams` function can be used in combination with [dynamic route segments](/docs/app/building-your-application/routing/dynamic-routes) to [**statically generate**](/docs/app/building-your-application/rendering/server-components#static-rendering-default) routes at build time instead of on-demand at request time.
+`generateStaticParams` 関数は、[動的ルートセグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)と組み合わせて使用し、リクエスト時ではなくビルド時にルートを[**静的に生成**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)することができます。
 
 ```jsx:app/blog/[slug]/page.js
 // Return a list of `params` to populate the [slug] dynamic segment
