@@ -332,10 +332,12 @@ export default function Page() {
 - [`app` ディレクトリ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)内のページは、 default で[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)です。これは `pages` ディレクトリとは異なり、こちらのページは[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)です。
 - [データ取得](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)は `app` で変更されました。`getServerSideProps`、`getStaticProps`、および `getInitialProps`は、よりシンプルな API に置き換えられました。
 - `app`ディレクトリはネストされたフォルダを使用して[routes を定義する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes)ため、そして特別な`page.js`ファイルを使用して route セグメントを公にアクセス可能にするためです。
-- | `pages` ディレクトリ | `app` ディレクトリ    | Route          |
-  | -------------------- | --------------------- | -------------- | --- | ---------- | --------------- | -------- |
-  | `index.js`           | `page.js`             | `/`            |     | `about.js` | `about/page.js` | `/about` |
-  | `blog/[slug].js`     | `blog/[slug]/page.js` | `/blog/post-1` |
+
+| `pages` ディレクトリ | `app` ディレクトリ    | Route          |
+| -------------------- | --------------------- | -------------- |
+| `index.js`           | `page.js`             | `/`            |
+| `about.js`           | `about/page.js`       | `/about`       |
+| `blog/[slug].js`     | `blog/[slug]/page.js` | `/blog/post-1` |
 
 ページの移行を主に 2 つのステップに分解することをお勧めします：
 
