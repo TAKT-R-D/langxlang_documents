@@ -1,0 +1,300 @@
+---
+filePath: "source/laravel/localization.md"
+title: "Localization"
+description: "Localization"
+org_path: "/docs/11.x/localization"
+is_empty: "false"
+nav_title: "Localization"
+org_title: "Localization"
+---
+
+# Localization
+
+- [Introduction](#introduction)
+  - [Publishing the Language Files](#publishing-the-language-files)
+  - [Configuring the Locale](#configuring-the-locale)
+  - [Pluralization Language](#pluralization-language)
+- [Defining Translation Strings](#defining-translation-strings)
+  - [Using Short Keys](#using-short-keys)
+  - [Using Translation Strings as Keys](#using-translation-strings-as-keys)
+- [Retrieving Translation Strings](#retrieving-translation-strings)
+  - [Replacing Parameters in Translation Strings](#replacing-parameters-in-translation-strings)
+  - [Pluralization](#pluralization)
+- [Overriding Package Language Files](#overriding-package-language-files)
+
+<a name="introduction"></a>
+
+## Introduction
+
+> [!NOTE]  
+> By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
+
+Laravel の localization features は、さまざまな言語で文字列を取得する便利な方法を提供し、あなたの application 内で複数の言語を簡単にサポートできるようにします。
+
+Laravel は、翻訳 strings を管理するための 2 つの方法を提供します。まず、言語 strings はアプリケーションの`lang`ディレクトリ内のファイルに保存することができます。このディレクトリ内には、application がサポートする各言語のサブディレクトリが存在する可能性があります。これが、Laravel がビルトインの Laravel の機能、例えば検証 error メッセージの翻訳 strings を管理するために使用するアプローチです：
+
+```php
+/lang
+    /en
+        messages.php
+    /es
+        messages.php
+```
+
+または、翻訳文字列は`lang`ディレクトリ内に配置された JSON ファイル内に定義することもできます。このアプローチを取る場合、あなたの application がサポートする各言語は、このディレクトリ内に対応する JSON ファイルを持つことになります。大量の翻訳可能な文字列を持つアプリケーションには、このアプローチが推奨されます。
+
+```php
+/lang
+    en.json
+    es.json
+```
+
+このドキュメンテーション内で、翻訳文字列を管理するための各アプローチについて議論します。
+
+<a name="publishing-the-language-files"></a>
+
+### 言語ファイルの公開
+
+default で、Laravelapplication のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたり、独自のものを作成したい場合は、`lang`ディレクトリを`lang:publish` Artisan command を使ってスキャフォールドする必要があります。 `lang:publish` command は、あなたの application に`lang`ディレクトリを作成し、Laravel が使用する default の言語ファイルセットを公開します。
+
+```shell
+php artisan lang:publish
+```
+
+<a name="configuring-the-locale"></a>
+
+### Locale の設定
+
+あなたの application のための default 言語は、`config/app.php`設定ファイルの`locale`設定オプションに保存されています。これは通常、`APP_LOCALE` environment 変数を使用して設定されます。あなたは自由にこの value をあなたの application のニーズに合わせて変更することができます。
+
+fallback language"という設定も可能で、これは"default"の言語に特定の"string"が含まれていないときに使用されます。"default"の言語と同様に、fallback 言語も`config/app.php`設定ファイルで設定され、その"value"は通常、`APP_FALLBACK_LOCALE` "環境"variables を使用して設定されます。
+
+`App` facade が提供する`setLocale` method を使用して、ランタイムで単一の HTTP request のための default 言語を変更することができます：
+
+```php
+use Illuminate\Support\Facades\App;
+
+Route::get('/greeting/{locale}', function (string $locale) {
+    if (! in_array($locale, ['en', 'es', 'fr'])) {
+        abort(400);
+    }
+
+    App::setLocale($locale);
+
+    // ...
+});
+```
+
+<a name="determining-the-current-locale"></a>
+
+#### 現在の Locale を決定する
+
+`currentLocale`および`isLocale`メソッドを`App` facade 上で使用して、現在の locale を判断したり、 locale が特定の value であるかどうかを確認することができます。
+
+```php
+use Illuminate\Support\Facades\App;
+
+$locale = App::currentLocale();
+
+if (App::isLocale('en')) {
+    // ...
+}
+```
+
+<a name="pluralization-language"></a>
+
+### 複数形化言語
+
+Eloquent "やフレームワークの他の部分で使用され、単数の文字列を複数の文字列に変換するために使用される Laravel の"pluralizer"に、英語以外の言語を使用するよう指示することができます。これは、あなたのアプリケーションの" service providers "のうちの一つの`boot` " method " 内で`useLanguage` " method " を呼び出すことで達成することができます。pluralizer が現在サポートしている言語は以下の通りです：`french`、`norwegian-bokmal`、`portuguese`、`spanish`、および`turkish`:
+
+```php
+use Illuminate\Support\Pluralizer;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Pluralizer::useLanguage('spanish');
+
+    // ...
+}
+```
+
+> [!WARNING]  
+> 複数形定義の言語をカスタマイズする場合、あなたの Eloquent モデルの[テーブル名](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#table-names)を明示的に定義するべきです。
+
+<a name="defining-translation-strings"></a>
+
+## Defining Translation Strings
+
+<a name="using-short-keys"></a>
+
+### Keys を使用したショートカット
+
+通常、翻訳文字列は `lang` ディレクトリ内のファイルに保存されます。このディレクトリ内には、あなたの application がサポートする各言語のサブディレクトリが存在するべきです。これは、 Laravel が validation error メッセージなどの組み込み Laravel features の翻訳文字列を管理するために使用する方法です。
+
+```php
+/lang
+    /en
+        messages.php
+    /es
+        messages.php
+```
+
+すべての言語ファイルはキー付きの文字列の array を返します。例えば:
+
+```php
+<?php
+
+// lang/en/messages.php
+
+return [
+    'welcome' => 'Welcome to our application!',
+];
+```
+
+> [!WARNING]  
+> 領土ごとに異なる言語については、言語ディレクトリを ISO 15897 に従って命名する必要があります。例えば、イギリス英語では "en_GB" が "en-gb" よりも適切です。
+
+<a name="using-translation-strings-as-keys"></a>
+
+### 翻訳文字列を Keys として使用する
+
+多くの翻訳可能な string を持つアプリケーションの場合、毎回"short key"を定義して keys を views で参照すると混乱しやすくなります。また、あなたの application でサポートされるすぐにすべての翻訳 string に対して keys を常に新たに見つけるのは面倒な作業です。
+
+このため、 " Laravel "は、"デフォルト"の翻訳を " string "のキーとして使用して翻訳文字列を定義するサポートも提供しています。翻訳文字列を " keys "として使用する言語ファイルは、`lang`ディレクトリに " JSON "ファイルとして保存されます。例えば、あなたの " application "にスペイン語の翻訳がある場合、`lang/es.json`ファイルを作成する必要があります。
+
+```json
+{
+  "I love programming.": "Me encanta programar."
+}
+```
+
+#### キー / ファイルの競合
+
+他の翻訳ファイル名と競合する string keys の翻訳を定義すべきではありません。例えば、"NL" locale の`__('Action')`を翻訳する一方で、`nl/action.php`ファイルは存在するが、`nl.json`ファイルが存在しないと、翻訳者が`nl/action.php`の内容全体を返す結果となります。
+
+<a name="retrieving-translation-strings"></a>
+
+## Retrieving Translation Strings
+
+言語ファイルから翻訳文字列を取得するには、`__` ヘルパー関数を使用します。翻訳文字列を定義する際に「短いキー」を使用している場合、ファイルとキー自体を「ドット」 syntax を使って `__` 関数に渡す必要があります。例えば、`lang/en/messages.php` 言語ファイルから `welcome` 翻訳 string を取得します。
+
+```php
+echo __('messages.welcome');
+```
+
+指定された翻訳 string が存在しない場合、`__` 関数は翻訳 string キーを返します。したがって、上記の例では、翻訳 string が存在しない場合、`__` 関数は `messages.welcome` を返します。
+
+[default translation strings as your translation keys](#using-translation-strings-as-keys) を翻訳 keys として使用している場合、string の default 翻訳を `__` 関数に渡す必要があります。
+
+```php
+echo __('I love programming.');
+```
+
+再度、翻訳 string が存在しない場合、`__` 関数は与えられた翻訳 string キーを返します。
+
+[Blade テンプレーティングエンジン](/ja/php/laravel/v11.x/04-the-basics/08-blade)を使用している場合、`{{ }}` echo syntax を使用して翻訳 string を表示することができます。
+
+```php
+{{ __('messages.welcome') }}
+```
+
+<a name="replacing-parameters-in-translation-strings"></a>
+
+### 翻訳文字列のパラメータを置き換える
+
+ご希望であれば、翻訳文字列内にプレースホルダーを定義することができます。すべてのプレースホルダーは `:` で接頭辞がつけられます。例えば、プレースホルダー名を持つウェルカムメッセージを定義することができます：
+
+```php
+'welcome' => 'Welcome, :name',
+```
+
+翻訳 string を取得する際にプレースホルダを置き換えるために、置換の array を `__` 関数の第二引数として渡すことができます。
+
+```php
+echo __('messages.welcome', ['name' => 'dayle']);
+```
+
+あなたのプレースホルダーがすべて大文字であるか、最初の文字だけが大文字の場合、翻訳された value はそれに応じて大文字になります：
+
+```php
+'welcome' => 'Welcome, :NAME', // Welcome, DAYLE
+'goodbye' => 'Goodbye, :Name', // Goodbye, Dayle
+```
+
+<a name="object-replacement-formatting"></a>
+
+#### Object の置換フォーマット
+
+もし object を翻訳プレースホルダーとして提供しようと attempt すると、その object の`__toString` method が呼び出されます。[`__toString`](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) method は、PHP の組み込みの"magic methods"の一つです。しかし、時には、第三者の library に所属する class とやり取りする場合など、特定の class の`__toString` method に対する制御ができないことがあります。
+
+これらのケースでは、 Laravel では特定の type の object のための custom フォーマット handler を register することができます。これを達成するためには、翻訳者の`stringable` method を呼び出すべきです。`stringable` method はクロージャを受け取り、それがフォーマットを担当する type の object をタイプヒントするべきです。通常、`stringable` method はアプリケーションの`AppServiceProvider` class の`boot` method 内で呼び出されるべきです：
+
+```php
+use Illuminate\Support\Facades\Lang;
+use Money\Money;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Lang::stringable(function (Money $money) {
+        return $money->formatTo('en_GB');
+    });
+}
+```
+
+<a name="pluralization"></a>
+
+### Pluralization
+
+複数形化は複雑な問題であり、さまざまな言語で複数形化のための複雑なルールが適用されます。しかし、 Laravel は、あなたが定義する複数形のルールに基づいて文字列を異なる形で翻訳するのに役立ちます。`|`キャラクターを使用すると、 string の単数形と複数形を区別することができます。
+
+```php
+'apples' => 'There is one apple|There are many apples',
+```
+
+もちろん、[keys としての翻訳 strings](#using-translation-strings-as-keys)を使用する際にも、複数形の対応もサポートされています：
+
+```json
+{
+  "There is one apple|There are many apples": "Hay una manzana|Hay muchas manzanas"
+}
+```
+
+あなたはさらに複雑な複数形のルールを作成し、 values の複数の範囲の翻訳文字列を指定することもできます：
+
+```php
+'apples' => '{0} There are none|[1,19] There are some|[20,*] There are many',
+```
+
+複数形の options を持つ翻訳 string を定義した後で、`trans_choice` 関数を使用して、特定の "count" の行を取得できます。この例では、count が 1 より大きいので、翻訳 string の複数形が返されます。
+
+```php
+echo trans_choice('messages.apples', 10);
+```
+
+また、複数形文字列に attributes というプレースホルダを定義することもできます。これらのプレースホルダは、`trans_choice`関数の第 3 引数として array を渡すことにより置き換えられます。
+
+```php
+'minutes_ago' => '{1} :value minute ago|[2,*] :value minutes ago',
+
+echo trans_choice('time.minutes_ago', 5, ['value' => 5]);
+```
+
+`trans_choice` 関数に渡された integer value を表示したい場合、組み込みの `:count` プレースホルダーを使用することができます。
+
+```php
+'apples' => '{0} There are none|{1} There is one|[2,*] There are :count',
+```
+
+<a name="overriding-package-language-files"></a>
+
+## Overriding Package Language Files
+
+一部のパッケージは、独自の言語ファイルを付属して出荷される場合があります。これらの行を微調整するためにパッケージのコアファイルを変更する代わりに、`lang/vendor/{package}/{locale}`ディレクトリにファイルを配置することで上書きすることが可能です。
+
+したがって、例えば、`skyrim/hearthfire`というパッケージの`messages.php`で英語の翻訳文字列を上書きする必要がある場合、言語ファイルを以下の場所に配置するべきです： `lang/vendor/hearthfire/en/messages.php`。このファイル内では、上書きしたい翻訳文字列のみを定義するべきです。上書きしない翻訳文字列は、パッケージの元の言語ファイルから依然としてロードされます。

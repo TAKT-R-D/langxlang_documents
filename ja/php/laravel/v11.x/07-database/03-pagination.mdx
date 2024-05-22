@@ -1,0 +1,441 @@
+---
+filePath: "source/laravel/pagination.md"
+title: "Database: Pagination"
+description: "Database: Pagination"
+org_path: "/docs/11.x/pagination"
+is_empty: "false"
+nav_title: "Pagenation"
+org_title: "Database: Pagination"
+---
+
+# Database: Pagination
+
+- [Introduction](#introduction)
+- [Basic Usage](#basic-usage)
+  - [Paginating Query Builder Results](#paginating-query-builder-results)
+  - [Paginating Eloquent Results](#paginating-eloquent-results)
+  - [Cursor Pagination](#cursor-pagination)
+  - [Manually Creating a Paginator](#manually-creating-a-paginator)
+  - [Customizing Pagination URLs](#customizing-pagination-urls)
+- [Displaying Pagination Results](#displaying-pagination-results)
+  - [Adjusting the Pagination Link Window](#adjusting-the-pagination-link-window)
+  - [Converting Results to JSON](#converting-results-to-json)
+- [Customizing the Pagination View](#customizing-the-pagination-view)
+  - [Using Bootstrap](#using-bootstrap)
+- [Paginator and LengthAwarePaginator Instance Methods](#paginator-instance-methods)
+- [Cursor Paginator Instance Methods](#cursor-paginator-instance-methods)
+
+<a name="introduction"></a>
+
+## Introduction
+
+他のフレームワークでは、 pagination は非常に困難な作業になることがあります。それに対し、Laravel の pagination アプローチは新鮮な息吹を提供することでしょう。Laravel の paginator は、[query builder](/ja/php/laravel/v11.x/07-database/02-queries)と[Eloquent ORM](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)と統合されており、設定不要で database レコードの pagination を簡単に、便利に提供します。
+
+default として、 paginator が生成する HTML は[Tailwind CSS フレームワーク](https://tailwindcss.com/)と互換性があります。ただし、ブートストラップの pagination サポートも利用可能です。
+
+<a name="tailwind-jit"></a>
+
+#### Tailwind JIT
+
+もし Laravel の default な Tailwind の pagination views と Tailwind JIT エンジンを使用している場合、`tailwind.config.js` ファイルの `content` キーが Laravel の pagination views を参照するように、アプリケーションを確認すべきです。それにより、その Tailwind クラスはパージされないでしょう:
+
+```js
+content: [
+    './resources/**/*.blade.php',
+    './resources/**/*.js',
+    './resources/**/*.vue',
+    './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+],
+```
+
+<a name="basic-usage"></a>
+
+## Basic Usage
+
+<a name="paginating-query-builder-results"></a>
+
+### Query ビルダー結果のページネーション
+
+いくつかの方法があります。最も簡単な方法は、[query ビルダー](/ja/php/laravel/v11.x/07-database/02-queries)や[エロキュアント query](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)で`paginate`method を使用することです。`paginate`method は、現在 user が閲覧しているページに基づいて、自動的に query の"limit"と"offset"を設定します。default では、現在のページは HTTP request の`page`query ストリング引数の value によって検出されます。この value は Laravel によって自動的に検出され、また、生成される links に自動的に挿入されます。
+
+この例では、`paginate` method に渡される唯一の引数は、"ページあたり"に表示したいアイテムの数です。この場合、1 ページあたり`15`項目を表示したいと指定しましょう。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+
+class UserController extends Controller
+{
+    /**
+     * Show all application users.
+     */
+    public function index(): View
+    {
+        return view('user.index', [
+            'users' => DB::table('users')->paginate(15)
+        ]);
+    }
+}
+```
+
+<a name="simple-pagination"></a>
+
+#### シンプルな Pagination
+
+`paginate` method は、レコードを database から取得する前に、 query によって一致したレコードの総数を数えます。これは、 paginator がレコードのページ数を合計でどれだけあるかを知るために行われます。しかし、アプリケーションの UI で総ページ数を表示する予定がないなら、レコード数を数える query は必要ありません。
+
+したがって、あなたが application の UI で単純な "Next" と "Previous" links だけを表示する必要がある場合は、`simplePaginate` method を使って、 single , 効率的な query を実行することができます。
+
+```php
+$users = DB::table('users')->simplePaginate(15);
+```
+
+<a name="paginating-eloquent-results"></a>
+
+### Eloquent 結果のページネーション
+
+あなたはまた、[Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)のクエリをページ分割することもできます。この例では、`App\Models\User` model をページ分割し、1 ページあたり 15 レコードを表示する予定であることを示します。ご覧の通り、構文は、query ビルダーの結果をページ分割するのとほぼ同一です。
+
+```php
+use App\Models\User;
+
+$users = User::paginate(15);
+```
+
+もちろん、他の制約を`where`句のような query に設定した後で、`paginate` method を呼び出すことができます。
+
+```php
+$users = User::where('votes', '>', 100)->paginate(15);
+```
+
+また、`simplePaginate`の method を使用して Eloquent models をページネーションすることも可能です：
+
+```php
+$users = User::where('votes', '>', 100)->simplePaginate(15);
+```
+
+同様に、`cursorPaginate` method を使用して、 cursor paginate Eloquent models を行うことができます。
+
+```php
+$users = User::where('votes', '>', 100)->cursorPaginate(15);
+```
+
+<a name="multiple-paginator-instances-per-page"></a>
+
+#### ページごとの複数の Paginator インスタンス
+
+時には、あなたの application によって rendering された single 画面上で 2 つの別々の paginator を render する必要があるかもしれません。ただし、両方の paginator インスタンスが現在のページを保存するために `page` query string パラメータを使用すると、2 つの paginator が競合します。この競合を解決するために、paginator の現在のページを保存するために使用したい query string パラメータの名前を、 `paginate`、`simplePaginate`、そして `cursorPaginate` method へ提供された第 3 引数を通して指定することができます。
+
+```php
+use App\Models\User;
+
+$users = User::where('votes', '>', 100)->paginate(
+    $perPage = 15, $columns = ['*'], $pageName = 'users'
+);
+```
+
+<a name="cursor-pagination"></a>
+
+### Cursor Pagination
+
+`paginate`と`simplePaginate`は、SQL の"offset"句を使用してクエリを作成しますが、" cursor pagination "は、"where"句を作成して" query "に含まれる並べ替えられた列の" values "を比較し、Laravel の全ての" pagination "メソッドの中で最も効率的な" database "パフォーマンスを提供します。この" pagination "の" method "は、大量のデータセットや"無限"スクロールの" user "インターフェースに特に適しています。
+
+オフセットベースの「 pagination 」は、URL の「 query string 」にページ番号を含むのに対して、「 paginator 」ベースの「 pagination 」は、「 query string 」に「 cursor 」の「 string 」を配置します。「 cursor 」は、次のページネーションされた「 query 」が開始するべき場所と、それが「 paginate 」するべき方向を含むエンコードされた「 string 」です。
+
+```nothing
+http://localhost/users?cursor=eyJpZCI6MTUsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0
+```
+
+`cursorPaginate` method を使用して、 query ビルダーが提供する cursor ベースの paginator インスタンスを作成することができます。この method は、`Illuminate\Pagination\CursorPaginator`のインスタンスを返します。
+
+```php
+$users = DB::table('users')->orderBy('id')->cursorPaginate(15);
+```
+
+cursor paginator インスタンスを取得したら、通常`paginate`や`simplePaginate`メソッドを使用するときと同じように、[ページネーション結果を表示](#displaying-pagination-results)することができます。 cursor paginator が提供するインスタンスメソッドの詳細については、[cursor paginator インスタンスの method ドキュメンテーション](#cursor-paginator-instance-methods)をご参照ください。
+
+> [!WARNING]  
+> あなたの query は、 cursor pagination を活用するためには"order by"句を含める必要があります。さらに、" query "が並べ替えるカラムは、ページングしているテーブルに所属している必要があります。
+
+<a name="cursor-vs-offset-pagination"></a>
+
+#### Cursor vs. オフセット Pagination
+
+offset ページネーションと cursor ページネーションの違いを図示するために、いくつかの SQLqueries の例を見てみましょう。次の両方の queries は、`id`で並べ替えられた`users`テーブルの結果の「2 ページ目」を表示します。
+
+```sql
+# Offset Pagination...
+select * from users order by id asc limit 15 offset 15;
+
+# Cursor Pagination...
+select * from users where id > 15 order by id asc limit 15;
+```
+
+cursor pagination query はオフセット pagination に対して次のような利点を提供します：
+
+- 大規模なデータセットに対しては、「 cursor pagination 」が「order by」列がインデックス化されている場合には、より良いパフォーマンスを提供します。これは、「offset」句が以前に一致した「 data 」すべてをスキャンするためです。
+- 頻繁に書き込みが行われるデータセットの場合、オフセットの pagination は、結果が最近ページに追加されたり、ページから削除された場合、 user が現在閲覧しているページでレコードを skip したり、重複を表示する場合があります。
+
+ただし、 cursor pagination には以下の制限があります：
+
+- `simplePaginate`のように、 cursor pagination は「次」および「前」の links の表示のみに使用でき、ページ番号付きの links の生成をサポートしていません。
+- 順序付けは、少なくとも一つの unique column または unique な列の組み合わせに基づいていることが必要です。`null`の values が含まれる列はサポートされていません。
+- "order by"句内の Query 式は、エイリアスが付けられ、"select"句に追加されている場合にのみサポートされます。
+- パラメータを含む Query 式はサポートされていません。
+
+<a name="manually-creating-a-paginator"></a>
+
+### 手動で Paginator を作成する
+
+時々、メモリにすでに持っている array のアイテムを渡して、手動で pagination インスタンスを作成したい場合があります。それは、`Illuminate\Pagination\Paginator`、`Illuminate\Pagination\LengthAwarePaginator`、または `Illuminate\Pagination\CursorPaginator` インスタンスを作成することにより、あなたのニーズに応じて行うことができます。
+
+`Paginator`および`CursorPaginator`クラスは、結果セット内のアイテムの総数を知る必要はありません。しかし、そのため、これらのクラスには最後のページのインデックスを取得するメソッドがありません。`LengthAwarePaginator`は、`Paginator`とほぼ同じ引数を受け入れますが、結果セット内のアイテムの総数を数える必要があります。
+
+つまり、`Paginator`は query ビルダーの`simplePaginate` method に対応し、`CursorPaginator`は`cursorPaginate` method に対応し、`LengthAwarePaginator`は`paginate` method に対応します。
+
+> [!WARNING]  
+> 手動で paginator インスタンスを作成するときは、paginator に渡す結果の array を手動で"スライス"する必要があります。 これがどのように行うかわからない場合は、 [array_slice](https://secure.php.net/manual/en/function.array-slice.php) PHP 関数を確認してください。
+
+<a name="customizing-pagination-urls"></a>
+
+### Pagination URL のカスタマイズ
+
+デフォルトでは、 default によって生成される links は、現在のリクエストの URI と match します。しかし、 paginator の `withPath` method は、 paginator が links を生成する際に使用する URI をカスタマイズすることができます。例えば、 paginator に `http://example.com/admin/users?page=N`のような links を生成させたい場合、`withPath` method に `/admin/users` を渡す必要があります。
+
+```php
+use App\Models\User;
+
+Route::get('/users', function () {
+    $users = User::paginate(15);
+
+    $users->withPath('/admin/users');
+
+    // ...
+});
+```
+
+<a name="appending-query-string-values"></a>
+
+#### Query String Values の追加
+
+`appends` を使用して、ページング links の querystring に 追加できます。例えば、各ページング links に `sort=votes`を 追加するには、`appends`に次のように呼び出しを行うべきです:
+
+```php
+use App\Models\User;
+
+Route::get('/users', function () {
+    $users = User::paginate(15);
+
+    $users->appends(['sort' => 'votes']);
+
+    // ...
+});
+```
+
+`withQueryString`method を使用すると、現在の request の querystring の values をすべてページネーション link に追加することができます：
+
+```php
+$users = User::paginate(15)->withQueryString();
+```
+
+<a name="appending-hash-fragments"></a>
+
+#### Hash フラグメントの追加
+
+paginator によって生成された URL に "hash fragment" を追加する必要がある場合は、`fragment` method を使用できます。たとえば、各 pagination リンクの末尾に `#users` を追加するには、次のように `fragment` method を呼び出す必要があります:
+
+```php
+$users = User::paginate(15)->fragment('users');
+```
+
+<a name="displaying-pagination-results"></a>
+
+## Displaying Pagination Results
+
+`paginate` method を呼び出すと、`Illuminate\Pagination\LengthAwarePaginator`のインスタンスが返されます。一方、`simplePaginate` method を呼び出すと、`Illuminate\Pagination\Paginator`のインスタンスが返されます。そして最後に、`cursorPaginate` method を呼び出すと、`Illuminate\Pagination\CursorPaginator`のインスタンスが返されます。
+
+これらのオブジェクトは、結果セットを説明するいくつかのメソッドを提供します。これらのヘルパーメソッドに加えて、 paginator のインスタンスはイテレータであり、 array としてループすることができます。したがって、結果を retrieved (取得)したら、結果を表示し、ページの links (リンク)を[Blade](/ja/php/laravel/v11.x/04-the-basics/08-blade)を用いて render (レンダリング)することができます。
+
+```blade
+<div class="container">
+    @foreach ($users as $user)
+        {{ $user->name }}
+    @endforeach
+</div>
+
+{{ $users->links() }}
+```
+
+`links`method は、結果セット内の他のページへの links を rendering します。これらの links のそれぞれは、すでに適切な `page` query ストリング variables を含んでいます。`links`method によって生成された HTML は、[Tailwind CSS フレームワーク](https://tailwindcss.com)と互換性があることを覚えておいてください。
+
+<a name="adjusting-the-pagination-link-window"></a>
+
+### Pagination リンクウィンドウの調整
+
+paginator が pagination links を表示するとき、現在のページ番号だけでなく、現在のページの前後 3 ページの links も表示されます。`onEachSide` method を使うと、 paginator によって生成された links の中央、スライディングウィンドウの現在のページの両側に、何個の追加の links `を表示するかを制御できます。
+
+```blade
+{{ $users->onEachSide(5)->links() }}
+```
+
+<a name="converting-results-to-json"></a>
+
+### 結果を JSON に変換する
+
+Laravel paginator classes は`Illuminate\Contracts\Support\Jsonable`インターフェース契約を実装し、`toJson` method を公開しているため、 pagination の結果を JSON に変換するのは非常に簡単です。また、 route や controller action から paginator インスタンスを返すことで、それを JSON に変換することもできます。
+
+```php
+use App\Models\User;
+
+Route::get('/users', function () {
+    return User::paginate();
+});
+```
+
+paginator からの JSON array には、`total`、`current_page`、`last_page`などの meta 情報が含まれます。結果レコードは JSON 配列の`data`キーを介して利用できます。以下は、 route から paginator インスタンスを返すことで作成される JSON の例です:
+
+```php
+{
+   "total": 50,
+   "per_page": 15,
+   "current_page": 1,
+   "last_page": 4,
+   "first_page_url": "http://laravel.app?page=1",
+   "last_page_url": "http://laravel.app?page=4",
+   "next_page_url": "http://laravel.app?page=2",
+   "prev_page_url": null,
+   "path": "http://laravel.app",
+   "from": 1,
+   "to": 15,
+   "data":[
+        {
+            // Record...
+        },
+        {
+            // Record...
+        }
+   ]
+}
+```
+
+<a name="customizing-the-pagination-view"></a>
+
+## Customizing the Pagination View
+
+default では、ページネーションの links を表示するために rendering される views は[Tailwind CSS](https://tailwindcss.com)フレームワークと互換性があります。しかし、Tailwind を使用していない場合、自由に自分の views を定義してこれらの links を rendering することができます。`links`method をページネーターのインスタンスで呼び出す際には、views の名前を method の最初の引数として渡すことができます。
+
+```blade
+{{ $paginator->links('view.name') }}
+
+<!-- Passing additional data to the view... -->
+{{ $paginator->links('view.name', ['foo' => 'bar']) }}
+```
+
+ただし、 pagination views をカスタマイズする最も簡単な方法は、`vendor:publish` command を使用してこれらを`resources/views/vendor`ディレクトリにエクスポートすることです：
+
+```shell
+php artisan vendor:publish --tag=laravel-pagination
+```
+
+この command は、アプリケーションの `resources/views/vendor/pagination` ディレクトリに views を配置します。このディレクトリ内の `tailwind.blade.php` ファイルは、 default pagination view に対応しています。このファイルを編集して pagination HTML を変更することができます。
+
+異なるファイルを default のページネーション view として指定したい場合、`App\Providers\AppServiceProvider`の method である`boot`内で、paginator の`defaultView`と`defaultSimpleView`method を呼び出すことができます:
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Paginator::defaultView('view-name');
+
+        Paginator::defaultSimpleView('view-name');
+    }
+}
+```
+
+<a name="using-bootstrap"></a>
+
+### Bootstrap の使用
+
+Laravel には [Bootstrap CSS](https://getbootstrap.com/) を使用して構築された pagination views が含まれています。これらの views をデフォルトの Tailwind views の代わりに使用するには、`App\Providers\AppServiceProvider` class の `boot` method 内で paginator の `useBootstrapFour` または `useBootstrapFive` method を呼び出すことができます:
+
+```php
+use Illuminate\Pagination\Paginator;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Paginator::useBootstrapFive();
+    Paginator::useBootstrapFour();
+}
+```
+
+<a name="paginator-instance-methods"></a>
+
+## Paginator / LengthAwarePaginator Instance Methods
+
+各々の paginator インスタンスは、以下のメソッドを通じて追加の pagination 情報を提供します：
+
+| Method                                  | Description                                                                                                 |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `$paginator->count()`                   | 現在のページのアイテム数を取得します。                                                                      |
+| `$paginator->currentPage()`             | 現在のページ番号を取得します。                                                                              |
+| `$paginator->firstItem()`               | 結果の最初のアイテムの結果番号を取得します。                                                                |
+| `$paginator->getOptions()`              | ページネータの option を取得します。                                                                        |
+| `$paginator->getUrlRange($start, $end)` | pagination の URL の範囲を作成します。                                                                      |
+| `$paginator->hasPages()`                | 複数のページに split するための十分なアイテムがあるかどうかを判断します。                                   |
+| `$paginator->hasMorePages()`            | data ストアにさらなるアイテムがあるかどうかを判断します。                                                   |
+| `$paginator->items()`                   | 現在のページの項目を取得します。                                                                            |
+| `$paginator->lastItem()`                | 結果の中で最後のアイテムの結果番号を取得します。                                                            |
+| `$paginator->lastPage()`                | 最後の利用可能なページのページ番号を取得します。(`simplePaginate`を使用している場合は利用できません)。      |
+| `$paginator->nextPageUrl()`             | 次のページの URL を取得します。                                                                             |
+| `$paginator->onFirstPage()`             | paginator が最初のページにあるかどうかを決定します。                                                        |
+| `$paginator->perPage()`                 | ページごとに表示するアイテムの数。                                                                          |
+| `$paginator->previousPageUrl()`         | 前のページの URL を取得します。                                                                             |
+| `$paginator->total()`                   | data ストア内のマッチングアイテムの総数を決定します。(`simplePaginate`を使用している場合は利用できません)。 |
+| `$paginator->url($page)`                | 指定されたページ番号の URL を取得します。                                                                   |
+| `$paginator->getPageName()`             | ページの保存に使用される query string 変数を取得します。                                                    |
+| `$paginator->setPageName($name)`        | ページを保存するために使用する query string 変数を設定します。                                              |
+| `$paginator->through($callback)`        | 各アイテムをコールバックを使用して Transform します。                                                       |
+
+<a name="cursor-paginator-instance-methods"></a>
+
+## Cursor Paginator Instance Methods
+
+各々の cursor paginator インスタンスは、以下の方法を通じて追加の pagination 情報を提供します：
+
+| Method                          | Description                                                             |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `$paginator->count()`           | 現在のページのアイテム数を取得します。                                  |
+| `$paginator->cursor()`          | 現在の cursor インスタンスを取得します。                                |
+| `$paginator->getOptions()`      | ページネータの option を取得します。                                    |
+| `$paginator->hasPages()`        | 複数のページに split するのに十分なアイテムがあるかどうかを判断します。 |
+| `$paginator->hasMorePages()`    | data ストアにさらにアイテムがあるかどうかを決定します。                 |
+| `$paginator->getCursorName()`   | cursor を保存するために使用される query string variable を取得します。  |
+| `$paginator->items()`           | 現在のページのアイテムを取得します。                                    |
+| `$paginator->nextCursor()`      | 次のアイテムセットのための cursor インスタンスを取得します。            |
+| `$paginator->nextPageUrl()`     | 次のページの URL を取得します。                                         |
+| `$paginator->onFirstPage()`     | paginator が最初のページにあるかどうかを決定します。                    |
+| `$paginator->onLastPage()`      | paginator が最後のページにあるかどうかを判断します。                    |
+| `$paginator->perPage()`         | ページごとに表示するアイテムの数。                                      |
+| `$paginator->previousCursor()`  | 前のアイテムセットの cursor インスタンスを取得します。                  |
+| `$paginator->previousPageUrl()` | 前のページの URL を取得します。                                         |
+| `$paginator->setCursorName()`   | query string variable を設定して、 cursor を保存します。                |
+| `$paginator->url($cursor)`      | 与えられた cursor インスタンスの URL を取得します。                     |

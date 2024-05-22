@@ -1,0 +1,136 @@
+---
+filePath: "source/laravel/redirects.md"
+title: "HTTP Redirects"
+description: "HTTP Redirects"
+org_path: "/docs/11.x/redirects"
+is_empty: "false"
+org_title: "HTTP Redirects"
+---
+
+# HTTP Redirects
+
+- [Creating Redirects](#creating-redirects)
+- [Redirecting To Named Routes](#redirecting-named-routes)
+- [Redirecting To Controller Actions](#redirecting-controller-actions)
+- [Redirecting With Flashed Session Data](#redirecting-with-flashed-session-data)
+
+<a name="creating-redirects"></a>
+
+## Creating Redirects
+
+RedirectResponses は `Illuminate\Http\RedirectResponse` ””class””の例であり、””Redirect””に必要な適切な””headers””を含んで””user””を別の””URL””に””redirect””します。 `RedirectResponse`インスタンスを生成する方法はいくつかあります。最も単純な””method””は、グローバル`redirect` helper を使用することです。
+
+```php
+Route::get('/dashboard', function () {
+    return redirect('/home/dashboard');
+});
+```
+
+時には、提出されたフォームが invalid であるなど、 user を前の場所に redirect することを希望するかもしれません。それを行うためには、グローバルな `back` ヘルパー関数を使用できます。この feature は[session](/ja/php/laravel/v11.x/04-the-basics/11-session)を利用しているので、`back`関数を呼び出す route が `web` middleware グループを使用しているか、すべての session middleware が適用されていることを確認してください：
+
+```php
+Route::post('/user/profile', function () {
+    // Validate the request...
+
+    return back()->withInput();
+});
+```
+
+<a name="redirecting-named-routes"></a>
+
+## Redirecting To Named Routes
+
+`redirect`ヘルパーをパラメーターなしで呼び出すと、`Illuminate\Routing\Redirector`のインスタンスが返され、`Redirector`インスタンス上で任意の method を呼び出すことができます。例えば、名前付きの route に対する`RedirectResponse`を生成するには、`route`の method を使用します：
+
+```php
+return redirect()->route('login');
+```
+
+あなたの route がパラメータを持っている場合、それらを `route` method の第二引数として渡すことができます：
+
+```php
+// For a route with the following URI: profile/{id}
+
+return redirect()->route('profile', ['id' => 1]);
+```
+
+便宜上、 Laravel はグローバルな`to_route`関数も提供しています：
+
+```php
+return to_route('profile', ['id' => 1]);
+```
+
+<a name="populating-parameters-via-eloquent-models"></a>
+
+#### パラメータを'' Eloquent Models ''を通じて作成する
+
+Eloquent model "から取得される"ID"パラメータを持つ" route "にリダイレクトしている場合、" model "自体を渡すことができます。ID は自動的に抽出されます。
+
+```php
+// For a route with the following URI: profile/{id}
+
+return redirect()->route('profile', [$user]);
+```
+
+route パラメータに配置される value をカスタマイズしたい場合は、 Eloquent model 上で `getRouteKey` method をオーバーライドすべきです：
+
+```php
+/**
+ * Get the value of the model's route key.
+ */
+public function getRouteKey(): mixed
+{
+    return $this->slug;
+}
+```
+
+<a name="redirecting-controller-actions"></a>
+
+## Redirecting To Controller Actions
+
+また、[controller アクション](/ja/php/laravel/v11.x/04-the-basics/05-controllers)へのリダイレクトを生成することも可能です。そのためには、 controller 及び action の名前を `action` method に渡します。
+
+```php
+use App\Http\Controllers\HomeController;
+
+return redirect()->action([HomeController::class, 'index']);
+```
+
+もし、あなたの controller route がパラメータを必要とする場合、それらを`action` method の第二引数として渡すことができます：
+
+```php
+return redirect()->action(
+    [UserController::class, 'profile'], ['id' => 1]
+);
+```
+
+<a name="redirecting-with-flashed-session-data"></a>
+
+## Redirecting With Flashed Session Data
+
+新しい URL への redirect と[session への data のフラッシュ](/ja/php/laravel/v11.x/04-the-basics/11-session#flash-data)は通常、同時に行われます。これは通常、成功メッセージを session にフラッシュする際に、 action の成功後に行われます。便宜上、`RedirectResponse`インスタンスを作成して、 single 流れるような method チェーンで data を session にフラッシュすることも可能です：
+
+```php
+Route::post('/user/profile', function () {
+    // Update the user's profile...
+
+    return redirect('/dashboard')->with('status', 'Profile updated!');
+});
+```
+
+`withInput`という method を用いて、`RedirectResponse` インスタンスで現在のリクエストの入力 data を redirect する前に session にフラッシュすることができます。一旦入力が session にフラッシュされたら、次の request 中に簡単に[取り出すこと](/ja/php/laravel/v11.x/04-the-basics/05-requests#retrieving-old-input)が可能になります。
+
+```php
+return back()->withInput();
+```
+
+user がリダイレクトされた後、[session](/ja/php/laravel/v11.x/04-the-basics/11-session)からフラッシュメッセージを表示することができます。例えば、[Blade syntax](/ja/php/laravel/v11.x/04-the-basics/08-blade)を使用してください。
+
+```php
+@if (session('status'))
+    <div class="alert alert-success">
+        {{ session('status') }}
+    </div>
+@endif
+
+```

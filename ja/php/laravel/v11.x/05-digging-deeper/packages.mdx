@@ -1,0 +1,452 @@
+---
+filePath: "source/laravel/packages.md"
+title: "Package Development"
+description: "Package Development"
+org_path: "/docs/11.x/packages"
+is_empty: "false"
+nav_title: "Package Development"
+org_title: "Package Development"
+---
+
+# Package Development
+
+- [Introduction](#introduction)
+  - [A Note on Facades](#a-note-on-facades)
+- [Package Discovery](#package-discovery)
+- [Service Providers](#service-providers)
+- [Resources](#resources)
+  - [Configuration](#configuration)
+  - [Migrations](#migrations)
+  - [Routes](#routes)
+  - [Language Files](#language-files)
+  - [Views](#views)
+  - [View Components](#view-components)
+  - ["About" Artisan Command](#about-artisan-command)
+- [Commands](#commands)
+- [Public Assets](#public-assets)
+- [Publishing File Groups](#publishing-file-groups)
+
+<a name="introduction"></a>
+
+## Introduction
+
+パッケージは、 Laravel に機能を追加する primary な方法です。パッケージは、[Carbon](https://github.com/briannesbitt/Carbon)のように日付を扱う素晴らしい方法や、Spatie の[Laravel Media Library](https://github.com/spatie/laravel-medialibrary)のように、ファイルを Eloquent models に関連付けることを可能にするパッケージなど、さまざまなものがあり得ます。
+
+さまざまな種類のパッケージがあります。一部のパッケージはスタンドアロン型で、任意の PHP フレームワークで動作します。 Carbon と Pest はスタンドアロンパッケージの例です。これらのパッケージは、あなたの`composer.json`ファイルで必要とされていれば Laravel と共に使用することができます。
+
+一方、他のパッケージは特に Laravel と一緒に使用することを目的としています。これらのパッケージには、特に Laravel application を強化するために意図された routes 、コントローラー、 views 、そして設定があるかもしれません。このガイドは主に、 Laravel 特有のそれらのパッケージの開発をカバーします。
+
+<a name="a-note-on-facades"></a>
+
+### Facades についての注意
+
+Laravel application を書く際は、 contracts を使用するか facades を使用するかは、基本的にはテスト可能性のレベルが同等であるため、特に問題はありません。しかし、パッケージを作成する場合、パッケージは通常、Laravel の testing helpers 全体にアクセスできません。パッケージのテストをまるで通常の Laravel application 内にインストールされたかのように書きたい場合、[Orchestral Testbench](https://github.com/orchestral/testbench)パッケージを使用することができます。
+
+<a name="package-discovery"></a>
+
+## Package Discovery
+
+Laravel application の`bootstrap/providers.php`ファイルには、 Laravel によって読み込まれるべき service provider のリストが含まれています。しかし、 users が手動であなたの service providers をリストに追加する代わりに、パッケージの`composer.json`ファイルの`extra`セクションで provider を定義することで、それが自動的に Laravel によって読み込まれるようにできます。 service providers に加えて、登録したい[facades](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)もリストに追加できます。
+
+```json
+"extra": {
+    "laravel": {
+        "providers": [
+            "Barryvdh\\Debugbar\\ServiceProvider"
+        ],
+        "aliases": {
+            "Debugbar": "Barryvdh\\Debugbar\\Facade"
+        }
+    }
+},
+```
+
+あなたのパッケージが検出用に設定されると、 Laravel は自動的にその register 、 service providers 、および facades をインストール時に登録し、パッケージの users にとって便利なインストール体験を作り出します。
+
+<a name="opting-out-of-package-discovery"></a>
+
+#### パッケージディスカバリーのオプトアウト
+
+パッケージの消費者であり、パッケージ検出を無効にしたい場合は、アプリケーションの `composer.json` ファイルの `extra` セクションにパッケージ名をリストすることができます：
+
+```json
+"extra": {
+    "laravel": {
+        "dont-discover": [
+            "barryvdh/laravel-debugbar"
+        ]
+    }
+},
+```
+
+アプリケーションの `dont-discover` ディレクティブの中で `*` 文字を使用して、すべてのパッケージのパッケージディスカバリを無効にすることができます：
+
+```json
+"extra": {
+    "laravel": {
+        "dont-discover": [
+            "*"
+        ]
+    }
+},
+```
+
+<a name="service-providers"></a>
+
+## Service Providers
+
+[Service providers](/ja/php/laravel/v11.x/03-architecture-concepts)はあなたのパッケージと Laravel との間の接続ポイントです。Service providers は、Laravel の[service container ー](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)にものをバインドする責任を持ち、Laravel にパッケージの resources(views、設定、言語ファイルなど)をどこからロードするかを告げます。
+
+' service provider は、`Illuminate\Support\ServiceProvider` class を拡張し、二つの method：`register`と`boot`、を含んでいます。基本の`ServiceProvider` class は、`illuminate/support` Composer パッケージ内に位置しており、 それを自身のパッケージの依存性に追加するべきです。 ' service providers 'の構造と目的について詳しく知るには、[そのドキュメンテーション](/ja/php/laravel/v11.x/03-architecture-concepts)を確認してください。
+
+<a name="resources"></a>
+
+## Resources
+
+<a name="configuration"></a>
+
+### Configuration
+
+通常、パッケージの設定ファイルをアプリケーションの `config` ディレクトリに publish する必要があります。これにより、パッケージの users は default の設定 options を簡単に上書きすることができます。設定ファイルを公開するためには、 service provider の `boot` method から `publishes` method を呼び出します。
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->publishes([
+        __DIR__.'/../config/courier.php' => config_path('courier.php'),
+    ]);
+}
+```
+
+さて、パッケージの users が Laravel の `vendor:publish` command を実行すると、ファイルが指定されたパブリッシュ場所にコピーされます。設定が公開されると、その values は他の設定ファイルと同様にアクセスできます。
+
+```php
+$value = config('courier.option');
+```
+
+> [!WARNING]  
+> 設定ファイルでクロージャを定義するべきではありません。'' users ''が`config:cache`の'' Artisan command ''を実行するとき、正しくシリアライズできません。
+
+<a name="default-package-configuration"></a>
+
+#### Default パッケージ設定
+
+あなたはまた、アプリケーションが公開しているコピーと自分のパッケージ設定ファイルを merge することができます。これにより、あなたの users が実際に上書きしたい options だけを公開コピーの設定ファイルで定義することができます。設定ファイルの values を merge するためには、あなたの service プロバイダの `register` method で `mergeConfigFrom` method を使用します。
+
+`mergeConfigFrom` method は、第一引数としてパッケージの設定ファイルへの path を、第二引数として application の設定ファイルの名前を受け付けます：
+
+```php
+/**
+ * Register any application services.
+ */
+public function register(): void
+{
+    $this->mergeConfigFrom(
+        __DIR__.'/../config/courier.php', 'courier'
+    );
+}
+```
+
+> [!WARNING]  
+> この method は、設定の array の最初のレベルのみをマージします。あなたの users が多次元の設定 array を部分的に定義すると、欠けている options はマージされません。
+
+<a name="routes"></a>
+
+### Routes
+
+あなたのパッケージが routes を含んでいる場合、 `loadRoutesFrom` method を使用してそれらをロードすることができます。この method は自動的にアプリケーションの routes がキャッシュされているかどうかを判断し、 routes がすでにキャッシュされていればあなたの routes ファイルはロードされません：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+}
+```
+
+<a name="migrations"></a>
+
+### Migrations
+
+あなたのパッケージが[databasemigrations](/ja/php/laravel/v11.x/07-database/04-migrations)を含んでいる場合、指定したディレクトリやファイルが migrations を含んでいることを Laravel に通知するために、`publishesMigrations` method を使用することができます。Laravel が migrations を公開すると、それらのファイル名内の timestamp が自動的に現在の日付と時間を反映するように更新されます：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->publishesMigrations([
+        __DIR__.'/../database/migrations' => database_path('migrations'),
+    ]);
+}
+```
+
+<a name="language-files"></a>
+
+### 言語ファイル
+
+あなたのパッケージが[language files](/ja/php/laravel/v11.x/05-digging-deeper/localization)を含んでいる場合、それらをロードする方法を Laravel に知らせるために`loadTranslationsFrom` method を使用することができます。例えば、あなたのパッケージが`courier`という名前である場合、以下をあなたの service プロバイダーの`boot` method に追加すべきです：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->loadTranslationsFrom(__DIR__.'/../lang', 'courier');
+}
+```
+
+パッケージ翻訳ラインは、`package::file.line` syntax 規約を使用して参照されます。したがって、次のように`messages`ファイルから`courier`パッケージの`welcome`ラインをロードすることができます：
+
+```php
+echo trans('courier::messages.welcome');
+```
+
+あなたは `loadJsonTranslationsFrom` method を使用してパッケージのための register JSON 翻訳ファイルを登録することができます。この method は、パッケージの JSON 翻訳ファイルが含まれているディレクトリへの path を受け入れます：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->loadJsonTranslationsFrom(__DIR__.'/../lang');
+}
+```
+
+<a name="publishing-language-files"></a>
+
+#### 言語ファイルの公開
+
+パッケージの言語ファイルを application の`lang/vendor`ディレクトリに publish したい場合は、`publishes` method を使用することができます。この`publishes` method は、パッケージの paths とその望ましい publish の場所を array として受け付けます。例えば、`courier`パッケージの言語ファイルを publish するには、次のようにします：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->loadTranslationsFrom(__DIR__.'/../lang', 'courier');
+
+    $this->publishes([
+        __DIR__.'/../lang' => $this->app->langPath('vendor/courier'),
+    ]);
+}
+```
+
+さて、あなたのパッケージの users が Laravel の`vendor:publish` Artisan command を実行すると、パッケージの言語ファイルが指定された publish 場所に公開されます。
+
+<a name="views"></a>
+
+### Views
+
+register するために、パッケージの[views](/ja/php/laravel/v11.x/04-the-basics/07-views)を Laravel に登録する必要があります。そのためには、 views が置かれている場所を Laravel に伝える必要があります。これは、`loadViewsFrom`という service プロバイダの method を使用して行うことができます。 `loadViewsFrom` method は二つの引数を受け取ります：テンプレートの view の path とあなたのパッケージの名前です。例えば、パッケージの名前が `courier` の場合、以下のように service プロバイダの `boot` method に追加します：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->loadViewsFrom(__DIR__.'/../resources/views', 'courier');
+}
+```
+
+Package views は`package::view` syntax 規約を用いて参照されます。ですので、一旦あなたの view path が service provider に登録されたら、`courier`パッケージから`dashboard` view をこのように読み込むことができます：
+
+```php
+Route::get('/dashboard', function () {
+    return view('courier::dashboard');
+});
+```
+
+<a name="overriding-package-views"></a>
+
+#### パッケージ Views のオーバーライド
+
+あなたが`loadViewsFrom`の method を使用すると、 Laravel は実際にあなたの views のために 2 つの場所を登録します：アプリケーションの`resources/views/vendor`ディレクトリとあなたが指定したディレクトリです。したがって、`courier`パッケージを例にすると、 Laravel はまず、開発者が`resources/views/vendor/courier`ディレクトリに配置した custom の view がないか確認します。次に、その view がカスタマイズされていない場合、 Laravel はあなたが`loadViewsFrom`を呼び出すときに指定したパッケージの view ディレクトリを search します。これにより、パッケージの users はあなたのパッケージの views を簡単にカスタマイズ/上書きすることができます。
+
+<a name="publishing-views"></a>
+
+#### Views の公開
+
+あなたが views をアプリケーションの`resources/views/vendor`ディレクトリへ公開したいと考えているなら、 service プロバイダの`publishes` method を使用することができます。`publishes` method は、パッケージの view パスとそれらが希望する publish 場所の array を受け入れます：
+
+```php
+/**
+ * Bootstrap the package services.
+ */
+public function boot(): void
+{
+    $this->loadViewsFrom(__DIR__.'/../resources/views', 'courier');
+
+    $this->publishes([
+        __DIR__.'/../resources/views' => resource_path('views/vendor/courier'),
+    ]);
+}
+```
+
+さて、あなたのパッケージの users が Laravel の `vendor:publish` Artisan command を実行すると、あなたのパッケージの views が指定された公開場所にコピーされます。
+
+<a name="view-components"></a>
+
+### View コンポーネント
+
+Blade コンポーネントを利用するパッケージを作成していたり、コンポーネントを非標準的な directory に配置している場合は、 Laravel が component をどこで見つけるかを知るために、 component class とその HTML タグエイリアスを手動で register しなければなりません。通常、パッケージの service provider の`boot` method でコンポーネントを register `すべきです：
+
+```php
+use Illuminate\Support\Facades\Blade;
+use VendorPackage\View\Components\AlertComponent;
+
+/**
+ * Bootstrap your package's services.
+ */
+public function boot(): void
+{
+    Blade::component('package-alert', AlertComponent::class);
+}
+```
+
+Once your component has been registered, it may be rendered using its tag alias:
+
+```blade
+<x-package-alert/>
+```
+
+<a name="autoloading-package-components"></a>
+
+#### Autoloading Package Components
+
+あるいは、`componentNamespace` method を使って、 component classes を規則に従って自動的に読み込むこともできます。例えば、`Nightshade`パッケージには、`Nightshade\Views\Components`名前空間内に存在する`Calendar`と`ColorPicker`コンポーネントがあるかもしれません：
+
+```php
+use Illuminate\Support\Facades\Blade;
+
+/**
+ * Bootstrap your package's services.
+ */
+public function boot(): void
+{
+    Blade::componentNamespace('Nightshade\\Views\\Components', 'nightshade');
+}
+```
+
+This will allow the usage of package components by their vendor namespace using the `package-name::` syntax:
+
+```blade
+<x-nightshade::calendar />
+<x-nightshade::color-picker />
+```
+
+Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation.
+
+<a name="anonymous-components"></a>
+
+#### 匿名コンポーネント
+
+もしパッケージに無名 component が含まれている場合、それらはパッケージの"views"ディレクトリー([`loadViewsFrom` method](#views)にて指定されているように)の`components`ディレクトリー内に配置しなければなりません。その後、パッケージの view ネームスペースで component の名前をプレフィックスとして、それらを render することができます：
+
+```blade
+<x-courier::alert />
+```
+
+<a name="about-artisan-command"></a>
+
+### "About" Artisan Command について
+
+Laravel の組み込み`about`の Artisan command は、application の環境と設定の概要を提供します。パッケージは、`AboutCommand`の class を介して、この command の出力に追加情報をプッシュすることができます。通常、この情報はパッケージの serviceprovider の`boot`の method から追加することができます：
+
+```php
+use Illuminate\Foundation\Console\AboutCommand;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    AboutCommand::add('My Package', fn () => ['Version' => '1.0.0']);
+}
+```
+
+<a name="commands"></a>
+
+## Commands
+
+あなたのパッケージの””Artisan”” commands を””Laravel””に登録するために、`commands` ””method””を使用することができます。この””method””は、command class の名前の””array””を期待します。commands が登録されたら、[””Artisan”” CLI](/ja/php/laravel/v11.x/05-digging-deeper/artisan) を使用してそれらを実行することができます。
+
+```php
+use Courier\Console\Commands\InstallCommand;
+use Courier\Console\Commands\NetworkCommand;
+
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    if ($this->app->runningInConsole()) {
+        $this->commands([
+            InstallCommand::class,
+            NetworkCommand::class,
+        ]);
+    }
+}
+```
+
+<a name="public-assets"></a>
+
+## Public Assets
+
+あなたのパッケージには、 JavaScript 、 CSS 、画像などのアセットが含まれている場合があります。これらのアセットをアプリケーションの `public` ディレクトリに publish するには、 service プロバイダの `publishes` method を使用します。この例では、関連するアセットのグループを簡単に publish するために使用できる `public` アセットグループタグを追加します：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->publishes([
+        __DIR__.'/../public' => public_path('vendor/courier'),
+    ], 'public');
+}
+```
+
+さて、あなたのパッケージの users が`vendor:publish` command を実行すると、あなたのアセットは指定された publish の場所にコピーされます。 users は通常、パッケージが更新されるたびにアセットを上書きする必要がありますので、`--force`フラグを使用することができます。
+
+```shell
+php artisan vendor:publish --tag=public --force
+```
+
+<a name="publishing-file-groups"></a>
+
+## Publishing File Groups
+
+あなたは、パッケージの資産や resources を別々に「 publish 」したいかもしれません。例えば、あなたのパッケージの設定ファイルを強制的にパッケージの資産を「 publish 」せずに、 users に「 publish 」を許可したくなるかもしれません。これは`publishes` method をパッケージの「 service provider 」から呼び出す際に、それらに「tagging」することで実現できます。例えば、パッケージの「 service provider 」の `boot` method で、`courier` パッケージの「 publish 」の２つのグループ(`courier-config` と `courier-migrations`)を定義するために、「 tags 」を使用しましょう：
+
+```php
+/**
+ * Bootstrap any package services.
+ */
+public function boot(): void
+{
+    $this->publishes([
+        __DIR__.'/../config/package.php' => config_path('package.php')
+    ], 'courier-config');
+
+    $this->publishesMigrations([
+        __DIR__.'/../database/migrations/' => database_path('migrations')
+    ], 'courier-migrations');
+}
+```
+
+現在、あなたの users は、`vendor:publish` command を実行する際に、そのタグを参照してこれらのグループを別々に publish することができます。
+
+```shell
+php artisan vendor:publish --tag=courier-config
+```

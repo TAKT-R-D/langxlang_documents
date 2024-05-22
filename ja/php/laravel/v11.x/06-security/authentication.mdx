@@ -1,0 +1,884 @@
+---
+filePath: "source/laravel/authentication.md"
+title: "Authentication"
+description: "Authentication"
+org_path: "/docs/11.x/authentication"
+is_empty: "false"
+nav_title: "Authentication"
+org_title: "Authentication"
+---
+
+# Authentication
+
+- [Introduction](#introduction)
+  - [Starter Kits](#starter-kits)
+  - [Database Considerations](#introduction-database-considerations)
+  - [Ecosystem Overview](#ecosystem-overview)
+- [Authentication Quickstart](#authentication-quickstart)
+  - [Install a Starter Kit](#install-a-starter-kit)
+  - [Retrieving the Authenticated User](#retrieving-the-authenticated-user)
+  - [Protecting Routes](#protecting-routes)
+  - [Login Throttling](#login-throttling)
+- [Manually Authenticating Users](#authenticating-users)
+  - [Remembering Users](#remembering-users)
+  - [Other Authentication Methods](#other-authentication-methods)
+- [HTTP Basic Authentication](#http-basic-authentication)
+  - [Stateless HTTP Basic Authentication](#stateless-http-basic-authentication)
+- [Logging Out](#logging-out)
+  - [Invalidating Sessions on Other Devices](#invalidating-sessions-on-other-devices)
+- [Password Confirmation](#password-confirmation)
+  - [Configuration](#password-confirmation-configuration)
+  - [Routing](#password-confirmation-routing)
+  - [Protecting Routes](#password-confirmation-protecting-routes)
+- [Adding Custom Guards](#adding-custom-guards)
+  - [Closure Request Guards](#closure-request-guards)
+- [Adding Custom User Providers](#adding-custom-user-providers)
+  - [The User Provider Contract](#the-user-provider-contract)
+  - [The Authenticatable Contract](#the-authenticatable-contract)
+- [Automatic Password Rehashing](#automatic-password-rehashing)
+- [Social Authentication](/docs/11.x/socialite)
+- [Events](#events)
+
+<a name="introduction"></a>
+
+## Introduction
+
+多くの web アプリケーションは、その users が application と認証し "ログイン" する方法を提供します。この feature を web アプリケーションに実装することは、複雑でリスクを伴う可能性があります。このため、 Laravel は、 authentication を迅速に、安全に、簡単に実装するためのツールを提供することを目指しています。
+
+その核心で、Laravel の authentication 機能は"guards"と"providers"で構成されています。Guards は、各 request でどのように users が authentication されるかを定義します。たとえば、Laravel は、session storage と cookies を使って state を維持する`session` guard を搭載しています。
+
+providers は、永続的な storage から users がどのように retrieved されるかを定義します。Laravel は、[Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)と database の query ビルダーを用いて users を取得するためのサポートが付属しています。しかし、application に必要な場合、追加の providers を自由に定義することができます。
+
+あなたのアプリケーションの authentication 設定ファイルは`config/auth.php`に位置しています。このファイルには、Laravel の authentication services の動作を調整するための、よく文書化された options がいくつか含まれています。
+
+> [!NOTE]  
+> ガードと providers は、「ロール」と「パーミッション」と混同しないでください。 user のアクションをパーミッションを介して認可する方法の詳細については、[authorization](/ja/php/laravel/v11.x/06-security/authorization)のドキュメンテーションを参照してください。
+
+<a name="starter-kits"></a>
+
+### スターターキット
+
+すぐに始めたいですか？新たな Laravel application に[Laravel application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をインストールします。 database を移行した後、あなたのブラウザを`/register`またはあなたの application に割り当てられた他の URL に移動させます。スターターキットは、あなたの全体的な authentication システムの足場を整えるのを手助けします！
+
+**最終的な””Laravel application””でスターターキットを使うことを選ばなくても、[””Laravel Breeze””](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#laravel-breeze)スターターキットをインストールすることは、実際の””Laravel project””で Laravel の””authentication””機能をすべて実装する方法を学ぶ絶好の機会になるかもしれません。** ””Laravel Breeze””は””authentication””コントローラ、””routes””、および””views””を作成するため、これらのファイル内の””コード””を調査して、Laravel の””認証機能””がどのように実装されるかを学ぶことができます。
+
+<a name="introduction-database-considerations"></a>
+
+### Database に関する配慮
+
+default として、Laravel はあなたの`app/Models`ディレクトリに`App\Models\User` [Eloquent model](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent) を含んでいます。この model は defaultEloquentauthenticationdriver と一緒に使用可能です。もし、あなたの application が Eloquent を使用していない場合は、Laravelquery ビルダーを使用する `database` authenticationprovider を使用してもよいでしょう。
+
+`App\Models\User`の model のための databaseschema を作成する際には、password 列の長さが少なくとも 60 文字であることを確認してください。もちろん、新しい Laravelapplications に含まれる`users`テーブルの migration は既にこの長さを超える列を作成しています。
+
+また、あなたの `users` (またはそれに相当する)テーブルに、100 文字の nullable 、 string `remember_token` column が含まれていることを確認してください。この column は、 users があなたの application に logging する際に "remember me" のオプションを select したときに、 token を保存するために使用されます。再度、新しい Laravel アプリケーションに含まれている default の `users` テーブルマイグレーションにはすでにこの column が含まれています。
+
+<a name="ecosystem-overview"></a>
+
+### エコシステム概要
+
+Laravel は、 authentication に関連するいくつかのパッケージを提供しています。続ける前に、 Laravel の一般的な authentication エコシステムを見直し、各パッケージの目的を説明します。
+
+まず、 authentication の仕組みについて考えてみましょう。 web ブラウザーを使用すると、 user はログインフォームを通じて自分の username と password を提供します。これらの認証情報が正しい場合、 application は認証された user に関する情報をユーザーの[session](/ja/php/laravel/v11.x/04-the-basics/11-session)に保存します。 cookie は、ブラウザーに発行され、 session ID を含むため、 application への後続のリクエストが正しい session と user を関連付けることができます。 session cookie が受け取られた後、 application は session ID に基づいて session data を取得し、 authentication 情報が session に保存されていることに注意し、" user "を"authenticated"と見なします。
+
+リモートの service が API にアクセスするために認証を必要とする場合、 web ブラウザがないため、通常はクッキーは authentication には使用されません。代わりに、リモートの service は、各 request で API token を API に送信します。 application は、受信した token を有効な API tokens のテーブルと照らし合わせて validate し、その API token に関連付けられた user が行ったとして request を"authenticate"することができます。
+
+<a name="laravels-built-in-browser-authentication-services"></a>
+
+#### Laravel の組み込みブラウザ Authentication Services
+
+Laravel には組み込みの authentication と session services が含まれており、通常は`Auth`と`Session`の facades でアクセスされます。これらの features は、web ブラウザから開始されたリクエストに対してクッキーベースの authentication を提供します。これらはユーザーの認証情報を確認し、user を認証する方法を提供します。さらに、これらの services は自動的に適切な authentication data をユーザーの session に保存し、ユーザーの session cookie を発行します。これらの services の使用方法については、このドキュメント内で議論されています。
+
+** Application スターターキット**
+
+このドキュメンテーションで議論されているように、これらの authentication services と手動でやり取りして、あなたのアプリケーション自身の authentication レイヤーを build することができます。しかしながら、あなたがより早く始められるように、我々は堅牢で、モダンな全体の authentication レイヤーの足場を提供する[無料のパッケージ](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をリリースしました。これらのパッケージは、[Laravel Breeze](/docs/11.x/starter-kits#laravel-breeze)、[Laravel Jetstream](/docs/11.x/starter-kits#laravel-jetstream)、そして[Laravel Fortify](/ja/php/laravel/v11.x/10-packages/fortify)です。
+
+_**Laravel Breeze**_ は、log イン、登録、**password reset**、**mail 確認**、**password**の確認を含む、Laravel のすべての**authentication 機能**のシンプルで最小の実装です。**Laravel**Breeze の**view**層は、シンプルな [**Blade テンプレート**](/ja/php/laravel/v11.x/04-the-basics/08-blade) で構成され、[Tailwind**CSS**](https://tailwindcss.com) で style 指定されています。始めるには、Laravel の [**application** スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)に関するドキュメンテーションをご覧ください。
+
+_**Laravel Fortify**_ は、このドキュメントで見つけることができる多くの**機能**を実装する、**Laravel**のヘッドレスな**authentication**バックエンドです。これには、cookies ベースの**authentication**だけでなく、2 要素**authentication**や**mail 確認**などの他の**機能**も含まれています。**Fortify**は、**Laravel Jetstream**のための**authentication**バックエンドを提供しているか、または[**Laravel Sanctum**](/ja/php/laravel/v11.x/10-packages/sanctum)と組み合わせて使用して、**Laravel**で認証が必要な SPA の**authentication**を提供することができます。
+
+_[Laravel Jetstream](https://jetstream.laravel.com)_ は、堅牢な application のスターターキットであり、美しいモダンな UI を備えた [Tailwind CSS](https://tailwindcss.com)、[Livewire](https://livewire.laravel.com)、または [Inertia](https://inertiajs.com)によって駆動される Laravel Fortify の認証 services を使用し公開します。Laravel Jetstream には、2 要素 authentication、チームサポート、ブラウザ session 管理、プロファイル管理、および [Laravel Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)との統合を備えた API token 認証を提供するための option のサポートが含まれています。Laravel の API 認証の提供は以下で説明されています。
+
+<a name="laravels-api-authentication-services"></a>
+
+#### Laravel の API Authentication Services
+
+Laravel は API tokens の管理と API tokens による requests の authentication を支援するための 2 つの option パッケージ、[Passport](/ja/php/laravel/v11.x/10-packages/passport)と[Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)を提供しています。これらの libraries と Laravel の組み込み cookie ベースの authenticationlibraries は相互排他的ではありません。これらの libraries は主に API tokensauthentication に焦点を当てている一方で、組み込みの authenticationservices は cookie ベースのブラウザ authentication に焦点を当てています。多くの applications では、Laravel の組み込みの cookie ベースの authenticationservices と Laravel の APIauthentication パッケージのいずれかを使用します。
+
+**Passport**
+
+パスポートは OAuth2 の「 authentication provider 」であり、さまざまな OAuth2 の"grant types"を提供し、さまざまな種類の「 tokens 」を発行することができます。一般的に、これは非常に堅牢で複雑な「 API authentication 」パッケージです。しかし、ほとんどのアプリケーションが OAuth2 仕様が提供する複雑な「 features 」を必要とはしないため、これらは「 users 」および開発者にとって混乱の原因となります。さらに、開発者は SPA アプリケーションやモバイルアプリケーションを OAuth2 の「 authentication providers 」、例えば Passport のようなものを使用して認証する方法について、歴史的に混乱してきました。
+
+**Sanctum**
+
+OAuth2 の複雑さや development 者の混乱に対する response を受け、当社は、第一者 web ブラウザからの requests と APIrequests を tokens を経由して handle できる、よりシンプルで効率的な authentication パッケージの build を目指しました。この目標は、第一者の webUI と API を提供する application、またはバックエンドの Laravel application とは別に存在する単一ページ application (SPA)によって支えられている、またはモバイル client を提供する application にとって、推奨され、推奨される authentication パッケージと考えられるべき[Laravel Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)の release によって実現されました。
+
+Laravel Sanctum"は、ハイブリッド"web"/"APIauthentication"パッケージであり、applications のすべての"authenticationprocess"を管理することができます。これは、"Sanctum"ベースの applications が"request"を受け取ると、"Sanctum"は最初に"request"が authentication された"session"を参照する"sessioncookie"を含んでいるかどうかを判断するためです。"Sanctum"はこれを達成するために、先に議論した Laravel の組み込み"authenticationservices"を呼び出します。もし"request"が"sessioncookie"を介して authentication されていない場合、"Sanctum"は"request"に"API token"があるかどうか調べます。"API token"が存在する場合、"Sanctum"はその"token"を使用して"request"を authentication します。この"process"について詳しく知るためには、Sanctum の["動作原理"](/ja/php/laravel/v11.x/10-packages/sanctum#how-it-works)のドキュメンテーションをご覧ください。
+
+Laravel Sanctum は、私たちが[Laravel Jetstream](https://jetstream.laravel.com)の application スターターキットに含めることにした API パッケージです。これは、大多数の web アプリケーションの authentication 必要性に最適だと信じているからです。
+
+<a name="summary-choosing-your-stack"></a>
+
+#### 概要とあなたの Stack の選択
+
+要約すると、あなたの application がブラウザーを使ってアクセスされ、あなたが一枚岩の Laravel application を構築している場合、あなたの application は Laravel の組み込みの authentication services を使用します。
+
+次に、あなたの " application " がサードパーティに利用される " API " を提供する場合、あなたの " application " の " API token authentication " を提供するために、[Passport](/ja/php/laravel/v11.x/10-packages/passport) または [" Sanctum "](/ja/php/laravel/v11.x/10-packages/sanctum) を選択します。一般的に、" Sanctum " は " API authentication "、SPA " authentication "、およびモバイル " authentication " のためのシンプルで完全なソリューションであり、"scopes"または"abilities"のサポートを含むため、可能な限り好まれるべきです。
+
+あなたが Laravel バックエンドによって駆動されるシングルページの application(SPA)を作成している場合、[Laravel Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)を使用すべきです。 Sanctum を使用すると、自分で[バックエンドの認証ルートを手動で実装する](#authenticating-users)か、または[Laravel Fortify](/ja/php/laravel/v11.x/10-packages/fortify)を authentication バックエンド service として利用して、登録、password reset、mail 認証などの機能に対する routes とコントローラーを提供します。
+
+Passport は、あなたの application が OAuth2 仕様で提供される全ての features を絶対に必要とするときに選択することができます。
+
+そして、すぐに始めたいと思っている方には、私たちがお勧めする [Laravel Breeze](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#laravel-breeze) を使って、既に私たちの好みの authentication stack である Laravel の組み込みの authentication services と Laravel Sanctum を使用している新しい Laravel application をすばやく開始するための方法としてご紹介できます。
+
+<a name="authentication-quickstart"></a>
+
+## Authentication Quickstart
+
+> [!WARNING]  
+> このドキュメンテーションの一部では、 [Laravel application starter kits](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits) を通じて users を認証する方法について説明しています。これには、すばやく始められるように UI の足場を提供しています。もし Laravel の authentication システムと直接連携したい場合は、 [手動で users を認証する](#authenticating-users) のドキュメンテーションを参照してください。
+
+<a name="install-a-starter-kit"></a>
+
+### スターターキットをインストールする
+
+まず、[Laravel application スターターキットをインストール](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)する必要があります。現在のスターターキットである Laravel Breeze と Laravel Jetstream は、新規の Laravel application への authentication を美しく始めるためのスタート地点を提供します。
+
+Laravel Breeze は、log イン、登録、password reset、email verification、そして password 確認を含むすべての Laravel の authentication features を簡易に実装したものです。Laravel Breeze の view レイヤーは、シンプルな[Blade templates](/ja/php/laravel/v11.x/04-the-basics/08-blade)で構成され、[Tailwind CSS](https://tailwindcss.com)でスタイリングされています。さらに、Breeze は、[Livewire](https://livewire.laravel.com)または[Inertia](https://inertiajs.com)に基づくスキャフォールディング options を提供し、Inertia ベースのスキャフォールディングに Vue または React を使用する選択肢を提供しています。
+
+[Laravel Jetstream](https://jetstream.laravel.com)は、より堅牢な application スターターキットで、[Livewire](https://livewire.laravel.com)または[Inertia and Vue](https://inertiajs.com)を用いた application のスキャフォールディングをサポートしています。さらに、 Jetstream features は、2 要素 authentication 、チーム、プロファイル管理、ブラウザの session 管理、[Laravel Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)を介した API のサポート、アカウントの削除など、option のサポートも含まれています。
+
+<a name="retrieving-the-authenticated-user"></a>
+
+### 認証された User の取得
+
+authentication スターターキットをインストールし、 users が register してあなたの application で認証を行うことを許可した後、現在認証されている user と頻繁にやり取りする必要があります。受信した request を処理する際、 `Auth` ファサードの `user` method を経由して認証された `user` にアクセスすることができます。
+
+```php
+use Illuminate\Support\Facades\Auth;
+
+// Retrieve the currently authenticated user...
+$user = Auth::user();
+
+// Retrieve the currently authenticated user's ID...
+$id = Auth::id();
+```
+
+代わりに、一旦 user が認証されると、`Illuminate\Http\Request`インスタンスを通じて認証された user にアクセスできます。型注釈付きクラスは、自動的に controller メソッドに注入されます。`Illuminate\Http\Request` object に型注釈を付けると、 application 内の任意の controller method から request の`user` method を通じて認証済みの user に便利にアクセスできるようになります。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class FlightController extends Controller
+{
+    /**
+     * Update the flight information for an existing flight.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // ...
+
+        return redirect('/flights');
+    }
+}
+```
+
+<a name="determining-if-the-current-user-is-authenticated"></a>
+
+#### 現在の User が認証済みかどうかの判定
+
+user が送信した HTTP request が認証済みかどうかを判断するために、`Auth` facade 上の`check` method を使用できます。この method は、 user が認証済みの場合、`true`を返します。
+
+```php
+use Illuminate\Support\Facades\Auth;
+
+if (Auth::check()) {
+    // The user is logged in...
+}
+```
+
+> [!NOTE]  
+> `check` method を使って user が authentication 済みかどうかを判断することが可能ですが、通常は user が authentication 済みであることを確認してから、 user に特定の routes /コントローラーにアクセスを許可するために middleware を使います。これについて詳しく知りたい方は、[routes の保護](/ja/php/laravel/v11.x/06-security/authentication#protecting-routes)に関するドキュメンテーションをご覧ください。
+
+<a name="protecting-routes"></a>
+
+### Routes の保護
+
+[Route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)は、認証された users だけが特定の route にアクセスできるようにするために使用できます。 Laravel は、`auth` middleware を提供しており、これは`Illuminate\Auth\Middleware\Authenticate` class の[middleware alias](/docs/11.x/middleware#middleware-alias)です。この middleware は、すでに Laravel 内部でエイリアスされているので、やるべきことはすべて、 middleware を route 定義に attach することだけです：
+
+```php
+Route::get('/flights', function () {
+    // Only authenticated users may access this route...
+})->middleware('auth');
+```
+
+<a name="redirecting-unauthenticated-users"></a>
+
+#### 未認証の Users をリダイレクトする
+
+`auth` ””middleware”” が authentication されていない ””user”” を検出すると、その””user””を `login` [名前付き””route””](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)に””redirect””します。この振る舞いは、application の`bootstrap/app.php`ファイルの””method”” `redirectGuestsTo`を使用して変更することができます。
+
+```php
+use Illuminate\Http\Request;
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->redirectGuestsTo('/login');
+
+    // Using a closure...
+    $middleware->redirectGuestsTo(fn (Request $request) => route('login'));
+})
+```
+
+<a name="specifying-a-guard"></a>
+
+#### ガードの指定
+
+`auth` ””middleware”” を ””route”” に付加する際に、user を authentication するのに使用するべき "guard" も指定することができます。指定された guard は、`auth.php`設定ファイルの`guards` ””array”” の中の一つの ””keys”” に対応しているべきです:
+
+```php
+Route::get('/flights', function () {
+    // Only authenticated users may access this route...
+})->middleware('auth:admin');
+```
+
+<a name="login-throttling"></a>
+
+### ログインのスロットリング
+
+Laravel Breeze または Laravel Jetstream [スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用している場合、log イン試行に対して自動的に rate limiting が適用されます。default では、user が何度も試行しても正しい authentication 情報を提供できない場合、1 分間 log インできません。なお、制限は user の username / email アドレスとその IP アドレスに対して unique に適用されます。
+
+> [!NOTE]  
+> 他の routes をあなたの application でレート制限したい場合は、[rate limiting documentation](/ja/php/laravel/v11.x/04-the-basics/01-routing#rate-limiting)をご覧ください。
+
+<a name="authenticating-users"></a>
+
+## Manually Authenticating Users
+
+あなたは Laravel の[application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)に含まれる authentication スキャフォールドを使用する必要は必須ではありません。このスキャフォールドを使用しない場合は、userauthentication を Laravelauthenticationclasses を直接使用して管理する必要があります。心配しないでください、それは簡単です!
+
+Laravel の authentication services には、`Auth` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades) を通じてアクセスするので、class の冒頭で `Auth` facade をインポートする必要があります。次に、`attempt` method を確認しましょう。`attempt` method は通常、アプリケーションの "login" フォームからの authentication 試行を処理するために使用されます。もし authentication が成功した場合、ユーザーの [session](/ja/php/laravel/v11.x/04-the-basics/11-session) を再生成して [session fixation](https://en.wikipedia.org/wiki/Session_fixation) を防止する必要があります。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+
+class LoginController extends Controller
+{
+    /**
+     * Handle an authentication attempt.
+     */
+    public function authenticate(Request $request): RedirectResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
+}
+```
+
+`attempt` method は、その最初の引数として key/ value ペアの array を受け入れます。 array 内の values は、あなたの database テーブル内で user を見つけるために使われます。したがって、上記の例では、user は `email` の column value によって retrieved されます。user が見つかった場合、database 内に格納された hash された password と `password` の value が、method を経由して array に渡され、比較されます。あなたは、インコミング request の `password` value を hash する必要はありません。なぜなら、フレームワークは自動的に value を hash し、それを database 内の hash された password と比較するからです。passwords match した場合、authentication 済みの session が user のために起動されます。
+
+覚えておいてください。Laravel の authentication services は、 authentication guard の"provider"設定に基づいて、あなたの database から users を取得します。`config/auth.php`の default 設定ファイルでは、" Eloquent user provider "が指定され、`App\Models\User` model を使用して users を取得するよう指示されています。あなたの application のニーズに基づいて、これらの values を設定ファイル内で変更することができます。
+
+`attempt` method は、 authentication が成功した場合、`true`を返します。それ以外の場合は、`false`が返されます。
+
+Laravel のリダイレクターによって提供される`intended` method は、 authentication middleware によって遮断される前に user がアクセスしようとしていた URL に redirect します。意図した目的地が利用できない場合には、この method にフォールバック URI を与えることができます。
+
+<a name="specifying-additional-conditions"></a>
+
+#### 追加条件の指定
+
+ご希望であれば、ユーザーの「 email 」と「 password 」に加えて、追加の「 query 」条件を「 authentication query 」に追加することもできます。これを達成するためには、「 query 」条件を `attempt`「 method 」に渡される「 array 」に単純に追加します。例えば、「 user 」が"active"とマークされていることを確認することもできます。
+
+```php
+if (Auth::attempt(['email' => $email, 'password' => $password, 'active' => 1])) {
+    // Authentication was successful...
+}
+```
+
+複雑な query 条件の場合、資格情報の array にクロージャを提供することができます。このクロージャは、 query インスタンスで起動され、アプリケーションのニーズに基づいて query をカスタマイズすることができます：
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+
+if (Auth::attempt([
+    'email' => $email,
+    'password' => $password,
+    fn (Builder $query) => $query->has('activeSubscription'),
+])) {
+    // Authentication was successful...
+}
+```
+
+> [!WARNING]  
+> これらの例で、`email`は「必須」の option ではなく、単に例として使用されています。あなたの「database」テーブルで「user 名」に対応する「column」名を使用すべきです。
+
+`attemptWhen`という method は、2 番目の引数としてクロージャを受け取ることができ、これを利用して user を実際に authentication する前に、その user をより詳細に検査することができます。クロージャは user を受け取り、 user が authentication 可能かどうかを示すために`true`または`false`を返すべきです：
+
+```php
+if (Auth::attemptWhen([
+    'email' => $email,
+    'password' => $password,
+], function (User $user) {
+    return $user->isNotBanned();
+})) {
+    // Authentication was successful...
+}
+```
+
+<a name="accessing-specific-guard-instances"></a>
+
+#### 特定の Guard インスタンスにアクセスする
+
+`Auth`facade の`guard` method を使用すると、 user を認証する際にどのガードインスタンスを使用するかを指定できます。これにより、まったく別の authenticatable models または user テーブルを使用して、 application の別々の部分で authentication を管理することができます。
+
+`guard` method に渡されるガード名は、`auth.php`設定ファイルで設定されたガードのいずれかに対応しているべきです:
+
+```php
+if (Auth::guard('admin')->attempt($credentials)) {
+    // ...
+}
+```
+
+<a name="remembering-users"></a>
+
+### Users を覚えておく
+
+多くの web アプリケーションは、ログインフォームに"remember me"チェックボックスを提供しています。もし、あなたの application で"remember me"機能を提供したい場合、`attempt` method の 2 つ目の引数として boolean value を渡すことができます。
+
+この value が `true` の場合、 Laravel は user を永続的に authentication し続けるか、または彼らが手動で log アウトするまで authentication し続けます。あなたの `users` テーブルには"remember me" token を保存するために使用される、 string `remember_token` column を含める必要があります。新しい Laravel applications に付属する `users` テーブルの migration には、すでにこの column が含まれています。
+
+```php
+use Illuminate\Support\Facades\Auth;
+
+if (Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+    // The user is being remembered...
+}
+```
+
+もし、あなたの" application "が"remember me"の機能を提供している場合、現在の認証済み" user "が"remember me"の" cookie "を使って認証されているかどうかを判断するために、`viaRemember` " method "を使用することができます。
+
+```php
+use Illuminate\Support\Facades\Auth;
+
+if (Auth::viaRemember()) {
+    // ...
+}
+```
+
+<a name="other-authentication-methods"></a>
+
+### 他の Authentication 方法
+
+<a name="authenticate-a-user-instance"></a>
+
+#### User インスタンスの認証
+
+`Auth`facade の`login` method に既存の user インスタンスを渡すことで、その user インスタンスを現在認証されている user として設定することができます。指定された user インスタンスは、`Illuminate\Contracts\Auth\Authenticatable` [契約](/ja/php/laravel/v11.x/05-digging-deeper/contracts)の実装でなければなりません。`App\Models\User` model は Laravel と一緒にすでにこのインターフェースを実装しています。この authentication の method は、 user があなたの application に登録した直後のように、既に有効な user インスタンスがある場合に便利です。
+
+```php
+use Illuminate\Support\Facades\Auth;
+
+Auth::login($user);
+```
+
+`login`の二番目の引数として boolean value を渡すことができます。この value は、authentication された session で「私を覚えて」という機能が望ましいかどうかを示します。つまり、session は無期限に authentication されるか、user が手動で application から logs アウトするまで authentication され続けることを意味します。
+
+```php
+Auth::login($user, $remember = true);
+```
+
+必要であれば、`login` method を呼び出す前に authentication ガードを指定することができます。
+
+```php
+Auth::guard('admin')->login($user);
+```
+
+<a name="authenticate-a-user-by-id"></a>
+
+#### ID による User の認証
+
+`loginUsingId`を使用して user の database レコードの primarykey を使って authentication することができます。この method は、authentication したい user の primarykey を受け入れます:
+
+```php
+Auth::loginUsingId(1);
+```
+
+`loginUsingId`の二番目の引数として boolean value を渡すことができます。この value は、authentication された session に"remember me"の機能が必要かどうかを示します。つまり、この session は無期限に authentication されるか、user が手動で"application"から logs アウトするまで authentication されることを意味します。
+
+```php
+Auth::loginUsingId(1, $remember = true);
+```
+
+<a name="authenticate-a-user-once"></a>
+
+#### 一度だけ User を認証する
+
+あなたは`once`の method を使用して、user を application に対して一回の request のために authentication することができます。この method を呼び出すときに sessions や cookies は使用されません。
+
+```php
+if (Auth::once($credentials)) {
+    // ...
+}
+```
+
+<a name="http-basic-authentication"></a>
+
+## HTTP Basic Authentication
+
+[""HTTP"" Basic ""Authentication""](https://en.wikipedia.org/wiki/Basic_access_authentication)は、専用の"log イン"ページを設定することなく、あなたの""application""の""users""を Authentication する手軽な方法を提供します。開始するには、 `auth.basic` [""middleware""](/ja/php/laravel/v11.x/04-the-basics/02-middleware)を""route""に""attach""します。 `auth.basic` ""middleware""は、""Laravel""フレームワークに含まれているため、定義する必要はありません：
+
+```php
+Route::get('/profile', function () {
+    // Only authenticated users may access this route...
+})->middleware('auth.basic');
+```
+
+middleware "が" route "にアタッチされると、ブラウザで" route "にアクセスする際に自動的に資格情報の入力を求められます。" default "で、`auth.basic` " middleware "は、`users` " database "テーブルの`email` " column "がユーザーの"ユーザーネーム"であると想定します。
+
+<a name="a-note-on-fastcgi"></a>
+
+#### FastCGI についての注意点
+
+あなたが PHP FastCGI と Apache を使用して Laravel application を実行している場合、 HTTP Basic authentication は正しく機能しない可能性があります。これらの問題を修正するために、次の行をアプリケーションの`.htaccess`ファイルに追加することができます：
+
+```apache
+RewriteCond %{HTTP:Authorization} ^(.+)$
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+```
+
+<a name="stateless-http-basic-authentication"></a>
+
+### ステートレス HTTP ベーシック Authentication
+
+user 識別子 cookie を session に設定せずに、 HTTP Basic Authentication を使用することもできます。これは主に、あなたのアプリケーションの API へのリクエストを認証するために HTTP Authentication を使用することを選んだ場合に便利です。これを達成するために、`onceBasic` method を呼び出す [middleware を定義してください](/ja/php/laravel/v11.x/04-the-basics/02-middleware)。`onceBasic` method によって response が返されない場合、 request は application の更に深い部分へと進めることができます。
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
+
+class AuthenticateOnceWithBasicAuth
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        return Auth::onceBasic() ?: $next($request);
+    }
+
+}
+```
+
+次に、 middleware を route に attach します：
+
+```php
+Route::get('/api/user', function () {
+    // Only authenticated users may access this route...
+})->middleware(AuthenticateOnceWithBasicAuth::class);
+```
+
+<a name="logging-out"></a>
+
+## Logging Out
+
+手動でユーザーを application から log users させるためには、`Auth` facade が提供する `logout` method を使用できます。これにより、ユーザーの session から authentication 情報が削除され、その後のリクエストが認証されないようになります。
+
+`logout` method を呼び出すだけでなく、ユーザーの session を無効化し、[CSRF token](/ja/php/laravel/v11.x/04-the-basics/03-csrf) を再生成することをお勧めします。 user の logging アウト後、通常は user をあなたの application の root に redirect します。
+
+```php
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * Log the user out of the application.
+ */
+public function logout(Request $request): RedirectResponse
+{
+    Auth::logout();
+
+    $request->session()->invalidate();
+
+    $request->session()->regenerateToken();
+
+    return redirect('/');
+}
+```
+
+<a name="invalidating-sessions-on-other-devices"></a>
+
+### 他のデバイス上のセッションを無効にする
+
+Laravel は、現在のデバイスでの session を無効にすることなく、他のデバイス上でアクティブなユーザーのセッションを無効にし、"ログアウト"するためのメカニズムも提供しています。この feature は、 user が彼らの password を変更または更新している時に、他のデバイス上のセッションを無効にしながら現在のデバイスを認証状態に保つことを望む場合に通常使用されます。
+
+始める前に、`Illuminate\Session\Middleware\AuthenticateSession` middleware が必要な routes に含まれていることを確認してください。これは session authentication を受け取るべきです。通常、この middleware を route グループ定義に配置することで、アプリケーションの大部分の routes に適用できます。 default により、`AuthenticateSession` middleware は`auth.session` [middleware alias](/ja/php/laravel/v11.x/04-the-basics/02-middleware#middleware-alias)を使用して route に添付できるかもしれません：
+
+```php
+Route::middleware(['auth', 'auth.session'])->group(function () {
+    Route::get('/', function () {
+        // ...
+    });
+});
+```
+
+次に、`Auth` facade が提供する`logoutOtherDevices` method を使用することができます。この method は、user が現在の password を確認することを要求し、その password はあなたの application が入力フォームを通じて受け入れるべきです：
+
+```php
+use Illuminate\Support\Facades\Auth;
+
+Auth::logoutOtherDevices($currentPassword);
+```
+
+`logoutOtherDevices` method が呼び出されると、ユーザーの他のセッションは完全に無効になり、つまり、以前に認証されていたすべてのガードから"ログアウト"されることを意味します。
+
+<a name="password-confirmation"></a>
+
+## Password Confirmation
+
+あなたの application を構築する間、 action を実行したり、 user を application の機密部分にリダイレクトする前に、 user に password の確認を求めるアクションがたまに必要になるかもしれません。 Laravel には、この process を breeze にするための組み込み middleware が含まれています。この feature を実装するには、二つの routes を定義する必要があります： user に password の確認を求める view を表示する route と、 password が有効であることを確認し、 user を目的地に redirect する別の route です。
+
+> [!NOTE]  
+> 以下のドキュメントでは、Laravel の password 確認 features を直接統合する方法について説明します。ただし、もっと早く始めたい場合は、[Laravel application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)にはこの機能のサポートが含まれています！
+
+<a name="password-confirmation-configuration"></a>
+
+### Configuration
+
+彼らの password を確認した後、 user は 3 時間の間、再び自分の password の確認を求められることはありません。ただし、アプリケーションの`config/auth.php`設定ファイル内の`password_timeout`設定 value の value を変更することにより、 user が自分の password が再度表示されるまでの length を設定することができます。
+
+<a name="password-confirmation-routing"></a>
+
+### Routing
+
+<a name="the-password-confirmation-form"></a>
+
+#### Password 確認フォーム
+
+まず、'' user ''が自身の'' password ''を確認するよう求める '' view '' を表示するための '' route '' を定義します：
+
+```php
+Route::get('/confirm-password', function () {
+    return view('auth.confirm-password');
+})->middleware('auth')->name('password.confirm');
+```
+
+ご想像の通り、この route によって返される view には、`password`フィールドを含むフォームがあるべきです。さらに、自由にテキストを追加して、user が application の保護されたエリアに入るためには、自身の password を確認する必要があることを説明してください。
+
+<a name="confirming-the-password"></a>
+
+#### Password の確認
+
+次に、"confirm password"の view からの form request を handle する route を定義します。この route は、password の validating と、user を彼らの希望する目的地に redirect する責任があります。
+
+```php
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
+
+Route::post('/confirm-password', function (Request $request) {
+    if (! Hash::check($request->password, $request->user()->password)) {
+        return back()->withErrors([
+            'password' => ['The provided password does not match our records.']
+        ]);
+    }
+
+    $request->session()->passwordConfirmed();
+
+    return redirect()->intended();
+})->middleware(['auth', 'throttle:6,1']);
+```
+
+次に進む前に、この route をもう少し詳しく見てみましょう。まず、request の`password`フィールドが、authentication 済み user の password と実際に match するかどうかが判断されます。password が有効な場合、user が自分の password を確認したことを Laravel の session に通知する必要があります。`passwordConfirmed` method は、user の session に timestamp を設定し、Laravel が user が最後に自分の password を確認した時間を決定するのに使用できます。最後に、user を意図した目的地に redirect することができます。
+
+<a name="password-confirmation-protecting-routes"></a>
+
+### Routes の保護
+
+`password.confirm`を要求する action を実行する route を任意の middleware に割り当てるように確認してください。これは Laravel の初期設定に組み込まれており、user の目的地を session に自動的に保存し、password を確認した後にその場所に user を redirect することができます。user の目的地を session に保存した後、middleware は user を`password.confirm` [named route](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)に redirect します:
+
+```php
+Route::get('/settings', function () {
+    // ...
+})->middleware(['password.confirm']);
+
+Route::post('/settings', function () {
+    // ...
+})->middleware(['password.confirm']);
+```
+
+<a name="adding-custom-guards"></a>
+
+## Adding Custom Guards
+
+`extend` method を使用して、独自の authentication ガードを定義することができます。 `Auth` facade 。 `extend` method への呼び出しは、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)内に配置する必要があります。 Laravel はすでに`AppServiceProvider`を搭載しているため、その code をその provider に配置できます。
+
+```php
+<?php
+
+namespace App\Providers;
+
+use App\Services\Auth\JwtGuard;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    // ...
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Auth::extend('jwt', function (Application $app, string $name, array $config) {
+            // Return an instance of Illuminate\Contracts\Auth\Guard...
+
+            return new JwtGuard(Auth::createUserProvider($config['provider']));
+        });
+    }
+}
+```
+
+上記の例で見ることができるように、`extend` method に渡されるコールバックは`Illuminate\Contracts\Auth\Guard`の実装を返すべきです。このインターフェースには、custom ガードを定義するために実装する必要があるいくつかの method が含まれています。一度あなたの custom ガードが定義されたら、そのガードをあなたの`auth.php`の設定ファイルの`guards`の設定で参照することができます。
+
+```php
+'guards' => [
+    'api' => [
+        'driver' => 'jwt',
+        'provider' => 'users',
+    ],
+],
+```
+
+<a name="closure-request-guards"></a>
+
+### クロージャー Request ガード
+
+最も簡単な方法で custom 、 HTTP request を基にした authentication システムを実装する方法は、 `Auth::viaRequest` method を使用することです。この method を使うことで、 single 閉鎖を使って authentication process を素早く定義することができます。
+
+開始するには、application の `AppServiceProvider` の `boot` method 内で `Auth::viaRequest` method を呼び出します。 `viaRequest` method は、最初の引数として authentication driver の名前を受け入れます。この名前は、 custom ガードを説明する任意の string にすることができます。 method に渡される 2 番目の引数は、送られてくる HTTP request を受け取り、 user のインスタンスを返すか、 authentication が失敗した場合は `null` を返すクロージャーでなければなりません：
+
+```php
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Auth::viaRequest('custom-token', function (Request $request) {
+        return User::where('token', (string) $request->token)->first();
+    });
+}
+```
+
+一旦あなたの custom authentication driver が定義されたら、それを`auth.php`設定ファイルの`guards`設定内で driver として設定することができます:
+
+```php
+'guards' => [
+    'api' => [
+        'driver' => 'custom-token',
+    ],
+],
+```
+
+最後に、 route に authentication middleware を割り当てる際にガードを参照することができます：
+
+```php
+Route::middleware('auth:api')->group(function () {
+    // ...
+});
+```
+
+<a name="adding-custom-user-providers"></a>
+
+## Adding Custom User Providers
+
+従来のリレーショナル database を使用せずに users を保存する場合、独自の authentication user provider で Laravel を拡張する必要があります。 `provider` method を使用して、 `Auth` facade に custom user provider を定義します。 user provider リゾルバは `Illuminate\Contracts\Auth\UserProvider` の実装を返す必要があります。
+
+```php
+<?php
+
+namespace App\Providers;
+
+use App\Extensions\MongoUserProvider;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    // ...
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Auth::provider('mongo', function (Application $app, array $config) {
+            // Return an instance of Illuminate\Contracts\Auth\UserProvider...
+
+            return new MongoUserProvider($app->make('mongo.connection'));
+        });
+    }
+}
+```
+
+`provider` を使用して provider を登録した後、`auth.php`の設定ファイルで新しい user provider に切り替えることができます。まず、新しい driver を使用する `provider`を定義してください。
+
+```php
+'providers' => [
+    'users' => [
+        'driver' => 'mongo',
+    ],
+],
+```
+
+最後に、`guards`の設定でこの provider を参照することができます:
+
+```php
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+],
+```
+
+<a name="the-user-provider-contract"></a>
+
+### User Provider コントラクト
+
+`Illuminate\Contracts\Auth\UserProvider`の実装は、永続的な storage システム、たとえば MySQL 、MongoDB、 etc などから`Illuminate\Contracts\Auth\Authenticatable`の実装を取得する責任があります。これら 2 つのインターフェースにより、 user data がどのように保存されているか、認証された user を表すのにどのような type の class が使用されているかに関係なく、 Laravel authentication メカニズムが機能し続けます：
+
+`Illuminate\Contracts\Auth\UserProvider` コントラクトを見てみましょう：
+
+```php
+<?php
+
+namespace Illuminate\Contracts\Auth;
+
+interface UserProvider
+{
+    public function retrieveById($identifier);
+    public function retrieveByToken($identifier, $token);
+    public function updateRememberToken(Authenticatable $user, $token);
+    public function retrieveByCredentials(array $credentials);
+    public function validateCredentials(Authenticatable $user, array $credentials);
+    public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false);
+}
+```
+
+`retrieveById`関数は通常、user を表す key を受け取ります。これは、MySQL database からの自動増加 ID などです。ID に一致する`Authenticatable`の実装は、method によって取得され、返されるべきです。
+
+`retrieveByToken`関数は、その"unique"な`$identifier` と "remember me" の `$token` により "user" を取得する、通常は `remember_token` のような "database の column" に保存されます。前の "method" と同様に、この "method" は一致する "tokenvalue" を持つ `Authenticatable` の実装を返すべきです。
+
+`updateRememberToken`method は、新しい`$token`を使って`$user`インスタンスの`remember_token`を更新します。新しい token は、"remember me"の authentication 試行が成功した場合や、users が log アウトするときに users に割り当てられます。
+
+`retrieveByCredentials` method は、application で認証を試みる際に、`Auth::attempt` method に渡された資格情報の array を受け取ります。この method は、その資格情報に一致する user を永続的な storage から"クエリ"するべきです。通常、この method は、`$credentials['username']`の value と一致する"ユーザー名"を持つ user レコードを検索する"where"条件を持つ query を実行します。この method は、`Authenticatable`の実装を返すべきです。**この method は、password 検証や authentication を試みてはいけません。**
+
+`validateCredentials` method は、authentication するために与えられた`$user`と`$credentials`を比較するべきです。 user 。例えば、この method は通常、`Hash::check` method を使用して、`$user->getAuthPassword()`の value と`$credentials['password']`の value を比較します。この method は、 password が有効かどうかを示すために`true`または`false`を返すべきです。
+
+`rehashPasswordIfRequired`という method は、必要でサポートされている場合、指定された`$user`の password を再ハッシュする必要があります。例えば、この method は通常、`Hash::needsRehash`method を使用して、`$credentials['password']`value を再ハッシュする必要があるかどうかを判断します。password を再ハッシュする必要がある場合、method は`Hash::make`method を使用して password を再ハッシュし、user のレコードを基盤となる永続的な storage で更新するべきです。
+
+<a name="the-authenticatable-contract"></a>
+
+### Authenticatable 契約
+
+`UserProvider`の各メソッドを探索したところで、次に`Authenticatable`コントラクトを見てみましょう。覚えておいてください、 user providers は`retrieveById`、`retrieveByToken`、そして`retrieveByCredentials`メソッドからこのインターフェースの実装を返すべきです。
+
+```php
+<?php
+
+namespace Illuminate\Contracts\Auth;
+
+interface Authenticatable
+{
+    public function getAuthIdentifierName();
+    public function getAuthIdentifier();
+    public function getAuthPasswordName();
+    public function getAuthPassword();
+    public function getRememberToken();
+    public function setRememberToken($value);
+    public function getRememberTokenName();
+}
+```
+
+このインターフェースはシンプルです。`getAuthIdentifierName` method は、user の"主 key" column の名前を返すべきです。また、`getAuthIdentifier` method は、user の"主 key"を返すべきです。MySQL バックエンドを使用する場合、これはおそらく user レコードに割り当てられた自動インクリメント types の主な key になるでしょう。`getAuthPasswordName` method は、ユーザーの password カラムの名前を返すべきです。「`getAuthPassword`」“メソッドは、ユーザーのハッシュ化された“password を返すべきです。
+
+このインターフェースは、使用している ORM や「 storage abstraction 」レイヤーの内容に関係なく、 「 authentication 」システムが任意の「user」 class と連携できるようにします。 default では、「 Laravel 」には `App\Models\User` class が `app/Models` ディレクトリに含まれており、このインターフェースを実装しています。
+
+<a name="automatic-password-rehashing"></a>
+
+## Automatic Password Rehashing
+
+Laravel の default password hashing algorithm は bcrypt です。bcrypt ハッシュの"work factor"は、アプリケーションの`config/hashing.php`設定ファイルまたは`BCRYPT_ROUNDS` environment 変数を介して調整することができます。
+
+通常、CPU / GPU の processing パワーが増加するにつれて、bcrypt の作業要因を時間とともに増加させる必要があります。application の bcrypt 作業要因を高めると、Laravel は、Laravel のスターターキットを通じてあなたの application で users が authentication するとき、またはあなたが[manualy authenticate users](#authenticating-users)を利用したときに、user passwords をスムーズかつ自動的に再ハッシュします。`attempt` method を使用するときも同様です。
+
+通常、自動的な password の再ハッシュ化はアプリケーションの運用を妨げるべきではありません。しかし、この動作を無効にするためには、`hashing`設定ファイルを公開することができます。
+
+```shell
+php artisan config:publish hashing
+```
+
+設定ファイルが公開されたら、`rehash_on_login`設定の value を`false`に設定することができます：
+
+```php
+'rehash_on_login' => false,
+```
+
+<a name="events"></a>
+
+## Events
+
+Laravel は、authenticationprocess 中に様々な[events](/ja/php/laravel/v11.x/05-digging-deeper/events)を発行します。次のいずれかの events に対して [listeners を定義](/docs/11.x/events)することが可能です:
+
+| Event 名前                                   |
+| -------------------------------------------- |
+| `Illuminate\Auth\Events\Registered`          |
+| `Illuminate\Auth\Events\Attempting`          |
+| `Illuminate\Auth\Events\Authenticated`       |
+| `Illuminate\Auth\Events\Login`               |
+| `Illuminate\Auth\Events\Failed`              |
+| `Illuminate\Auth\Events\Validated`           |
+| `Illuminate\Auth\Events\Verified`            |
+| `Illuminate\Auth\Events\Logout`              |
+| `Illuminate\Auth\Events\CurrentDeviceLogout` |
+| `Illuminate\Auth\Events\OtherDeviceLogout`   |
+| `Illuminate\Auth\Events\Lockout`             |
+| `Illuminate\Auth\Events\PasswordReset`       |

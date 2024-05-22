@@ -1,0 +1,141 @@
+---
+filePath: "source/laravel/hashing.md"
+title: "Hashing"
+description: "Hashing"
+org_path: "/docs/11.x/hashing"
+is_empty: "false"
+nav_title: "Hashing"
+org_title: "Hashing"
+---
+
+# Hashing
+
+- [Introduction](#introduction)
+- [Configuration](#configuration)
+- [Basic Usage](#basic-usage)
+  - [Hashing Passwords](#hashing-passwords)
+  - [Verifying That a Password Matches a Hash](#verifying-that-a-password-matches-a-hash)
+  - [Determining if a Password Needs to be Rehashed](#determining-if-a-password-needs-to-be-rehashed)
+- [Hash Algorithm Verification](#hash-algorithm-verification)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel の `Hash` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)は、安全な Bcrypt と Argon2 hashing を提供し、userpassword の保存に使用します。もしあなたが[Laravel アプリケーションのスターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)のいずれかを使用している場合、Bcrypt は default として登録と authentication に使われます。
+
+Bcrypt は、その"work factor"が調整可能であるため、「 hashing passwords 」に最適な選択です。つまり、ハードウェアのパワーが増えるにつれて、「 hash 」を生成する時間を増やすことができます。「 hashing passwords 」の際には、遅い方が良いです。「 algorithm 」が「 password 」を「 hash 」するのに時間がかかるほど、悪意のある「 users 」が全ての可能性のある「 string hash values 」の"rainbow tables"を生成するのに時間がかかります。これは、アプリケーションに対するブルートフォース攻撃に利用されるかもしれません。
+
+<a name="configuration"></a>
+
+## Configuration
+
+default で、Laravel は data をハッシュ化する際に`bcrypt` ハッシュ化 drivers を使用します。しかし、他にもいくつかのハッシュ化 drivers がサポートされています。これには[`argon`](https://en.wikipedia.org/wiki/Argon2)と[`argon2id`](https://en.wikipedia.org/wiki/Argon2)が含まれます。
+
+あなたは`HASH_DRIVER`の環境 variables を使用して、application のハッシュ化 driver を指定することができます。しかし、Laravel のすべてのハッシュ化 driveroption をカスタマイズしたい場合は、`config:publish`の Artisan command を使用して、完全な`hashing`設定ファイルを公開するべきです。
+
+```bash
+php artisan config:publish hashing
+```
+
+<a name="basic-usage"></a>
+
+## Basic Usage
+
+<a name="hashing-passwords"></a>
+
+### Hashing Passwords
+
+password を hash するには、`Hash` facade の`make` method を呼び出すことができます：
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class PasswordController extends Controller
+{
+    /**
+     * Update the password for the user.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        // Validate the new password length...
+
+        $request->user()->fill([
+            'password' => Hash::make($request->newPassword)
+        ])->save();
+
+        return redirect('/profile');
+    }
+}
+```
+
+<a name="adjusting-the-bcrypt-work-factor"></a>
+
+#### Bcrypt ワークファクターの調整
+
+あなたが Bcrypt の algorithm を使用している場合、`make`の method を使用すると、`rounds`オプションを使用して algorithm のワークファクタを管理できます。ただし、 Laravel が管理する default のワークファクタは、ほとんどのアプリケーションにとって十分です。
+
+```php
+$hashed = Hash::make('password', [
+    'rounds' => 12,
+]);
+```
+
+<a name="adjusting-the-argon2-work-factor"></a>
+
+#### Argon2 ワークファクターの調整
+
+あなたが Argon2 algorithm を使用している場合、`make` method を使用して、`memory`、`time`、および`threads`オプションを使用して algorithm の作業要因を管理できます。ただし、 Laravel によって管理される default values は、ほとんどのアプリケーションにとって適しています。
+
+```php
+$hashed = Hash::make('password', [
+    'memory' => 1024,
+    'time' => 2,
+    'threads' => 2,
+]);
+```
+
+> [!NOTE]  
+> これらの options についての詳細は、[公式 PHP ドキュメンテーションの Argon hashing に関する部分](https://secure.php.net/manual/en/function.password-hash.php)をご参照ください。
+
+<a name="verifying-that-a-password-matches-a-hash"></a>
+
+### Password が Hash と一致していることを確認する
+
+`Hash` facade によって提供される`check` method は、与えられた平文の string が与えられた hash に対応していることを確認することができます：
+
+```php
+if (Hash::check('plain-text', $hashedPassword)) {
+    // The passwords match...
+}
+```
+
+<a name="determining-if-a-password-needs-to-be-rehashed"></a>
+
+### Password が再ハッシュ化する必要があるかどうかの判定
+
+`Hash`の facade によって提供される`needsRehash` method は、ハッシャーが使用するワークファクターが、 password がハッシュ化された時点から変更されたかどうかを判断することを可能にします。一部の applications は、applications の authentication process 中にこのチェックを行うことを選択します：
+
+```php
+if (Hash::needsRehash($hashed)) {
+    $hashed = Hash::make('plain-text');
+}
+```
+
+<a name="hash-algorithm-verification"></a>
+
+## Hash Algorithm Verification
+
+ハッシュアルゴリズムの操作を防ぐため、Laravel の `Hash::check` method は、まず与えられたハッシュが application が選択したハッシュ化アルゴリズムを使用して生成されたものであることを検証します。もしアルゴリズムが異なる場合、`RuntimeException` 例外が throw されます。
+
+これは、ほとんどのアプリケーションで予想される動作で、 hashing algorithm が変更されることが予期されておらず、異なるアルゴリズムは悪意のある攻撃の兆候である可能性があります。ただし、ある algorithm から別のものへ移行する場合など、 application 内で複数の hashing アルゴリズムをサポートする必要がある場合は、`HASH_VERIFY` の environment 変数を `false`に設定することで、 hash algorithm の検証を無効にすることができます:
+
+```ini
+HASH_VERIFY=false
+```

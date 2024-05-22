@@ -1,0 +1,92 @@
+---
+filePath: "source/laravel/lifecycle.md"
+title: "Request Lifecycle"
+description: "Request Lifecycle"
+org_path: "/docs/11.x/lifecycle"
+is_empty: "false"
+nav_title: "Request Lifecycle"
+org_title: "Request Lifecycle"
+---
+
+# Request Lifecycle
+
+- [Introduction](#introduction)
+- [Lifecycle Overview](#lifecycle-overview)
+  - [First Steps](#first-steps)
+  - [HTTP / Console Kernels](#http-console-kernels)
+  - [Service Providers](#service-providers)
+  - [Routing](#routing)
+  - [Finishing Up](#finishing-up)
+- [Focus on Service Providers](#focus-on-service-providers)
+
+<a name="introduction"></a>
+
+## Introduction
+
+「実世界」で任意のツールを使用するとき、そのツールがどのように機能するのかを理解していると、自信を持って使用することができます。" Application " 開発も同様です。開発ツールの機能を理解すれば、それらを使用する際に自分自身がより快適で自信に満ちた状態になることができます。
+
+このドキュメントの目的は、 Laravel フレームワークがどのように機能するかを、良く、高レベルで概観することです。フレームワーク全体をより理解することで、全てが"魔法のように"感じられることは減少し、あなたは自身のアプリケーションを構築する際により自信を持つことができます。すぐにすべての用語を理解できなくても気落ちしないでください！何が起こっているのかを基本的に把握しようと努めるだけで、他のドキュメンテーションのセクションを探索する中であなたの知識は増えていきます。
+
+<a name="lifecycle-overview"></a>
+
+## Lifecycle Overview
+
+<a name="first-steps"></a>
+
+### First Steps
+
+すべての requests のエントリーポイントは、`public/index.php`ファイルです。すべての requests は、webserver(Apache / Nginx)の設定を通じてこのファイルに向けられます。`index.php`ファイルはあまり code を含んでいません。むしろ、それはフレームワークの残りの部分をロードするためのスタートポイントです。
+
+`index.php`ファイルは、 Composer が生成した自動ローダーの定義を読み込み、その後`bootstrap/app.php`からララベルの Laravel application のインスタンスを取得します。 Laravel 自体が最初に行う action は、 application / [service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)のインスタンスを作成することです。
+
+<a name="http-console-kernels"></a>
+
+### HTTP / Console カーネル
+
+次に、着信する request は、`handleRequest`または`handleCommand`メソッドを使用して、 application インスタンスの HTTP カーネルまたは console カーネルに送信されます。これは request が application に入る type によります。これらの 2 つのカーネルは、すべてのリクエストが流れる中心的な場所として機能します。今のところ、`Illuminate\Foundation\Http\Kernel`のインスタンスである HTTP カーネルに焦点を当てましょう。
+
+HTTP カーネルは、request が実行される前に実行される`bootstrappers`の array を定義します。これらのブートストラッパーは、error handling を設定、logging を設定、[application 環境を検出します](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)、そして request が実際に処理される前に行われる必要がある他のタスクを行います。通常、これらの classes は、あなたが心配する必要のない内部 Laravel 設定を handle します。
+
+HTTP カーネルは、request を application の middlewarestack を通して伝達する役割を担っています。これらの middleware ハンドルは、[HTTPsession](/ja/php/laravel/v11.x/04-the-basics/11-session)の読み取りと書き込み、application がメンテナンスモードにあるかどうかの判断、[CSRFtoken の確認](/ja/php/laravel/v11.x/04-the-basics/03-csrf)などを行います。これらについては後ほど詳しく説明します。
+
+””HTTP””カーネルの`handle` ””method””の””method””シグネチャは非常にシンプルで、`Request`を受け取り、`Response`を返します。カーネルをあなたの全体の””application””を表す大きな黒いボックスと考えてみてください。それに””HTTP”” requests を与えると、””HTTP”” Response を返します。
+
+<a name="service-providers"></a>
+
+### Service Providers
+
+カーネルブートストラップ作業の中で最も重要なものの一つは、あなたの application に対する[Service providers](/ja/php/laravel/v11.x/03-architecture-concepts)のロードです。 service providers は、 database 、 queue 、 validation 、そして routing コンポーネントなど、フレームワークの様々なコンポーネントをすべてブートストラップする責任を持っています。
+
+Laravel はこの providers というリストを順次走査し、それぞれのインスタンスを生成します。それぞれの providers のインスタンスが生成された後、`register`という method が全ての providers に対して呼び出されます。その後、すべての providers が登録されると、`boot`という method がそれぞれの provider に対して呼び出されます。これは、全ての service providers が、各自の`boot` method が実行される頃には、全てのコンテナバインディングが登録され利用可能であることに依存しているからです。
+
+本質的には、 Laravel が提供する主な feature はすべて、 service provider によってブートストラップ化され、設定されます。彼らがフレームワークが提供する多くの features をブートストラップ化し、設定するため、 service providers は、 Laravel のブートストラップ process 全体で最も重要な側面です。
+
+フレームワークは内部で数十の service providers を使用していますが、自分で作成するオプションもあります。ユーザー定義またはサードパーティの service providers のリストは、お使いの application で利用されているものが `bootstrap/providers.php` ファイルにあります。
+
+<a name="routing"></a>
+
+### Routing
+
+application がブートストラップされ、すべての service providers が登録された後、`Request`はルーターにディスパッチされるために引き渡されます。ルーターは request を route または controller に dispatch し、また route 固有の middleware を実行します。
+
+Middleware は、あなたの application に入る HTTP requests をフィルタリングしたり検査したりする便利なメカニズムを提供します。例えば、 Laravel は、あなたの application の user が認証されているかどうかを確認する middleware を含んでいます。 user が認証されていない場合、 middleware は user をログイン画面に redirect します。しかし、 user が認証されている場合は、 middleware は request が application のさらに深い部分に進むことを許可します。一部の middleware は `PreventRequestsDuringMaintenance` のように、 application 内のすべての routes に割り当てられ、一部は特定の routes または route グループにのみ割り当てられます。 middleware については、完全な [middleware documentation](/ja/php/laravel/v11.x/04-the-basics/02-middleware)を読むことでより詳しく学ぶことができます。
+
+もし request がマッチしたルートに割り当てられたすべての middleware を通過すると、その route または controller method が実行され、その route または controller method から返された response がルートの middleware チェーンを通じて返送されます。
+
+<a name="finishing-up"></a>
+
+### 仕上げ
+
+route や controller method が response を返すと、その response は route の middleware を通じて外部に戻り、application が通信の response を変更したり、検査したりする機会をもらいます。
+
+最後に、 response が middleware を通って戻ると、 `handle` という HTTP カーネルの method は response object を application インスタンスの `handleRequest`に返します。そして、この method は返された response に `send` の method を呼び出します。`send`の method は response content をユーザーの web ブラウザに送信します。これで、我々は一連の Laravel request ライフサイクルを全て終えたことになります!
+
+<a name="focus-on-service-providers"></a>
+
+## Focus on Service Providers
+
+Service providers は、本当に Laravel application をブートストラップ化するための鍵です。 application インスタンスが作成され、 service providers が登録され、 request がブートストラップ化された application に渡されます。それは本当にそれほど単純なのです!
+
+Laravel application がどのように構築され、 service providers を介してブートストラップ化されるかをしっかりと理解しておくことは非常に価値があります。 あなたのアプリケーションのユーザー定義の service providers は、`app/Providers`ディレクトリに保存されています。
+
+default では、`AppServiceProvider`はかなり空です。この provider は、application のブートストラップや service container のバインディングを追加するのに適しています。大規模な application の場合、application で使用される特定の services に対してより詳細なブートストラップを持つ複数の service providers を作成したいかもしれません。

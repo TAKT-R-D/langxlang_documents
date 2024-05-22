@@ -1,0 +1,675 @@
+---
+filePath: "source/laravel/eloquent-factories.md"
+title: "Eloquent: Factories"
+description: "Eloquent: Factories"
+org_path: "/docs/11.x/eloquent-factories"
+is_empty: "false"
+nav_title: "Factories"
+org_title: "Eloquent: Factories"
+---
+
+# Eloquent: Factories
+
+- [Introduction](#introduction)
+- [Defining Model Factories](#defining-model-factories)
+  - [Generating Factories](#generating-factories)
+  - [Factory States](#factory-states)
+  - [Factory Callbacks](#factory-callbacks)
+- [Creating Models Using Factories](#creating-models-using-factories)
+  - [Instantiating Models](#instantiating-models)
+  - [Persisting Models](#persisting-models)
+  - [Sequences](#sequences)
+- [Factory Relationships](#factory-relationships)
+  - [Has Many Relationships](#has-many-relationships)
+  - [Belongs To Relationships](#belongs-to-relationships)
+  - [Many to Many Relationships](#many-to-many-relationships)
+  - [Polymorphic Relationships](#polymorphic-relationships)
+  - [Defining Relationships Within Factories](#defining-relationships-within-factories)
+  - [Recycling an Existing Model for Relationships](#recycling-an-existing-model-for-relationships)
+
+<a name="introduction"></a>
+
+## Introduction
+
+あなたの application を testing したり、database に seeding を行う際には、いくつかのレコードを database に insert する必要があるかもしれません。それぞれの column の value を手動で指定する代わりに、Laravel では[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)ごとに一連の default attributes を定義することを許可しています。
+
+factory の書き方の例を見るには、あなたの application 内の`database/factories/UserFactory.php`ファイルをご覧ください。この factory は新たに作成された Laravel アプリケーションすべてに含まれており、次の factory の定義が含まれています。
+
+```php
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ */
+class UserFactory extends Factory
+{
+    /**
+     * The current password being used by the factory.
+     */
+    protected static ?string $password;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'remember_token' => Str::random(10),
+        ];
+    }
+
+    /**
+     * Indicate that the model's email address should be unverified.
+     */
+    public function unverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+        ]);
+    }
+}
+```
+
+ご覧の通り、最も基本的な形では、ファクトリは Laravel のベースの factory class を拡張するクラスであり、`definition` method を定義します。 `definition` method は、 factory を使用して model を作成する際に適用されるべき default の attribute values セットを返します。
+
+`fake`ヘルパーを参照して、ファクトリは[Faker](https://github.com/FakerPHP/Faker) PHP library にアクセスでき、これにより testing や seeding 用の様々な種類の random data を便利に生成することができます。
+
+> [!NOTE]  
+> アプリケーションの Faker locale を変更するには、`config/app.php`設定ファイルの`faker_locale`オプションを更新します。
+
+<a name="defining-model-factories"></a>
+
+## Defining Model Factories
+
+<a name="generating-factories"></a>
+
+### ファクトリーの生成
+
+`make:factory` [Artisan command](/ja/php/laravel/v11.x/05-digging-deeper/artisan)を実行して、 factory を作成します：
+
+```shell
+php artisan make:factory PostFactory
+```
+
+新しい factory class はあなたの `database/factories` ディレクトリに配置されます。
+
+<a name="factory-and-model-discovery-conventions"></a>
+
+#### Model と Factory の発見規約
+
+model ーを定義したら、`Illuminate\Database\Eloquent\Factories\HasFactory` トレイトが提供する静的な `factory` method を使って、その models のための factory ー インスタンスを作成することができます。
+
+`HasFactory`トレイトの`Factory` method は、トレイトが割り当てられている model の適切な factory を決定するための規約を使用します。特に、 method は、`Database\Factories` 名前空間内で model の名前と一致し、`factory`という接尾辞が付いた class 名を持つ factory を探します。これらの規約が特定の application または factory に適用されない場合は、`newFactory` method を上書きして、モデルの対応する factory のインスタンスを直接返すように model を設定することができます。
+
+```php
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Database\Factories\Administration\FlightFactory;
+
+/**
+ * Create a new factory instance for the model.
+ */
+protected static function newFactory(): Factory
+{
+    return FlightFactory::new();
+}
+```
+
+次に、対応する factory に`model`プロパティを定義します：
+
+```php
+use App\Administration\Flight;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class FlightFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     */
+    protected $model = Flight::class;
+}
+```
+
+<a name="factory-states"></a>
+
+### Factory 州
+
+State 操作方法により、model ファクトリに任意の組み合わせで適用できる離散的な変更を定義することができます。たとえば、あなたの`Database\Factories\UserFactory` factory には、その default 属性 values の 1 つを変更する`suspended` ステート methods が含まれるかもしれません。
+
+State 変換メソッドは通常、Laravel の基本 factory class によって提供される`state` method を呼び出します。`state` method はクロージャを受け取り、そのクロージャは factory に定義された生の attributes の array を受け取り、変更する attributes の array を返すべきです：
+
+```php
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * Indicate that the user is suspended.
+ */
+public function suspended(): Factory
+{
+    return $this->state(function (array $attributes) {
+        return [
+            'account_status' => 'suspended',
+        ];
+    });
+}
+```
+
+<a name="trashed-state"></a>
+
+#### "Trashed" State
+
+あなたの Eloquent model が[ソフト削除](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#soft-deleting)可能な場合、作成された model がすでに「ソフト削除」されたことを示すために、ビルトインの`trashed` state method を呼び出すことができます。すべてのファクトリーに自動的に利用可能なので、`trashed` state を手動で定義する必要はありません。
+
+```php
+use App\Models\User;
+
+$user = User::factory()->trashed()->create();
+```
+
+<a name="factory-callbacks"></a>
+
+### Factory コールバック
+
+Factory コールバックは、`afterMaking`および`afterCreating`メソッドを使用して登録され、作成または model を作成した後に追加のタスクを実行することができます。これらのコールバックを定義することで、`configure` method を factory class に register する必要があります。この method は、 factory がインスタンス化されたときに Laravel によって自動的に呼び出されます。
+
+```php
+namespace Database\Factories;
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class UserFactory extends Factory
+{
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (User $user) {
+            // ...
+        })->afterCreating(function (User $user) {
+            // ...
+        });
+    }
+
+    // ...
+}
+```
+
+また、特定の state に固有の追加タスクを実行するために、 state メソッド内で register factory コールバックを登録することもできます：
+
+```php
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * Indicate that the user is suspended.
+ */
+public function suspended(): Factory
+{
+    return $this->state(function (array $attributes) {
+        return [
+            'account_status' => 'suspended',
+        ];
+    })->afterMaking(function (User $user) {
+        // ...
+    })->afterCreating(function (User $user) {
+        // ...
+    });
+}
+```
+
+<a name="creating-models-using-factories"></a>
+
+## Creating Models Using Factories
+
+<a name="instantiating-models"></a>
+
+### Models のインスタンス化
+
+あなたがあなたの factory ーを定義したら、`Illuminate\Database\Eloquent\Factories\HasFactory` トレイトがあなたの models に提供する static `factory` method を使ってその models のための factory ーインスタンスを生成することができます。 models の作成例をいくつか見てみましょう。まず、`make` method を使用して database に保存せずに models を作成します：
+
+```php
+use App\Models\User;
+
+$user = User::factory()->make();
+```
+
+`count` method を使用して、多数の models の collection を作成することができます：
+
+```php
+$users = User::factory()->count(3)->make();
+```
+
+<a name="applying-states"></a>
+
+#### ステートの適用
+
+あなたはまた、あなたの[states](#factory-states)を models に適用することもできます。もし、複数の state 変換を models に適用したい場合は、単に state 変換 methods を直接呼び出すことができます。
+
+```php
+$users = User::factory()->count(5)->suspended()->make();
+```
+
+<a name="overriding-attributes"></a>
+
+#### Attributes のオーバーライド
+
+もしあなたが自分の models の一部の default values を上書きしたい場合、`make` method に values の array を渡すことができます。指定された attributes だけが置き換えられ、残りの attributes は factory で指定された default values のままになります：
+
+```php
+$user = User::factory()->make([
+    'name' => 'Abigail Otwell',
+]);
+```
+
+あるいは、`state` method は、インラインの state 変換を実行するために、直接 factory インスタンスに呼び出すことができます：
+
+```php
+$user = User::factory()->state([
+    'name' => 'Abigail Otwell',
+])->make();
+```
+
+> [!NOTE]  
+> [マスアサインメント保護](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)は、ファクトリを使用して models を作成するときに自動的に無効になります。
+
+<a name="persisting-models"></a>
+
+### Models の永続化
+
+`create` method は、 model のインスタンスを生成し、Eloquent の`save` method を使用してそれらを database に永続化します：
+
+```php
+use App\Models\User;
+
+// Create a single App\Models\User instance...
+$user = User::factory()->create();
+
+// Create three App\Models\User instances...
+$users = User::factory()->count(3)->create();
+```
+
+`create` method を使用して attributes の array を渡すことで、工場の default model attributes を上書きすることができます。
+
+```php
+$user = User::factory()->create([
+    'name' => 'Abigail',
+]);
+```
+
+<a name="sequences"></a>
+
+### Sequences
+
+時折、作成されるすぐ model ごとに特定の model attribute の value を交互に切り替えたいと思うことがあるかもしれません。これは、 sequence として state 変換を定義することで達成できます。例えば、作成されるすぐ user ごとに `admin` column の value を `Y` と `N` に交互に切り替えたい場合があります。
+
+```php
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Sequence;
+
+$users = User::factory()
+                ->count(10)
+                ->state(new Sequence(
+                    ['admin' => 'Y'],
+                    ['admin' => 'N'],
+                ))
+                ->create();
+```
+
+この例では、5 人の users が`admin`の value が`Y`で作成され、5 人の users が`admin`の value が`N`で作成されます。
+
+必要に応じて、クロージャを sequence value として含めることができます。このクロージャは、 sequence が新しい value を必要とするたびに呼び出されます：
+
+```php
+use Illuminate\Database\Eloquent\Factories\Sequence;
+
+$users = User::factory()
+                ->count(10)
+                ->state(new Sequence(
+                    fn (Sequence $sequence) => ['role' => UserRoles::all()->random()],
+                ))
+                ->create();
+```
+
+sequence クロージャの中では、クロージャに注入された sequence インスタンスの`$index`または`$count`プロパティにアクセスできます。`$index`プロパティは、これまでに sequence が何回反復されたかを示す数値を含んでいます。一方、`$count`プロパティは sequence が呼び出される総回数を含んでいます:
+
+```php
+$users = User::factory()
+                ->count(10)
+                ->sequence(fn (Sequence $sequence) => ['name' => 'Name '.$sequence->index])
+                ->create();
+```
+
+便宜上、シーケンスは`sequence` method を使用して適用することもできます。これは単純に内部で`state` method を呼び出します。`sequence` method は閉鎖またはシーケンス化された attributes の配列を受け入れます。
+
+```php
+$users = User::factory()
+                ->count(2)
+                ->sequence(
+                    ['name' => 'First User'],
+                    ['name' => 'Second User'],
+                )
+                ->create();
+```
+
+<a name="factory-relationships"></a>
+
+## Factory Relationships
+
+<a name="has-many-relationships"></a>
+
+### Has Many Relationships を直訳すると、多数の関係性を持つもしくは、多くのリレーションシップを持つとなりますが、これはプログラミングの言葉で one-to-many の意味も含まれています。ですから、日本のプログラマーの間では一対多の関係という表現が一般的です。しかしながら、もともとの英文がそのコンテクストをはっきり表していないため、それらの翻訳は推定に過ぎません。具体的な英文のコンテクストが分からない限り、正確な翻訳を提供することは難しいです
+
+次に、Laravel の流暢な factory メソッドを使用して、 Eloquent model の関連付けを構築する方法を探ってみましょう。まず、`App\Models\User` model と`App\Models\Post` model があると仮定して、我々の application があると仮定しましょう。また、`User` model が`Post`と`hasMany`の関連性を定義していると仮定しましょう。Laravel の factories が提供する`has` method を使用して、三つの posts を持つ user を作成することができます。`has` method は、 factory インスタンスを受け入れます：
+
+```php
+use App\Models\Post;
+use App\Models\User;
+
+$user = User::factory()
+            ->has(Post::factory()->count(3))
+            ->create();
+```
+
+慣例により、`Post` model を`has` method に渡すと、 Laravel は`User` model に`posts` method が存在し、その関係性を定義していると仮定します。必要であれば、操作したい関係性の名前を明示的に指定することができます：
+
+```php
+$user = User::factory()
+            ->has(Post::factory()->count(3), 'posts')
+            ->create();
+```
+
+もちろん、関連する models に対して state の操作を行うことができます。さらに、親の model へのアクセスが必要な state の変更を行う場合、クロージャベースの state 変換を渡すことができます。
+
+```php
+$user = User::factory()
+            ->has(
+                Post::factory()
+                        ->count(3)
+                        ->state(function (array $attributes, User $user) {
+                            return ['user_type' => $user->type];
+                        })
+            )
+            ->create();
+```
+
+<a name="has-many-relationships-using-magic-methods"></a>
+
+#### マジックメソッドの使用
+
+便宜上、Laravel の魔法の factory リレーションシップメソッドを使用して build 関係を構築することができます。例えば、以下の例では、関連する models が`User` model の`posts`リレーションシップ method を通じて作成されるべきであるという慣習を使用しています。
+
+```php
+$user = User::factory()
+            ->hasPosts(3)
+            ->create();
+```
+
+マジックメソッドを使って factory 関係を作成するときには、関連する models で上書きするための attributes の array を渡すことができます：
+
+```php
+$user = User::factory()
+            ->hasPosts(3, [
+                'published' => false,
+            ])
+            ->create();
+```
+
+あなたの state が親の model へのアクセスを必要とする場合、クロージャベースの state 変換を提供してもよいです：
+
+```php
+$user = User::factory()
+            ->hasPosts(3, function (array $attributes, User $user) {
+                return ['user_type' => $user->type];
+            })
+            ->create();
+```
+
+<a name="belongs-to-relationships"></a>
+
+### 所属関係
+
+これで、ファクトリを使用して"has many"関係を build する方法を探索しましたので、関係の逆を探索しましょう。`for` method は、 factory が作成した models が属する親の model を定義するために使用できます。例えば、 single user に所属する三つの`App\Models\Post` model インスタンスを作成することができます。
+
+```php
+use App\Models\Post;
+use App\Models\User;
+
+$posts = Post::factory()
+            ->count(3)
+            ->for(User::factory()->state([
+                'name' => 'Jessica Archer',
+            ]))
+            ->create();
+```
+
+すでに親の model インスタンスがあり、それが作成する models と関連付ける必要がある場合、 model インスタンスを`for` method に渡すことができます。
+
+```php
+$user = User::factory()->create();
+
+$posts = Post::factory()
+            ->count(3)
+            ->for($user)
+            ->create();
+```
+
+<a name="belongs-to-relationships-using-magic-methods"></a>
+
+#### マジックメソッドの使用
+
+便宜上、 factory のマジックリレーションシップメソッドを使って"belongs to"関係を定義することができます。たとえば、次の例は、三つの posts が`Post` model 上の`user`リレーションシップに所属すべきであるということを規約によって決定します：
+
+```php
+$posts = Post::factory()
+            ->count(3)
+            ->forUser([
+                'name' => 'Jessica Archer',
+            ])
+            ->create();
+```
+
+<a name="many-to-many-relationships"></a>
+
+### 多対多の関係性
+
+[`has` many relationships](#has-many-relationships) と同様に、"many to many" の関係性は `has` method を使用して作成することができます。
+
+```php
+use App\Models\Role;
+use App\Models\User;
+
+$user = User::factory()
+            ->has(Role::factory()->count(3))
+            ->create();
+```
+
+<a name="pivot-table-attributes"></a>
+
+#### Pivot テーブルの Attributes
+
+models を link するピボット/中間テーブルに設定すべき属性を定義する必要がある場合、`hasAttached` method を使用できます。この method は、2 つ目の引数としてピボットテーブルの属性名と values の array を受け付けます。
+
+```php
+use App\Models\Role;
+use App\Models\User;
+
+$user = User::factory()
+            ->hasAttached(
+                Role::factory()->count(3),
+                ['active' => true]
+            )
+            ->create();
+```
+
+あなたの state 変更が関連する model へのアクセスを必要とする場合、クロージャに基づく state 変換を提供できます：
+
+```php
+$user = User::factory()
+            ->hasAttached(
+                Role::factory()
+                    ->count(3)
+                    ->state(function (array $attributes, User $user) {
+                        return ['name' => $user->name.' Role'];
+                    }),
+                ['active' => true]
+            )
+            ->create();
+```
+
+すでにあなたが作成している models に関連付けたい model のインスタンスがある場合、それらの model インスタンスを `hasAttached` method に渡すことができます。この例では、同じ 3 つのロールがすべての 3 つの users に関連付けられます：
+
+```php
+$roles = Role::factory()->count(3)->create();
+
+$user = User::factory()
+            ->count(3)
+            ->hasAttached($roles, ['active' => true])
+            ->create();
+```
+
+<a name="many-to-many-relationships-using-magic-methods"></a>
+
+#### マジックメソッドの使用
+
+便宜上、多対多の関係を定義するために Laravel のマジック factory 関係メソッドを使用することができます。例えば、以下の例では、関連する models が`User` model 上の`roles`関係 method を通じて作成されるべきであるという規約を用います：
+
+```php
+$user = User::factory()
+            ->hasRoles(1, [
+                'name' => 'Editor'
+            ])
+            ->create();
+```
+
+<a name="polymorphic-relationships"></a>
+
+### ポリモーフィックリレーションシップ
+
+[Polymorphic relationships](/ja/php/laravel/v11.x/08-eloquent-orm/02-eloquent-relationships#polymorphic-relationships)は、factory を使用して作成することもできます。Polymorphic の"morph many"関係は、典 types 的な"has many"関係と同じ方法で作成されます。例えば、`App\Models\Post`の model が`morphMany`の関係を`App\Models\Comment`の model と持っている場合：
+
+```php
+use App\Models\Post;
+
+$post = Post::factory()->hasComments(3)->create();
+```
+
+<a name="morph-to-relationships"></a>
+
+#### 関係性への変形
+
+マジックメソッドは、`morphTo`関係を作成するためには使用できません。代わりに、`for` method を直接使用し、関係の名前を明示的に提供する必要があります。例えば、`Comment` model が`commentable` method を持ち、`morphTo`関係を定義していると想像してみてください。この状況では、`for` method を直接使って、 single 投稿に属する三つの comments を作成することができます：
+
+```php
+$comments = Comment::factory()->count(3)->for(
+    Post::factory(), 'commentable'
+)->create();
+```
+
+<a name="polymorphic-many-to-many-relationships"></a>
+
+#### 多態性多対多関係
+
+多型の「多対多」(`morphToMany` / `morphedByMany`) 関係は、非多型の「多対多」関係と同様に作成することができます。
+
+```php
+use App\Models\Tag;
+use App\Models\Video;
+
+$videos = Video::factory()
+            ->hasAttached(
+                Tag::factory()->count(3),
+                ['public' => true]
+            )
+            ->create();
+```
+
+もちろん、魔法の `has` method は、多対多のポリモーフィックな関係を作成するためにも使用することができます:
+
+```php
+$videos = Video::factory()
+            ->hasTags(3, ['public' => true])
+            ->create();
+```
+
+<a name="defining-relationships-within-factories"></a>
+
+### ファクトリー内での関係性の定義
+
+model factory "内の関係性を定義するためには、通常、新たな" factory "インスタンスを関係性の外部キーに割り当てます。これは通常、`belongsTo`や`morphTo`のような"逆"の関係性に対して行われます。例えば、投稿を作成する際に新しい" user "を作成したい場合、以下のようにすることができます:
+
+```php
+use App\Models\User;
+
+/**
+ * Define the model's default state.
+ *
+ * @return array<string, mixed>
+ */
+public function definition(): array
+{
+    return [
+        'user_id' => User::factory(),
+        'title' => fake()->title(),
+        'content' => fake()->paragraph(),
+    ];
+}
+```
+
+もしリレーションシップのカラムがそれを定義する factory に依存している場合、クロージャを attribute に割り当てることができます。クロージャはファクトリーの評価された attribute array を受け取ります：
+
+```php
+/**
+ * Define the model's default state.
+ *
+ * @return array<string, mixed>
+ */
+public function definition(): array
+{
+    return [
+        'user_id' => User::factory(),
+        'user_type' => function (array $attributes) {
+            return User::find($attributes['user_id'])->type;
+        },
+        'title' => fake()->title(),
+        'content' => fake()->paragraph(),
+    ];
+}
+```
+
+<a name="recycling-an-existing-model-for-relationships"></a>
+
+### 既存の Model をリレーションシップのためにリサイクルする
+
+もし、他の model と共通の関係を共有する model がある場合、`recycle` method を使用して、factory によって作成されたすべての関係に対して関連する model のシングルインスタンスがリサイクルされることを保証することができます。
+
+例えば、`Airline`、`Flight`、そして`Ticket`という models を持っていると想像してみてください。チケットは航空会社とフライトに所属し、フライトも航空会社に所属します。チケットを作成する際、チケットとフライトの両方で同じ航空会社を使いたいと考えるでしょうから、航空会社のインスタンスを`recycle`という method に path できます。
+
+```php
+Ticket::factory()
+    ->recycle(Airline::factory()->create())
+    ->create();
+```
+
+`recycle` method は、共通の user またはチームに所属する models がある場合に特に役立つかもしれません。
+
+`recycle`の method は、既存の models の collection も受け入れます。`recycle`の method に collection が提供された場合、 factory がその type の model を必要とするときに、 collection から random model が選ばれます。
+
+```php
+Ticket::factory()
+    ->recycle($airlines)
+    ->create();
+
+```

@@ -1,0 +1,325 @@
+---
+filePath: "source/laravel/urls.md"
+title: "URL Generation"
+description: "URL Generation"
+org_path: "/docs/11.x/urls"
+is_empty: "false"
+nav_title: "URL Generation"
+org_title: "URL Generation"
+---
+
+# URL Generation
+
+- [Introduction](#introduction)
+- [The Basics](#the-basics)
+  - [Generating URLs](#generating-urls)
+  - [Accessing the Current URL](#accessing-the-current-url)
+- [URLs for Named Routes](#urls-for-named-routes)
+  - [Signed URLs](#signed-urls)
+- [URLs for Controller Actions](#urls-for-controller-actions)
+- [Default Values](#default-values)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、 application の URL を生成するのを支援するためのいくつかの helpers を提供しています。これらの helpers は主に、テンプレートや API レスポンスで links を構築したり、 application の別の部分への redirect レスポンスを生成するときに役立ちます。
+
+<a name="the-basics"></a>
+
+## The Basics
+
+<a name="generating-urls"></a>
+
+### URL の生成
+
+`url`helper は、あなたの application のための任意の URL を生成するために使用できます。生成された URL は自動的に現在の request が application によって処理されているス key ム(HTTP または HTTPS)とホストを使用します。
+
+```php
+$post = App\Models\Post::find(1);
+
+echo url("/posts/{$post->id}");
+
+// http://example.com/posts/1
+```
+
+`query` method を使用して、 query string パラメーター付きの URL を生成することができます。
+
+```php
+echo url()->query('/posts', ['search' => 'Laravel']);
+
+// https://example.com/posts?search=Laravel
+
+echo url()->query('/posts?sort=latest', ['search' => 'Laravel']);
+
+// http://example.com/posts?sort=latest&search=Laravel
+```
+
+path に既に存在する query string パラメータを提供すると、既存の value が上書きされます：
+
+```php
+echo url()->query('/posts?sort=latest', ['sort' => 'oldest']);
+
+// http://example.com/posts?sort=oldest
+```
+
+' values 'の配列も query パラメータとして渡すことができます。これらの values は生成された URL に適切にキー付けされ、エンコードされます：
+
+```php
+echo $url = url()->query('/posts', ['columns' => ['title', 'body']]);
+
+// http://example.com/posts?columns%5B0%5D=title&columns%5B1%5D=body
+
+echo urldecode($url);
+
+// http://example.com/posts?columns[0]=title&columns[1]=body
+```
+
+<a name="accessing-the-current-url"></a>
+
+### 現在の URL へのアクセス
+
+`url`ヘルパーに対して path が提供されない場合、 `Illuminate\Routing\UrlGenerator` インスタンスが返され、現在の URL に関する情報にアクセスできます。
+
+```php
+// Get the current URL without the query string...
+echo url()->current();
+
+// Get the current URL including the query string...
+echo url()->full();
+
+// Get the full URL for the previous request...
+echo url()->previous();
+```
+
+これらのメソッドはそれぞれ、`URL` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)を通じてアクセスすることも可能です:
+
+```php
+use Illuminate\Support\Facades\URL;
+
+echo URL::current();
+```
+
+<a name="urls-for-named-routes"></a>
+
+## URLs for Named Routes
+
+`route`helper は、[名前付き routes](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)の URL を生成するために使用できます。名前付き routes を使用すると、実際の URL が route 上で定義されているのに連動せずに URL を生成できます。したがって、route の URL が変更されても、`route`関数への呼び出しに変更を加える必要はありません。例えば、あなたの application には以下のように定義された route が含まれていると想像してみてください：
+
+```php
+Route::get('/post/{post}', function (Post $post) {
+    // ...
+})->name('post.show');
+```
+
+この route への URL を生成するために、以下のように `route` helper を使用することができます：
+
+```php
+echo route('post.show', ['post' => 1]);
+
+// http://example.com/post/1
+```
+
+もちろん、`route`ヘルパーは、 routes の複数のパラメーターに対する URL を生成するためにも使用できます。
+
+```php
+Route::get('/post/{post}/comment/{comment}', function (Post $post, Comment $comment) {
+    // ...
+})->name('comment.show');
+
+echo route('comment.show', ['post' => 1, 'comment' => 3]);
+
+// http://example.com/post/1/comment/3
+```
+
+ルートの定義パラメータに対応しない追加の array elements は、URL の query string に追加されます。
+
+```php
+echo route('post.show', ['post' => 1, 'search' => 'rocket']);
+
+// http://example.com/post/1?search=rocket
+```
+
+<a name="eloquent-models"></a>
+
+#### Eloquent Models
+
+あなたはしばしば、[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)の route キー(通常は primary キー)を使用して URL を生成することがあります。そのため、 Eloquent models をパラメータ values として渡すことができます。`route`ヘルパーは自動的にモデルの route キーを抽出します。
+
+```php
+echo route('post.show', ['post' => $post]);
+```
+
+<a name="signed-urls"></a>
+
+### サイン付き URL
+
+Laravel"は、"署名"付きの"routes"への URL を簡単に作成することができます。これらの URL には"hash"形式の"署名"が"query string"に追加されており、"Laravel"がそれが作成されてから"URL"が変更されていないことを確認することを可能にします。署名付きの URL は、公にアクセス可能でありながら"URL"の操作に対する保護層が必要な"routes"に特に有用です。
+
+たとえば、署名付き URL を使用して、お客様に mail で送信される「"public"」の「"unsubscribe"」link を実装する場合があります。名前付き「"route"」への署名付き「"URL"」を作成するには、`URL`「"facade"」の`signedRoute`「"method"」を使用してください：
+
+```php
+use Illuminate\Support\Facades\URL;
+
+return URL::signedRoute('unsubscribe', ['user' => 1]);
+```
+
+`signedRoute` method に`absolute`引数を提供することにより、署名付き URL hash から domain を除外することができます。
+
+```php
+return URL::signedRoute('unsubscribe', ['user' => 1], absolute: false);
+```
+
+特定の時間が経過した後に有効期限が切れる一時的な署名付きの route URL を生成したい場合、`temporarySignedRoute` method を使用することができます。 Laravel が一時的に署名された route URL を確認する際、署名付き URL にエンコードされた有効期限 timestamp がまだ経過していないことを確認します。
+
+```php
+use Illuminate\Support\Facades\URL;
+
+return URL::temporarySignedRoute(
+    'unsubscribe', now()->addMinutes(30), ['user' => 1]
+);
+```
+
+<a name="validating-signed-route-requests"></a>
+
+#### Validating 署名済み Route リクエストの検証
+
+着信の request が有効な signature を持っていることを確認するには、着信の`Illuminate\Http\Request` インスタンスに`hasValidSignature` method を呼び出すべきです：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/unsubscribe/{user}', function (Request $request) {
+    if (! $request->hasValidSignature()) {
+        abort(401);
+    }
+
+    // ...
+})->name('unsubscribe');
+```
+
+時々、クライアント側の pagination を実行するときなど、アプリケーションのフロントエンドが署名された URL に append data を追加できるようにする必要があるかもしれません。したがって、署名された URL の validating を行う際に無視するべき request query パラメータを `hasValidSignatureWhileIgnoring` method を使用して指定することができます。覚えておいてください、パラメータを無視すると、誰でもそのパラメータを request 上で変更することができます：
+
+```php
+if (! $request->hasValidSignatureWhileIgnoring(['page', 'order'])) {
+    abort(401);
+}
+```
+
+受信した request インスタンスを使って validating 署名付き URL を検証する代わりに、`signed` (`Illuminate\Routing\Middleware\ValidateSignature`) [middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) を route に割り当てることができます。受信した request に有効な signature がない場合、 middleware は自動的に`403` HTTP response を返します。
+
+```php
+Route::post('/unsubscribe/{user}', function (Request $request) {
+    // ...
+})->name('unsubscribe')->middleware('signed');
+```
+
+もし署名付き URL が URL hash 内に domain を含んでいない場合、`relative`引数を middleware に提供するべきです:
+
+```php
+Route::post('/unsubscribe/{user}', function (Request $request) {
+    // ...
+})->name('unsubscribe')->middleware('signed:relative');
+```
+
+<a name="responding-to-invalid-signed-routes"></a>
+
+#### Invalid と署名された Routes への対応
+
+誰かが有効期限が切れた署名付きの "URL" を訪れると、彼らは一般的な "error" ページを`403`の "HTTP status コード" で受け取ります。しかし、application の`bootstrap/app.php`ファイルで`InvalidSignatureException`例外のための "custom" "レンダー"クロージャを定義することで、この振る舞いをカスタマイズすることができます。
+
+```php
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->render(function (InvalidSignatureException $e) {
+        return response()->view('error.link-expired', [], 403);
+    });
+})
+```
+
+<a name="urls-for-controller-actions"></a>
+
+## URLs for Controller Actions
+
+The `action` function generates a URL for the given controller action:
+
+```php
+use App\Http\Controllers\HomeController;
+
+$url = action([HomeController::class, 'index']);
+```
+
+もし controller method が route パラメータを受け入れるのであれば、関数の第二引数として route パラメータの連想 array を渡すことができます：
+
+```php
+$url = action([UserController::class, 'profile'], ['id' => 1]);
+```
+
+<a name="default-values"></a>
+
+## Default Values
+
+一部の application では、特定の URL パラメータに対して request 全体の default values を指定したい場合があります。例えば、多くの routes で`{locale}`パラメータを定義していると想像してみてください：
+
+```php
+Route::get('/{locale}/posts', function () {
+    // ...
+})->name('post.index');
+```
+
+`route` helper を呼び出すたびに毎回 `locale` を渡すのは面倒です。したがって、 `URL::defaults` ””method””を使用して、このパラメーターの””default value””を定義し、現在の””request””の間は常に適用できるようにすることができます。現在の””request””にアクセスできるように、この””method””を[””route middleware””](/ja/php/laravel/v11.x/04-the-basics/02-middleware#assigning-middleware-to-routes)から呼び出すことを検討してみて下さい。
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
+use Symfony\Component\HttpFoundation\Response;
+
+class SetDefaultLocaleForUrls
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        URL::defaults(['locale' => $request->user()->locale]);
+
+        return $next($request);
+    }
+}
+```
+
+`locale`パラメータの defaultvalue が設定されると、`route`helper を使用して URL を生成する際に、その value を渡す必要は必須ではなくなります。
+
+<a name="url-defaults-middleware-priority"></a>
+
+#### URL Defaults と Middleware の優先度
+
+URL default values を設定すると、Laravel の暗黙的な model バインディングの処理に干渉する可能性があります。そのため、`SubstituteBindings` middleware よりも先に URL defaults を設定する[middleware を優先させる](/ja/php/laravel/v11.x/04-the-basics/02-middleware#sorting-middleware)べきです。これは、アプリケーションの`bootstrap/app.php`ファイルの中の`priority` middleware method を使用して実現できます。
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->priority([
+        \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+        \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+        \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
+        \Illuminate\Session\Middleware\AuthenticateSession::class,
+        \App\Http\Middleware\SetDefaultLocaleForUrls::class, // [tl! add]
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        \Illuminate\Auth\Middleware\Authorize::class,
+    ]);
+})
+```

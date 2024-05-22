@@ -1,0 +1,3987 @@
+---
+filePath: "source/laravel/collections.md"
+title: "Collections"
+description: "Collections"
+org_path: "/docs/11.x/collections"
+is_empty: "false"
+nav_title: "Collections"
+org_title: "Collections"
+---
+
+# Collections
+
+- [Introduction](#introduction)
+  - [Creating Collections](#creating-collections)
+  - [Extending Collections](#extending-collections)
+- [Available Methods](#available-methods)
+- [Higher Order Messages](#higher-order-messages)
+- [Lazy Collections](#lazy-collections)
+  - [Introduction](#lazy-collection-introduction)
+  - [Creating Lazy Collections](#creating-lazy-collections)
+  - [The Enumerable Contract](#the-enumerable-contract)
+  - [Lazy Collection Methods](#lazy-collection-methods)
+
+<a name="introduction"></a>
+
+## Introduction
+
+`Illuminate\Support\Collection` class は、data の配列を操作するための流暢で便利なラッパーを提供します。例えば、次のコードをご覧ください。`collect`helper を使用して新しい collection インスタンスを array から作成し、各要素で`strtoupper`関数を実行し、その後、すべての空の要素を削除します:
+
+```php
+$collection = collect(['taylor', 'abigail', null])->map(function (?string $name) {
+    return strtoupper($name);
+})->reject(function (string $name) {
+    return empty($name);
+});
+```
+
+ご覧の通り、`Collection` class はそのメソッドを連鎖させて、基本的な array のフルエントなマッピングとリデューシングを実行することを可能にします。一般的に、 collections は不変であり、すべての`Collection` method は全く新しい`Collection`インスタンスを返すという意味です。
+
+<a name="creating-collections"></a>
+
+### Collections を作成する
+
+上記で述べたように、`collect`ヘルパーは与えられた array に対して新たな`Illuminate\Support\Collection`インスタンスを返します。したがって、 collection の作成は次のように簡単にできます：
+
+```php
+$collection = collect([1, 2, 3]);
+```
+
+> [!NOTE] > [Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)クエリの結果は常に`Collection`インスタンスとして返されます。
+
+<a name="extending-collections"></a>
+
+### Collections の拡張
+
+Collections は"macroable"で、これにより実行時に`Collection`class に追加のメソッドを追加することができます。 `Illuminate\Support\Collection`クラスの`macro`method は、あなたのマクロが呼ばれたときに実行されるクロージャを受け入れます。 マクロのクロージャは、`$this`を介して Collections の他のメソッドにアクセスでき、まるで本当の method であるかのように動きます。例えば、以下のコードは、`toUpper`method を`Collection`class に追加します：
+
+```php
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+Collection::macro('toUpper', function () {
+    return $this->map(function (string $value) {
+        return Str::upper($value);
+    });
+});
+
+$collection = collect(['first', 'second']);
+
+$upper = $collection->toUpper();
+
+// ['FIRST', 'SECOND']
+```
+
+通常、`boot`の method で[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)の中に collection マクロを宣言するべきです。
+
+<a name="macro-arguments"></a>
+
+#### Macro 引数
+
+必要であれば、追加の引数を受け入れるマクロを定義することができます：
+
+```php
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Lang;
+
+Collection::macro('toLocale', function (string $locale) {
+    return $this->map(function (string $value) use ($locale) {
+        return Lang::get($value, [], $locale);
+    });
+});
+
+$collection = collect(['first', 'second']);
+
+$translated = $collection->toLocale('es');
+```
+
+<a name="available-methods"></a>
+
+## Available Methods
+
+残りの大部分の collection ドキュメンテーションでは、`Collection` class で利用可能な各 method について話し合います。覚えておいてください、これらのメソッドはすべて、基礎となる array を流暢に操作するために連鎖させることができます。さらに、ほぼすべての method は新しい`Collection`インスタンスを返します。これにより、必要に応じて collection の元のコピーを保存することができます。
+
+<div class="collection-method-list" markdown="1">
+
+[all](#method-all) [average](#method-average) [avg](#method-avg) [chunk](#method-chunk) [chunkWhile](#method-chunkwhile) [collapse](#method-collapse) [collect](#method-collect) [combine](#method-combine) [concat](#method-concat) [contains](#method-contains) [containsOneItem](#method-containsoneitem) [containsStrict](#method-containsstrict) [count](#method-count) [countBy](#method-countBy) [crossJoin](#method-crossjoin) [dd](#method-dd) [diff](#method-diff) [diffAssoc](#method-diffassoc) [diffAssocUsing](#method-diffassocusing) [diffKeys](#method-diffkeys) [doesntContain](#method-doesntcontain) [dot](#method-dot) [dump](#method-dump) [duplicates](#method-duplicates) [duplicatesStrict](#method-duplicatesstrict) [each](#method-each) [eachSpread](#method-eachspread) [ensure](#method-ensure) [every](#method-every) [except](#method-except) [filter](#method-filter) [first](#method-first) [firstOrFail](#method-first-or-fail) [firstWhere](#method-first-where) [flatMap](#method-flatmap) [flatten](#method-flatten) [flip](#method-flip) [forget](#method-forget) [forPage](#method-forpage) [get](#method-get) [groupBy](#method-groupby) [has](#method-has) [hasAny](#method-hasany) [implode](#method-implode) [intersect](#method-intersect) [intersectAssoc](#method-intersectAssoc) [intersectByKeys](#method-intersectbykeys) [isEmpty](#method-isempty) [isNotEmpty](#method-isnotempty) [join](#method-join) [keyBy](#method-keyby) [keys](#method-keys) [last](#method-last) [lazy](#method-lazy) [macro](#method-macro) [make](#method-make) [map](#method-map) [mapInto](#method-mapinto) [mapSpread](#method-mapspread) [mapToGroups](#method-maptogroups) [mapWithKeys](#method-mapwithkeys) [max](#method-max) [median](#method-median) [merge](#method-merge) [mergeRecursive](#method-mergerecursive) [min](#method-min) [mode](#method-mode) [nth](#method-nth) [only](#method-only) [pad](#method-pad) [partition](#method-partition) [percentage](#method-percentage) [pipe](#method-pipe) [pipeInto](#method-pipeinto) [pipeThrough](#method-pipethrough) [pluck](#method-pluck) [pop](#method-pop) [prepend](#method-prepend) [pull](#method-pull) [push](#method-push) [put](#method-put) [random](#method-random) [range](#method-range) [reduce](#method-reduce) [reduceSpread](#method-reduce-spread) [reject](#method-reject) [replace](#method-replace) [replaceRecursive](#method-replacerecursive) [reverse](#method-reverse) [search](#method-search) [select](#method-select) [shift](#method-shift) [shuffle](#method-shuffle) [skip](#method-skip) [skipUntil](#method-skipuntil) [skipWhile](#method-skipwhile) [slice](#method-slice) [sliding](#method-sliding) [sole](#method-sole) [some](#method-some) [sort](#method-sort) [sortBy](#method-sortby) [sortByDesc](#method-sortbydesc) [sortDesc](#method-sortdesc) [sortKeys](#method-sortkeys) [sortKeysDesc](#method-sortkeysdesc) [sortKeysUsing](#method-sortkeysusing) [splice](#method-splice) [split](#method-split) [splitIn](#method-splitin) [sum](#method-sum) [take](#method-take) [takeUntil](#method-takeuntil) [takeWhile](#method-takewhile) [tap](#method-tap) [times](#method-times) [toArray](#method-toarray) [toJson](#method-tojson) [transform](#method-transform) [undot](#method-undot) [union](#method-union) [unique](#method-unique) [uniqueStrict](#method-uniquestrict) [unless](#method-unless) [unlessEmpty](#method-unlessempty) [unlessNotEmpty](#method-unlessnotempty) [unwrap](#method-unwrap) [value](#method-value) [values](#method-values) [when](#method-when) [whenEmpty](#method-whenempty) [whenNotEmpty](#method-whennotempty) [where](#method-where) [whereStrict](#method-wherestrict) [whereBetween](#method-wherebetween) [whereIn](#method-wherein) [whereInStrict](#method-whereinstrict) [whereInstanceOf](#method-whereinstanceof) [whereNotBetween](#method-wherenotbetween) [whereNotIn](#method-wherenotin) [whereNotInStrict](#method-wherenotinstrict) [whereNotNull](#method-wherenotnull) [whereNull](#method-wherenull) [wrap](#method-wrap) [zip](#method-zip)
+
+</div>
+
+<a name="method-listing"></a>
+
+## Method Listing
+
+<a name="method-all"></a>
+
+#### `all()`
+
+`all` method は、 collection によって表される基礎となる array を返します:
+
+```php
+collect([1, 2, 3])->all();
+
+// [1, 2, 3]
+```
+
+<a name="method-average"></a>
+
+#### `average()`
+
+[`avg`](#method-avg) method の別名。
+
+<a name="method-avg"></a>
+
+#### `avg()`
+
+`avg` method は指定された key の[平均 value](https://en.wikipedia.org/wiki/Average)を返します：
+
+```php
+$average = collect([
+    ['foo' => 10],
+    ['foo' => 10],
+    ['foo' => 20],
+    ['foo' => 40]
+])->avg('foo');
+
+// 20
+
+$average = collect([1, 1, 2, 4])->avg();
+
+// 2
+```
+
+<a name="method-chunk"></a>
+
+#### `chunk()`
+
+`chunk` method は、指定されたサイズの複数の小さな collection に collections を分割します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5, 6, 7]);
+
+$chunks = $collection->chunk(4);
+
+$chunks->all();
+
+// [[1, 2, 3, 4], [5, 6, 7]]
+```
+
+この method は、[Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/)のようなグリッドシステムを使って作業する際に、[views](/ja/php/laravel/v11.x/04-the-basics/07-views)で特に便利です。例えば、グリッドに表示したい[Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)の models の collection があると想像してみてください。
+
+```blade
+@foreach ($products->chunk(3) as $chunk)
+    <div class="row">
+        @foreach ($chunk as $product)
+            <div class="col-xs-4">{{ $product->name }}</div>
+        @endforeach
+    </div>
+@endforeach
+```
+
+<a name="method-chunkwhile"></a>
+
+#### `chunkWhile()`
+
+`chunkWhile` method は、与えられたコールバックの評価に基づいて collection を複数の小さな collections に分割します。クロージャーに渡される`$chunk`variable は、前の要素を検査するために使用できます：
+
+```php
+$collection = collect(str_split('AABBCCCD'));
+
+$chunks = $collection->chunkWhile(function (string $value, int $key, Collection $chunk) {
+    return $value === $chunk->last();
+});
+
+$chunks->all();
+
+// [['A', 'A'], ['B', 'B'], ['C', 'C', 'C'], ['D']]
+```
+
+<a name="method-collapse"></a>
+
+#### `collapse()`
+
+`collapse` method は、 collection としての arrays の集まりを single でフラットな collection にまとめます。
+
+```php
+$collection = collect([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+]);
+
+$collapsed = $collection->collapse();
+
+$collapsed->all();
+
+// [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+<a name="method-collect"></a>
+
+#### `collect()`
+
+`collect` method は、現在の collection にあるアイテムを使用して新しい`Collection`インスタンスを返します。
+
+```php
+$collectionA = collect([1, 2, 3]);
+
+$collectionB = $collectionA->collect();
+
+$collectionB->all();
+
+// [1, 2, 3]
+```
+
+`collect` method は主に[lazy collections](#lazy-collections)を標準的な`Collection`インスタンスに変換するのに役立ちます：
+
+```php
+$lazyCollection = LazyCollection::make(function () {
+    yield 1;
+    yield 2;
+    yield 3;
+});
+
+$collection = $lazyCollection->collect();
+
+$collection::class;
+
+// 'Illuminate\Support\Collection'
+
+$collection->all();
+
+// [1, 2, 3]
+```
+
+> [!NOTE] > `collect` method は、`Enumerable`のインスタンスがあり、非遅延の collection インスタンスが必要な場合に特に便利です。 `collect()`は`Enumerable`の契約の一部であるため、安全に使用して`Collection`インスタンスを取得できます。
+
+<a name="method-combine"></a>
+
+#### `combine()`
+
+`combine` method は、 collection の values を keys として、別の array または collection の values と組み合わせます:
+
+```php
+$collection = collect(['name', 'age']);
+
+$combined = $collection->combine(['George', 29]);
+
+$combined->all();
+
+// ['name' => 'George', 'age' => 29]
+```
+
+<a name="method-concat"></a>
+
+#### `concat()`
+
+`concat` method appends 指定された `array` やコレクションの values を別の collection の末尾に追加します：
+
+```php
+$collection = collect(['John Doe']);
+
+$concatenated = $collection->concat(['Jane Doe'])->concat(['name' => 'Johnny Doe']);
+
+$concatenated->all();
+
+// ['John Doe', 'Jane Doe', 'Johnny Doe']
+```
+
+`concat` method は、元の collection に連結されたアイテムの keys を数値で再インデックスします。連想的な collections における keys を維持するには、[merge](#method-merge) method を参照してください。
+
+<a name="method-contains"></a>
+
+#### `contains()`
+
+`contains` method は、指定したアイテムが collection に含まれているかどうかを判断します。与えられた真偽 test に一致する collection 内の要素が存在するかどうかを判断するために、クロージャを`contains` method に渡すことができます。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->contains(function (int $value, int $key) {
+    return $value > 5;
+});
+
+// false
+```
+
+あるいは、`contains` method に string を渡すことで、その collection が特定のアイテムの value を含んでいるかどうかを判断することもできます：
+
+```php
+$collection = collect(['name' => 'Desk', 'price' => 100]);
+
+$collection->contains('Desk');
+
+// true
+
+$collection->contains('New York');
+
+// false
+```
+
+また、キー / value ペアを`contains` method に渡すこともできます。これは、指定されたペアが collection 内に存在するかどうかを判断します。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 100],
+]);
+
+$collection->contains('product', 'Bookcase');
+
+// false
+```
+
+`contains`の method は項目の values をチェックする際に"ルーズ"な比較を使用します。つまり、整数値を持つ string は同じ values を持つ整数と同等と見なされます。"厳密な"比較でフィルタリングを行うためには、[`containsStrict`](#method-containsstrict)の method を使用してください。
+
+`contains`の逆のためには、[doesntContain](#method-doesntcontain) method を参照してください。
+
+<a name="method-containsoneitem"></a>
+
+#### `containsOneItem()`
+
+`containsOneItem` method は、 collection が single のアイテムを含んでいるかどうかを判断します。
+
+```php
+collect([])->containsOneItem();
+
+// false
+
+collect(['1'])->containsOneItem();
+
+// true
+
+collect(['1', '2'])->containsOneItem();
+
+// false
+```
+
+<a name="method-containsstrict"></a>
+
+#### `containsStrict()`
+
+この" method "は、[`contains`](#method-contains)メソッドと同じ" signature "を持っていますが、すべての" values "は"strict"な比較で比較されます。
+
+> [!NOTE]
+> このメソッドの動作は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-contains)を使用する場合に変更されます。
+
+<a name="method-count"></a>
+
+#### `count()`
+
+`count` method は、 collection 内のアイテムの総数を返します:
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$collection->count();
+
+// 4
+```
+
+<a name="method-countBy"></a>
+
+#### `countBy()`
+
+`countBy`"「method」は「collection」内の「values」の出現回数を数えます。 「default」では、method はすべての要素の出現回数を数え、collection 内の特定の"types"の「要素」の数を数えることができます：
+
+```php
+$collection = collect([1, 2, 2, 2, 3]);
+
+$counted = $collection->countBy();
+
+$counted->all();
+
+// [1 => 1, 2 => 3, 3 => 1]
+```
+
+全てのアイテムを custom value で数えるために、`countBy` method にクロージャを渡します：
+
+```php
+$collection = collect(['alice@gmail.com', 'bob@yahoo.com', 'carlos@gmail.com']);
+
+$counted = $collection->countBy(function (string $email) {
+    return substr(strrchr($email, "@"), 1);
+});
+
+$counted->all();
+
+// ['gmail.com' => 2, 'yahoo.com' => 1]
+```
+
+<a name="method-crossjoin"></a>
+
+#### `crossJoin()`
+
+`crossJoin` method は、与えられた arrays や collections の中でコレクションの values をクロスジョインし、可能なすべての順列を持つデカルト積を返します：
+
+```php
+$collection = collect([1, 2]);
+
+$matrix = $collection->crossJoin(['a', 'b']);
+
+$matrix->all();
+
+/*
+    [
+        [1, 'a'],
+        [1, 'b'],
+        [2, 'a'],
+        [2, 'b'],
+    ]
+*/
+
+$collection = collect([1, 2]);
+
+$matrix = $collection->crossJoin(['a', 'b'], ['I', 'II']);
+
+$matrix->all();
+
+/*
+    [
+        [1, 'a', 'I'],
+        [1, 'a', 'II'],
+        [1, 'b', 'I'],
+        [1, 'b', 'II'],
+        [2, 'a', 'I'],
+        [2, 'a', 'II'],
+        [2, 'b', 'I'],
+        [2, 'b', 'II'],
+    ]
+*/
+```
+
+<a name="method-dd"></a>
+
+#### `dd()`
+
+`dd` method は、collection のアイテムをダンプし、scripts の実行を終了します：
+
+```php
+$collection = collect(['John Doe', 'Jane Doe']);
+
+$collection->dd();
+
+/*
+    Collection {
+        #items: array:2 [
+            0 => "John Doe"
+            1 => "Jane Doe"
+        ]
+    }
+*/
+```
+
+スクリプトの実行を停止したくない場合は、代わりに[`dump`](#method-dump) method を使用してください。
+
+<a name="method-diff"></a>
+
+#### `diff()`
+
+`diff` method は、その values に基づいて、 collection を別の collection またはプレーンな PHP `array` と比較します。この method は、与えられた collection に存在しない元の collection の values を返します。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$diff = $collection->diff([2, 4, 6, 8]);
+
+$diff->all();
+
+// [1, 3, 5]
+```
+
+> [!NOTE]
+> このメソッドの振る舞いは、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-diff)を使用すると変更されます。
+
+<a name="method-diffassoc"></a>
+
+#### `diffAssoc()`
+
+`diffAssoc`の method は、collection を別の collection または普通の PHP `array`と、keys と values に基づいて比較します。この method は、元の collection の keys/values のペアを返しますが、それらは指定された collection には存在しません:
+
+```php
+$collection = collect([
+    'color' => 'orange',
+    'type' => 'fruit',
+    'remain' => 6,
+]);
+
+$diff = $collection->diffAssoc([
+    'color' => 'yellow',
+    'type' => 'fruit',
+    'remain' => 3,
+    'used' => 6,
+]);
+
+$diff->all();
+
+// ['color' => 'orange', 'remain' => 6]
+```
+
+<a name="method-diffassocusing"></a>
+
+#### `diffAssocUsing()`
+
+`diffAssoc`とは異なり、`diffAssocUsing`はインデックスの比較のための user が提供するコールバック関数を受け入れます：
+
+```php
+$collection = collect([
+    'color' => 'orange',
+    'type' => 'fruit',
+    'remain' => 6,
+]);
+
+$diff = $collection->diffAssocUsing([
+    'Color' => 'yellow',
+    'Type' => 'fruit',
+    'Remain' => 3,
+], 'strnatcasecmp');
+
+$diff->all();
+
+// ['color' => 'orange', 'remain' => 6]
+```
+
+コールバックは、ゼロより小さい、等しい、またはゼロより大きい integer を返す比較関数でなければなりません。より詳しい説明は、内部で`diffAssocUsing` method が利用している PHP 関数である [`array_diff_uassoc`](https://www.php.net/array_diff_uassoc#refsect1-function.array-diff-uassoc-parameters)についての PHP ドキュメンテーションを参照してください。
+
+<a name="method-diffkeys"></a>
+
+#### `diffKeys()`
+
+`diffKeys` method は、その keys に基づいて、他の collection またはプレーンな PHP の`array`と collection を比較します。この method は、指定された collection に存在しない元の collection のキー/ value のペアを返します：
+
+```php
+$collection = collect([
+    'one' => 10,
+    'two' => 20,
+    'three' => 30,
+    'four' => 40,
+    'five' => 50,
+]);
+
+$diff = $collection->diffKeys([
+    'two' => 2,
+    'four' => 4,
+    'six' => 6,
+    'eight' => 8,
+]);
+
+$diff->all();
+
+// ['one' => 10, 'three' => 30, 'five' => 50]
+```
+
+<a name="method-doesntcontain"></a>
+
+#### `doesntContain()`
+
+`doesntContain` method は、 collection が指定した項目を含んでいないかどうかを判断します。 `doesntContain` method にクロージャを渡して、 collection 内に指定した真偽 test に一致する要素が存在しないかどうかを判断することもできます。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->doesntContain(function (int $value, int $key) {
+    return $value < 5;
+});
+
+// false
+```
+
+あるいは、与えられたアイテムの value が collection に含まれていないかどうかを判断するために、`doesntContain` method に string を渡すこともできます。
+
+```php
+$collection = collect(['name' => 'Desk', 'price' => 100]);
+
+$collection->doesntContain('Table');
+
+// true
+
+$collection->doesntContain('Desk');
+
+// false
+```
+
+また、キー/ value ペアを `doesntContain` method に渡すこともでき、そのペアが collection に存在しないかどうかを判断します。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 100],
+]);
+
+$collection->doesntContain('product', 'Bookcase');
+
+// true
+```
+
+`doesntContain`"の"method"は、アイテムの"values"を確認する際に"ルーズ"な比較を使用します。つまり、"整数 values"を持つ"string"は、同じ"values"を持つ"整数"と等しいとみなされます。
+
+<a name="method-dot"></a>
+
+#### `dot()`
+
+`dot` method は多次元の collection を"dot"表記を使用して深さを示す single レベルの collection に平坦化します：
+
+```php
+$collection = collect(['products' => ['desk' => ['price' => 100]]]);
+
+$flattened = $collection->dot();
+
+$flattened->all();
+
+// ['products.desk.price' => 100]
+```
+
+<a name="method-dump"></a>
+
+#### `dump()`
+
+`dump` method は、コレクションのアイテムをダンプします：
+
+```php
+$collection = collect(['John Doe', 'Jane Doe']);
+
+$collection->dump();
+
+/*
+    Collection {
+        #items: array:2 [
+            0 => "John Doe"
+            1 => "Jane Doe"
+        ]
+    }
+*/
+```
+
+collection のダンプ後にスクリプトの実行を停止したい場合は、代わりに [`dd`](#method-dd) method を使用してください。
+
+<a name="method-duplicates"></a>
+
+#### `duplicates()`
+
+`duplicates` method は、 collection から重複した values を取得して返します。
+
+```php
+$collection = collect(['a', 'b', 'a', 'c', 'b']);
+
+$collection->duplicates();
+
+// [2 => 'a', 4 => 'b']
+```
+
+もし、 collection が配列やオブジェクトを含んでいる場合、重複する values をチェックしたい attributes のキーを渡すことができます:
+
+```php
+$employees = collect([
+    ['email' => 'abigail@example.com', 'position' => 'Developer'],
+    ['email' => 'james@example.com', 'position' => 'Designer'],
+    ['email' => 'victoria@example.com', 'position' => 'Developer'],
+]);
+
+$employees->duplicates('position');
+
+// [2 => 'Developer']
+```
+
+<a name="method-duplicatesstrict"></a>
+
+#### `duplicatesStrict()`
+
+この method は[`duplicates`](#method-duplicates)method と同じ signature を持っていますが、すべての"values"は"strict"比較を用いて比較されます。
+
+<a name="method-each"></a>
+
+#### `each()`
+
+`each` method は collection のアイテムを順に処理し、各アイテムをクロージャに渡します：
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$collection->each(function (int $item, int $key) {
+    // ...
+});
+```
+
+アイテムの繰り返しを停止したい場合は、クロージャから`false`を返すことができます：
+
+```php
+$collection->each(function (int $item, int $key) {
+    if (/* condition */) {
+        return false;
+    }
+});
+```
+
+<a name="method-eachspread"></a>
+
+#### `eachSpread()`
+
+`eachSpread` method は、collection のアイテムを反復処理し、各ネストされたアイテムの value を指定されたコールバックに渡します：
+
+```php
+$collection = collect([['John Doe', 35], ['Jane Doe', 33]]);
+
+$collection->eachSpread(function (string $name, int $age) {
+    // ...
+});
+```
+
+コールバックから`false`を返すことで、アイテムの反復処理を停止することができます：
+
+```php
+$collection->eachSpread(function (string $name, int $age) {
+    return false;
+});
+```
+
+<a name="method-ensure"></a>
+
+#### `ensure()`
+
+`ensure` method は、 collection のすべての”エレメント”が指定された elements または type のリストであることを検証するために使用できます。そうでない場合、`UnexpectedValueException`が throw されます：
+
+```php
+return $collection->ensure(User::class);
+
+return $collection->ensure([User::class, Customer::class]);
+```
+
+`string`、`int`、`float`、`bool`、`array`のようなプリミティブ型も指定できます：
+
+```php
+return $collection->ensure('int');
+```
+
+> [!警告] > `ensure` method は、異なる種類の elements が後から collection に追加されないことを保証しません。
+
+<a name="method-every"></a>
+
+#### `every()`
+
+`every` method は、全ての collection の elements が指定された真偽 test を通過するかどうかを確認するために使用することができます：
+
+```php
+collect([1, 2, 3, 4])->every(function (int $value, int $key) {
+    return $value > 2;
+});
+
+// false
+```
+
+もし collection が空であるなら、`every` method は true を返します：
+
+```php
+$collection = collect([]);
+
+$collection->every(function (int $value, int $key) {
+    return $value > 2;
+});
+
+// true
+```
+
+<a name="method-except"></a>
+
+#### `except()`
+
+`except` method は、指定された keys を持つものを除く、 collection 内のすべてのアイテムを返します。
+
+```php
+$collection = collect(['product_id' => 1, 'price' => 100, 'discount' => false]);
+
+$filtered = $collection->except(['price', 'discount']);
+
+$filtered->all();
+
+// ['product_id' => 1]
+```
+
+`except`の逆のために、[only](#method-only)の method を参照してください。
+
+> [!NOTE]
+> このメソッドの挙動は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-except)を使用すると変更されます。
+
+<a name="method-filter"></a>
+
+#### `filter()`
+
+`filter` method は、指定したコールバックを使用して collection をフィルターし、指定した真偽 test を path した項目のみを保持します：
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$filtered = $collection->filter(function (int $value, int $key) {
+    return $value > 2;
+});
+
+$filtered->all();
+
+// [3, 4]
+```
+
+コールバックが提供されていない場合、`false`と等価な collection のすべてのエントリが削除されます：
+
+```php
+$collection = collect([1, 2, 3, null, false, '', 0, []]);
+
+$collection->filter()->all();
+
+// [1, 2, 3]
+```
+
+`filter`の逆については、[reject](#method-reject) method を参照してください。
+
+<a name="method-first"></a>
+
+#### `first()`
+
+`first` method は、指定の真偽 test を通過する collection の最初の要素を返します:
+
+```php
+collect([1, 2, 3, 4])->first(function (int $value, int $key) {
+    return $value > 2;
+});
+
+// 3
+```
+
+また、引数を指定せずに`first`の method を呼び出して collection の最初の要素を取得することもできます。もし collection が空の場合、`null`が返されます。
+
+```php
+collect([1, 2, 3, 4])->first();
+
+// 1
+```
+
+<a name="method-first-or-fail"></a>
+
+#### `firstOrFail()`
+
+`firstOrFail` method は `first` メソッドと同一です。ただし、結果が見つからない場合、`Illuminate\Support\ItemNotFoundException` 例外がスローされます：
+
+```php
+collect([1, 2, 3, 4])->firstOrFail(function (int $value, int $key) {
+    return $value > 5;
+});
+
+// Throws ItemNotFoundException...
+```
+
+あなたはまた、 collection の最初の要素を取得するために引数なしで`firstOrFail` method を呼び出すこともできます。 collection が空の場合、`Illuminate\Support\ItemNotFoundException`の例外がスローされます。
+
+```php
+collect([])->firstOrFail();
+
+// Throws ItemNotFoundException...
+```
+
+<a name="method-first-where"></a>
+
+#### `firstWhere()`
+
+`firstWhere` method は、指定した key / value ペアを持つ collection の最初の要素を返します：
+
+```php
+$collection = collect([
+    ['name' => 'Regena', 'age' => null],
+    ['name' => 'Linda', 'age' => 14],
+    ['name' => 'Diego', 'age' => 23],
+    ['name' => 'Linda', 'age' => 84],
+]);
+
+$collection->firstWhere('name', 'Linda');
+
+// ['name' => 'Linda', 'age' => 14]
+```
+
+また、比較演算子を使って`firstWhere` method を呼び出すこともできます：
+
+```php
+$collection->firstWhere('age', '>=', 18);
+
+// ['name' => 'Diego', 'age' => 23]
+```
+
+[where](#method-where) method のように、`firstWhere` method には 1 つの引数を渡すことができます。このシナリオでは、`firstWhere` method は、指定されたアイテムキーの value が "truthy" である最初のアイテムを返します:
+
+```php
+$collection->firstWhere('age');
+
+// ['name' => 'Linda', 'age' => 14]
+```
+
+<a name="method-flatmap"></a>
+
+#### `flatMap()`
+
+`flatMap` method は、 collection を反復処理し、各 value を与えられたクロージャーに渡します。クロージャーは、要素を自由に変更して返し、これにより変更された項目の新たな collection が形成されます。その後、 array は 1 レベルフラット化されます。
+
+```php
+$collection = collect([
+    ['name' => 'Sally'],
+    ['school' => 'Arkansas'],
+    ['age' => 28]
+]);
+
+$flattened = $collection->flatMap(function (array $values) {
+    return array_map('strtoupper', $values);
+});
+
+$flattened->all();
+
+// ['name' => 'SALLY', 'school' => 'ARKANSAS', 'age' => '28'];
+```
+
+<a name="method-flatten"></a>
+
+#### `flatten()`
+
+`flatten`の method は、多次元の collection を single の次元に平坦化します：
+
+```php
+$collection = collect([
+    'name' => 'taylor',
+    'languages' => [
+        'php', 'javascript'
+    ]
+]);
+
+$flattened = $collection->flatten();
+
+$flattened->all();
+
+// ['taylor', 'php', 'javascript'];
+```
+
+必要に応じて、"depth" 引数を `flatten` method に渡すことができます：
+
+```php
+$collection = collect([
+    'Apple' => [
+        [
+            'name' => 'iPhone 6S',
+            'brand' => 'Apple'
+        ],
+    ],
+    'Samsung' => [
+        [
+            'name' => 'Galaxy S7',
+            'brand' => 'Samsung'
+        ],
+    ],
+]);
+
+$products = $collection->flatten(1);
+
+$products->values()->all();
+
+/*
+    [
+        ['name' => 'iPhone 6S', 'brand' => 'Apple'],
+        ['name' => 'Galaxy S7', 'brand' => 'Samsung'],
+    ]
+*/
+```
+
+この例では、`flatten`を深さを指定せずに呼び出すと、ネストされた配列もフラット化され、結果として`['iPhone 6S', 'Apple', 'Galaxy S7', 'Samsung']`となります。深さを提供することで、ネストされた配列がフラット化されるレベルの数を指定することができます。
+
+<a name="method-flip"></a>
+
+#### `flip()`
+
+`flip` method は、collection の keys とそれに対応する values を入れ替えます：
+
+```php
+$collection = collect(['name' => 'taylor', 'framework' => 'laravel']);
+
+$flipped = $collection->flip();
+
+$flipped->all();
+
+// ['taylor' => 'name', 'laravel' => 'framework']
+```
+
+<a name="method-forget"></a>
+
+#### `forget()`
+
+`forget` method は、key によってアイテムを collection から削除します。
+
+```php
+$collection = collect(['name' => 'taylor', 'framework' => 'laravel']);
+
+$collection->forget('name');
+
+$collection->all();
+
+// ['framework' => 'laravel']
+```
+
+> [!警告]
+> 他のほとんどの collection メソッドとは異なり、`forget`は新たに変更されたコレクションを返すのではなく、呼び出された collection 自体を変更します。
+
+<a name="method-forpage"></a>
+
+#### `forPage()`
+
+`forPage` method は、指定されたページ番号に表示されるアイテムを含む新しい collection を返します。この method は、第 1 引数にページ番号を、第 2 引数にページごとの表示アイテム数を受け取ります：
+
+```php
+$collection = collect([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+$chunk = $collection->forPage(2, 3);
+
+$chunk->all();
+
+// [4, 5, 6]
+```
+
+<a name="method-get"></a>
+
+#### `get()`
+
+`get` method は指定されたキーにあるアイテムを返します。キーが存在しない場合、`null`が返されます：
+
+```php
+$collection = collect(['name' => 'taylor', 'framework' => 'laravel']);
+
+$value = $collection->get('name');
+
+// taylor
+```
+
+オプションで、二番目の引数として default value を渡すことができます：
+
+```php
+$collection = collect(['name' => 'taylor', 'framework' => 'laravel']);
+
+$value = $collection->get('age', 34);
+
+// 34
+```
+
+あなたは、メソッドの default value としてコールバックを渡すことさえできます。指定されたキーが存在しない場合、コールバックの結果が返されます。
+
+```php
+$collection->get('email', function () {
+    return 'taylor@example.com';
+});
+
+// taylor@example.com
+```
+
+<a name="method-groupby"></a>
+
+#### `groupBy()`
+
+`groupBy` method は、指定されたキーによってコレクションのアイテムをグループ化します：
+
+```php
+$collection = collect([
+    ['account_id' => 'account-x10', 'product' => 'Chair'],
+    ['account_id' => 'account-x10', 'product' => 'Bookcase'],
+    ['account_id' => 'account-x11', 'product' => 'Desk'],
+]);
+
+$grouped = $collection->groupBy('account_id');
+
+$grouped->all();
+
+/*
+    [
+        'account-x10' => [
+            ['account_id' => 'account-x10', 'product' => 'Chair'],
+            ['account_id' => 'account-x10', 'product' => 'Bookcase'],
+        ],
+        'account-x11' => [
+            ['account_id' => 'account-x11', 'product' => 'Desk'],
+        ],
+    ]
+*/
+```
+
+`key`に string を渡す代わりに、コールバックを渡すことができます。コールバックは、グループ化するための value を返すべきです：
+
+```php
+$grouped = $collection->groupBy(function (array $item, int $key) {
+    return substr($item['account_id'], -3);
+});
+
+$grouped->all();
+
+/*
+    [
+        'x10' => [
+            ['account_id' => 'account-x10', 'product' => 'Chair'],
+            ['account_id' => 'account-x10', 'product' => 'Bookcase'],
+        ],
+        'x11' => [
+            ['account_id' => 'account-x11', 'product' => 'Desk'],
+        ],
+    ]
+*/
+```
+
+複数のグループ化基準は、 array として渡すことができます。各 array 要素は、多次元の array 内の対応するレベルに適用されます。
+
+```php
+$data = new Collection([
+    10 => ['user' => 1, 'skill' => 1, 'roles' => ['Role_1', 'Role_3']],
+    20 => ['user' => 2, 'skill' => 1, 'roles' => ['Role_1', 'Role_2']],
+    30 => ['user' => 3, 'skill' => 2, 'roles' => ['Role_1']],
+    40 => ['user' => 4, 'skill' => 2, 'roles' => ['Role_2']],
+]);
+
+$result = $data->groupBy(['skill', function (array $item) {
+    return $item['roles'];
+}], preserveKeys: true);
+
+/*
+[
+    1 => [
+        'Role_1' => [
+            10 => ['user' => 1, 'skill' => 1, 'roles' => ['Role_1', 'Role_3']],
+            20 => ['user' => 2, 'skill' => 1, 'roles' => ['Role_1', 'Role_2']],
+        ],
+        'Role_2' => [
+            20 => ['user' => 2, 'skill' => 1, 'roles' => ['Role_1', 'Role_2']],
+        ],
+        'Role_3' => [
+            10 => ['user' => 1, 'skill' => 1, 'roles' => ['Role_1', 'Role_3']],
+        ],
+    ],
+    2 => [
+        'Role_1' => [
+            30 => ['user' => 3, 'skill' => 2, 'roles' => ['Role_1']],
+        ],
+        'Role_2' => [
+            40 => ['user' => 4, 'skill' => 2, 'roles' => ['Role_2']],
+        ],
+    ],
+];
+*/
+```
+
+<a name="method-has"></a>
+
+#### `has()`
+
+`has`の method は、指定されたキーが collection 内に存在するかどうかを判断します：
+
+```php
+$collection = collect(['account_id' => 1, 'product' => 'Desk', 'amount' => 5]);
+
+$collection->has('product');
+
+// true
+
+$collection->has(['product', 'amount']);
+
+// true
+
+$collection->has(['amount', 'price']);
+
+// false
+```
+
+<a name="method-hasany"></a>
+
+#### `hasAny()`
+
+`hasAny` method は、指定された keys が collection 内に存在するかどうかを判断します。
+
+```php
+$collection = collect(['account_id' => 1, 'product' => 'Desk', 'amount' => 5]);
+
+$collection->hasAny(['product', 'price']);
+
+// true
+
+$collection->hasAny(['name', 'price']);
+
+// false
+```
+
+<a name="method-implode"></a>
+
+#### `implode()`
+
+`implode`"「」method」」は、「」collection」」のアイテムを結合します。その引数は、「」collection」」内のアイテムの「」type」」に依存します。 「」collection」」が arrays または object を含む場合、「」属性」」の key を渡すべきです。「」結合」」したいものと、「」values」」の間に置きたい「"glue"「」string」」：
+
+```php
+$collection = collect([
+    ['account_id' => 1, 'product' => 'Desk'],
+    ['account_id' => 2, 'product' => 'Chair'],
+]);
+
+$collection->implode('product', ', ');
+
+// Desk, Chair
+```
+
+もし collection がシンプルな文字列や数値の values を含む場合、"glue"を唯一の引数として method に渡すべきです：
+
+```php
+collect([1, 2, 3, 4, 5])->implode('-');
+
+// '1-2-3-4-5'
+```
+
+`implode` method に値の結合形式を指定したい場合、クロージャを渡すことができます：
+
+```php
+$collection->implode(function (array $item, int $key) {
+    return strtoupper($item['product']);
+}, ', ');
+
+// DESK, CHAIR
+```
+
+<a name="method-intersect"></a>
+
+#### `intersect()`
+
+`intersect` method は、与えられた`array`または collection に存在しないオリジナルの collection から任意の values を削除します。結果として得られる collection は、オリジナルコレクションの keys を維持します:
+
+```php
+$collection = collect(['Desk', 'Sofa', 'Chair']);
+
+$intersect = $collection->intersect(['Desk', 'Chair', 'Bookcase']);
+
+$intersect->all();
+
+// [0 => 'Desk', 2 => 'Chair']
+```
+
+> [!NOTE]
+> このメソッドの挙動は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-intersect)を使用すると変更されます。
+
+<a name="method-intersectAssoc"></a>
+
+#### `intersectAssoc()`
+
+`intersectAssoc` method は、元の collections と別の collection または`array`を比較し、すべての与えられた collection に存在する key/ value のペアを返します。
+
+```php
+$collection = collect([
+    'color' => 'red',
+    'size' => 'M',
+    'material' => 'cotton'
+]);
+
+$intersect = $collection->intersectAssoc([
+    'color' => 'blue',
+    'size' => 'M',
+    'material' => 'polyester'
+]);
+
+$intersect->all();
+
+// ['size' => 'M']
+```
+
+<a name="method-intersectbykeys"></a>
+
+#### `intersectByKeys()`
+
+`intersectByKeys` method は、指定した`array`または collection に存在しない、元の collection から任意の keys およびそれに対応する values を削除します。
+
+```php
+$collection = collect([
+    'serial' => 'UX301', 'type' => 'screen', 'year' => 2009,
+]);
+
+$intersect = $collection->intersectByKeys([
+    'reference' => 'UX404', 'type' => 'tab', 'year' => 2011,
+]);
+
+$intersect->all();
+
+// ['type' => 'screen', 'year' => 2009]
+```
+
+<a name="method-isempty"></a>
+
+#### `isEmpty()`
+
+`isEmpty` method は、 collection が空の場合、`true`を返します。それ以外の場合は、`false`が返されます。
+
+```php
+collect([])->isEmpty();
+
+// true
+```
+
+<a name="method-isnotempty"></a>
+
+#### `isNotEmpty()`
+
+`isNotEmpty` method は、 collection が空でない場合、`true`を返します。それ以外の場合は、`false`が返されます。
+
+```php
+collect([])->isNotEmpty();
+
+// false
+```
+
+<a name="method-join"></a>
+
+#### `join()`
+
+`join` method は、collection の values を string に結合します。このメソッドの第二引数を使用して、最終要素が string にどのように追加されるべきかを指定することもできます。
+
+```php
+collect(['a', 'b', 'c'])->join(', '); // 'a, b, c'
+collect(['a', 'b', 'c'])->join(', ', ', and '); // 'a, b, and c'
+collect(['a', 'b'])->join(', ', ' and '); // 'a and b'
+collect(['a'])->join(', ', ' and '); // 'a'
+collect([])->join(', ', ' and '); // ''
+```
+
+<a name="method-keyby"></a>
+
+#### `keyBy()`
+
+`keyBy`method は、指定された keys で collection を keys 指定します。複数のアイテムが同じ keys を持つ場合、新しい collection には最後のものだけが表示されます。
+
+```php
+$collection = collect([
+    ['product_id' => 'prod-100', 'name' => 'Desk'],
+    ['product_id' => 'prod-200', 'name' => 'Chair'],
+]);
+
+$keyed = $collection->keyBy('product_id');
+
+$keyed->all();
+
+/*
+    [
+        'prod-100' => ['product_id' => 'prod-100', 'name' => 'Desk'],
+        'prod-200' => ['product_id' => 'prod-200', 'name' => 'Chair'],
+    ]
+*/
+```
+
+また、コールバックを method に渡すこともできます。 コールバックは、 collection をキーとするための value を返すべきです：
+
+```php
+$keyed = $collection->keyBy(function (array $item, int $key) {
+    return strtoupper($item['product_id']);
+});
+
+$keyed->all();
+
+/*
+    [
+        'PROD-100' => ['product_id' => 'prod-100', 'name' => 'Desk'],
+        'PROD-200' => ['product_id' => 'prod-200', 'name' => 'Chair'],
+    ]
+*/
+```
+
+<a name="method-keys"></a>
+
+#### `keys()`
+
+`keys` method は、コレクションのすべての keys を返します:
+
+```php
+$collection = collect([
+    'prod-100' => ['product_id' => 'prod-100', 'name' => 'Desk'],
+    'prod-200' => ['product_id' => 'prod-200', 'name' => 'Chair'],
+]);
+
+$keys = $collection->keys();
+
+$keys->all();
+
+// ['prod-100', 'prod-200']
+```
+
+<a name="method-last"></a>
+
+#### `last()`
+
+`last` method は、与えられた真理 test を通過する collection の最後の要素を返します：
+
+```php
+collect([1, 2, 3, 4])->last(function (int $value, int $key) {
+    return $value < 3;
+});
+
+// 2
+```
+
+`last`の method を引数なしで呼び出すことでも、 collection の最後の要素を取得することができます。もし collection が空であった場合は、`null`が返されます。
+
+```php
+collect([1, 2, 3, 4])->last();
+
+// 4
+```
+
+<a name="method-lazy"></a>
+
+#### `lazy()`
+
+`lazy` method は、基になる array のアイテムから新しい[`LazyCollection`](#lazy-collections)インスタンスを返します：
+
+```php
+$lazyCollection = collect([1, 2, 3, 4])->lazy();
+
+$lazyCollection::class;
+
+// Illuminate\Support\LazyCollection
+
+$lazyCollection->all();
+
+// [1, 2, 3, 4]
+```
+
+これは、多数のアイテムを含む巨大な `Collection` に変換を適用する必要があるときに特に便利です：
+
+```php
+$count = $hugeCollection
+    ->lazy()
+    ->where('country', 'FR')
+    ->where('balance', '>', '100')
+    ->count();
+```
+
+collection を`LazyCollection`に変換することで、大量の追加メモリを割り当てる必要がなくなります。元の collection は依然として*その* values をメモリに保持していますが、その後のフィルターはそうはなりません。したがって、コレクションの結果をフィルタリングする際に、ほとんど追加のメモリは割り当てられません。
+
+<a name="method-macro"></a>
+
+#### `macro()`
+
+静的な `macro` method により、実行時に `Collection` class にメソッドを追加することができます。詳しい情報は、[collections の拡張](#extending-collections)に関するドキュメンテーションを参照してください。
+
+<a name="method-make"></a>
+
+#### `make()`
+
+`make`という静式の method は新たな collection のインスタンスを作成します。[Collections 作成](#creating-collections)のセクションをご覧ください。
+
+<a name="method-map"></a>
+
+#### `map()`
+
+`map` method は、 collection を反復処理し、各 value を与えられたコールバックに渡します。コールバックは、アイテムを自由に変更し、それを返すことができます。これにより、変更されたアイテムの新しい collection が形成されます。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$multiplied = $collection->map(function (int $item, int $key) {
+    return $item * 2;
+});
+
+$multiplied->all();
+
+// [2, 4, 6, 8, 10]
+```
+
+> [！警告]
+> 他のほとんどの collection メソッドと同様に、`map`は新しい collection インスタンスを返します。それは呼び出された collection を変更しません。元の collection を transform したい場合は、[`transform`](#method-transform) method を使用してください。
+
+<a name="method-mapinto"></a>
+
+#### `mapInto()`
+
+`mapInto()` method は、 collection を反復処理し、引数として value をコンストラクタに渡すことで指定された class の新しいインスタンスを作成します：
+
+```php
+class Currency
+{
+    /**
+     * Create a new currency instance.
+     */
+    function __construct(
+        public string $code
+    ) {}
+}
+
+$collection = collect(['USD', 'EUR', 'GBP']);
+
+$currencies = $collection->mapInto(Currency::class);
+
+$currencies->all();
+
+// [Currency('USD'), Currency('EUR'), Currency('GBP')]
+```
+
+<a name="method-mapspread"></a>
+
+#### `mapSpread()`
+
+`mapSpread` method はコレクションのアイテムを反復処理し、各ネストされたアイテムの value を指定されたクロージャに渡します。クロージャはアイテムを自由に変更し、それを返すことができます。これにより、変更されたアイテムの新しい collection が形成されます。
+
+```php
+$collection = collect([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+$chunks = $collection->chunk(2);
+
+$sequence = $chunks->mapSpread(function (int $even, int $odd) {
+    return $even + $odd;
+});
+
+$sequence->all();
+
+// [1, 5, 9, 13, 17]
+```
+
+<a name="method-maptogroups"></a>
+
+#### `mapToGroups()`
+
+`mapToGroups`method は、指定したクロージャによってコレクションのアイテムをグループ化します。クロージャは、シングルの key / values ペアを含む連想 array を返すべきであり、それにより新しい collection のグループ化された values を形成します：
+
+```php
+$collection = collect([
+    [
+        'name' => 'John Doe',
+        'department' => 'Sales',
+    ],
+    [
+        'name' => 'Jane Doe',
+        'department' => 'Sales',
+    ],
+    [
+        'name' => 'Johnny Doe',
+        'department' => 'Marketing',
+    ]
+]);
+
+$grouped = $collection->mapToGroups(function (array $item, int $key) {
+    return [$item['department'] => $item['name']];
+});
+
+$grouped->all();
+
+/*
+    [
+        'Sales' => ['John Doe', 'Jane Doe'],
+        'Marketing' => ['Johnny Doe'],
+    ]
+*/
+
+$grouped->get('Sales')->all();
+
+// ['John Doe', 'Jane Doe']
+```
+
+<a name="method-mapwithkeys"></a>
+
+#### `mapWithKeys()`
+
+`mapWithKeys`method は、collection を順に処理し、各 value を指定されたコールバックに渡します。コールバックは、単一の key / value ペアを含む連想 array を返す必要があります：
+
+```php
+$collection = collect([
+    [
+        'name' => 'John',
+        'department' => 'Sales',
+        'email' => 'john@example.com',
+    ],
+    [
+        'name' => 'Jane',
+        'department' => 'Marketing',
+        'email' => 'jane@example.com',
+    ]
+]);
+
+$keyed = $collection->mapWithKeys(function (array $item, int $key) {
+    return [$item['email'] => $item['name']];
+});
+
+$keyed->all();
+
+/*
+    [
+        'john@example.com' => 'John',
+        'jane@example.com' => 'Jane',
+    ]
+*/
+```
+
+<a name="method-max"></a>
+
+#### `max()`
+
+`max` method は、指定された key の最大の value を返します：
+
+```php
+$max = collect([
+    ['foo' => 10],
+    ['foo' => 20]
+])->max('foo');
+
+// 20
+
+$max = collect([1, 2, 3, 4, 5])->max();
+
+// 5
+```
+
+<a name="method-median"></a>
+
+#### `median()`
+
+`median` method は、指定された key の[中央値 value](https://en.wikipedia.org/wiki/Median)を返します：
+
+```php
+$median = collect([
+    ['foo' => 10],
+    ['foo' => 10],
+    ['foo' => 20],
+    ['foo' => 40]
+])->median('foo');
+
+// 15
+
+$median = collect([1, 1, 2, 4])->median();
+
+// 1.5
+```
+
+<a name="method-merge"></a>
+
+#### `merge()`
+
+`merge` ””method”” は与えられた ””array”” または ””collection”” を元の ””collection”” と merges します。与えられたアイテムの””string”” key が元の””collection””の””string”” key と一致する場合、与えられたアイテムの””value””は元の””collection””の””value””を上書きします：
+
+```php
+$collection = collect(['product_id' => 1, 'price' => 100]);
+
+$merged = $collection->merge(['price' => 200, 'discount' => false]);
+
+$merged->all();
+
+// ['product_id' => 1, 'price' => 200, 'discount' => false]
+```
+
+指定されたアイテムの keys が数値の場合、 values は collection の最後に追加されます。
+
+```php
+$collection = collect(['Desk', 'Chair']);
+
+$merged = $collection->merge(['Bookcase', 'Door']);
+
+$merged->all();
+
+// ['Desk', 'Chair', 'Bookcase', 'Door']
+```
+
+<a name="method-mergerecursive"></a>
+
+#### `mergeRecursive()`
+
+`mergeRecursive`method は、与えられた array または collection を元の collection に再帰的に merges します。与えられた項目の stringkeys が元の collection の stringkeys と一致する場合、これらの keys の values は array に merges され、これが再帰的に行われます：
+
+```php
+$collection = collect(['product_id' => 1, 'price' => 100]);
+
+$merged = $collection->mergeRecursive([
+    'product_id' => 2,
+    'price' => 200,
+    'discount' => false
+]);
+
+$merged->all();
+
+// ['product_id' => [1, 2], 'price' => [100, 200], 'discount' => false]
+```
+
+<a name="method-min"></a>
+
+#### `min()`
+
+`min` method は与えられた key の最小の value を返します：
+
+```php
+$min = collect([['foo' => 10], ['foo' => 20]])->min('foo');
+
+// 10
+
+$min = collect([1, 2, 3, 4, 5])->min();
+
+// 1
+```
+
+<a name="method-mode"></a>
+
+#### `mode()`
+
+`mode` method は与えられた key の[モード value](<https://en.wikipedia.org/wiki/Mode_(statistics)>)を返します：
+
+```php
+$mode = collect([
+    ['foo' => 10],
+    ['foo' => 10],
+    ['foo' => 20],
+    ['foo' => 40]
+])->mode('foo');
+
+// [10]
+
+$mode = collect([1, 1, 2, 4])->mode();
+
+// [1]
+
+$mode = collect([1, 1, 2, 2])->mode();
+
+// [1, 2]
+```
+
+<a name="method-nth"></a>
+
+#### `nth()`
+
+`nth` method は、n 番目の要素から構成される新しい collection を作成します:
+
+```php
+$collection = collect(['a', 'b', 'c', 'd', 'e', 'f']);
+
+$collection->nth(4);
+
+// ['a', 'e']
+```
+
+必要に応じて、二番目の引数として開始オフセットを渡すことができます。
+
+```php
+$collection->nth(4, 1);
+
+// ['b', 'f']
+```
+
+<a name="method-only"></a>
+
+#### `only()`
+
+`only` method は、指定された keys を持つ collection 内のアイテムを返します：
+
+```php
+$collection = collect([
+    'product_id' => 1,
+    'name' => 'Desk',
+    'price' => 100,
+    'discount' => false
+]);
+
+$filtered = $collection->only(['product_id', 'name']);
+
+$filtered->all();
+
+// ['product_id' => 1, 'name' => 'Desk']
+```
+
+`only`の逆に関しては、[except](#method-except)の method を参照してください。
+
+> [!NOTE]
+> このメソッドの振る舞いは、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-only)を使用すると変更されます。
+
+<a name="method-pad"></a>
+
+#### `pad()`
+
+`pad` method は、指定されたサイズに達するまで、与えられた value で array を埋めます。この method は[array_pad](https://secure.php.net/manual/en/function.array-pad.php) PHP 関数のように動作します。
+
+左にパッドするには、サイズを負の数で指定する必要があります。指定されたサイズの絶対 value が array の length 以下の場合、パディングは行われません。
+
+```php
+$collection = collect(['A', 'B', 'C']);
+
+$filtered = $collection->pad(5, 0);
+
+$filtered->all();
+
+// ['A', 'B', 'C', 0, 0]
+
+$filtered = $collection->pad(-5, 0);
+
+$filtered->all();
+
+// [0, 0, 'A', 'B', 'C']
+```
+
+<a name="method-partition"></a>
+
+#### `partition()`
+
+`partition` method は PHP の array デストラクタリングと組み合わせて、与えられた真偽 test を通過する要素とそうでないものを分離することができます:
+
+```php
+$collection = collect([1, 2, 3, 4, 5, 6]);
+
+[$underThree, $equalOrAboveThree] = $collection->partition(function (int $i) {
+    return $i < 3;
+});
+
+$underThree->all();
+
+// [1, 2]
+
+$equalOrAboveThree->all();
+
+// [3, 4, 5, 6]
+```
+
+<a name="method-percentage"></a>
+
+#### `percentage()`
+
+`percentage`の method は、特定の真理テストに合格する collection 内のアイテムの割合を素早く決定するために使用できます:
+
+```php
+$collection = collect([1, 1, 2, 2, 2, 3]);
+
+$percentage = $collection->percentage(fn ($value) => $value === 1);
+
+// 33.33
+```
+
+default で、パーセンテージは小数点以下 2 桁に丸められます。しかし、この動作は method に第二引数を提供することでカスタマイズすることができます：
+
+```php
+$percentage = $collection->percentage(fn ($value) => $value === 1, precision: 3);
+
+// 33.333
+```
+
+<a name="method-pipe"></a>
+
+#### `pipe()`
+
+`pipe` method は与えられたクロージャに collection を渡し、実行されたクロージャの結果を返します。
+
+```php
+$collection = collect([1, 2, 3]);
+
+$piped = $collection->pipe(function (Collection $collection) {
+    return $collection->sum();
+});
+
+// 6
+```
+
+<a name="method-pipeinto"></a>
+
+#### `pipeInto()`
+
+`pipeInto` method は与えられた class の新しいインスタンスを作成し、そのコンストラクタに collection を渡します：
+
+```php
+class ResourceCollection
+{
+    /**
+     * Create a new ResourceCollection instance.
+     */
+    public function __construct(
+      public Collection $collection,
+    ) {}
+}
+
+$collection = collect([1, 2, 3]);
+
+$resource = $collection->pipeInto(ResourceCollection::class);
+
+$resource->collection->all();
+
+// [1, 2, 3]
+```
+
+<a name="method-pipethrough"></a>
+
+#### `pipeThrough()`
+
+`pipeThrough` method は、指定された array のクロージャに collection を渡し、実行したクロージャの結果を返します：
+
+```php
+use Illuminate\Support\Collection;
+
+$collection = collect([1, 2, 3]);
+
+$result = $collection->pipeThrough([
+    function (Collection $collection) {
+        return $collection->merge([4, 5]);
+    },
+    function (Collection $collection) {
+        return $collection->sum();
+    },
+]);
+
+// 15
+```
+
+<a name="method-pluck"></a>
+
+#### `pluck()`
+
+`pluck` method は、指定した key のすべての values を取得します：
+
+```php
+$collection = collect([
+    ['product_id' => 'prod-100', 'name' => 'Desk'],
+    ['product_id' => 'prod-200', 'name' => 'Chair'],
+]);
+
+$plucked = $collection->pluck('name');
+
+$plucked->all();
+
+// ['Desk', 'Chair']
+```
+
+また、結果としての collection がどのようにキー付けされることを望んでいるか指定することもできます:
+
+```php
+$plucked = $collection->pluck('name', 'product_id');
+
+$plucked->all();
+
+// ['prod-100' => 'Desk', 'prod-200' => 'Chair']
+```
+
+`pluck` method は、"dot"記法を使用してネストされた values を取得することもサポートしています：
+
+```php
+$collection = collect([
+    [
+        'name' => 'Laracon',
+        'speakers' => [
+            'first_day' => ['Rosa', 'Judith'],
+        ],
+    ],
+    [
+        'name' => 'VueConf',
+        'speakers' => [
+            'first_day' => ['Abigail', 'Joey'],
+        ],
+    ],
+]);
+
+$plucked = $collection->pluck('speakers.first_day');
+
+$plucked->all();
+
+// [['Rosa', 'Judith'], ['Abigail', 'Joey']]
+```
+
+重複する keys が存在する場合、最後の一致する要素が、取り出された collection に挿入されます：
+
+```php
+$collection = collect([
+    ['brand' => 'Tesla',  'color' => 'red'],
+    ['brand' => 'Pagani', 'color' => 'white'],
+    ['brand' => 'Tesla',  'color' => 'black'],
+    ['brand' => 'Pagani', 'color' => 'orange'],
+]);
+
+$plucked = $collection->pluck('color', 'brand');
+
+$plucked->all();
+
+// ['Tesla' => 'black', 'Pagani' => 'orange']
+```
+
+<a name="method-pop"></a>
+
+#### `pop()`
+
+`pop` method は、 collection から最後のアイテムを削除し、返します。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->pop();
+
+// 5
+
+$collection->all();
+
+// [1, 2, 3, 4]
+```
+
+あなたは`pop`の method に integer を渡して、 collection の最後から複数のアイテムを削除し、返すことができます:
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->pop(3);
+
+// collect([5, 4, 3])
+
+$collection->all();
+
+// [1, 2]
+```
+
+<a name="method-prepend"></a>
+
+#### `prepend()`
+
+`prepend` method は、アイテムを collection の先頭に追加します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->prepend(0);
+
+$collection->all();
+
+// [0, 1, 2, 3, 4, 5]
+```
+
+また、先頭に追加するアイテムのキーを指定するための第二引数を渡すこともできます:
+
+```php
+$collection = collect(['one' => 1, 'two' => 2]);
+
+$collection->prepend(0, 'zero');
+
+$collection->all();
+
+// ['zero' => 0, 'one' => 1, 'two' => 2]
+```
+
+<a name="method-pull"></a>
+
+#### `pull()`
+
+`pull` method は、key によって collection からアイテムを削除し、返します：
+
+```php
+$collection = collect(['product_id' => 'prod-100', 'name' => 'Desk']);
+
+$collection->pull('name');
+
+// 'Desk'
+
+$collection->all();
+
+// ['product_id' => 'prod-100']
+```
+
+<a name="method-push"></a>
+
+#### `push()`
+
+`push` method appends アイテムを collection の最後に追加します：
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$collection->push(5);
+
+$collection->all();
+
+// [1, 2, 3, 4, 5]
+```
+
+<a name="method-put"></a>
+
+#### `put()`
+
+`put` method は、指定された key と value を collection に設定します：
+
+```php
+$collection = collect(['product_id' => 1, 'name' => 'Desk']);
+
+$collection->put('price', 100);
+
+$collection->all();
+
+// ['product_id' => 1, 'name' => 'Desk', 'price' => 100]
+```
+
+<a name="method-random"></a>
+
+#### `random()`
+
+`random` method は、collection からランダムな項目を返します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->random();
+
+// 4 - (retrieved randomly)
+```
+
+`random`に integer を渡して、ランダムに取得したいアイテムの数を指定することができます。希望するアイテムの数を明示的に渡すと、常に collection のアイテムが返されます。
+
+```php
+$random = $collection->random(3);
+
+$random->all();
+
+// [2, 4, 5] - (retrieved randomly)
+```
+
+もし collection のインスタンスが要求されたアイテムよりも少なければ、`random` method は`InvalidArgumentException`を throw します。
+
+`random` method はクロージャも受け付けます。そこでは現在の collection インスタンスを受け取ります：
+
+```php
+use Illuminate\Support\Collection;
+
+$random = $collection->random(fn (Collection $items) => min(10, count($items)));
+
+$random->all();
+
+// [1, 2, 3, 4, 5] - (retrieved randomly)
+```
+
+<a name="method-range"></a>
+
+#### `range()`
+
+`range`method は、指定された範囲内の整数を含む collection を返します：
+
+```php
+$collection = collect()->range(3, 6);
+
+$collection->all();
+
+// [3, 4, 5, 6]
+```
+
+<a name="method-reduce"></a>
+
+#### `reduce()`
+
+`reduce` method は、 collection を single value に減らし、それぞれの反復の結果を次の反復に渡します。
+
+```php
+$collection = collect([1, 2, 3]);
+
+$total = $collection->reduce(function (?int $carry, int $item) {
+    return $carry + $item;
+});
+
+// 6
+```
+
+最初の反復での`$carry`の value は`null`です。しかし、`reduce`に第二引数を渡すことで、その初期 value を指定することができます。
+
+```php
+$collection->reduce(function (int $carry, int $item) {
+    return $carry + $item;
+}, 4);
+
+// 10
+```
+
+`reduce` method は、連想 collections の array keys も指定されたコールバックに渡します：
+
+```php
+$collection = collect([
+    'usd' => 1400,
+    'gbp' => 1200,
+    'eur' => 1000,
+]);
+
+$ratio = [
+    'usd' => 1,
+    'gbp' => 1.37,
+    'eur' => 1.22,
+];
+
+$collection->reduce(function (int $carry, int $value, int $key) use ($ratio) {
+    return $carry + ($value * $ratio[$key]);
+});
+
+// 4264
+```
+
+<a name="method-reduce-spread"></a>
+
+#### `reduceSpread()`
+
+`reduceSpread`の method は、各イテレーションの結果を次のイテレーションに渡すことで、 collection を values の array に縮小します。この method は`reduce`メソッドに似ていますが、複数の初期 values を受け入れることができます。
+
+```php
+[$creditsRemaining, $batch] = Image::where('status', 'unprocessed')
+    ->get()
+    ->reduceSpread(function (int $creditsRemaining, Collection $batch, Image $image) {
+        if ($creditsRemaining >= $image->creditsRequired()) {
+            $batch->push($image);
+
+            $creditsRemaining -= $image->creditsRequired();
+        }
+
+        return [$creditsRemaining, $batch];
+    }, $creditsAvailable, collect());
+```
+
+<a name="method-reject"></a>
+
+#### `reject()`
+
+`reject` method は与えられたクロージャを使って collection をフィルタリングします。アイテムが結果の collection から削除されるべきなら、クロージャは`true`を返すべきです。
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$filtered = $collection->reject(function (int $value, int $key) {
+    return $value > 2;
+});
+
+$filtered->all();
+
+// [1, 2]
+```
+
+`reject` method の逆については、[`filter`](#method-filter) method を参照してください。
+
+<a name="method-replace"></a>
+
+#### `replace()`
+
+`replace` method は`merge`と同様に動作します。ただし、string の string keys を持つ一致するアイテムを上書きするだけでなく、 `replace` method は、一致する数 values の keys を持つ collection 内のアイテムも上書きします。
+
+```php
+$collection = collect(['Taylor', 'Abigail', 'James']);
+
+$replaced = $collection->replace([1 => 'Victoria', 3 => 'Finn']);
+
+$replaced->all();
+
+// ['Taylor', 'Victoria', 'James', 'Finn']
+```
+
+<a name="method-replacerecursive"></a>
+
+#### `replaceRecursive()`
+
+この method は`replace`のように動作しますが、配列に再帰的に作用し、内部の values に対して同じ process で置換を行います：
+
+```php
+$collection = collect([
+    'Taylor',
+    'Abigail',
+    [
+        'James',
+        'Victoria',
+        'Finn'
+    ]
+]);
+
+$replaced = $collection->replaceRecursive([
+    'Charlie',
+    2 => [1 => 'King']
+]);
+
+$replaced->all();
+
+// ['Charlie', 'Abigail', ['James', 'King', 'Finn']]
+```
+
+<a name="method-reverse"></a>
+
+#### `reverse()`
+
+`reverse` method は、元の keys を保持したまま、collection の項目の順序を逆にします。
+
+```php
+$collection = collect(['a', 'b', 'c', 'd', 'e']);
+
+$reversed = $collection->reverse();
+
+$reversed->all();
+
+/*
+    [
+        4 => 'e',
+        3 => 'd',
+        2 => 'c',
+        1 => 'b',
+        0 => 'a',
+    ]
+*/
+```
+
+<a name="method-search"></a>
+
+#### `search()`
+
+`search` method は、指定された value を collection から検索し、見つかった場合はその key を返します。アイテムが見つからない場合、`false`が返されます。
+
+```php
+$collection = collect([2, 4, 6, 8]);
+
+$collection->search(4);
+
+// 1
+```
+
+検索"は"緩い"比較を使用して行われ、つまり "整数 value"を持つ"string"は同じ"value"の"整数"と等しく見なされます。厳密な比較を使用するには、二番目の引数に`true`を渡して"method"を使います：
+
+```php
+collect([2, 4, 6, 8])->search('4', $strict = true);
+
+// false
+```
+
+あるいは、指定された真実テストをパスする最初のアイテムを search するための自身のクロージャを提供してもかまいません：
+
+```php
+collect([2, 4, 6, 8])->search(function (int $item, int $key) {
+    return $item > 5;
+});
+
+// 2
+```
+
+<a name="method-select"></a>
+
+#### `select()`
+
+`SELECT` の method は、与えられた keys を collection から選択します。これは SQL の `select` statement に似ています。
+
+```php
+$users = collect([
+    ['name' => 'Taylor Otwell', 'role' => 'Developer', 'status' => 'active'],
+    ['name' => 'Victoria Faith', 'role' => 'Researcher', 'status' => 'active'],
+]);
+
+$users->select(['name', 'role']);
+
+/*
+    [
+        ['name' => 'Taylor Otwell', 'role' => 'Developer'],
+        ['name' => 'Victoria Faith', 'role' => 'Researcher'],
+    ],
+*/
+```
+
+<a name="method-shift"></a>
+
+#### `shift()`
+
+`shift` method は、 collection から最初のアイテムを削除し、返します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->shift();
+
+// 1
+
+$collection->all();
+
+// [2, 3, 4, 5]
+```
+
+collection の開始部分から複数のアイテムを削除し、返すために`shift` method に integer を渡すことができます：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->shift(3);
+
+// collect([1, 2, 3])
+
+$collection->all();
+
+// [4, 5]
+```
+
+<a name="method-shuffle"></a>
+
+#### `shuffle()`
+
+`shuffle` method は、 collection 内のアイテムをランダムにシャッフルします：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$shuffled = $collection->shuffle();
+
+$shuffled->all();
+
+// [3, 2, 5, 1, 4] - (generated randomly)
+```
+
+<a name="method-skip"></a>
+
+#### `skip()`
+
+`skip` method は、指定された数の elements を collection の先頭から削除した新しい collection を返します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+$collection = $collection->skip(4);
+
+$collection->all();
+
+// [5, 6, 7, 8, 9, 10]
+```
+
+<a name="method-skipuntil"></a>
+
+#### `skipUntil()`
+
+`skipUntil` method は、指定されたコールバックが`true`を返すまで、 collection からの項目をスキップします。そして、新しい collection インスタンスとして、 collection 内の残りの項目を返します。
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$subset = $collection->skipUntil(function (int $item) {
+    return $item >= 3;
+});
+
+$subset->all();
+
+// [3, 4]
+```
+
+また、`skipUntil` method に単純な value を渡して、指定された value が見つかるまですべてのアイテムを skip することもできます。
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$subset = $collection->skipUntil(3);
+
+$subset->all();
+
+// [3, 4]
+```
+
+> [!警告]
+> もし与えられた value が見つからない、またはコールバックが`true`を返さない場合、`skipUntil` method は空の collection を返します。
+
+<a name="method-skipwhile"></a>
+
+#### `skipWhile()`
+
+`skipWhile` method は、指定されたコールバックが`true`を返す間、 collection のアイテムをスキップし、その後、 collection の残りのアイテムを新しい collection として返します:
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$subset = $collection->skipWhile(function (int $item) {
+    return $item <= 3;
+});
+
+$subset->all();
+
+// [4]
+```
+
+> [!警告]
+> コールバックが`false`を返さない場合、`skipWhile` method は空の collection を返します。
+
+<a name="method-slice"></a>
+
+#### `slice()`
+
+`slice` method は、指定されたインデックスから collection のスライスを返します:
+
+```php
+$collection = collect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+$slice = $collection->slice(4);
+
+$slice->all();
+
+// [5, 6, 7, 8, 9, 10]
+```
+
+返されるスライスのサイズを制限したい場合は、所望のサイズを method の第 2 引数として渡してください：
+
+```php
+$slice = $collection->slice(4, 2);
+
+$slice->all();
+
+// [5, 6]
+```
+
+返されるスライスは、 default で keys を保持します。元の keys を保持したくない場合は、[`values`](#method-values) method を使用してそれらを再インデックスすることができます。
+
+<a name="method-sliding"></a>
+
+#### `sliding()`
+
+`sliding` method は、collection 内のアイテムの"sliding window" view を表す新しい collection のチャンクを返します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$chunks = $collection->sliding(2);
+
+$chunks->toArray();
+
+// [[1, 2], [2, 3], [3, 4], [4, 5]]
+```
+
+これは特に、[`eachSpread`](#method-eachspread) method と組み合わせると非常に便利です：
+
+```php
+$transactions->sliding(2)->eachSpread(function (Collection $previous, Collection $current) {
+    $current->total = $previous->total + $current->amount;
+});
+```
+
+オプションで、2 番目の "step" value を渡すこともできます。これは、すべての chunk の最初のアイテム間の距離を決定します。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$chunks = $collection->sliding(3, step: 2);
+
+$chunks->toArray();
+
+// [[1, 2, 3], [3, 4, 5]]
+```
+
+<a name="method-sole"></a>
+
+#### `sole()`
+
+`sole`の method は、指定された真偽テストをクリアする collection の最初の要素を返しますが、真偽テストが正確に 1 つの要素に一致する場合に限ります：
+
+```php
+collect([1, 2, 3, 4])->sole(function (int $value, int $key) {
+    return $value === 2;
+});
+
+// 2
+```
+
+また、key/ value ペアを `sole` method に渡すこともできます。これにより、指定されたペアに一致する collection の最初の要素が返されますが、一致する要素が正確に一つだけの場合のみです。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 100],
+]);
+
+$collection->sole('product', 'Chair');
+
+// ['product' => 'Chair', 'price' => 100]
+```
+
+あるいは、 collection 内の最初の要素を取得するために、引数なしで `sole` method を呼び出すこともできます。ただし、これは要素が 1 つだけの場合に限ります：
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+]);
+
+$collection->sole();
+
+// ['product' => 'Desk', 'price' => 200]
+```
+
+`sole` method が返すべき collection 内にエレメントがない場合、`\Illuminate\Collections\ItemNotFoundException` 例外が throw されます。返されるべきエレメントが一つ以上ある場合、`\Illuminate\Collections\MultipleItemsFoundException` 例外が throw されます。
+
+<a name="method-some"></a>
+
+#### `some()`
+
+[`contains`](#method-contains) method の別名です。
+
+<a name="method-sort"></a>
+
+#### `sort()`
+
+`sort` method は、 collection を並べ替えます。並べ替えられた collection は元の array keys を保持するため、次の例では、[`values`](#method-values) method を使用して keys を連続した番号のインデックスに reset します:
+
+```php
+$collection = collect([5, 3, 1, 2, 4]);
+
+$sorted = $collection->sort();
+
+$sorted->values()->all();
+
+// [1, 2, 3, 4, 5]
+```
+
+もし、あなたのソートニーズがより高度なものである場合、独自の algorithm を用いて`sort`にコールバックを渡すことができます。コレクションの `sort` method が内部で使用する[`uasort`](https://secure.php.net/manual/en/function.uasort.php#refsect1-function.uasort-parameters)についての PHP ドキュメンテーションを参照してください。
+
+> [!NOTE]
+> ネストされた配列やオブジェクトの collection をソートする必要がある場合は、[`sortBy`](#method-sortby) メソッドと [`sortByDesc`](#method-sortbydesc) メソッドをご覧ください。
+
+<a name="method-sortby"></a>
+
+#### `sortBy()`
+
+`sortBy` method は与えられた keys によって collection を並べ替えます。並べ替えられた collection は元の array の keys を保持するため、以下の例では[`values`](#method-values) method を使って keys を連続的な番号のインデックスに reset します：
+
+```php
+$collection = collect([
+    ['name' => 'Desk', 'price' => 200],
+    ['name' => 'Chair', 'price' => 100],
+    ['name' => 'Bookcase', 'price' => 150],
+]);
+
+$sorted = $collection->sortBy('price');
+
+$sorted->values()->all();
+
+/*
+    [
+        ['name' => 'Chair', 'price' => 100],
+        ['name' => 'Bookcase', 'price' => 150],
+        ['name' => 'Desk', 'price' => 200],
+    ]
+*/
+```
+
+`sortBy` method は、その第二引数として[ソートフラグ](https://www.php.net/manual/en/function.sort.php)を受け入れます：
+
+```php
+$collection = collect([
+    ['title' => 'Item 1'],
+    ['title' => 'Item 12'],
+    ['title' => 'Item 3'],
+]);
+
+$sorted = $collection->sortBy('title', SORT_NATURAL);
+
+$sorted->values()->all();
+
+/*
+    [
+        ['title' => 'Item 1'],
+        ['title' => 'Item 3'],
+        ['title' => 'Item 12'],
+    ]
+*/
+```
+
+あるいは、コレクションの values のソート方法を決定するための独自のクロージャを渡すこともできます：
+
+```php
+$collection = collect([
+    ['name' => 'Desk', 'colors' => ['Black', 'Mahogany']],
+    ['name' => 'Chair', 'colors' => ['Black']],
+    ['name' => 'Bookcase', 'colors' => ['Red', 'Beige', 'Brown']],
+]);
+
+$sorted = $collection->sortBy(function (array $product, int $key) {
+    return count($product['colors']);
+});
+
+$sorted->values()->all();
+
+/*
+    [
+        ['name' => 'Chair', 'colors' => ['Black']],
+        ['name' => 'Desk', 'colors' => ['Black', 'Mahogany']],
+        ['name' => 'Bookcase', 'colors' => ['Red', 'Beige', 'Brown']],
+    ]
+*/
+```
+
+もし複数の属性によってあなたの collection をソートしたい場合は、ソート操作の array を `sortBy` method に渡すことができます。各ソート操作は、ソートしたい属性と所望のソート方向を含む array であるべきです:
+
+```php
+$collection = collect([
+    ['name' => 'Taylor Otwell', 'age' => 34],
+    ['name' => 'Abigail Otwell', 'age' => 30],
+    ['name' => 'Taylor Otwell', 'age' => 36],
+    ['name' => 'Abigail Otwell', 'age' => 32],
+]);
+
+$sorted = $collection->sortBy([
+    ['name', 'asc'],
+    ['age', 'desc'],
+]);
+
+$sorted->values()->all();
+
+/*
+    [
+        ['name' => 'Abigail Otwell', 'age' => 32],
+        ['name' => 'Abigail Otwell', 'age' => 30],
+        ['name' => 'Taylor Otwell', 'age' => 36],
+        ['name' => 'Taylor Otwell', 'age' => 34],
+    ]
+*/
+```
+
+複数の attributes で collection を並べ替えるとき、各ソート操作を定義するクロージャを提供することもできます:
+
+```php
+$collection = collect([
+    ['name' => 'Taylor Otwell', 'age' => 34],
+    ['name' => 'Abigail Otwell', 'age' => 30],
+    ['name' => 'Taylor Otwell', 'age' => 36],
+    ['name' => 'Abigail Otwell', 'age' => 32],
+]);
+
+$sorted = $collection->sortBy([
+    fn (array $a, array $b) => $a['name'] <=> $b['name'],
+    fn (array $a, array $b) => $b['age'] <=> $a['age'],
+]);
+
+$sorted->values()->all();
+
+/*
+    [
+        ['name' => 'Abigail Otwell', 'age' => 32],
+        ['name' => 'Abigail Otwell', 'age' => 30],
+        ['name' => 'Taylor Otwell', 'age' => 36],
+        ['name' => 'Taylor Otwell', 'age' => 34],
+    ]
+*/
+```
+
+<a name="method-sortbydesc"></a>
+
+#### `sortByDesc()`
+
+この method は、[`sortBy`](#method-sortby)の method と同じ signature を持っていますが、 collection を逆の順序でソートします。
+
+<a name="method-sortdesc"></a>
+
+#### `sortDesc()`
+
+この method は、[`sort`](#method-sort) method とは逆の順序で collection を並べ替えます：
+
+```php
+$collection = collect([5, 3, 1, 2, 4]);
+
+$sorted = $collection->sortDesc();
+
+$sorted->values()->all();
+
+// [5, 4, 3, 2, 1]
+```
+
+`sort`とは異なり、クロージャを`sortDesc`に渡すことはできません。代わりに、[`sort`](#method-sort) method を使用し、比較を反転させるべきです。
+
+<a name="method-sortkeys"></a>
+
+#### `sortKeys()`
+
+`sortKeys` method は、基礎となる連想 array の keys によって collection を並び替えます：
+
+```php
+$collection = collect([
+    'id' => 22345,
+    'first' => 'John',
+    'last' => 'Doe',
+]);
+
+$sorted = $collection->sortKeys();
+
+$sorted->all();
+
+/*
+    [
+        'first' => 'John',
+        'id' => 22345,
+        'last' => 'Doe',
+    ]
+*/
+```
+
+<a name="method-sortkeysdesc"></a>
+
+#### `sortKeysDesc()`
+
+この method は[`sortKeys`](#method-sortkeys)の method と同じ signature を持ちますが、逆の順序で collection を並べ替えます。
+
+<a name="method-sortkeysusing"></a>
+
+#### `sortKeysUsing()`
+
+`sortKeysUsing` method は、コールバックを使用して、基礎となる連想 array の keys により collection をソートします：
+
+```php
+$collection = collect([
+    'ID' => 22345,
+    'first' => 'John',
+    'last' => 'Doe',
+]);
+
+$sorted = $collection->sortKeysUsing('strnatcasecmp');
+
+$sorted->all();
+
+/*
+    [
+        'first' => 'John',
+        'ID' => 22345,
+        'last' => 'Doe',
+    ]
+*/
+```
+
+コールバックは、ゼロ以下、ゼロと等しい、またはゼロより大きい整数を返す比較関数でなければなりません。詳細は、`sortKeysUsing`method が内部で利用する PHP 関数である[`uksort`](https://www.php.net/manual/en/function.uksort.php#refsect1-function.uksort-parameters)に関する PHP のドキュメンテーションを参照してください。
+
+<a name="method-splice"></a>
+
+#### `splice()`
+
+`splice` method は、指定されたインデックスから始まるアイテムのスライスを削除し、返します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$chunk = $collection->splice(2);
+
+$chunk->all();
+
+// [3, 4, 5]
+
+$collection->all();
+
+// [1, 2]
+```
+
+結果の collection のサイズを制限するために、2 番目の引数を渡すことができます。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$chunk = $collection->splice(2, 1);
+
+$chunk->all();
+
+// [3]
+
+$collection->all();
+
+// [1, 2, 4, 5]
+```
+
+さらに、削除された collection のアイテムを置き換える新しいアイテムを含む第三の引数を渡すことができます：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$chunk = $collection->splice(2, 1, [10, 11]);
+
+$chunk->all();
+
+// [3]
+
+$collection->all();
+
+// [1, 2, 10, 11, 4, 5]
+```
+
+<a name="method-split"></a>
+
+#### `split()`
+
+`split` method は、指定された数のグループに collection を分割します：
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$groups = $collection->split(3);
+
+$groups->all();
+
+// [[1, 2], [3, 4], [5]]
+```
+
+<a name="method-splitin"></a>
+
+#### `splitIn()`
+
+`splitIn` method は、与えられた数のグループに collection を分割し、最終グループに残りを割り当てる前に非終端グループを完全に埋めます：
+
+```php
+$collection = collect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+$groups = $collection->splitIn(3);
+
+$groups->all();
+
+// [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10]]
+```
+
+<a name="method-sum"></a>
+
+#### `sum()`
+
+`sum` method は、 collection 内のすべてのアイテムの合計を返します。
+
+```php
+collect([1, 2, 3, 4, 5])->sum();
+
+// 15
+```
+
+collection にネストされた配列やオブジェクトが含まれている場合、どの values を合計するかを決定するために使用されるキーを渡すべきです：
+
+```php
+$collection = collect([
+    ['name' => 'JavaScript: The Good Parts', 'pages' => 176],
+    ['name' => 'JavaScript: The Definitive Guide', 'pages' => 1096],
+]);
+
+$collection->sum('pages');
+
+// 1272
+```
+
+また、どの collection の values を合計するかを決定するための独自のクロージャを渡すこともできます：
+
+```php
+$collection = collect([
+    ['name' => 'Chair', 'colors' => ['Black']],
+    ['name' => 'Desk', 'colors' => ['Black', 'Mahogany']],
+    ['name' => 'Bookcase', 'colors' => ['Red', 'Beige', 'Brown']],
+]);
+
+$collection->sum(function (array $product) {
+    return count($product['colors']);
+});
+
+// 6
+```
+
+<a name="method-take"></a>
+
+#### `take()`
+
+`take` method は、指定された数のアイテムを持つ新しい collection を返します：
+
+```php
+$collection = collect([0, 1, 2, 3, 4, 5]);
+
+$chunk = $collection->take(3);
+
+$chunk->all();
+
+// [0, 1, 2]
+```
+
+また、指定した数のアイテムを collection の最後から取得するために、負の integer を渡すこともできます：
+
+```php
+$collection = collect([0, 1, 2, 3, 4, 5]);
+
+$chunk = $collection->take(-2);
+
+$chunk->all();
+
+// [4, 5]
+```
+
+<a name="method-takeuntil"></a>
+
+#### `takeUntil()`
+
+`takeUntil` method は、指定されたコールバックが`true`を返すまでの collection 内のアイテムを返します。
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$subset = $collection->takeUntil(function (int $item) {
+    return $item >= 3;
+});
+
+$subset->all();
+
+// [1, 2]
+```
+
+また、`takeUntil`の method に単純な value を渡して、指定された value が見つかるまでの項目を取得することもできます：
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$subset = $collection->takeUntil(3);
+
+$subset->all();
+
+// [1, 2]
+```
+
+> [!警告]
+> 指定された value が見つからないか、コールバックが`true`を返さない場合、`takeUntil` method は collection 内のすべてのアイテムを返します。
+
+<a name="method-takewhile"></a>
+
+#### `takeWhile()`
+
+`takeWhile` method は、指定されたコールバックが`false`を返すまで、 collection 内のアイテムを返します：
+
+```php
+$collection = collect([1, 2, 3, 4]);
+
+$subset = $collection->takeWhile(function (int $item) {
+    return $item < 3;
+});
+
+$subset->all();
+
+// [1, 2]
+```
+
+> [!警告]
+> コールバックが`false`を返さない場合、`takeWhile` method は collection 内のすべてのアイテムを返します。
+
+<a name="method-tap"></a>
+
+#### `tap()`
+
+`tap` "" method "" は "" collection "" を指定したコールバックに渡し、ある特定の点で "" collection "" に"タップ"して、アイテムを操作しながら "" collection "" 自体に影響を与えません。そして、"" collection "" は `tap` "" method "" によって返されます。
+
+```php
+collect([2, 4, 3, 1, 5])
+    ->sort()
+    ->tap(function (Collection $collection) {
+        Log::debug('Values after sorting', $collection->values()->all());
+    })
+    ->shift();
+
+// 1
+```
+
+<a name="method-times"></a>
+
+#### `times()`
+
+静的な `times` の method は、指定された回数だけ与えられたクロージャを呼び出すことで新しい collection を作成します：
+
+```php
+$collection = Collection::times(10, function (int $number) {
+    return $number * 9;
+});
+
+$collection->all();
+
+// [9, 18, 27, 36, 45, 54, 63, 72, 81, 90]
+```
+
+<a name="method-toarray"></a>
+
+#### `toArray()`
+
+`toArray` ””method””は””collection””をプレーンな PHP `array` に変換します。もしコレクションの””values””が[””Eloquent””](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent) ””models””であれば、””models””も arrays に変換されます：
+
+```php
+$collection = collect(['name' => 'Desk', 'price' => 200]);
+
+$collection->toArray();
+
+/*
+    [
+        ['name' => 'Desk', 'price' => 200],
+    ]
+*/
+```
+
+> [!警告] > `toArray`は、`Arrayable`のインスタンスであるコレクションのすべてのネストされた objects も array に変換します。 collection の下にある原始的な array を取得したい場合は、代わりに[`all`](#method-all) method を使用してください。
+
+<a name="method-tojson"></a>
+
+#### `toJson()`
+
+`toJson` method は、 collection を JSON シリアライズされた string に変換します。
+
+```php
+$collection = collect(['name' => 'Desk', 'price' => 200]);
+
+$collection->toJson();
+
+// '{"name":"Desk", "price":200}'
+```
+
+<a name="method-transform"></a>
+
+#### `transform()`
+
+`transform` method は、collection 上を反復処理し、各アイテムに対して指定したコールバックを呼び出します。collection のアイテムは、コールバックによって返された values に置き換えられます。
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->transform(function (int $item, int $key) {
+    return $item * 2;
+});
+
+$collection->all();
+
+// [2, 4, 6, 8, 10]
+```
+
+> [!警告]
+> ほとんどの他の collection メソッドとは異なり、 `transform`は collection 自体を変更します。代わりに新しい collection を作成したい場合は、[`map`](#method-map) method を使用してください。
+
+<a name="method-undot"></a>
+
+#### `undot()`
+
+`undot`"の method は、"dot"表記法を使用した単一次元の collection を、多次元の collection に展開します：
+
+```php
+$person = collect([
+    'name.first_name' => 'Marie',
+    'name.last_name' => 'Valentine',
+    'address.line_1' => '2992 Eagle Drive',
+    'address.line_2' => '',
+    'address.suburb' => 'Detroit',
+    'address.state' => 'MI',
+    'address.postcode' => '48219'
+]);
+
+$person = $person->undot();
+
+$person->toArray();
+
+/*
+    [
+        "name" => [
+            "first_name" => "Marie",
+            "last_name" => "Valentine",
+        ],
+        "address" => [
+            "line_1" => "2992 Eagle Drive",
+            "line_2" => "",
+            "suburb" => "Detroit",
+            "state" => "MI",
+            "postcode" => "48219",
+        ],
+    ]
+*/
+```
+
+<a name="method-union"></a>
+
+#### `union()`
+
+`union` method は与えられた array を collection に追加します。もし与えられた array が既にオリジナルの collection に存在する keys を含んでいる場合、オリジナルの collection の values が優先されます。
+
+```php
+$collection = collect([1 => ['a'], 2 => ['b']]);
+
+$union = $collection->union([3 => ['c'], 1 => ['d']]);
+
+$union->all();
+
+// [1 => ['a'], 2 => ['b'], 3 => ['c']]
+```
+
+<a name="method-unique"></a>
+
+#### `unique()`
+
+`unique`の method は、 collection 内のすべての unique なアイテムを返します。返される collection は元の array keys を保持しているので、次の例では[`values`](#method-values)の method を使用して、 keys を連続した数値のインデックスに reset します。
+
+```php
+$collection = collect([1, 1, 2, 2, 3, 4, 2]);
+
+$unique = $collection->unique();
+
+$unique->values()->all();
+
+// [1, 2, 3, 4]
+```
+
+ネストされた配列やオブジェクトを扱う際、一意性を決定するために使用されるキーを指定することができます：
+
+```php
+$collection = collect([
+    ['name' => 'iPhone 6', 'brand' => 'Apple', 'type' => 'phone'],
+    ['name' => 'iPhone 5', 'brand' => 'Apple', 'type' => 'phone'],
+    ['name' => 'Apple Watch', 'brand' => 'Apple', 'type' => 'watch'],
+    ['name' => 'Galaxy S6', 'brand' => 'Samsung', 'type' => 'phone'],
+    ['name' => 'Galaxy Gear', 'brand' => 'Samsung', 'type' => 'watch'],
+]);
+
+$unique = $collection->unique('brand');
+
+$unique->values()->all();
+
+/*
+    [
+        ['name' => 'iPhone 6', 'brand' => 'Apple', 'type' => 'phone'],
+        ['name' => 'Galaxy S6', 'brand' => 'Samsung', 'type' => 'phone'],
+    ]
+*/
+```
+
+最後に、アイテムの一意性を決定するべき value を指定するために、独自のクロージャを`unique` method に渡すことも可能です：
+
+```php
+$unique = $collection->unique(function (array $item) {
+    return $item['brand'].$item['type'];
+});
+
+$unique->values()->all();
+
+/*
+    [
+        ['name' => 'iPhone 6', 'brand' => 'Apple', 'type' => 'phone'],
+        ['name' => 'Apple Watch', 'brand' => 'Apple', 'type' => 'watch'],
+        ['name' => 'Galaxy S6', 'brand' => 'Samsung', 'type' => 'phone'],
+        ['name' => 'Galaxy Gear', 'brand' => 'Samsung', 'type' => 'watch'],
+    ]
+*/
+```
+
+`unique`の method はアイテムの values をチェックする際に"ゆるい"比較を使用します。つまり、 integer value を持つ string は同じ value の integer と等しいと考えられます。 "厳格な"比較を使用してフィルタリングするためには、[`uniqueStrict`](#method-uniquestrict)の method を使用してください。
+
+> [!NOTE]
+> このメソッドの挙動は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-unique)を使用すると変更されます。
+
+<a name="method-uniquestrict"></a>
+
+#### `uniqueStrict()`
+
+この method は、[`unique`](#method-unique) method 同じ signature を持っています。ただし、全ての values は、"strict" comparisons で比較されます。
+
+<a name="method-unless"></a>
+
+#### `unless()`
+
+`unless`method は、与えられたコールバックを実行します。ただし、method へ与えられた最初の引数が`true`と評価される場合は実行しません。
+
+```php
+$collection = collect([1, 2, 3]);
+
+$collection->unless(true, function (Collection $collection) {
+    return $collection->push(4);
+});
+
+$collection->unless(false, function (Collection $collection) {
+    return $collection->push(5);
+});
+
+$collection->all();
+
+// [1, 2, 3, 5]
+```
+
+二つ目のコールバックは、`unless` method に渡すことができます。二つ目のコールバックは、`unless` method に与えられた最初の引数が`true`に評価された時に実行されます。
+
+```php
+$collection = collect([1, 2, 3]);
+
+$collection->unless(true, function (Collection $collection) {
+    return $collection->push(4);
+}, function (Collection $collection) {
+    return $collection->push(5);
+});
+
+$collection->all();
+
+// [1, 2, 3, 5]
+```
+
+`unless`の逆については、[`when`](#method-when) method を参照してください。
+
+<a name="method-unlessempty"></a>
+
+#### `unlessEmpty()`
+
+[`whenNotEmpty`](#method-whennotempty) method の別名。
+
+<a name="method-unlessnotempty"></a>
+
+#### `unlessNotEmpty()`
+
+[`whenEmpty`](#method-whenempty) method のエイリアス。
+
+<a name="method-unwrap"></a>
+
+#### `unwrap()`
+
+静的な `unwrap` method は、適用可能な場合、指定された value から collection の基本的なアイテムを返します:
+
+```php
+Collection::unwrap(collect('John Doe'));
+
+// ['John Doe']
+
+Collection::unwrap(['John Doe']);
+
+// ['John Doe']
+
+Collection::unwrap('John Doe');
+
+// 'John Doe'
+```
+
+<a name="method-value"></a>
+
+#### `value()`
+
+`value` method は、指定された value を collection の最初の要素から取得します。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Speaker', 'price' => 400],
+]);
+
+$value = $collection->value('price');
+
+// 200
+```
+
+<a name="method-values"></a>
+
+#### `values()`
+
+`values` method は、keys の reset を連続する整数にした新しい collection を返します。
+
+```php
+$collection = collect([
+    10 => ['product' => 'Desk', 'price' => 200],
+    11 => ['product' => 'Desk', 'price' => 200],
+]);
+
+$values = $collection->values();
+
+$values->all();
+
+/*
+    [
+        0 => ['product' => 'Desk', 'price' => 200],
+        1 => ['product' => 'Desk', 'price' => 200],
+    ]
+*/
+```
+
+<a name="method-when"></a>
+
+#### `when()`
+
+`when` method は、与えられた引数が`true`と評価された時に、指定されたコールバックを実行します。 collection インスタンスと`when` method に与えられた最初の引数はクロージャーに渡されます。
+
+```php
+$collection = collect([1, 2, 3]);
+
+$collection->when(true, function (Collection $collection, int $value) {
+    return $collection->push(4);
+});
+
+$collection->when(false, function (Collection $collection, int $value) {
+    return $collection->push(5);
+});
+
+$collection->all();
+
+// [1, 2, 3, 4]
+```
+
+`when`の method には、2 つ目のコールバックを渡すことができます。2 つ目のコールバックは、`when`の method に与えられた最初の引数が`false`と評価されたときに実行されます。
+
+```php
+$collection = collect([1, 2, 3]);
+
+$collection->when(false, function (Collection $collection, int $value) {
+    return $collection->push(4);
+}, function (Collection $collection) {
+    return $collection->push(5);
+});
+
+$collection->all();
+
+// [1, 2, 3, 5]
+```
+
+`when`の逆のために、[`unless`](#method-unless)の method を参照してください。
+
+<a name="method-whenempty"></a>
+
+#### `whenEmpty()`
+
+`whenEmpty` method は、 collection が空の場合に指定されたコールバックを実行します：
+
+```php
+$collection = collect(['Michael', 'Tom']);
+
+$collection->whenEmpty(function (Collection $collection) {
+    return $collection->push('Adam');
+});
+
+$collection->all();
+
+// ['Michael', 'Tom']
+
+
+$collection = collect();
+
+$collection->whenEmpty(function (Collection $collection) {
+    return $collection->push('Adam');
+});
+
+$collection->all();
+
+// ['Adam']
+```
+
+二番目のクロージャは `whenEmpty` method に渡すことができ、そのクロージャは collection が空でない場合に実行されます：
+
+```php
+$collection = collect(['Michael', 'Tom']);
+
+$collection->whenEmpty(function (Collection $collection) {
+    return $collection->push('Adam');
+}, function (Collection $collection) {
+    return $collection->push('Taylor');
+});
+
+$collection->all();
+
+// ['Michael', 'Tom', 'Taylor']
+```
+
+`whenEmpty`の逆メソッドは、[`whenNotEmpty`](#method-whennotempty) method をご覧ください。
+
+<a name="method-whennotempty"></a>
+
+#### `whenNotEmpty()`
+
+`whenNotEmpty` method は、 collection が空でない場合に指定されたコールバックを実行します：
+
+```php
+$collection = collect(['michael', 'tom']);
+
+$collection->whenNotEmpty(function (Collection $collection) {
+    return $collection->push('adam');
+});
+
+$collection->all();
+
+// ['michael', 'tom', 'adam']
+
+
+$collection = collect();
+
+$collection->whenNotEmpty(function (Collection $collection) {
+    return $collection->push('adam');
+});
+
+$collection->all();
+
+// []
+```
+
+二番目のクロージャは、`whenNotEmpty` method に渡すことができ、これは collection が空の場合に実行されます。
+
+```php
+$collection = collect();
+
+$collection->whenNotEmpty(function (Collection $collection) {
+    return $collection->push('adam');
+}, function (Collection $collection) {
+    return $collection->push('taylor');
+});
+
+$collection->all();
+
+// ['taylor']
+```
+
+`whenNotEmpty`の逆については、[`whenEmpty`](#method-whenempty) method を参照してください。
+
+<a name="method-where"></a>
+
+#### `where()`
+
+`where` method は、与えられた key/ value のペアによって collection をフィルタリングします：
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 100],
+    ['product' => 'Bookcase', 'price' => 150],
+    ['product' => 'Door', 'price' => 100],
+]);
+
+$filtered = $collection->where('price', 100);
+
+$filtered->all();
+
+/*
+    [
+        ['product' => 'Chair', 'price' => 100],
+        ['product' => 'Door', 'price' => 100],
+    ]
+*/
+```
+
+`where`method は、アイテムの values をチェックする際に"ルーズ"な比較を使用します。つまり、整数値を持つ string は、同じ values を持つ整数と同等とみなされます。"厳密"な比較を使用してフィルタリングするには、[`whereStrict`](#method-wherestrict) method を使用してください。
+
+オプションとして、比較演算子を第二パラメータとして渡すこともできます。対応している演算子は次の通りです：'===', '!==', '!=', '==', '=', '\<\>', '\>', '\<', '\>=', '\<=':
+
+```php
+$collection = collect([
+    ['name' => 'Jim', 'deleted_at' => '2019-01-01 00:00:00'],
+    ['name' => 'Sally', 'deleted_at' => '2019-01-02 00:00:00'],
+    ['name' => 'Sue', 'deleted_at' => null],
+]);
+
+$filtered = $collection->where('deleted_at', '!=', null);
+
+$filtered->all();
+
+/*
+    [
+        ['name' => 'Jim', 'deleted_at' => '2019-01-01 00:00:00'],
+        ['name' => 'Sally', 'deleted_at' => '2019-01-02 00:00:00'],
+    ]
+*/
+```
+
+<a name="method-wherestrict"></a>
+
+#### `whereStrict()`
+
+この method は、[`where`](#method-where)メソッドと同じ signature を持っています。ただし、すべての values は"strict"な比較を使用して比較されます。
+
+<a name="method-wherebetween"></a>
+
+#### `whereBetween()`
+
+`whereBetween` method は、指定されたアイテムの value が与えられた範囲内にあるかどうかを判断することで、 collection をフィルタリングします。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 80],
+    ['product' => 'Bookcase', 'price' => 150],
+    ['product' => 'Pencil', 'price' => 30],
+    ['product' => 'Door', 'price' => 100],
+]);
+
+$filtered = $collection->whereBetween('price', [100, 200]);
+
+$filtered->all();
+
+/*
+    [
+        ['product' => 'Desk', 'price' => 200],
+        ['product' => 'Bookcase', 'price' => 150],
+        ['product' => 'Door', 'price' => 100],
+    ]
+*/
+```
+
+<a name="method-wherein"></a>
+
+#### `whereIn()`
+
+`whereIn` method は、指定されたアイテムの value が与えられた array 内に含まれていない elements を collection から削除します。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 100],
+    ['product' => 'Bookcase', 'price' => 150],
+    ['product' => 'Door', 'price' => 100],
+]);
+
+$filtered = $collection->whereIn('price', [150, 200]);
+
+$filtered->all();
+
+/*
+    [
+        ['product' => 'Desk', 'price' => 200],
+        ['product' => 'Bookcase', 'price' => 150],
+    ]
+*/
+```
+
+`whereIn`"の「method」はアイテムの「values」をチェックする際に"ゆるい"比較を使用します。つまり、「整数 values」を持つ「string」は同じ「values」の「整数」と同等とみなされます。「厳密な」比較を使用してフィルタリングするには、[`whereInStrict`](#method-whereinstrict)の「method」を使用します。
+
+<a name="method-whereinstrict"></a>
+
+#### `whereInStrict()`
+
+この" method "は、[`whereIn`](#method-wherein)メソッドと同じ" signature "を持っています。ただし、すべての" values "は"strict"な比較を使用して比較されます。
+
+<a name="method-whereinstanceof"></a>
+
+#### `whereInstanceOf()`
+
+`whereInstanceOf` method は指定された class type によって collection をフィルタリングします：
+
+```php
+use App\Models\User;
+use App\Models\Post;
+
+$collection = collect([
+    new User,
+    new User,
+    new Post,
+]);
+
+$filtered = $collection->whereInstanceOf(User::class);
+
+$filtered->all();
+
+// [App\Models\User, App\Models\User]
+```
+
+<a name="method-wherenotbetween"></a>
+
+#### `whereNotBetween()`
+
+`whereNotBetween` method は、特定のアイテムの value が指定した範囲外であるかどうかを判断することで、 collection をフィルタリングします：
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 80],
+    ['product' => 'Bookcase', 'price' => 150],
+    ['product' => 'Pencil', 'price' => 30],
+    ['product' => 'Door', 'price' => 100],
+]);
+
+$filtered = $collection->whereNotBetween('price', [100, 200]);
+
+$filtered->all();
+
+/*
+    [
+        ['product' => 'Chair', 'price' => 80],
+        ['product' => 'Pencil', 'price' => 30],
+    ]
+*/
+```
+
+<a name="method-wherenotin"></a>
+
+#### `whereNotIn()`
+
+`whereNotIn` method は、指定されたアイテムの value が与えられた array 内に含まれている collection から elements を削除します。
+
+```php
+$collection = collect([
+    ['product' => 'Desk', 'price' => 200],
+    ['product' => 'Chair', 'price' => 100],
+    ['product' => 'Bookcase', 'price' => 150],
+    ['product' => 'Door', 'price' => 100],
+]);
+
+$filtered = $collection->whereNotIn('price', [150, 200]);
+
+$filtered->all();
+
+/*
+    [
+        ['product' => 'Chair', 'price' => 100],
+        ['product' => 'Door', 'price' => 100],
+    ]
+*/
+```
+
+`whereNotIn`"の「method"」は、アイテムの「values」をチェックする際に "ルーズ"な比較を使います。つまり、「整数 values」を持つ「string」は、同じ「values」の「整数」と等しいと見なされるでしょう。"strict"な比較を使用してフィルタリングするには、[`whereNotInStrict`](#method-wherenotinstrict) の「method」を使ってください。
+
+<a name="method-wherenotinstrict"></a>
+
+#### `whereNotInStrict()`
+
+この" method "は、[`whereNotIn`](#method-wherenotin)メソッドと同じ" signature "を持ちます。ただし、全ての" values "は"strict"な比較を用いて比較されます。
+
+<a name="method-wherenotnull"></a>
+
+#### `whereNotNull()`
+
+`whereNotNull` method は、指定された key が`null`でない場合に、 collection からアイテムを返します。
+
+```php
+$collection = collect([
+    ['name' => 'Desk'],
+    ['name' => null],
+    ['name' => 'Bookcase'],
+]);
+
+$filtered = $collection->whereNotNull('name');
+
+$filtered->all();
+
+/*
+    [
+        ['name' => 'Desk'],
+        ['name' => 'Bookcase'],
+    ]
+*/
+```
+
+<a name="method-wherenull"></a>
+
+#### `whereNull()`
+
+`whereNull` method は、指定された key が`null`の場合、 collection からアイテムを返します。
+
+```php
+$collection = collect([
+    ['name' => 'Desk'],
+    ['name' => null],
+    ['name' => 'Bookcase'],
+]);
+
+$filtered = $collection->whereNull('name');
+
+$filtered->all();
+
+/*
+    [
+        ['name' => null],
+    ]
+*/
+```
+
+<a name="method-wrap"></a>
+
+#### `wrap()`
+
+静的な `wrap` method は、該当する場合に与えられた value を collection でラップします。
+
+```php
+use Illuminate\Support\Collection;
+
+$collection = Collection::wrap('John Doe');
+
+$collection->all();
+
+// ['John Doe']
+
+$collection = Collection::wrap(['John Doe']);
+
+$collection->all();
+
+// ['John Doe']
+
+$collection = Collection::wrap(collect('John Doe'));
+
+$collection->all();
+
+// ['John Doe']
+```
+
+<a name="method-zip"></a>
+
+#### `zip()`
+
+`zip` method は、与えられた array の values と元の collection の values をそれぞれのインデックスで結合します：
+
+```php
+$collection = collect(['Chair', 'Desk']);
+
+$zipped = $collection->zip([100, 200]);
+
+$zipped->all();
+
+// [['Chair', 100], ['Desk', 200]]
+```
+
+<a name="higher-order-messages"></a>
+
+## Higher Order Messages
+
+collections は、「高階メッセージ」と呼ばれる機能もサポートしており、これは collections に対する一般的な操作を短縮するためのものです。高階メッセージを提供する collections の methods は、次のとおりです：[`average`](#method-average)、[`avg`](#method-avg)、[`contains`](#method-contains)、[`each`](#method-each)、[`every`](#method-every)、[`filter`](#method-filter)、[`first`](#method-first)、[`flatMap`](#method-flatmap)、[`groupBy`](#method-groupby)、[`keyBy`](#method-keyby)、[`map`](#method-map)、[`max`](#method-max)、[`min`](#method-min)、[`partition`](#method-partition)、[`reject`](#method-reject)、[`skipUntil`](#method-skipuntil)、[`skipWhile`](#method-skipwhile)、[`some`](#method-some)、[`sortBy`](#method-sortby)、[`sortByDesc`](#method-sortbydesc)、[`sum`](#method-sum)、[`takeUntil`](#method-takeuntil)、[`takeWhile`](#method-takewhile)、そして[`unique`](#method-unique)です。
+
+各高次メッセージは、 collection インスタンスの動的プロパティとしてアクセスすることができます。例えば、`each` 高次メッセージを使用して、 collection 内の各 object 上の method を呼び出しましょう：
+
+```php
+use App\Models\User;
+
+$users = User::where('votes', '>', 500)->get();
+
+$users->each->markAsVip();
+```
+
+同様に、`sum` の高階メッセージを使用して、「 collection 」の「 users 」の「投票」の総数を集計することができます：
+
+```php
+$users = User::where('group', 'Development')->get();
+
+return $users->sum->votes;
+```
+
+<a name="lazy-collections"></a>
+
+## Lazy Collections
+
+<a name="lazy-collection-introduction"></a>
+
+### Introduction
+
+> [!警告]
+> Laravel の lazy collections について詳しく学ぶ前に、[PHP generators](https://www.php.net/manual/en/language.generators.overview.php)に慣れる時間を少し取ってください。
+
+既に強力な`Collection` class を補完するために、`LazyCollection` class は PHP の[ジェネレータ](https://www.php.net/manual/en/language.generators.overview.php)を利用して、非常に大きな data セットを低いメモリ使用量で操作できるようにします。
+
+例えば、あなたの application がマルチギガバイトの log ファイルを process する必要があると想像してみてください。ログをパースするために Laravel の collection メソッドを活用しながら、ファイル全体を一度にメモリに読み込むのではなく、 lazy collections を使用して、一度にメモリに保持するファイルの一部を小さくすることができます。
+
+```php
+use App\Models\LogEntry;
+use Illuminate\Support\LazyCollection;
+
+LazyCollection::make(function () {
+    $handle = fopen('log.txt', 'r');
+
+    while (($line = fgets($handle)) !== false) {
+        yield $line;
+    }
+})->chunk(4)->map(function (array $lines) {
+    return LogEntry::fromLines($lines);
+})->each(function (LogEntry $logEntry) {
+    // Process the log entry...
+});
+```
+
+または、10,000 の Eloquent models を反復する必要があると想像してみてください。従来の Laravel collections を使用すると、すべての 10,000 の Eloquent models が同時にメモリにロードされる必要があります：
+
+```php
+use App\Models\User;
+
+$users = User::all()->filter(function (User $user) {
+    return $user->id > 500;
+});
+```
+
+しかし、 query ビルダーの `cursor` method は `LazyCollection` インスタンスを返します。これにより、まだ database に対して single query を実行できるだけでなく、一度にメモリにロードできる Eloquent model も 1 つだけにすることができます。この例では、 `filter` コールバックは、それぞれの user を実際に個々に反復処理するまで実行されません、これによりメモリ使用量を大幅に削減することができます。
+
+```php
+use App\Models\User;
+
+$users = User::cursor()->filter(function (User $user) {
+    return $user->id > 500;
+});
+
+foreach ($users as $user) {
+    echo $user->id;
+}
+```
+
+<a name="creating-lazy-collections"></a>
+
+### Lazy Collections の作成
+
+lazy collection インスタンスを作成するには、PHP ジェネレーター関数をコレクションの `make` method に渡す必要があります：
+
+```php
+use Illuminate\Support\LazyCollection;
+
+LazyCollection::make(function () {
+    $handle = fopen('log.txt', 'r');
+
+    while (($line = fgets($handle)) !== false) {
+        yield $line;
+    }
+});
+```
+
+<a name="the-enumerable-contract"></a>
+
+### Enumerable 契約
+
+ほとんどすべての`Collection` class で利用可能な methods は、`LazyCollection` class でも利用可能です。これら両方のクラスは`Illuminate\Support\Enumerable`契約を実装しており、以下の methods を定義しています：
+
+<div class="collection-method-list" markdown="1">
+
+[all](#method-all) [average](#method-average) [avg](#method-avg) [chunk](#method-chunk) [chunkWhile](#method-chunkwhile) [collapse](#method-collapse) [collect](#method-collect) [combine](#method-combine) [concat](#method-concat) [contains](#method-contains) [containsStrict](#method-containsstrict) [count](#method-count) [countBy](#method-countBy) [crossJoin](#method-crossjoin) [dd](#method-dd) [diff](#method-diff) [diffAssoc](#method-diffassoc) [diffKeys](#method-diffkeys) [dump](#method-dump) [duplicates](#method-duplicates) [duplicatesStrict](#method-duplicatesstrict) [each](#method-each) [eachSpread](#method-eachspread) [every](#method-every) [except](#method-except) [filter](#method-filter) [first](#method-first) [firstOrFail](#method-first-or-fail) [firstWhere](#method-first-where) [flatMap](#method-flatmap) [flatten](#method-flatten) [flip](#method-flip) [forPage](#method-forpage) [get](#method-get) [groupBy](#method-groupby) [has](#method-has) [implode](#method-implode) [intersect](#method-intersect) [intersectAssoc](#method-intersectAssoc) [intersectByKeys](#method-intersectbykeys) [isEmpty](#method-isempty) [isNotEmpty](#method-isnotempty) [join](#method-join) [keyBy](#method-keyby) [keys](#method-keys) [last](#method-last) [macro](#method-macro) [make](#method-make) [map](#method-map) [mapInto](#method-mapinto) [mapSpread](#method-mapspread) [mapToGroups](#method-maptogroups) [mapWithKeys](#method-mapwithkeys) [max](#method-max) [median](#method-median) [merge](#method-merge) [mergeRecursive](#method-mergerecursive) [min](#method-min) [mode](#method-mode) [nth](#method-nth) [only](#method-only) [pad](#method-pad) [partition](#method-partition) [pipe](#method-pipe) [pluck](#method-pluck) [random](#method-random) [reduce](#method-reduce) [reject](#method-reject) [replace](#method-replace) [replaceRecursive](#method-replacerecursive) [reverse](#method-reverse) [search](#method-search) [shuffle](#method-shuffle) [skip](#method-skip) [slice](#method-slice) [sole](#method-sole) [some](#method-some) [sort](#method-sort) [sortBy](#method-sortby) [sortByDesc](#method-sortbydesc) [sortKeys](#method-sortkeys) [sortKeysDesc](#method-sortkeysdesc) [split](#method-split) [sum](#method-sum) [take](#method-take) [tap](#method-tap) [times](#method-times) [toArray](#method-toarray) [toJson](#method-tojson) [union](#method-union) [unique](#method-unique) [uniqueStrict](#method-uniquestrict) [unless](#method-unless) [unlessEmpty](#method-unlessempty) [unlessNotEmpty](#method-unlessnotempty) [unwrap](#method-unwrap) [values](#method-values) [when](#method-when) [whenEmpty](#method-whenempty) [whenNotEmpty](#method-whennotempty) [where](#method-where) [whereStrict](#method-wherestrict) [whereBetween](#method-wherebetween) [whereIn](#method-wherein) [whereInStrict](#method-whereinstrict) [whereInstanceOf](#method-whereinstanceof) [whereNotBetween](#method-wherenotbetween) [whereNotIn](#method-wherenotin) [whereNotInStrict](#method-wherenotinstrict) [wrap](#method-wrap) [zip](#method-zip)
+
+</div>
+
+> [！警告]
+> collection を変更する Methods(`shift`、`pop`、`prepend` etc )は、`LazyCollection` class では**利用できません**。
+
+<a name="lazy-collection-methods"></a>
+
+### Lazy Collection メソッド
+
+`Enumerable`契約で定義されたメソッドに加えて、`LazyCollection` class には以下のメソッドが含まれています：
+
+<a name="method-takeUntilTimeout"></a>
+
+#### `takeUntilTimeout()`
+
+`takeUntilTimeout` method は、指定時間まで values を列挙する新しい lazy collection を返します。その時間の後、 collection は列挙を停止します。
+
+```php
+$lazyCollection = LazyCollection::times(INF)
+    ->takeUntilTimeout(now()->addMinute());
+
+$lazyCollection->each(function (int $number) {
+    dump($number);
+
+    sleep(1);
+});
+
+// 1
+// 2
+// ...
+// 58
+// 59
+```
+
+この method の使用法を説明するために、請求書を database から cursor を使用して送信する application を想像してみてください。 15 分ごとに実行され、最大 14 分間で請求書の処理のみを行う[スケジュールされたタスク](/ja/php/laravel/v11.x/05-digging-deeper/scheduling)を定義することができます。
+
+```php
+use App\Models\Invoice;
+use Illuminate\Support\Carbon;
+
+Invoice::pending()->cursor()
+    ->takeUntilTimeout(
+        Carbon::createFromTimestamp(LARAVEL_START)->add(14, 'minutes')
+    )
+    ->each(fn (Invoice $invoice) => $invoice->submit());
+```
+
+<a name="method-tapEach"></a>
+
+#### `tapEach()`
+
+`each`の method は与えられたコールバックを collection の各アイテムに対して直ちに呼び出しますが、`tapEach`の method はアイテムがリストから一つずつ取り出されるときのみ与えられたコールバックを呼び出します。
+
+```php
+// Nothing has been dumped so far...
+$lazyCollection = LazyCollection::times(INF)->tapEach(function (int $value) {
+    dump($value);
+});
+
+// Three items are dumped...
+$array = $lazyCollection->take(3)->all();
+
+// 1
+// 2
+// 3
+```
+
+<a name="method-throttle"></a>
+
+#### `throttle()`
+
+`throttle` の method は、指定された秒数ごとにそれぞれの value が返されるように、 lazy collection を throttle します。この method は、受信リクエストをレート制限する外部 API とやり取りをする可能性がある状況で特に役立ちます:
+
+```php
+use App\Models\User;
+
+User::where('vip', true)
+    ->cursor()
+    ->throttle(seconds: 1)
+    ->each(function (User $user) {
+        // Call external API...
+    });
+```
+
+<a name="method-remember"></a>
+
+#### `remember()`
+
+`remember` method は、すでに列挙された values を記憶して、次回の collection の列挙で再度取得しない新しい lazy collection を返します。
+
+```php
+// No query has been executed yet...
+$users = User::cursor()->remember();
+
+// The query is executed...
+// The first 5 users are hydrated from the database...
+$users->take(5)->all();
+
+// First 5 users come from the collection's cache...
+// The rest are hydrated from the database...
+$users->take(20)->all();
+
+```

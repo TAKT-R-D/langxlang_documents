@@ -1,0 +1,247 @@
+---
+filePath: "source/laravel/testing.md"
+title: "Testing: Getting Started"
+description: "Testing: Getting Started"
+org_path: "/docs/11.x/testing"
+is_empty: "false"
+nav_title: "Getting Started"
+org_title: "Testing: Getting Started"
+---
+
+# Testing: Getting Started
+
+- [Introduction](#introduction)
+- [Environment](#environment)
+- [Creating Tests](#creating-tests)
+- [Running Tests](#running-tests)
+  - [Running Tests in Parallel](#running-tests-in-parallel)
+  - [Reporting Test Coverage](#reporting-test-coverage)
+  - [Profiling Tests](#profiling-tests)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は testing を念頭に置いて構築されています。実際、[Pest](https://pestphp.com)と[PHPUnit](https://phpunit.de)による testing のサポートは、最初から含まれており、`phpunit.xml`ファイルはすでにあなたの application のために設定されています。また、フレームワークはアプリケーションを直感的にテストできる便利な helpermethods も提供しています。
+
+デフォルトでは、アプリケーションの `tests` ディレクトリには `Feature` と `Unit` の 2 つのディレクトリが含まれています。ユニットテストは、コードの非常に小さな、孤立した部分に焦点を当てたテストです。実際、ほとんどのユニットテストは単一の method に焦点を当てています。"Unit" テストディレクトリ内のテストは、Laravel アプリケーションを boot しないため、アプリケーションの database や他のフレームワーク services にアクセスすることはできません。
+
+Feature テストには、複数のオブジェクトが互いにどのように対話するか、または全体的な HTTP request を JSON エンドポイントに送信するなど、あなたの code の大部分をテストすることが含まれているかもしれません。**一般的に、テストの大部分は feature テストであるべきです。この種類のテストは、システム全体が意図した通りに機能していることに最も確信を与えてくれます。**
+
+`Feature` および `Unit` テストディレクトリの両方に `ExampleTest.php` ファイルが提供されています。新しい Laravel application をインストールした後、`vendor/bin/pest` 、`vendor/bin/phpunit` 、または `php artisan test` コマンドを実行してテストを実行します。
+
+<a name="environment"></a>
+
+## Environment
+
+テストを実行すると、Laravel は `phpunit.xml` ファイルに定義されている environment 変数のために [configuration environment](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration) を `testing` に自動的に設定します。また、Laravel はテスト中に session や cache data が保持されないように、session と cache を `array` driver に自動的に設定します。
+
+他の testing environment 設定の values を必要に応じて自由に定義できます。 `testing` environment 変数は、アプリケーションの `phpunit.xml` ファイルで設定できますが、テストを実行する前に `config:clear` Artisan command を使用して設定の cache をクリアしてください！
+
+<a name="the-env-testing-environment-file"></a>
+
+#### `.env.testing` Environment ファイル
+
+また、 `.env.testing`ファイルを project の root に作成することもできます。このファイルは、 `.env`ファイルの代わりに、 Pest と PHPUnit の tests を実行するか、`--env=testing`option を使用して Artisan commands を実行する際に使用されます。
+
+<a name="creating-tests"></a>
+
+## Creating Tests
+
+新しいテストケースを作成するには、`make:test` Artisan command を使用します。 default では、テストは`tests/Feature`ディレクトリに配置されます：
+
+```shell
+php artisan make:test UserTest
+```
+
+`tests/Unit`ディレクトリ内にテストを作成したい場合、`make:test`の command を実行する際に`--unit`オプションを使用することができます。
+
+```shell
+php artisan make:test UserTest --unit
+```
+
+> [!NOTE]
+> テストスタブは[スタブ公開](/ja/php/laravel/v11.x/05-digging-deeper/artisan#stub-customization)を使用してカスタマイズすることができます。
+
+テストが生成されたら、通常どおりに Pest や PHPUnit を使ってテストを定義することができます。テストを実行するには、ターミナルから`vendor/bin/pest`、`vendor/bin/phpunit`、または`php artisan test` command を実行します。
+
+```php tab=Pest
+<?php
+
+test('basic', function () {
+    expect(true)->toBeTrue();
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Unit;
+
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     */
+    public function test_basic_test(): void
+    {
+        $this->assertTrue(true);
+    }
+}
+```
+
+> [!WARNING]
+> test の class 内に独自の`setUp` / `tearDown`メソッドを定義する場合は、親の class の`parent::setUp()` / `parent::tearDown()`メソッドを必ず呼び出すようにしてください。典 types 的には、独自の`setUp` method の開始時に`parent::setUp()`を、`tearDown` method の終了時に`parent::tearDown()`を呼び出すべきです。
+
+<a name="running-tests"></a>
+
+## Running Tests
+
+前述の通り、一度テストを作成したら、`pest`または`phpunit`を使用してそれらを実行することができます：
+
+```shell tab=Pest
+./vendor/bin/pest
+```
+
+```shell tab=PHPUnit
+./vendor/bin/phpunit
+```
+
+`pest`または`phpunit`コマンドに加えて、test を実行するために`test` ””Artisan””コマンド””を使用することもできます。””Artisan”” test ランナーは、development と””debugging””を容易にするために詳細な test レポートを提供します：
+
+```shell
+php artisan test
+```
+
+`pest`または`phpunit`コマンドに渡すことができる任意の引数は、 Artisan `test` command にも渡すことができます：
+
+```shell
+php artisan test --testsuite=Feature --stop-on-failure
+```
+
+<a name="running-tests-in-parallel"></a>
+
+### テストの並列実行
+
+デフォルトでは、””Laravel”” および ””Pest”” / ””PHPUnit”” は、””single process”” 内でテストを順番に実行します。しかし、複数のプロセスで同時にテストを実行することで、テストを実行する時間を大幅に ””reduce”” することができます。まず、`brianium/paratest` ””Composer”” パッケージを "dev" dependency としてインストールします。その後、`test` ””Artisan command”” を実行するときに `--parallel` オプションを含めます。
+
+```shell
+composer require brianium/paratest --dev
+
+php artisan test --parallel
+```
+
+default で、 Laravel は、あなたのマシンに利用可能な CPU コアの数だけプロセスを作成します。ただし、`--processes`オプションを使用してプロセスの数を調整することができます。
+
+```shell
+php artisan test --parallel --processes=4
+```
+
+> [!WARNING]  
+> テストを並行して実行するとき、一部の Pest / PHPUnit options (`--do-not-cache-result`のような)は利用できないかもしれません。
+
+<a name="parallel-testing-and-databases"></a>
+
+#### パラレル Testing とデータベース
+
+primary database connection を設定している限り、 Laravel はテスト database の作成と移行を自動的に行い、それぞれの並列 process ごとにテストを実行します。テストデータベースは、 process token を用いて接尾辞が付けられ、それは各 process ごとに unique です。例えば、並列テストプロセスが 2 つある場合、 Laravel は `your_db_test_1` と `your_db_test_2` テストデータベースを作成し使用します。
+
+””default””では、test databases は`test`の””Artisan command””を呼び出すたびに維持され、次の`test`の呼び出しでも再利用できます。ただし、`--recreate-databases` option を使用して再作成することもできます：
+
+```shell
+php artisan test --parallel --recreate-databases
+```
+
+<a name="parallel-testing-hooks"></a>
+
+#### パラレル Testing フック
+
+たまに、アプリケーションのテストで使用される特定の resources を準備する必要があるかもしれません。これにより、複数のテストプロセスで安全に使用できます。
+
+`ParallelTesting`の facade を使用すると、`setUp`と`tearDown`の process または test ケースで実行されるコードを指定できます。与えられたクロージャは、プロセス token と現在の test ケースをそれぞれ含む`$token`と`$testCase`variables を受け取ります。
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\ServiceProvider;
+use PHPUnit\Framework\TestCase;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        ParallelTesting::setUpProcess(function (int $token) {
+            // ...
+        });
+
+        ParallelTesting::setUpTestCase(function (int $token, TestCase $testCase) {
+            // ...
+        });
+
+        // Executed when a test database is created...
+        ParallelTesting::setUpTestDatabase(function (string $database, int $token) {
+            Artisan::call('db:seed');
+        });
+
+        ParallelTesting::tearDownTestCase(function (int $token, TestCase $testCase) {
+            // ...
+        });
+
+        ParallelTesting::tearDownProcess(function (int $token) {
+            // ...
+        });
+    }
+}
+```
+
+<a name="accessing-the-parallel-testing-token"></a>
+
+#### パラレルの Testing Token へのアクセス
+
+あなたの application の testcode のどの位置からでも、現在の並列 process "token"にアクセスしたい場合は、`token` method を使用できます。この token は、個々の testprocess のための unique かつ string な識別子であり、並列 testprocess を通じて resources をセグメント化するために使用することができます。たとえば、Laravel は、各並列 testing process によって作成された testdatabases の末尾に自動的にこの token を appends します：
+
+```php
+$token = ParallelTesting::token();
+```
+
+<a name="reporting-test-coverage"></a>
+
+### テストカバレッジの報告
+
+> [!WARNING]  
+> この feature は、[Xdebug](https://xdebug.org)または[PCOV](https://pecl.php.net/package/pcov)が必要です。
+
+あなたの application のテストを実行する際に、あなたのテストケースが実際に application code をカバーしているかどうか、そしてテストを実行するときにどれだけの application code が使用されているかを判断したいかもしれません。これを達成するために、`test` command を呼び出すときに`--coverage`オプションを提供できます。
+
+```shell
+php artisan test --coverage
+```
+
+<a name="enforcing-a-minimum-coverage-threshold"></a>
+
+#### 最小カバレッジしきい値の強制
+
+あなたは `--min` オプションを使用して、ご自身の application の最小テストカバレッジ閾値を定義することができます。この閾値が満たされない場合、テストスイートは失敗します:
+
+```shell
+php artisan test --coverage --min=80.3
+```
+
+<a name="profiling-tests"></a>
+
+### プロファイリングテスト
+
+Artisan テストランナーには、アプリケーションの最も遅いテストを一覧表示する便利な機能も含まれています。 `test` command を `--profile` オプションと共に呼び出すと、最も遅いテストの上位 10 件が表示されます。これにより、テストスイートの速度を向上させるためにどのテストを改善できるかを簡単に調査することができます。
+
+```shell
+php artisan test --profile
+```

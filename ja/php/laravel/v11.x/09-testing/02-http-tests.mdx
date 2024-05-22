@@ -1,0 +1,1971 @@
+---
+filePath: "source/laravel/http-tests.md"
+title: "HTTP Tests"
+description: "HTTP Tests"
+org_path: "/docs/11.x/http-tests"
+is_empty: "false"
+nav_title: "HTTP Tests"
+org_title: "HTTP Tests"
+---
+
+# HTTP Tests
+
+- [Introduction](#introduction)
+- [Making Requests](#making-requests)
+  - [Customizing Request Headers](#customizing-request-headers)
+  - [Cookies](#cookies)
+  - [Session / Authentication](#session-and-authentication)
+  - [Debugging Responses](#debugging-responses)
+  - [Exception Handling](#exception-handling)
+- [Testing JSON APIs](#testing-json-apis)
+  - [Fluent JSON Testing](#fluent-json-testing)
+- [Testing File Uploads](#testing-file-uploads)
+- [Testing Views](#testing-views)
+  - [Rendering Blade and Components](#rendering-blade-and-components)
+- [Available Assertions](#available-assertions)
+  - [Response Assertions](#response-assertions)
+  - [Authentication Assertions](#authentication-assertions)
+  - [Validation Assertions](#validation-assertions)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、あなたの application への HTTP requests を作成し、response を調査するための非常に流暢な API を提供しています。例えば、以下に定義された feature test を見てみましょう:
+
+```php tab=Pest
+<?php
+
+test('the application returns a successful response', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     */
+    public function test_the_application_returns_a_successful_response(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+    }
+}
+```
+
+`GET`method は `get`request を application に送信し、`assertStatus`method は、返された response は指定された HTTP status コードを持つべきであることを確認します。この単純なアサーションに加えて、Laravel は、responseheaders、content、JSON 構造などを検査するためのさまざまなアサーションも含んでいます。
+
+<a name="making-requests"></a>
+
+## Making Requests
+
+あなたの application に対して request を行うためには、テスト内で `get`、`post`、`put`、`patch`、または `delete` メソッドを呼び出すことができます。これらのメソッドは実際には "real" な HTTP request をあなたの application に対して発行しません。その代わりに、ネットワーク全体の request を内部的にシミュレートします。
+
+`Illuminate\Http\Response` インスタンスを返す代わりに、テストの request メソッドは `Illuminate\Testing\TestResponse` のインスタンスを返します。これは、あなたのアプリケーションのレスポンスを検査するために[様々な有用なアサーション](#available-assertions)を提供します:
+
+```php tab=Pest
+<?php
+
+test('basic request', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     */
+    public function test_a_basic_request(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+    }
+}
+```
+
+一般的に、各テストは、 application に対して request を 1 つだけ行うべきです。複数のリクエストが single テスト method 内で実行されると、予期しない動作が発生する可能性があります。
+
+> [!NOTE]
+> 便宜上、テスト実行時には CSRF middleware は自動的に無効化されます。
+
+<a name="customizing-request-headers"></a>
+
+### Request Headers のカスタマイズ
+
+`withHeaders`の method を使用することで、request が application に送信される前に request の headers をカスタマイズできます。この method を使用することで、request に任意の customheaders を追加できます。
+
+```php tab=Pest
+<?php
+
+test('interacting with headers', function () {
+    $response = $this->withHeaders([
+        'X-Header' => 'Value',
+    ])->post('/user', ['name' => 'Sally']);
+
+    $response->assertStatus(201);
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic functional test example.
+     */
+    public function test_interacting_with_headers(): void
+    {
+        $response = $this->withHeaders([
+            'X-Header' => 'Value',
+        ])->post('/user', ['name' => 'Sally']);
+
+        $response->assertStatus(201);
+    }
+}
+```
+
+<a name="cookies"></a>
+
+### Cookies
+
+`withCookie`または`withCookies`のメソッドを使用して、 request を行う前に cookie values を設定することができます。`withCookie`の method は、 cookie 名と value をその二つの引数として受け入れます。一方、`withCookies`の method は、名前/ value のペアの array を受け入れます。
+
+```php tab=Pest
+<?php
+
+test('interacting with cookies', function () {
+    $response = $this->withCookie('color', 'blue')->get('/');
+
+    $response = $this->withCookies([
+        'color' => 'blue',
+        'name' => 'Taylor',
+    ])->get('/');
+
+    //
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function test_interacting_with_cookies(): void
+    {
+        $response = $this->withCookie('color', 'blue')->get('/');
+
+        $response = $this->withCookies([
+            'color' => 'blue',
+            'name' => 'Taylor',
+        ])->get('/');
+
+        //
+    }
+}
+```
+
+<a name="session-and-authentication"></a>
+
+### Session / Authentication
+
+Laravel は、HTTPtest 中に session とやり取りするためのいくつかの helpers を提供しています。まず、`withSession` method を使用して、セッションデータを指定の array に設定することができます。これは、request をあなたの application に発行する前に session に data をロードするのに便利です：
+
+```php tab=Pest
+<?php
+
+test('interacting with the session', function () {
+    $response = $this->withSession(['banned' => false])->get('/');
+
+    //
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function test_interacting_with_the_session(): void
+    {
+        $response = $this->withSession(['banned' => false])->get('/');
+
+        //
+    }
+}
+```
+
+Laravel の session は通常、現在認証されている user の state を維持するために使用されます。したがって、`actingAs`ヘルパー method は、特定の user を現在の user として認証する簡単な方法を提供します。例えば、[model factory](/ja/php/laravel/v11.x/08-eloquent-orm/07-eloquent-factories)を使用して user を生成し、認証することができます：
+
+```php tab=Pest
+<?php
+
+use App\Models\User;
+
+test('an action that requires authentication', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+                     ->withSession(['banned' => false])
+                     ->get('/');
+
+    //
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function test_an_action_that_requires_authentication(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+                         ->withSession(['banned' => false])
+                         ->get('/');
+
+        //
+    }
+}
+```
+
+また、どのガードを使用して指定した user を認証するかを、ガード名を`actingAs` method の第二引数として渡すことで指定することもできます。 `actingAs` method に提供されるガードは、テストの期間中、 default のガードにもなります：
+
+```php
+$this->actingAs($user, 'web')
+```
+
+<a name="debugging-responses"></a>
+
+### Debugging のレスポンス
+
+あなたの application にテストの request を行った後、`dump`、`dumpHeaders`、そして`dumpSession`メソッドを使用して、 response の内容を調べて debug することができます：
+
+```php tab=Pest
+<?php
+
+test('basic test', function () {
+    $response = $this->get('/');
+
+    $response->dumpHeaders();
+
+    $response->dumpSession();
+
+    $response->dump();
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     */
+    public function test_basic_test(): void
+    {
+        $response = $this->get('/');
+
+        $response->dumpHeaders();
+
+        $response->dumpSession();
+
+        $response->dump();
+    }
+}
+```
+
+あるいは、`dd`、`ddHeaders`、`ddSession`メソッドを使用して、 response に関する情報を dump した後、実行を停止することもできます：
+
+```php tab=Pest
+<?php
+
+test('basic test', function () {
+    $response = $this->get('/');
+
+    $response->ddHeaders();
+
+    $response->ddSession();
+
+    $response->dd();
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     */
+    public function test_basic_test(): void
+    {
+        $response = $this->get('/');
+
+        $response->ddHeaders();
+
+        $response->ddSession();
+
+        $response->dd();
+    }
+}
+```
+
+<a name="exception-handling"></a>
+
+### 例外処理
+
+時々、あなたの" application "が特定の例外をスローしているかどうかをテストする必要があるかもしれません。これを達成するために、`Exceptions` " facade "を使って例外" handler "を"偽造"することができます。一度例外" handler "が偽造されてしまうと、`assertReported`や`assertNotReported`メソッドを使って、" request "の間にスローされた" exceptions "に対してアサーションを行うことができます。
+
+```php tab=Pest
+<?php
+
+use App\Exceptions\InvalidOrderException;
+use Illuminate\Support\Facades\Exceptions;
+
+test('exception is thrown', function () {
+    Exceptions::fake();
+
+    $response = $this->get('/order/1');
+
+    // Assert an exception was thrown...
+    Exceptions::assertReported(InvalidOrderException::class);
+
+    // Assert against the exception...
+    Exceptions::assertReported(function (InvalidOrderException $e) {
+        return $e->getMessage() === 'The order was invalid.';
+    });
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use App\Exceptions\InvalidOrderException;
+use Illuminate\Support\Facades\Exceptions;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     */
+    public function test_exception_is_thrown(): void
+    {
+        Exceptions::fake();
+
+        $response = $this->get('/');
+
+        // Assert an exception was thrown...
+        Exceptions::assertReported(InvalidOrderException::class);
+
+        // Assert against the exception...
+        Exceptions::assertReported(function (InvalidOrderException $e) {
+            return $e->getMessage() === 'The order was invalid.';
+        });
+    }
+}
+```
+
+`assertNotReported`および`assertNothingReported`methods は、特定の例外が request 中に throw されなかったことや、例外が全く throw されなかったことを確認するために使用できます。
+
+```php
+Exceptions::assertNotReported(InvalidOrderException::class);
+
+Exceptions::assertNothingReported();
+```
+
+特定の request に対して例外処理を完全に無効にするには、 request を行う前に `withoutExceptionHandling` method を呼び出すことができます。
+
+```php
+$response = $this->withoutExceptionHandling()->get('/');
+```
+
+また、あなたの application が PHP 言語やその application が使用しているライブラリによって非推奨とされた features を利用していないことを確認したい場合は、 request を行う前に`withoutDeprecationHandling` method を呼び出すことができます。 非推奨の処理が無効化されると、非推奨の警告は exceptions に変換され、その結果、あなたのテストが失敗します。
+
+```php
+$response = $this->withoutDeprecationHandling()->get('/');
+```
+
+`assertThrows` method は、指定された type の例外を投げる特定のクロージャ内のコードを assert するために使用できます：
+
+```php
+$this->assertThrows(
+    fn () => (new ProcessOrder)->execute(),
+    OrderInvalid::class
+);
+```
+
+<a name="testing-json-apis"></a>
+
+## Testing JSON APIs
+
+Laravel は、JSONAPI とその response を testing するためのいくつかの helpers も提供しています。たとえば、`json`、`getJson`、`postJson`、`putJson`、`patchJson`、`deleteJson`、`optionsJson`methods を使用して、様々な HTTP 動詞で JSON リクエストを発行することができます。また、これらの methods に data や headers を簡単に渡すこともできます。さあ始めましょう、`POST`の request を `/api/user`に対して行い、期待される JSONdata が返されたことを assert する testing を書きましょう:
+
+```php tab=Pest
+<?php
+
+test('making an api request', function () {
+    $response = $this->postJson('/api/user', ['name' => 'Sally']);
+
+    $response
+        ->assertStatus(201)
+        ->assertJson([
+            'created' => true,
+         ]);
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic functional test example.
+     */
+    public function test_making_an_api_request(): void
+    {
+        $response = $this->postJson('/api/user', ['name' => 'Sally']);
+
+        $response
+            ->assertStatus(201)
+            ->assertJson([
+                'created' => true,
+            ]);
+    }
+}
+```
+
+さらに、 JSON response data は、 response 上の array 変数としてアクセスできるため、 JSON response 内に返される個々の values を便利に確認することができます：
+
+```php tab=Pest
+expect($response['created'])->toBeTrue();
+```
+
+```php tab=PHPUnit
+$this->assertTrue($response['created']);
+```
+
+> [!NOTE] > `assertJson`の method は、 response を array に変換し、`PHPUnit::assertArraySubset`を利用して、指定された array が application が返す JSON response 内に存在することを確認します。そのため、 JSON response に他のプロパティがあっても、指定された fragment が存在していれば、このテストはパスします。
+
+<a name="verifying-exact-match"></a>
+
+#### 正確な JSON の一致を主張する
+
+前述の通り、`assertJson` method は、JSON レスポンス内に JSON の一部が存在していることを確認するために使用できます。もし特定の array があなたの application から返される JSON と**完全に一致**していることを確認したい場合は、`assertExactJson` method を使用すべきです：
+
+```php tab=Pest
+<?php
+
+test('asserting an exact json match', function () {
+    $response = $this->postJson('/user', ['name' => 'Sally']);
+
+    $response
+        ->assertStatus(201)
+        ->assertExactJson([
+            'created' => true,
+        ]);
+});
+
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic functional test example.
+     */
+    public function test_asserting_an_exact_json_match(): void
+    {
+        $response = $this->postJson('/user', ['name' => 'Sally']);
+
+        $response
+            ->assertStatus(201)
+            ->assertExactJson([
+                'created' => true,
+            ]);
+    }
+}
+```
+
+<a name="verifying-json-paths"></a>
+
+#### JSON パスについて主張する
+
+もし、指定した path で与えられた data が JSONresponse に含まれることを確認したい場合は、`assertJsonPath` method を使用するべきです：
+
+```php tab=Pest
+<?php
+
+test('asserting a json path value', function () {
+    $response = $this->postJson('/user', ['name' => 'Sally']);
+
+    $response
+        ->assertStatus(201)
+        ->assertJsonPath('team.owner.name', 'Darian');
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic functional test example.
+     */
+    public function test_asserting_a_json_paths_value(): void
+    {
+        $response = $this->postJson('/user', ['name' => 'Sally']);
+
+        $response
+            ->assertStatus(201)
+            ->assertJsonPath('team.owner.name', 'Darian');
+    }
+}
+```
+
+`assertJsonPath` method はクロージャも受け入れます。これは、アサーションがパスするべきかどうかを動的に判断するために使用できます。
+
+```php
+$response->assertJsonPath('team.owner.name', fn (string $name) => strlen($name) >= 3);
+```
+
+<a name="fluent-json-testing"></a>
+
+### 流暢な JSON Testing
+
+Laravel は、application の JSON レスポンスを流暢に test する美しい方法も提供しています。始めるには、クロージャーを`assertJson` method に渡します。このクロージャーは`Illuminate\Testing\Fluent\AssertableJson`のインスタンスで呼び出され、このインスタンスは、application によって返された JSON に対してアサーションを行うために使用することができます。`where` method は、JSON の特定の属性に対してアサーションを行うために使用することができます。一方、`missing` method は、特定の属性が JSON から欠落していることを assert(主張)するために使用することができます：
+
+```php tab=Pest
+use Illuminate\Testing\Fluent\AssertableJson;
+
+test('fluent json', function () {
+    $response = $this->getJson('/users/1');
+
+    $response
+        ->assertJson(fn (AssertableJson $json) =>
+            $json->where('id', 1)
+                 ->where('name', 'Victoria Faith')
+                 ->where('email', fn (string $email) => str($email)->is('victoria@gmail.com'))
+                 ->whereNot('status', 'pending')
+                 ->missing('password')
+                 ->etc()
+        );
+});
+```
+
+```php tab=PHPUnit
+use Illuminate\Testing\Fluent\AssertableJson;
+
+/**
+ * A basic functional test example.
+ */
+public function test_fluent_json(): void
+{
+    $response = $this->getJson('/users/1');
+
+    $response
+        ->assertJson(fn (AssertableJson $json) =>
+            $json->where('id', 1)
+                 ->where('name', 'Victoria Faith')
+                 ->where('email', fn (string $email) => str($email)->is('victoria@gmail.com'))
+                 ->whereNot('status', 'pending')
+                 ->missing('password')
+                 ->etc()
+        );
+}
+```
+
+#### `etc`の Method を理解する
+
+上記の例で、私たちが `etc`method をアサーションチェーンの最後に呼び出したことに気づいたかもしれません。この method は、Laravel に対して他の属性が JSONobject 上に存在する可能性があることを伝えます。`etc`method が使用されていない場合、test はあなたがアサーションを行わなかった他の属性が JSONobject 上に存在する場合に失敗します。
+
+この動作の背後にある意図は、 attribute に対して明示的に主張を行うか、`etc`を通じて追加の attributes を明示적に許可することにより、あなたが無意識に JSON responses 内の機密情報を公開することからあなたを保護するためです。 method 。
+
+ただし、`etc` method をアサーションチェーンに含めないことが、JSONobject 内にネストされた arrays に追加の属性が追加されていないことを保証するわけではないことに注意してください。 `etc` method が保証するのは、`etc` method が呼び出されているネストレベルで追加の属性が存在しないことだけです。
+
+<a name="asserting-json-attribute-presence-and-absence"></a>
+
+#### Attribute の存在/不在を主張する
+
+属性が存在するか否かを assert するためには、`has` および `missing` method を使用できます：
+
+```php
+$response->assertJson(fn (AssertableJson $json) =>
+    $json->has('data')
+         ->missing('message')
+);
+```
+
+また、`hasAll`と`missingAll`のメソッドを使用することで、複数の attributes が同時に存在するか否かを確認することができます：
+
+```php
+$response->assertJson(fn (AssertableJson $json) =>
+    $json->hasAll(['status', 'data'])
+         ->missingAll(['message', 'code'])
+);
+```
+
+`hasAny` method を使って、指定されたリストの attributes のうち少なくとも 1 つが存在するかどうかを判断することができます：
+
+```php
+$response->assertJson(fn (AssertableJson $json) =>
+    $json->has('status')
+         ->hasAny('data', 'message', 'code')
+);
+```
+
+<a name="asserting-against-json-collections"></a>
+
+#### JSON Collections に対する主張
+
+よく、あなたの route は、複数の users など、複数の項目を含む JSON response を返します。
+
+```php
+Route::get('/users', function () {
+    return User::all();
+});
+```
+
+これらの状況では、fluent JSON オブジェクトの `has` method を使用して、 response に含まれる users に対する主張を行う場合があります。例えば、 JSON response が三つの users を含んでいることを assert しましょう。次に、`first` method を使用して、 collection の最初の user についていくつかの主張を行います。`first` method は、最初の object についての主張を行うために使用できる別の主張可能な JSON string を受け取るクロージャーを受け入れます。 JSON collection についてです:
+
+```php
+$response
+    ->assertJson(fn (AssertableJson $json) =>
+        $json->has(3)
+             ->first(fn (AssertableJson $json) =>
+                $json->where('id', 1)
+                     ->where('name', 'Victoria Faith')
+                     ->where('email', fn (string $email) => str($email)->is('victoria@gmail.com'))
+                     ->missing('password')
+                     ->etc()
+             )
+    );
+```
+
+<a name="scoping-json-collection-assertions"></a>
+
+#### JSONCollection アサーションの範囲設定
+
+時々、あなたのアプリケーションの routes は、名前付きの keys が割り当てられた JSON collections を返すことがあります:
+
+```php
+Route::get('/users', function () {
+    return [
+        'meta' => [...],
+        'users' => User::all(),
+    ];
+})
+```
+
+これらの routes を testing するとき、`has` method を使用して、 collection 内のアイテム数に対して assert することができます。さらに、一連のアサーションを scope するためにも `has` method を使用することができます:
+
+```php
+$response
+    ->assertJson(fn (AssertableJson $json) =>
+        $json->has('meta')
+             ->has('users', 3)
+             ->has('users.0', fn (AssertableJson $json) =>
+                $json->where('id', 1)
+                     ->where('name', 'Victoria Faith')
+                     ->where('email', fn (string $email) => str($email)->is('victoria@gmail.com'))
+                     ->missing('password')
+                     ->etc()
+             )
+    );
+```
+
+しかし、`users` collection に対して`has` method を二回呼び出す代わりに、第三パラメータとしてクロージャを提供する単一の呼び出しを行うことができます。そうすると、クロージャは自動的に呼び出され、collection 内の最初のアイテムに scope が適用されます。
+
+```php
+$response
+    ->assertJson(fn (AssertableJson $json) =>
+        $json->has('meta')
+             ->has('users', 3, fn (AssertableJson $json) =>
+                $json->where('id', 1)
+                     ->where('name', 'Victoria Faith')
+                     ->where('email', fn (string $email) => str($email)->is('victoria@gmail.com'))
+                     ->missing('password')
+                     ->etc()
+             )
+    );
+```
+
+<a name="asserting-json-types"></a>
+
+#### JSON タイプを主張する
+
+あなたは、 JSON response のプロパティが特定の type であることを assert したいかもしれません。`Illuminate\Testing\Fluent\AssertableJson` class は、まさにそのための`whereType`および`whereAllType`メソッドを提供します。
+
+```php
+$response->assertJson(fn (AssertableJson $json) =>
+    $json->whereType('id', 'integer')
+         ->whereAllType([
+            'users.0.name' => 'string',
+            'meta' => 'array'
+        ])
+);
+```
+
+`|` 文字を使用して複数の types を指定するか、`whereType` method の 2 番目のパラメータとして types の array を渡すことができます。 response value がリストされた types のいずれかであれば、アサーションは成功します。
+
+```php
+$response->assertJson(fn (AssertableJson $json) =>
+    $json->whereType('name', 'string|null')
+         ->whereType('id', ['string', 'integer'])
+);
+```
+
+`whereType`と`whereAllType`メソッドは次のタイプを認識します：`string`、`integer`、`double`、`boolean`、`array`、そして`null`。
+
+<a name="testing-file-uploads"></a>
+
+## Testing File Uploads
+
+`Illuminate\Http\UploadedFile`の class は、 `fake`の method を提供しており、これを使用してダミーファイルや画像を testing 用に生成することができます。これを`Storage`ファサードの`fake` method と組み合わせることで、ファイルアップロードの testing が大幅に簡単になります。例えば、これら 2 つの features を組み合わせて、アバターアップロードフォームのテストを簡単に行うことができます：
+
+```php tab=Pest
+<?php
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
+test('avatars can be uploaded', function () {
+    Storage::fake('avatars');
+
+    $file = UploadedFile::fake()->image('avatar.jpg');
+
+    $response = $this->post('/avatar', [
+        'avatar' => $file,
+    ]);
+
+    Storage::disk('avatars')->assertExists($file->hashName());
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function test_avatars_can_be_uploaded(): void
+    {
+        Storage::fake('avatars');
+
+        $file = UploadedFile::fake()->image('avatar.jpg');
+
+        $response = $this->post('/avatar', [
+            'avatar' => $file,
+        ]);
+
+        Storage::disk('avatars')->assertExists($file->hashName());
+    }
+}
+```
+
+指定したファイルが存在しないと assert したい場合は、 `Storage` facade が提供する `assertMissing` method を使用することができます:
+
+```php
+Storage::fake('avatars');
+
+// ...
+
+Storage::disk('avatars')->assertMissing('missing.jpg');
+```
+
+<a name="fake-file-customization"></a>
+
+#### Fake ファイル カスタマイズ
+
+`UploadedFile`の class で提供される`fake`の method を使用してファイルを作成する際には、application の validation ルールをより良く test するために、 image の幅、高さ、サイズ(キロバイト単位)を指定することができます：
+
+```php
+UploadedFile::fake()->image('avatar.jpg', $width, $height)->size(100);
+```
+
+画像を作成することに加えて、`create` method を使用して他の任意の type のファイルを作成することもできます。
+
+```php
+UploadedFile::fake()->create('document.pdf', $sizeInKilobytes);
+```
+
+必要であれば、ファイルによって返されるべき MIME type を明示的に定義するために、`$mimeType`引数を method に渡すことができます。
+
+```php
+UploadedFile::fake()->create(
+    'document.pdf', $sizeInKilobytes, 'application/pdf'
+);
+```
+
+<a name="testing-views"></a>
+
+## Testing Views
+
+Laravel は、 application へのシミュレートされた HTTP request を作成せずに、 view を render することも許可しています。これを達成するためには、test 内で`view` method を呼び出すことができます。`view` method は、 view の名前と、option の data の array を受け入れます。 method は、ビューの内容について便利に主張を行うためのいくつかのメソッドを提供する`Illuminate\Testing\TestView`のインスタンスを返します：
+
+```php tab=Pest
+<?php
+
+test('a welcome view can be rendered', function () {
+    $view = $this->view('welcome', ['name' => 'Taylor']);
+
+    $view->assertSee('Taylor');
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function test_a_welcome_view_can_be_rendered(): void
+    {
+        $view = $this->view('welcome', ['name' => 'Taylor']);
+
+        $view->assertSee('Taylor');
+    }
+}
+```
+
+`TestView` class は、次のアサーションメソッドを提供します：`assertSee`、`assertSeeInOrder`、`assertSeeText`、`assertSeeTextInOrder`、`assertDontSee`、`assertDontSeeText`。
+
+必要に応じて、`TestView`インスタンスを string にキャストすることで、生の、レンダリングされた view の内容を取得することができます：
+
+```php
+$contents = (string) $this->view('welcome');
+```
+
+<a name="sharing-errors"></a>
+
+#### Errors の共有
+
+いくつかの views は、[Laravel が提供するグローバルな error バッグ](/ja/php/laravel/v11.x/04-the-basics/12-validation#quick-displaying-the-validation-errors)で共有される errors に依存する可能性があります。 error メッセージを error バッグにハイドレートするためには、`withViewErrors` method を使用することができます。
+
+```php
+$view = $this->withViewErrors([
+    'name' => ['Please provide a valid name.']
+])->view('form');
+
+$view->assertSee('Please provide a valid name.');
+```
+
+<a name="rendering-blade-and-components"></a>
+
+### Blade とコンポーネントのレンダリング
+
+必要に応じて、`blade`の method を使用して、生の[Blade](/ja/php/laravel/v11.x/04-the-basics/08-blade) string を評価し、 render することができます。 `view`の method と同様に、`blade`の method は`Illuminate\Testing\TestView`のインスタンスを返します。
+
+```php
+$view = $this->blade(
+    '<x-component :name="$name" />',
+    ['name' => 'Taylor']
+);
+
+$view->assertSee('Taylor');
+```
+
+`component`の method を使用して、[Blade component](/ja/php/laravel/v11.x/04-the-basics/08-blade#components)を評価し、 render することができます。`component`の method は、`Illuminate\Testing\TestComponent`のインスタンスを返します。
+
+```php
+$view = $this->component(Profile::class, ['name' => 'Taylor']);
+
+$view->assertSee('Taylor');
+```
+
+<a name="available-assertions"></a>
+
+## Available Assertions
+
+<a name="response-assertions"></a>
+
+### Response アサーション
+
+Laravel の`Illuminate\Testing\TestResponse` class は、 application を testing する際に利用できる様々な custom アサーション methods を提供しています。これらのアサーションは、`json`、`get`、`post`、`put`、`delete`のテスト methods によって返される response でアクセス可能です：
+
+<div class="collection-method-list" markdown="1">
+
+[assertAccepted](#assert-accepted) [assertBadRequest](#assert-bad-request) [assertConflict](#assert-conflict) [assertCookie](#assert-cookie) [assertCookieExpired](#assert-cookie-expired) [assertCookieNotExpired](#assert-cookie-not-expired) [assertCookieMissing](#assert-cookie-missing) [assertCreated](#assert-created) [assertDontSee](#assert-dont-see) [assertDontSeeText](#assert-dont-see-text) [assertDownload](#assert-download) [assertExactJson](#assert-exact-json) [assertForbidden](#assert-forbidden) [assertFound](#assert-found) [assertGone](#assert-gone) [assertHeader](#assert-header) [assertHeaderMissing](#assert-header-missing) [assertInternalServerError](#assert-internal-server-error) [assertJson](#assert-json) [assertJsonCount](#assert-json-count) [assertJsonFragment](#assert-json-fragment) [assertJsonIsArray](#assert-json-is-array) [assertJsonIsObject](#assert-json-is-object) [assertJsonMissing](#assert-json-missing) [assertJsonMissingExact](#assert-json-missing-exact) [assertJsonMissingValidationErrors](#assert-json-missing-validation-errors) [assertJsonPath](#assert-json-path) [assertJsonMissingPath](#assert-json-missing-path) [assertJsonStructure](#assert-json-structure) [assertJsonValidationErrors](#assert-json-validation-errors) [assertJsonValidationErrorFor](#assert-json-validation-error-for) [assertLocation](#assert-location) [assertMethodNotAllowed](#assert-method-not-allowed) [assertMovedPermanently](#assert-moved-permanently) [assertContent](#assert-content) [assertNoContent](#assert-no-content) [assertStreamedContent](#assert-streamed-content) [assertNotFound](#assert-not-found) [assertOk](#assert-ok) [assertPaymentRequired](#assert-payment-required) [assertPlainCookie](#assert-plain-cookie) [assertRedirect](#assert-redirect) [assertRedirectContains](#assert-redirect-contains) [assertRedirectToRoute](#assert-redirect-to-route) [assertRedirectToSignedRoute](#assert-redirect-to-signed-route) [assertRequestTimeout](#assert-request-timeout) [assertSee](#assert-see) [assertSeeInOrder](#assert-see-in-order) [assertSeeText](#assert-see-text) [assertSeeTextInOrder](#assert-see-text-in-order) [assertServerError](#assert-server-error) [assertServiceUnavailable](#assert-server-unavailable) [assertSessionHas](#assert-session-has) [assertSessionHasInput](#assert-session-has-input) [assertSessionHasAll](#assert-session-has-all) [assertSessionHasErrors](#assert-session-has-errors) [assertSessionHasErrorsIn](#assert-session-has-errors-in) [assertSessionHasNoErrors](#assert-session-has-no-errors) [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors) [assertSessionMissing](#assert-session-missing) [assertStatus](#assert-status) [assertSuccessful](#assert-successful) [assertTooManyRequests](#assert-too-many-requests) [assertUnauthorized](#assert-unauthorized) [assertUnprocessable](#assert-unprocessable) [assertUnsupportedMediaType](#assert-unsupported-media-type) [assertValid](#assert-valid) [assertInvalid](#assert-invalid) [assertViewHas](#assert-view-has) [assertViewHasAll](#assert-view-has-all) [assertViewIs](#assert-view-is) [assertViewMissing](#assert-view-missing)
+
+</div>
+
+<a name="assert-bad-request"></a>
+
+#### assertBadRequest
+
+Assert により、悪い request (400)の response が HTTP status code であることを主張します:
+
+```php
+$response->assertBadRequest();
+```
+
+<a name="assert-accepted"></a>
+
+#### assertAccepted
+
+Assert は、 response が承認(202)された HTTP status code を持っていることを主張します：
+
+```php
+$response->assertAccepted();
+```
+
+<a name="assert-conflict"></a>
+
+#### assertConflict
+
+response が競合(409)の HTTP status コードを持つことを Assert します：
+
+```php
+$response->assertConflict();
+```
+
+<a name="assert-cookie"></a>
+
+#### assertCookie
+
+与えられた cookie が response に含まれていることを Assert します。
+
+```php
+$response->assertCookie($cookieName, $value = null);
+```
+
+<a name="assert-cookie-expired"></a>
+
+#### assertCookieExpired
+
+指定した'' cookie ''が'' response ''に含まれ、それが期限切れであることを'' Assert ''します：
+
+```php
+$response->assertCookieExpired($cookieName);
+```
+
+<a name="assert-cookie-not-expired"></a>
+
+#### assertCookieNotExpired
+
+与えられた cookie を含み、それが期限切れでないことを Assert してください：
+
+```php
+$response->assertCookieNotExpired($cookieName);
+```
+
+<a name="assert-cookie-missing"></a>
+
+#### assertCookieMissing
+
+与えられた cookie を含まないという response を Assert します：
+
+```php
+$response->assertCookieMissing($cookieName);
+```
+
+<a name="assert-created"></a>
+
+#### assertCreated
+
+Assert とは、 response が 201 の HTTP status code を持っていることを主張します：
+
+```php
+$response->assertCreated();
+```
+
+<a name="assert-dont-see"></a>
+
+#### assertDontSee
+
+指定された string が、 application によって返された response に含まれていないことを Assert します。このアサーションは、`false`を第二引数として渡さない限り、指定された string unless を自動的にエスケープします。
+
+```php
+$response->assertDontSee($value, $escaped = true);
+```
+
+<a name="assert-dont-see-text"></a>
+
+#### assertDontSeeText
+
+与えられた string が response テキスト内に含まれていないことを Assert します。この主張は、`false`の 2 つ目の引数を渡さない限り、与えられた string unless を自動的にエスケープします。この method は、アサーションを行う前に response content を`strip_tags` PHP 関数に渡します。
+
+```php
+$response->assertDontSeeText($value, $escaped = true);
+```
+
+<a name="assert-download"></a>
+
+#### assertDownload
+
+response が"ダウンロード"であることを"Assert"します。通常、これは呼び出された"route"が"`Response::download` ""response""、`BinaryFileResponse`、または`Storage::download` ""response""を返したことを意味します。
+
+```php
+$response->assertDownload();
+```
+
+ご希望であれば、ダウンロード可能なファイルに特定のファイル名が割り当てられたと assert することができます：
+
+```php
+$response->assertDownload('image.jpg');
+```
+
+<a name="assert-exact-json"></a>
+
+#### assertExactJson
+
+指定した JSON data が正確に match するような response を Assert する
+
+```php
+$response->assertExactJson(array $data);
+```
+
+<a name="assert-forbidden"></a>
+
+#### assertForbidden
+
+response が禁止(403)の HTTP status code を持つことを Assert します：
+
+```php
+$response->assertForbidden();
+```
+
+<a name="assert-found"></a>
+
+#### assertFound
+
+Assert により、 response が見つかった(302) HTTP status code を持っていることを確認します：
+
+```php
+$response->assertFound();
+```
+
+<a name="assert-gone"></a>
+
+#### assertGone
+
+response が gone(410)の HTTP status コードであることを Assert します：
+
+```php
+$response->assertGone();
+```
+
+<a name="assert-header"></a>
+
+#### assertHeader
+
+与えられた header と value が response に存在することを Assert します：
+
+```php
+$response->assertHeader($headerName, $value = null);
+```
+
+<a name="assert-header-missing"></a>
+
+#### assertHeaderMissing
+
+与えられた header が response に存在しないことを Assert します：
+
+```php
+$response->assertHeaderMissing($headerName);
+```
+
+<a name="assert-internal-server-error"></a>
+
+#### assertInternalServerError
+
+「Assert」が「response」に"Internal Server Error"(500)「HTTP status コード」を持っていることを主張します：
+
+```php
+$response->assertInternalServerError();
+```
+
+<a name="assert-json"></a>
+
+#### assertJson
+
+指定された JSON data を含む response を Assert します：
+
+```php
+$response->assertJson(array $data, $strict = false);
+```
+
+`assertJson` method は、 response を array に変換し、`PHPUnit::assertArraySubset`を使用して指定された array が application によって返された JSON response 内に存在することを確認します。したがって、 JSON response に他のプロパティが存在していても、指定された fragment が存在する限り、この test は path します。
+
+<a name="assert-json-count"></a>
+
+#### assertJsonCount
+
+指定したキーで期待される数量のアイテムを持つ array が response JSON に存在することを Assert します:
+
+```php
+$response->assertJsonCount($count, $key = null);
+```
+
+<a name="assert-json-fragment"></a>
+
+#### assertJsonFragment
+
+response が与えられた JSON data を response のどこかに含むことを Assert します：
+
+```php
+Route::get('/users', function () {
+    return [
+        'users' => [
+            [
+                'name' => 'Taylor Otwell',
+            ],
+        ],
+    ];
+});
+
+$response->assertJsonFragment(['name' => 'Taylor Otwell']);
+```
+
+<a name="assert-json-is-array"></a>
+
+#### assertJsonIsArray
+
+Assert というのは、 response JSON が array であると主張します：
+
+```php
+$response->assertJsonIsArray();
+```
+
+<a name="assert-json-is-object"></a>
+
+#### assertJsonIsObject
+
+Assert は、 response JSON が object であると主張します：
+
+```php
+$response->assertJsonIsObject();
+```
+
+<a name="assert-json-missing"></a>
+
+#### assertJsonMissing
+
+与えられた'' JSON data ''を含まないことを'' response ''が'' Assert ''していることを主張します：
+
+```php
+$response->assertJsonMissing(array $data);
+```
+
+<a name="assert-json-missing-exact"></a>
+
+#### assertJsonMissingExact
+
+正確な JSON data が response に含まれていないことを Assert します:
+
+```php
+$response->assertJsonMissingExact(array $data);
+```
+
+<a name="assert-json-missing-validation-errors"></a>
+
+#### assertJsonMissingValidationErrors
+
+与えられた keys に対して、 response が JSON validation errors を持たないことを Assert します：
+
+```php
+$response->assertJsonMissingValidationErrors($keys);
+```
+
+> [!NOTE]  
+> より汎用的な[assertValid](#assert-valid) method は、response に validation errors が JSON として返されていない、**そして** errors が session storage にフラッシュされていないことを assert するために使用できます。
+
+<a name="assert-json-path"></a>
+
+#### assertJsonPath
+
+指定された path で指定された data が response に含まれていることを Assert します：
+
+```php
+$response->assertJsonPath($path, $expectedValue);
+```
+
+例えば、以下の JSON response があなたの application によって返される場合：
+
+```json
+{
+  "user": {
+    "name": "Steve Schoger"
+  }
+}
+```
+
+あなたは次のように、`user`の`name`プロパティが指定した value と一致することを主張することができます：
+
+```php
+$response->assertJsonPath('user.name', 'Steve Schoger');
+```
+
+<a name="assert-json-missing-path"></a>
+
+#### assertJsonMissingPath
+
+与えられた path が response に含まれていないことを Assert します：
+
+```php
+$response->assertJsonMissingPath($path);
+```
+
+たとえば、以下の JSON response があなたの application によって返された場合：
+
+```json
+{
+  "user": {
+    "name": "Steve Schoger"
+  }
+}
+```
+
+それが`user`の`email`プロパティを含んでいないと主張することができます。
+
+```php
+$response->assertJsonMissingPath('user.email');
+```
+
+<a name="assert-json-structure"></a>
+
+#### assertJsonStructure
+
+Assert が指定された JSON 構造を持つ response であることを主張します：
+
+```php
+$response->assertJsonStructure(array $structure);
+```
+
+例えば、あなたの application が返す JSON response が以下の data を含んでいる場合：
+
+```json
+{
+  "user": {
+    "name": "Steve Schoger"
+  }
+}
+```
+
+あなたは次のように、 JSON 構造があなたの期待に一致すると assert することができます：
+
+```php
+$response->assertJsonStructure([
+    'user' => [
+        'name',
+    ]
+]);
+```
+
+時折、あなたの application が返す JSON responses には、オブジェクトの配列が含まれているかもしれません：
+
+```json
+{
+  "user": [
+    {
+      "name": "Steve Schoger",
+      "age": 55,
+      "location": "Earth"
+    },
+    {
+      "name": "Mary Schoger",
+      "age": 60,
+      "location": "Earth"
+    }
+  ]
+}
+```
+
+この状況では、`*` 文字を使用して、 array の中のすべてのオブジェクトの構造に対して assert することができます：
+
+```php
+$response->assertJsonStructure([
+    'user' => [
+        '*' => [
+             'name',
+             'age',
+             'location'
+        ]
+    ]
+]);
+```
+
+<a name="assert-json-validation-errors"></a>
+
+#### assertJsonValidationErrors
+
+指定された keys に対して指定された JSON validation errors が response にあることを Assert します。この method は、 validation errors が session にフラッシュされる代わりに JSON 構造として返されるレスポンスに対して表明する場合に使用すぐたべます。
+
+```php
+$response->assertJsonValidationErrors(array $data, $responseKey = 'errors');
+```
+
+> [!NOTE]  
+> より一般的な [assertInvalid](#assert-invalid) method は、response が validation errors を JSON として返す **または** errors が session storage にフラッシュされたことを assert するために使用することができます。
+
+<a name="assert-json-validation-error-for"></a>
+
+#### assertJsonValidationErrorFor
+
+指定したキーに対して、 response が JSON validation errors を含むことを Assert してください。
+
+```php
+$response->assertJsonValidationErrorFor(string $key, $responseKey = 'errors');
+```
+
+<a name="assert-method-not-allowed"></a>
+
+#### assertMethodNotAllowed
+
+Assert が response には許可されていない (405) HTTP status code の method があると主張します:
+
+```php
+$response->assertMethodNotAllowed();
+```
+
+<a name="assert-moved-permanently"></a>
+
+#### assertMovedPermanently
+
+Assert は、 response が永続的に移動(301)した HTTP status code を持っていると述べています：
+
+```php
+$response->assertMovedPermanently();
+```
+
+<a name="assert-location"></a>
+
+#### assertLocation
+
+`Location`という header が指定された URI の value を持っていることを Assert してください。
+
+```php
+$response->assertLocation($uri);
+```
+
+<a name="assert-content"></a>
+
+#### assertContent
+
+与えられた string が response content に一致すると Assert します：
+
+```php
+$response->assertContent($value);
+```
+
+<a name="assert-no-content"></a>
+
+#### assertNoContent
+
+'' Assert '' は、 '' response '' が指定された '' HTTP status code '' を持ち、'' content '' がないことを主張します:
+
+```php
+$response->assertNoContent($status = 204);
+```
+
+<a name="assert-streamed-content"></a>
+
+#### assertStreamedContent
+
+与えられた string がストリーミングされた response content と一致することを Assert します:
+
+```php
+$response->assertStreamedContent($value);
+```
+
+<a name="assert-not-found"></a>
+
+#### assertNotFound
+
+Assert は、 response が見つからない(404)の HTTP status code を持っていると述べています:
+
+```php
+$response->assertNotFound();
+```
+
+<a name="assert-ok"></a>
+
+#### assertOk
+
+Assert することで、 response が 200 の HTTP status code を持つことを確認します:
+
+```php
+$response->assertOk();
+```
+
+<a name="assert-payment-required"></a>
+
+#### assertPaymentRequired
+
+Assert は、 response が支払いが required (402)の HTTP status code であることを主張します。
+
+```php
+$response->assertPaymentRequired();
+```
+
+<a name="assert-plain-cookie"></a>
+
+#### assertPlainCookie
+
+与えられた暗号化されていない cookie を含む response を Assert する:
+
+```php
+$response->assertPlainCookie($cookieName, $value = null);
+```
+
+<a name="assert-redirect"></a>
+
+#### assertRedirect
+
+指定された URI への redirect であると主張する response：
+
+```php
+$response->assertRedirect($uri = null);
+```
+
+<a name="assert-redirect-contains"></a>
+
+#### assertRedirectContains
+
+与えられた string が含まれる URI に response がリダイレクトしているかどうかを Assert します:
+
+```php
+$response->assertRedirectContains($string);
+```
+
+<a name="assert-redirect-to-route"></a>
+
+#### assertRedirectToRoute
+
+指定された[named route](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)への redirect として response が Assert されていることを確認します：
+
+```php
+$response->assertRedirectToRoute($name, $parameters = []);
+```
+
+<a name="assert-redirect-to-signed-route"></a>
+
+#### assertRedirectToSignedRoute
+
+次の[署名付きの route](/ja/php/laravel/v11.x/04-the-basics/10-urls#signed-urls)への redirect であると Assert する response を表明します。
+
+```php
+$response->assertRedirectToSignedRoute($name = null, $parameters = []);
+```
+
+<a name="assert-request-timeout"></a>
+
+#### assertRequestTimeout
+
+Assert は、 response が request timeout (408) の HTTP status code を持っていると主張：
+
+```php
+$response->assertRequestTimeout();
+```
+
+<a name="assert-see"></a>
+
+#### assertSee
+
+指定された string unless が response 内に含まれていることを Assert します。このアサーションは、第二引数に`false`を渡さない限り、指定された string を自動的にエスケープします。
+
+```php
+$response->assertSee($value, $escaped = true);
+```
+
+<a name="assert-see-in-order"></a>
+
+#### assertSeeInOrder
+
+与えられた strings が response 内に順序通りに含まれていることを Assert する。このアサーションは、あなたが第二引数に`false`を渡さない限り、自動的に与えられた strings をエスケープします。
+
+```php
+$response->assertSeeInOrder(array $values, $escaped = true);
+```
+
+<a name="assert-see-text"></a>
+
+#### assertSeeText
+
+指定された string が response テキスト内に含まれていることを Assert します。この主張は、二番目の引数に`false`を渡さない限り、指定された string unless を自動的にエスケープします。 response content は、主張がなされる前に`strip_tags` PHP 関数に渡されます。
+
+```php
+$response->assertSeeText($value, $escaped = true);
+```
+
+<a name="assert-see-text-in-order"></a>
+
+#### assertSeeTextInOrder
+
+指定された strings が response テキスト内に順序通りに含まれていることを Assert します。このアサーションは、第二引数に`false`を渡さない限り、指定された strings を自動的にエスケープします。アサーションが行われる前に、response content は`strip_tags` PHP 関数に渡されます。
+
+```php
+$response->assertSeeTextInOrder(array $values, $escaped = true);
+```
+
+<a name="assert-server-error"></a>
+
+#### assertServerError
+
+Assert により、 response がサーバーの error (>= 500、< 600)の HTTP status code を持つことを確認します：
+
+```php
+$response->assertServerError();
+```
+
+<a name="assert-server-unavailable"></a>
+
+#### assertServiceUnavailable
+
+response が"Service Unavailable" (503)の"HTTP status コード"を持っていることを Assert してください:
+
+```php
+$response->assertServiceUnavailable();
+```
+
+<a name="assert-session-has"></a>
+
+#### assertSessionHas
+
+'' Assert '' が '' session '' に与えられた '' data '' の一部を含んでいることを主張します:
+
+```php
+$response->assertSessionHas($key, $value = null);
+```
+
+必要であれば、クロージャは`assertSessionHas` method の 2 番目の引数として提供できます。クロージャが`true`を返す場合、アサーションは通過します：
+
+```php
+$response->assertSessionHas($key, function (User $value) {
+    return $value->name === 'Taylor Otwell';
+});
+```
+
+<a name="assert-session-has-input"></a>
+
+#### assertSessionHasInput
+
+[フラッシュされた input array](/ja/php/laravel/v11.x/04-the-basics/06-responses#redirecting-with-flashed-session-data)において、 session が特定の value を有することを Assert します：
+
+```php
+$response->assertSessionHasInput($key, $value = null);
+```
+
+必要であれば、クロージャは`assertSessionHasInput` method の第二引数として提供できます。クロージャが`true`を返す場合、アサーションはパスします：
+
+```php
+use Illuminate\Support\Facades\Crypt;
+
+$response->assertSessionHasInput($key, function (string $value) {
+    return Crypt::decryptString($value) === 'secret';
+});
+```
+
+<a name="assert-session-has-all"></a>
+
+#### assertSessionHasAll
+
+指定された array のキー/ value ペアを含む session を Assert します：
+
+```php
+$response->assertSessionHasAll(array $data);
+```
+
+例えば、あなたのアプリケーションの session が`name`と`status`の keys を含んでいる場合、次のように両方が存在し、指定した values を持っていることを assert することができます。
+
+```php
+$response->assertSessionHasAll([
+    'name' => 'Taylor Otwell',
+    'status' => 'active',
+]);
+```
+
+<a name="assert-session-has-errors"></a>
+
+#### assertSessionHasErrors
+
+`$keys`が指定する error が session に含まれていることを Assert します。 `$keys`が連想 array である場合、 session が各フィールド(キー)に対する特定の error メッセージ( value )を含むことを assert します。 validation errors を JSON 構造の代わりに session へフラッシュする testing routes をテストする際にこの method を使用する必要があります：
+
+```php
+$response->assertSessionHasErrors(
+    array $keys = [], $format = null, $errorBag = 'default'
+);
+```
+
+例えば、`name`と`email`フィールドが session にフラッシュされた validation error メッセージを持っていることを assert するために、あなたは以下のように`assertSessionHasErrors` method を呼び出すことができます：
+
+```php
+$response->assertSessionHasErrors(['name', 'email']);
+```
+
+または、特定のフィールドが特定の validation error メッセージを持つことを assert することもできます。
+
+```php
+$response->assertSessionHasErrors([
+    'name' => 'The given name was invalid.'
+]);
+```
+
+> [!NOTE]  
+> より一般的な[assertInvalid](#assert-invalid) method は、response が validation errors を JSON で返すか、errors が session storage にフラッシュされたことを assert するために使用することができます。
+
+<a name="assert-session-has-errors-in"></a>
+
+#### assertSessionHasErrorsIn
+
+特定の[error bag](/ja/php/laravel/v11.x/04-the-basics/12-validation#named-error-bags)内にある `$keys` について、 session が error を含んでいると Assert します。`$keys`が連想 array である場合、 session が、 error bag 内の各フィールド(キー)について特定の error メッセージ( value )を含んでいると assert します。
+
+```php
+$response->assertSessionHasErrorsIn($errorBag, $keys = [], $format = null);
+```
+
+<a name="assert-session-has-no-errors"></a>
+
+#### assertSessionHasNoErrors
+
+Assert は、 session が validation errors を持っていないと主張します:
+
+```php
+$response->assertSessionHasNoErrors();
+```
+
+<a name="assert-session-doesnt-have-errors"></a>
+
+#### assertSessionDoesntHaveErrors
+
+指定された keys に対して、 session が validation errors を持っていないことを Assert します：
+
+```php
+$response->assertSessionDoesntHaveErrors($keys = [], $format = null, $errorBag = 'default');
+```
+
+> [!NOTE]  
+> より一般的な[assertValid](#assert-valid) method は、response が validation errors を JSON として返さず、errors が session storage にフラッシュされないことを assert するために使用することができます。
+
+<a name="assert-session-missing"></a>
+
+#### assertSessionMissing
+
+指定されたキーを session が含まないことを Assert します:
+
+```php
+$response->assertSessionMissing($key);
+```
+
+<a name="assert-status"></a>
+
+#### assertStatus
+
+Assert は、 response が特定の HTTP status code を持つことを主張します：
+
+```php
+$response->assertStatus($code);
+```
+
+<a name="assert-successful"></a>
+
+#### assertSuccessful
+
+'' Assert '' が '' response '' が成功(>= 200 且つ < 300)の'' HTTP status code ''を持つことを主張します：
+
+```php
+$response->assertSuccessful();
+```
+
+<a name="assert-too-many-requests"></a>
+
+#### assertTooManyRequests
+
+Assert を使って、response が多す数の requests(429)を伴った HTTP status コードであることを確認します：
+
+```php
+$response->assertTooManyRequests();
+```
+
+<a name="assert-unauthorized"></a>
+
+#### assertUnauthorized
+
+''response''が未批准(401)の''HTTP status コード''であると''Assert''します：
+
+```php
+$response->assertUnauthorized();
+```
+
+<a name="assert-unprocessable"></a>
+
+#### assertUnprocessable
+
+Assert は、 response が処理不能なエンティティ(422)の HTTP status code を持っていることを主張します：
+
+```php
+$response->assertUnprocessable();
+```
+
+<a name="assert-unsupported-media-type"></a>
+
+#### assertUnsupportedMediaType
+
+Assert を使用して、 response がサポートされていないメディア type (415)の HTTP status code であることを主張します：
+
+```php
+$response->assertUnsupportedMediaType();
+```
+
+<a name="assert-valid"></a>
+
+#### assertValid
+
+Assert は、指定された keys に validation errors がない response を主張します。この method は、 validation errors が JSON 構造として返されるレスポンスや、 validation errors が session にフラッシュされた場合に使用することができます。
+
+```php
+// Assert that no validation errors are present...
+$response->assertValid();
+
+// Assert that the given keys do not have validation errors...
+$response->assertValid(['name', 'email']);
+```
+
+<a name="assert-invalid"></a>
+
+#### assertInvalid
+
+Assert は、 response に keys に対する validation errors が含まれていることを指摘します。この method は、 validation errors が JSON 構造で返される応答または validation errors が session にフラッシュされた場合に対してアサートするために使用することができます：
+
+```php
+$response->assertInvalid(['name', 'email']);
+```
+
+特定のキーが特定の validation error メッセージを持っていることを assert することもできます。それを行うとき、メッセージ全体を提供するか、メッセージの一部だけを提供することができます：
+
+```php
+$response->assertInvalid([
+    'name' => 'The name field is required.',
+    'email' => 'valid email address',
+]);
+```
+
+<a name="assert-view-has"></a>
+
+#### assertViewHas
+
+'' Assert ''は、'' response view ''が特定の'' data ''を含むことを主張します：
+
+```php
+$response->assertViewHas($key, $value = null);
+```
+
+`assertViewHas`の二番目の引数としてクロージャを渡すと、特定の viewdata を調査し、アサーションを行うことができます。
+
+```php
+$response->assertViewHas('user', function (User $user) {
+    return $user->name === 'Taylor';
+});
+```
+
+また、 view data は、 response 上の array 変数としてアクセスでき、便利に検査できます：
+
+```php tab=Pest
+expect($response['name'])->toBe('Taylor');
+```
+
+```php tab=PHPUnit
+$this->assertEquals('Taylor', $response['name']);
+```
+
+<a name="assert-view-has-all"></a>
+
+#### assertViewHasAll
+
+responseview が与えられた data のリストを持っていることを Assert します：
+
+```php
+$response->assertViewHasAll(array $data);
+```
+
+この method は、与えられた keys に一致する単純な data を view が含んでいることを assert するために使用することができます:
+
+```php
+$response->assertViewHasAll([
+    'name',
+    'email',
+]);
+```
+
+または、あなたは assert を行い、 view data が存在し、特定の values を持っていると主張することができます：
+
+```php
+$response->assertViewHasAll([
+    'name' => 'Taylor Otwell',
+    'email' => 'taylor@example.com,',
+]);
+```
+
+<a name="assert-view-is"></a>
+
+#### assertViewIs
+
+指定された view が route によって返されたと Assert します：
+
+```php
+$response->assertViewIs($value);
+```
+
+<a name="assert-view-missing"></a>
+
+#### assertViewMissing
+
+指定した data キーがアプリケーションの response で返された view に利用できないことを Assert します：
+
+```php
+$response->assertViewMissing($key);
+```
+
+<a name="authentication-assertions"></a>
+
+### Authentication アサーション
+
+Laravel は、アプリケーションの feature テスト内で利用できる各種の authentication 関連のアサーションも提供しています。これらのメソッドはテストの class 自体で呼び出され、`get`や`post`のようなメソッドで返される`Illuminate\Testing\TestResponse`インスタンスではないことに注意してください。
+
+<a name="assert-authenticated"></a>
+
+#### assertAuthenticated
+
+user が authentication されていることを Assert します：
+
+```php
+$this->assertAuthenticated($guard = null);
+```
+
+<a name="assert-guest"></a>
+
+#### assertGuest
+
+user が認証されていないことを Assert します：
+
+```php
+$this->assertGuest($guard = null);
+```
+
+<a name="assert-authenticated-as"></a>
+
+#### assertAuthenticatedAs
+
+特定の user が認証されていることを Assert します：
+
+```php
+$this->assertAuthenticatedAs($user, $guard = null);
+```
+
+<a name="validation-assertions"></a>
+
+## Validation Assertions
+
+Laravel は、あなたの request で提供された data が有効または無効であったことを確認するために使用できる、2 つの主要な検証関連の主張を提供します。
+
+<a name="validation-assert-valid"></a>
+
+#### assertValid
+
+指定された keys に対して response に validation errors がないことを Assert します。この method は、 validation errors が JSON 構造として返されるレスポンスに対して断言するために使用されるか、または validation errors が session にフラッシュされている場合に使用されます。
+
+```php
+// Assert that no validation errors are present...
+$response->assertValid();
+
+// Assert that the given keys do not have validation errors...
+$response->assertValid(['name', 'email']);
+```
+
+<a name="validation-assert-invalid"></a>
+
+#### assertInvalid
+
+Assert という method を使って、与えられた keys に対する validation errors が response に含まれていることを主張します。この method は、validation errors が JSON 構造として返される response や、 validation errors が session にフラッシュされる場合に使用することができます：
+
+```php
+$response->assertInvalid(['name', 'email']);
+```
+
+ある特定のキーが特定の validation error メッセージを持つことを assert することもできます。その際、メッセージ全体を提供するか、メッセージの一部だけを提供することもできます。
+
+```php
+$response->assertInvalid([
+    'name' => 'The name field is required.',
+    'email' => 'valid email address',
+]);
+
+```

@@ -1,0 +1,155 @@
+---
+filePath: "source/laravel/rate-limiting.md"
+title: "Rate Limiting"
+description: "Rate Limiting"
+org_path: "/docs/11.x/rate-limiting"
+is_empty: "false"
+nav_title: "Rate Limiting"
+org_title: "Rate Limiting"
+---
+
+# Rate Limiting
+
+- [Introduction](#introduction)
+  - [Cache Configuration](#cache-configuration)
+- [Basic Usage](#basic-usage)
+  - [Manually Incrementing Attempts](#manually-incrementing-attempts)
+  - [Clearing Attempts](#clearing-attempts)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、application の[cache](cache)と連携することで、特定の時間窓内で任意の action を制限する簡単な方法を提供する、使いやすい rate limiting abstraction を含んでいます。
+
+> [!NOTE]  
+> もし rate limiting による受信 HTTP requests に興味があるならば、[rate limiter middleware documentation](routing#rate-limiting)をご参照ください。
+
+<a name="cache-configuration"></a>
+
+### Cache 設定
+
+通常、レートリミッタは、アプリケーションの`cache`設定ファイル内の`default`キーで定義された default application cache を使用します。ただし、アプリケーションの`cache`設定ファイル内に`limiter`キーを定義することで、レートリミッタが使用するべき cache driver を指定できます。
+
+```php
+'default' => env('CACHE_STORE', 'database'),
+
+'limiter' => 'redis',
+```
+
+<a name="basic-usage"></a>
+
+## Basic Usage
+
+`Illuminate\Support\Facades\RateLimiter` facade はレートリミッターと対話するために使用することができます。レートリミッターが提供する最もシンプルな method は、一定時間内でのコールバックのレート制限を行う`attempt` method です。
+
+`attempt` method は、コールバックに残りの試行回数がない場合は `false` を返します。それ以外の場合、`attempt` method はコールバックの結果または `true` を返します。`attempt` method が受け入れる最初の引数は、レート制限される action を表す任意の string であるレートリミッターの "key" です。
+
+```php
+use Illuminate\Support\Facades\RateLimiter;
+
+$executed = RateLimiter::attempt(
+    'send-message:'.$user->id,
+    $perMinute = 5,
+    function() {
+        // Send message...
+    }
+);
+
+if (! $executed) {
+  return 'Too many messages sent!';
+}
+```
+
+必要であれば、`attempt` method に第 4 引数を提供することができます。これは"ディケイレート"、または使用できる試行が reset されるまでの秒数を指します。例えば、上記の例を修正して 2 分ごとに 5 回の試行を許可するようにすることができます。
+
+```php
+$executed = RateLimiter::attempt(
+    'send-message:'.$user->id,
+    $perTwoMinutes = 5,
+    function() {
+        // Send message...
+    },
+    $decayRate = 120,
+);
+```
+
+<a name="manually-incrementing-attempts"></a>
+
+### 手動で試行回数を増やす
+
+レートリミッターと手動でやり取りしたい場合、他にも様々な方法が利用可能です。例えば、特定のレートリミッターキーが許可された試行回数を 1 分間に超えているかどうかを判断するために、`tooManyAttempts` method を呼び出すことができます：
+
+```php
+use Illuminate\Support\Facades\RateLimiter;
+
+if (RateLimiter::tooManyAttempts('send-message:'.$user->id, $perMinute = 5)) {
+    return 'Too many attempts!';
+}
+
+RateLimiter::increment('send-message:'.$user->id);
+
+// Send message...
+```
+
+あるいは、与えられたキーの残りの試行回数を取得するために、`remaining` method を使用することもできます。特定のキーが再試行を残している場合は、合計試行回数を increment するために`increment` method を呼び出すことができます。
+
+```php
+use Illuminate\Support\Facades\RateLimiter;
+
+if (RateLimiter::remaining('send-message:'.$user->id, $perMinute = 5)) {
+    RateLimiter::increment('send-message:'.$user->id);
+
+    // Send message...
+}
+```
+
+特定のレートリミッター key の value を 1 以上で増加させたい場合は、目的の量を `increment` method に与えることができます。
+
+```php
+RateLimiter::increment('send-message:'.$user->id, amount: 5);
+```
+
+<a name="determining-limiter-availability"></a>
+
+#### リミッターの利用可能性の判断
+
+キーの試行回数が残っていないとき、`availableIn` method は、さらなる試行が可能になるまでの残り秒数を返します：
+
+```php
+use Illuminate\Support\Facades\RateLimiter;
+
+if (RateLimiter::tooManyAttempts('send-message:'.$user->id, $perMinute = 5)) {
+    $seconds = RateLimiter::availableIn('send-message:'.$user->id);
+
+    return 'You may try again in '.$seconds.' seconds.';
+}
+
+RateLimiter::increment('send-message:'.$user->id);
+
+// Send message...
+```
+
+<a name="clearing-attempts"></a>
+
+### クリア試行
+
+指定された rate limiter key の試行回数を、`clear`という method を使って reset することができます。例えば、特定のメッセージが受信者に読まれたときに試行回数を reset することもできます：
+
+```php
+use App\Models\Message;
+use Illuminate\Support\Facades\RateLimiter;
+
+/**
+ * Mark the message as read.
+ */
+public function read(Message $message): Message
+{
+    $message->markAsRead();
+
+    RateLimiter::clear('send-message:'.$message->user_id);
+
+    return $message;
+}
+
+```

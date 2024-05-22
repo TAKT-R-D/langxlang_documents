@@ -1,0 +1,173 @@
+---
+filePath: "source/laravel/seeding.md"
+title: "Database: Seeding"
+description: "Database: Seeding"
+org_path: "/docs/11.x/seeding"
+is_empty: "false"
+nav_title: "Seeding"
+org_title: "Database: Seeding"
+---
+
+# Database: Seeding
+
+- [Introduction](#introduction)
+- [Writing Seeders](#writing-seeders)
+  - [Using Model Factories](#using-model-factories)
+  - [Calling Additional Seeders](#calling-additional-seeders)
+  - [Muting Model Events](#muting-model-events)
+- [Running Seeders](#running-seeders)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、data を使用して database に seed する機能を含んでいます。すべての seed クラスは`database/seeders`ディレクトリに保存されています。default には、`DatabaseSeeder` class があらかじめ定義されています。この class から、`call` method を使用して他の seed クラスを実行でき、seed 順序を制御することができます。
+
+> [!NOTE]  
+> [マスアサインメント保護](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)は、 database seeding 中に自動的に無効になります。
+
+<a name="writing-seeders"></a>
+
+## Writing Seeders
+
+シーダーを生成するには、`make:seeder` [Artisan command](/ja/php/laravel/v11.x/05-digging-deeper/artisan)を実行してください。フレームワークによって生成されたすべてのシーダーは`database/seeders`ディレクトリに配置されます：
+
+```shell
+php artisan make:seeder UserSeeder
+```
+
+Seeder class は default で一つの method 、`run`を含んでいます。この method は`db:seed` [Artisan command](/ja/php/laravel/v11.x/05-digging-deeper/artisan)が実行されるときに呼び出されます。`run` method 内では、好きなように database に insert data することができます。 [query builder](/ja/php/laravel/v11.x/07-database/02-queries)を使って手動で insert data することも、 [Eloquent model factories](/ja/php/laravel/v11.x/08-eloquent-orm/07-eloquent-factories)を使うこともできます。
+
+例として、 default `DatabaseSeeder` class を変更し、`run` method に database insert statement を追加しましょう：
+
+```php
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Run the database seeders.
+     */
+    public function run(): void
+    {
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@example.com',
+            'password' => Hash::make('password'),
+        ]);
+    }
+}
+```
+
+> [!NOTE]  
+> `run`メソッドの signature 内で必要な依存関係をタイプヒントとして指定することができます。それらは自動的に Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されます。
+
+<a name="using-model-factories"></a>
+
+### '' Model '' ファクトリーの使用
+
+もちろん、それぞれの model seed について attributes を手動で指定するのは面倒です。代わりに、 model factories([/ja/php/laravel/v11.x/08-eloquent-orm/07-eloquent-factories](/ja/php/laravel/v11.x/08-eloquent-orm/07-eloquent-factories))を使用して、 database レコードを大量に簡単に生成できます。まず、 model factory のドキュメンテーション([/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent-factories](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent-factories))を見て、ファクトリーをどのように定義するかを学びましょう。
+
+例えば、それぞれに関連するポストが 1 つずつある 50 人の users を作成しましょう：
+
+```php
+use App\Models\User;
+
+/**
+ * Run the database seeders.
+ */
+public function run(): void
+{
+    User::factory()
+            ->count(50)
+            ->hasPosts(1)
+            ->create();
+}
+```
+
+<a name="calling-additional-seeders"></a>
+
+### 追加のシーダーの呼び出し
+
+`DatabaseSeeder` class 内で、`call` method を使用して追加の seed class を実行することができます。 `call` method を使用すると、 databaseseed を複数のファイルに分割して、 単一の シーダ class が大きくなりすぎるのを防ぐことができます。 `call` method は実行するべきシーダ class の array を受け取ります。
+
+```php
+/**
+ * Run the database seeders.
+ */
+public function run(): void
+{
+    $this->call([
+        UserSeeder::class,
+        PostSeeder::class,
+        CommentSeeder::class,
+    ]);
+}
+```
+
+<a name="muting-model-events"></a>
+
+### Model Events のミュート
+
+シードを実行している間、 models の events の発行を防ぎたいかもしれません。これは`WithoutModelEvents`トレイトを使うことで実現できます。使用すると、`WithoutModelEvents`トレイトは、 model events が発行されないことを保証します。たとえ追加の seed クラスが`call` method を介して実行されてもです。
+
+```php
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+class DatabaseSeeder extends Seeder
+{
+    use WithoutModelEvents;
+
+    /**
+     * Run the database seeders.
+     */
+    public function run(): void
+    {
+        $this->call([
+            UserSeeder::class,
+        ]);
+    }
+}
+```
+
+<a name="running-seeders"></a>
+
+## Running Seeders
+
+`db:seed` Artisan command を実行して、あなたの database に seed を行うことができます。default によると、`db:seed` command は`Database\Seeders\DatabaseSeeder` class を実行し、それによって他の seed classes を呼び出すことができます。しかし、`--class`option を使用して個々に実行する seeder class を指定することもできます。
+
+```shell
+php artisan db:seed
+
+php artisan db:seed --class=UserSeeder
+```
+
+また、`migrate:fresh` command を`--seed`option と組み合わせて database に seed を適用することもできます。これにより、すべてのテーブルを削除し、すべての migrations を再実行します。この command は、 database を完全に再構築するのに便利です。`--seeder`option は、特定のシーダーを実行するために使用できます：
+
+```shell
+php artisan migrate:fresh --seed
+
+php artisan migrate:fresh --seed --seeder=UserSeeder
+```
+
+<a name="forcing-seeding-production"></a>
+
+#### シーダーを Production で強制的に動かす
+
+一部の seeding 操作は、あなたが data を変更または失う原因となる可能性があります。あなたが production database に対して seeding コマンドを実行することからあなたを保護するために、`production` environment でシーダーが実行される前に確認のプロンプトが表示されます。 prompt なしでシーダーを実行させるためには、`--force`フラグを使用してください:
+
+```shell
+php artisan db:seed --force
+```

@@ -1,0 +1,634 @@
+---
+filePath: "source/laravel/scheduling.md"
+title: "Task Scheduling"
+description: "Task Scheduling"
+org_path: "/docs/11.x/scheduling"
+is_empty: "false"
+nav_title: "Task Scheduling"
+org_title: "Task Scheduling"
+---
+
+# Task Scheduling
+
+- [Introduction](#introduction)
+- [Defining Schedules](#defining-schedules)
+  - [Scheduling Artisan Commands](#scheduling-artisan-commands)
+  - [Scheduling Queued Jobs](#scheduling-queued-jobs)
+  - [Scheduling Shell Commands](#scheduling-shell-commands)
+  - [Schedule Frequency Options](#schedule-frequency-options)
+  - [Timezones](#timezones)
+  - [Preventing Task Overlaps](#preventing-task-overlaps)
+  - [Running Tasks on One Server](#running-tasks-on-one-server)
+  - [Background Tasks](#background-tasks)
+  - [Maintenance Mode](#maintenance-mode)
+- [Running the Scheduler](#running-the-scheduler)
+  - [Sub-Minute Scheduled Tasks](#sub-minute-scheduled-tasks)
+  - [Running the Scheduler Locally](#running-the-scheduler-locally)
+- [Task Output](#task-output)
+- [Task Hooks](#task-hooks)
+- [Events](#events)
+
+<a name="introduction"></a>
+
+## Introduction
+
+過去には、サーバー上で schedule する必要がある各タスクに対して cron 設定エントリを書いたことがあるかもしれません。しかし、これはすぐに煩わしくなる可能性があります。なぜなら、タスクの schedule はもはやソースコントロール内に存在せず、既存の cron エントリを view したり、追加のエントリを追加するためには、サーバーに SSH でログインする必要があるからです。
+
+Laravel の command scheduler は、サーバー上のスケジュールされたタスクを管理するための新しいアプローチを提供します。スケジューラを使用すると、 Laravel application 自体の中に command schedule を流暢かつ表現豊かに定義することができます。スケジューラを使用する場合、サーバー上では single の cron エントリーのみが必要です。タスクの schedule は通常、あなたのアプリケーションの`routes/console.php`ファイルで定義されます。
+
+<a name="defining-schedules"></a>
+
+## Defining Schedules
+
+あなたの application の `routes/console.php` ファイルで全てのスケジュールされたタスクを定義することができます。始めに、一例を見てみましょう。この例では、毎日真夜中に呼び出されるクロージャを schedule します。クロージャの中で、テーブルをクリアするための database query を実行します：
+
+```php
+<?php
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::call(function () {
+    DB::table('recent_users')->delete();
+})->daily();
+```
+
+クロージャを使用したスケジューリングに加えて、[invokable オブジェクト](https://secure.php.net/manual/en/language.oop5.magic.php#object.invoke)を schedule することもできます。invokable オブジェクトは、`__invoke` method を含むシンプルな PHP クラスです：
+
+```php
+Schedule::call(new DeleteRecentUsers)->daily();
+```
+
+`routes/console.php`ファイルを command の定義のみに予約したい場合は、予定されたタスクを定義するために application の`bootstrap/app.php`ファイルで`withSchedule` method を使用できます。この method は、スケジューラのインスタンスを受け取るクロージャを受け入れます：
+
+```php
+use Illuminate\Console\Scheduling\Schedule;
+
+->withSchedule(function (Schedule $schedule) {
+    $schedule->call(new DeleteRecentUsers)->daily();
+})
+```
+
+予定されたタスクの概要と次に実行される予定時間を view したい場合は、`schedule:list`の Artisan command を使用することができます：
+
+```bash
+php artisan schedule:list
+```
+
+<a name="scheduling-artisan-commands"></a>
+
+### Artisan コマンドのスケジューリング
+
+スケジューリングのクロージャーに加えて、 [Artisan commands](/ja/php/laravel/v11.x/05-digging-deeper/artisan) やシステムコマンドも schedule することができます。例えば、`command` method を使用して、コマンドの名前または class を使用して Artisan command を schedule することができます。
+
+コマンドの class 名を使用して Artisan コマンドをスケジューリングする際、呼び出されたときに command に提供するべき追加のコマンドライン引数の array を渡すことができます：
+
+```php
+use App\Console\Commands\SendEmailsCommand;
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('emails:send Taylor --force')->daily();
+
+Schedule::command(SendEmailsCommand::class, ['Taylor', '--force'])->daily();
+```
+
+<a name="scheduling-artisan-closure-commands"></a>
+
+#### Artisan クロージャーコマンドのスケジューリング
+
+クロージャによって定義された Artisan command を schedule したい場合、コマンドの定義の後でスケジューリングに関連するメソッドを連鎖させることができます。
+
+```php
+Artisan::command('delete:recent-users', function () {
+    DB::table('recent_users')->delete();
+})->purpose('Delete recent users')->daily();
+```
+
+`schedule`を使用して、command クロージャに引数を渡す必要がある場合は、以下のように指定できます。
+
+```php
+Artisan::command('emails:send {user} {--force}', function ($user) {
+    // ...
+})->purpose('Send emails to the specified user')->schedule(['Taylor', '--force'])->daily();
+```
+
+<a name="scheduling-queued-jobs"></a>
+
+### スケジューリング待ちの Jobs
+
+`job` method は、[queue に入れられた job](/ja/php/laravel/v11.x/05-digging-deeper/queues)を schedule するために使うことができます。この method は、job を queue に入れるための `call` method を使用せずに、queue に入れられた job を schedule する便利な方法を提供します。
+
+```php
+use App\Jobs\Heartbeat;
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::job(new Heartbeat)->everyFiveMinutes();
+```
+
+`job` method には、追加で２つ目と３つ目の引数を指定することもできます。これは、 job を queue に追加する際に使用するべき queue の名前と queue connection を指定します。
+
+```php
+use App\Jobs\Heartbeat;
+use Illuminate\Support\Facades\Schedule;
+
+// Dispatch the job to the "heartbeats" queue on the "sqs" connection...
+Schedule::job(new Heartbeat, 'heartbeats', 'sqs')->everyFiveMinutes();
+```
+
+<a name="scheduling-shell-commands"></a>
+
+### シェルコマンドのスケジューリング
+
+`exec`の method は、オペレーティングシステムに command を発行するために使用することができます：
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::exec('node /home/forge/script.js')->daily();
+```
+
+<a name="schedule-frequency-options"></a>
+
+### Schedule 頻度の Options
+
+すでに、特定の間隔でタスクを実行するように設定するいくつかの例を見てきました。しかし、タスクに割り当てることができる、 schedule の頻度はもっとたくさんあります：
+
+<div class="overflow-auto">
+
+| Method                             | Description                                    |
+| ---------------------------------- | ---------------------------------------------- |
+| `->cron('* * * * *');`             | タスクを custom cron schedule で実行します     |
+| `->everySecond();`                 | タスクを毎秒実行する                           |
+| `->everyTwoSeconds();`             | タスクを 2 秒ごとに実行                        |
+| `->everyFiveSeconds();`            | タスクを 5 秒ごとに実行する                    |
+| `->everyTenSeconds();`             | タスクを１０秒ごとに実行する                   |
+| `->everyFifteenSeconds();`         | タスクを 15 秒ごとに実行します                 |
+| `->everyTwentySeconds();`          | タスクを 20 秒ごとに実行する                   |
+| `->everyThirtySeconds();`          | タスクを 30 秒ごとに実行する                   |
+| `->everyMinute();`                 | タスクを毎分実行する                           |
+| `->everyTwoMinutes();`             | タスクを毎分 2 分ごとに実行する                |
+| `->everyThreeMinutes();`           | タスクを 3 分ごとに実行する                    |
+| `->everyFourMinutes();`            | タスクを 4 分ごとに実行する                    |
+| `->everyFiveMinutes();`            | タスクを 5 分ごとに実行する                    |
+| `->everyTenMinutes();`             | 任務を 10 分ごとに実行する                     |
+| `->everyFifteenMinutes();`         | タスクを 15 分ごとに実行する                   |
+| `->everyThirtyMinutes();`          | タスクを 30 分ごとに実行する                   |
+| `->hourly();`                      | タスクを毎時間実行する                         |
+| `->hourlyAt(17);`                  | 毎時間 17 分過ぎにタスクを実行する             |
+| `->everyOddHour($minutes = 0);`    | タスクを奇数時間ごとに実行する                 |
+| `->everyTwoHours($minutes = 0);`   | タスクを 2 時間ごとに実行する                  |
+| `->everyThreeHours($minutes = 0);` | タスクを 3 時間ごとに実行する                  |
+| `->everyFourHours($minutes = 0);`  | タスクを 4 時間ごとに実行する                  |
+| `->everySixHours($minutes = 0);`   | タスクを 6 時間ごとに実行する                  |
+| `->daily();`                       | 任務を毎日真夜中に実行する                     |
+| `->dailyAt('13:00');`              | タスクを毎日 13:00 に実行します                |
+| `->twiceDaily(1, 13);`             | タスクを毎日 1:00 および 13:00 に実行します    |
+| `->twiceDailyAt(1, 13, 15);`       | タスクを毎日 1:15 と 13:15 に実行する          |
+| `->weekly();`                      | このタスクを毎週日曜日の 00:00 に実行する      |
+| `->weeklyOn(1, '8:00');`           | タスクを毎週月曜日の 8:00 に実行する           |
+| `->monthly();`                     | タスクを毎月の初日の 00:00 に実行します        |
+| `->monthlyOn(4, '15:00');`         | タスクを毎月 4 日の 15:00 に実行する           |
+| `->twiceMonthly(1, 16, '13:00');`  | タスクを毎月 1 日と 16 日の 13:00 に実行します |
+| `->lastDayOfMonth('15:00');`       | タスクを毎月最終日の 15:00 に実行します        |
+| `->quarterly();`                   | 00:00 に毎四半期の最初の日にタスクを実行します |
+| `->quarterlyOn(4, '14:00');`       | タスクを毎四半期の 4 日の 14:00 に実行します   |
+| `->yearly();`                      | タスクを毎年の最初の日の 00:00 に実行します    |
+| `->yearlyOn(6, 1, '17:00');`       | タスクを毎年 6 月 1 日の 17:00 に実行します    |
+| `->timezone('America/New_York');`  | タスクの timezone を設定する                   |
+
+</div>
+
+これらの方法は、より細かく調整されたスケジュールを作成するために追加の制約と組み合わせることができます。これらのスケジュールは、特定の曜日だけで実行されます。例えば、毎週月曜日に command を schedule する事ができます：
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+// Run once per week on Monday at 1 PM...
+Schedule::call(function () {
+    // ...
+})->weekly()->mondays()->at('13:00');
+
+// Run hourly from 8 AM to 5 PM on weekdays...
+Schedule::command('foo')
+          ->weekdays()
+          ->hourly()
+          ->timezone('America/Chicago')
+          ->between('8:00', '17:00');
+```
+
+以下に追加の schedule 制約のリストが掲載されています：
+
+<div class="overflow-auto">
+
+| Method                                   | Description                                                      |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `->weekdays();`                          | タスクを平日に限定する                                           |
+| `->weekends();`                          | タスクを週末に制限する                                           |
+| `->sundays();`                           | タスクを日曜日に限定する                                         |
+| `->mondays();`                           | タスクを月曜日に限定する                                         |
+| `->tuesdays();`                          | タスクを火曜日に限定します                                       |
+| `->wednesdays();`                        | タスクを水曜日に限定する                                         |
+| `->thursdays();`                         | タスクを木曜日に限定する                                         |
+| `->fridays();`                           | タスクを金曜日に限定する                                         |
+| `->saturdays();`                         | タスクを土曜日に限定する                                         |
+| `->days(array\|mixed);`                  | 特定の日にタスクを限定する                                       |
+| `->between($startTime, $endTime);`       | タスクが開始時刻と終了時刻の間に実行されるように制限します       |
+| `->unlessBetween($startTime, $endTime);` | スタート時間と終了時間の間にタスクが実行されないように制限します |
+| `->when(Closure);`                       | 真実テストに基づいてタスクを制限する                             |
+| `->environments($env);`                  | 特定の environments にタスクを制限する                           |
+
+</div>
+
+<a name="day-constraints"></a>
+
+#### 日付制約
+
+`days` method は、特定の曜日にタスクの実行を制限するために使用できます。例えば、日曜日と水曜日に毎時 command を schedule することができます。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('emails:send')
+                ->hourly()
+                ->days([0, 3]);
+```
+
+代わりに、タスクが実行される日を定義するときに`Illuminate\Console\Scheduling\Schedule` class で利用可能な定数を使用することもできます：
+
+```php
+use Illuminate\Support\Facades;
+use Illuminate\Console\Scheduling\Schedule;
+
+Facades\Schedule::command('emails:send')
+                ->hourly()
+                ->days([Schedule::SUNDAY, Schedule::WEDNESDAY]);
+```
+
+<a name="between-time-constraints"></a>
+
+#### 時間制約の間に
+
+`between` method は、時間帯に基づいてタスクの実行を制限するために使用できます。
+
+```php
+Schedule::command('emails:send')
+                    ->hourly()
+                    ->between('7:00', '22:00');
+```
+
+同様に、`unlessBetween` method は、一定期間タスクの実行を除外するために使用できます。
+
+```php
+Schedule::command('emails:send')
+                    ->hourly()
+                    ->unlessBetween('23:00', '4:00');
+```
+
+<a name="truth-test-constraints"></a>
+
+#### 真実テスト制約
+
+`when` method は、指定された真偽 test の結果に基づいてタスクの実行を制限するために使用することができます。つまり、指定されたクロージャが `true` を返す場合、他の制約条件がタスクの実行を妨げない限り、タスクは実行されます。
+
+```php
+Schedule::command('emails:send')->daily()->when(function () {
+    return true;
+});
+```
+
+`skip`の method は、`when`の逆と見なすことができます。`skip`の method が`true`を返すと、schedule されたタスクは実行されません：
+
+```php
+Schedule::command('emails:send')->daily()->skip(function () {
+    return true;
+});
+```
+
+`when`メソッドをチェーンさせて使用する場合、スケジュールされた command は、すべての`when`条件が`true`を返す場合にのみ実行されます。
+
+<a name="environment-constraints"></a>
+
+#### Environment 制約
+
+`environments` method は、指定された environments (`APP_ENV` [environment variable](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)で定義されたような)でのみタスクを実行するために使用できます：
+
+```php
+Schedule::command('emails:send')
+            ->daily()
+            ->environments(['staging', 'production']);
+```
+
+<a name="timezones"></a>
+
+### Timezones
+
+`timezone`の method を使用すると、schedule されたタスクの時間が指定したタイムゾーンで解釈されるように設定できます。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('report:generate')
+         ->timezone('America/New_York')
+         ->at('2:00')
+```
+
+あなたがすべてのスケジュールされたタスクに同じ timezone を繰り返し割り当てている場合、アプリケーションの`app`設定ファイル内の`schedule_timezone`オプションを定義することで、すべてのスケジュールに割り当てられるべき timezone を指定することができます:
+
+```php
+'timezone' => env('APP_TIMEZONE', 'UTC'),
+
+'schedule_timezone' => 'America/Chicago',
+```
+
+> [!WARNING]  
+> 一部のタイムゾーンでは夏時間が利用されていることを覚えておいてください。夏時間の切り替え時には、スケジュールされたタスクが 2 回実行されるか、またはまったく実行されないかもしれません。そのため、可能な限り timezone によるスケジューリングは避けることをお勧めします。
+
+<a name="preventing-task-overlaps"></a>
+
+### タスクの重複を防ぐ
+
+default では、前回のタスクがまだ実行中であっても、schedule されたタスクが実行されます。これを防ぐには、`withoutOverlapping` method を使用することができます。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('emails:send')->withoutOverlapping();
+```
+
+この例では、すでに実行されていない場合、`emails:send` [Artisan command](/ja/php/laravel/v11.x/05-digging-deeper/artisan)は毎分実行されます。`withoutOverlapping` method は、特に実行時間が大幅に異なるタスクがあり、特定のタスクがどのくらいの時間を必要とするかを正確に予測できない場合に便利です。
+
+必要に応じて、"without overlapping"のロックが期限切れになるまでに何分経過しなければならないかを指定することができます。" default "では、ロックは 24 時間後に期限切れになります：
+
+```php
+Schedule::command('emails:send')->withoutOverlapping(10);
+```
+
+舞台裏で、`withoutOverlapping` method は、あなたのアプリケーションの[cache](/ja/php/laravel/v11.x/05-digging-deeper/cache)を使用してロックを取得します。必要に応じて、`schedule:clear-cache` Artisan command を使用してこれらの cache ロックをクリアすることができます。これは通常、予期せぬサーバーの問題によりタスクが停止してしまった場合にのみ必要となります。
+
+<a name="running-tasks-on-one-server"></a>
+
+### 一つのサーバー上でのタスク実行
+
+> [!WARNING]  
+> この feature を利用するためには、あなたの application は`database`、`memcached`、`dynamodb`、または`redis` cache driver をアプリケーションの default cache driver として使用している必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
+
+あなたのアプリケーションのスケジューラが複数のサーバーで実行されている場合、スケジュールされた job を single サーバーでのみ実行するように制限することができます。例えば、毎週金曜日の夜に新しいレポートを生成するスケジュールされたタスクがあるとします。タスクスケジューラが 3 つのワーカーサーバーで実行されている場合、スケジュールされたタスクはすべての 3 つのサーバーで実行され、レポートが 3 回生成されます。良くない！
+
+タスクが 1 つのサーバーでのみ実行されるようにするには、スケジュールされたタスクを定義するときに、`onOneServer` method を使用します。タスクを最初に取得したサーバーは、他のサーバーが同じタスクを同時に実行するのを防ぐために、 job にアトミックロックを確保します。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('report:generate')
+                ->fridays()
+                ->at('17:00')
+                ->onOneServer();
+```
+
+<a name="naming-unique-jobs"></a>
+
+#### Single サーバーの Jobs の命名
+
+時折、同じ job を異なるパラメータで schedule する必要があり、それでもなお、 Laravel に各 job の組み合わせを single サーバー上で実行するよう指示する場合があります。これを達成するために、`name` method を使用して、各 schedule 定義に unique な名前を割り当てることができます：
+
+```php
+Schedule::job(new CheckUptime('https://laravel.com'))
+            ->name('check_uptime:laravel.com')
+            ->everyFiveMinutes()
+            ->onOneServer();
+
+Schedule::job(new CheckUptime('https://vapor.laravel.com'))
+            ->name('check_uptime:vapor.laravel.com')
+            ->everyFiveMinutes()
+            ->onOneServer();
+```
+
+同様に、一つのサーバーで実行する予定のスケジュールされたクロージャは、名前を割り当てる必要があります：
+
+```php
+Schedule::call(fn () => User::resetApiRequestCount())
+    ->name('reset-api-request-count')
+    ->daily()
+    ->onOneServer();
+```
+
+<a name="background-tasks"></a>
+
+### バックグラウンドタスク
+
+””default”” では、同時に schedule された複数のタスクは、`schedule` ””method”” で定義された順序に基づいて順番に実行されます。 長時間実行されるタスクがある場合、これにより後続のタスクの開始が大幅に遅れる可能性があります。すべてのタスクを同時に実行するためにバックグラウンドでタスクを実行したい場合は、 `runInBackground` ””method”” を使用できます。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('analytics:report')
+         ->daily()
+         ->runInBackground();
+```
+
+> [!WARNING]  
+> `runInBackground`の method は、`command`および`exec`メソッドを介してタスクをスケジュールする際にのみ使用できます。
+
+<a name="maintenance-mode"></a>
+
+### メンテナンスモード
+
+あなたのアプリケーションの schedule されたタスクは、 application が[メンテナンスモード](/ja/php/laravel/v11.x/02-getting-started/02-configuration#maintenance-mode)にある場合、servers で実行中の未完了のメンテナンス作業にタスクが干渉するのを避けるため実行されません。ただし、メンテナンスモードでもタスクを強制的に実行したい場合は、タスクを定義するときに `evenInMaintenanceMode` method を呼び出すことができます：
+
+```php
+Schedule::command('emails:send')->evenInMaintenanceMode();
+```
+
+<a name="running-the-scheduler"></a>
+
+## Running the Scheduler
+
+スケジュールされたタスクの定義方法を学んだところで、それを実際に私たちのサーバー上でどのように実行するかについて説明しましょう。 `schedule:run` Artisan command は、すべてのスケジュールされたタスクを評価し、それらをサーバーの現在の時間に基づいて実行する必要があるかどうかを決定します。
+
+では、Laravel のスケジューラを使用すると、 `schedule:run` の command を毎分実行するための singlecron 設定エントリーを server に追加するだけで済みます。server に cron エントリーを追加する方法がわからない場合は、[Laravel Forge](https://forge.laravel.com)のような service を利用して、cron エントリーの管理を代行させることを検討してみてください：
+
+```shell
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+<a name="sub-minute-scheduled-tasks"></a>
+
+### サブミニッツスケジュールタスク
+
+ほとんどのオペレーティングシステムでは、cron の jobs は最大でも 1 分に 1 回しか実行できません。しかし、Laravel のスケジューラでは、 schedule タスクをより頻繁な間隔で、1 秒に 1 回という頻度で実行することが可能です：
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::call(function () {
+    DB::table('recent_users')->delete();
+})->everySecond();
+```
+
+あなたの application 内でサブミニッテのタスクが定義されると、`schedule:run` command はすぐに終了するのではなく、その分の最後まで実行を続けます。これにより、 command はその分全体で required のサブミニッテのタスクをすべて呼び出すことができます。
+
+予想よりも実行に時間がかかるサブミニットタスクは、後続のサブミニットタスクの実行を delay する可能性があるため、全てのサブミニットタスクがキューに入れられた jobs やバックグラウンドコマンドを dispatch し、実際のタスクの processing を handle することが推奨されます：
+
+```php
+use App\Jobs\DeleteRecentUsers;
+
+Schedule::job(new DeleteRecentUsers)->everyTenSeconds();
+
+Schedule::command('users:delete')->everyTenSeconds()->runInBackground();
+```
+
+<a name="interrupting-sub-minute-tasks"></a>
+
+#### サブミニッツタスクの中断
+
+`schedule:run`の command が、分単位のタスクが定義されている場合、呼び出し全体の 1 分間実行されますので、時には application のデプロイ時に command を中断する必要があるかもしれません。そうしないと、すでに実行中の`schedule:run`の command は、現在の分が終了するまで、以前にデプロイされたアプリケーションの code を引き続き使用します。
+
+進行中の `schedule:run` 呼び出しを中断するためには、`schedule:interrupt` command をアプリケーションの deployment scripts に追加することができます。この command は、 application のデプロイが完了した後に呼び出すべきです：
+
+```shell
+php artisan schedule:interrupt
+```
+
+<a name="running-the-scheduler-locally"></a>
+
+### スケジューラをローカルで実行する
+
+一般的に、スケジューラーの cron エントリをローカルの開発マシンに追加することはありません。代わりに、`schedule:work`の Artisan command を使用することができます。この command は、 command を terminate するまで、フォアグラウンドで実行され、毎分スケジューラーを呼び出します。
+
+```shell
+php artisan schedule:work
+```
+
+<a name="task-output"></a>
+
+## Task Output
+
+Laravel スケジューラは、スケジュールされたタスクによって生成された output を操作するためのいくつかの便利なメソッドを提供します。まず、`sendOutputTo` method を使用すると、後で調査するために output をファイルに送信することができます。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('emails:send')
+         ->daily()
+         ->sendOutputTo($filePath);
+```
+
+もし特定のファイルに output を append したい場合は、`appendOutputTo` method を使うことができます：
+
+```php
+Schedule::command('emails:send')
+         ->daily()
+         ->appendOutputTo($filePath);
+```
+
+`emailOutputTo`の method を使用すると、選択したメールアドレスに出力をメールで送ることができます。タスクの出力をメールで送る前に、Laravel の[メール service](/ja/php/laravel/v11.x/05-digging-deeper/mail)を設定する必要があります。
+
+```php
+Schedule::command('report:generate')
+         ->daily()
+         ->sendOutputTo($filePath)
+         ->emailOutputTo('taylor@example.com');
+```
+
+schedule された Artisan またはシステムの command がゼロ以外の終了コードで終了した場合にのみ出力をメールで送りたい場合は、`emailOutputOnFailure` method を使用してください：
+
+```php
+Schedule::command('report:generate')
+         ->daily()
+         ->emailOutputOnFailure('taylor@example.com');
+```
+
+> [!WARNING]  
+> `emailOutputTo`、`emailOutputOnFailure`、`sendOutputTo`、および`appendOutputTo`メソッドは、`command`および`exec`メソッド専用です。
+
+<a name="task-hooks"></a>
+
+## Task Hooks
+
+`before`および`after`メソッドを使用すると、スケジュールされたタスクが実行される前後に実行する code を指定できます。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('emails:send')
+         ->daily()
+         ->before(function () {
+             // The task is about to execute...
+         })
+         ->after(function () {
+             // The task has executed...
+         });
+```
+
+`onSuccess` および `onFailure` methods は、schedule されたタスクが成功した場合や失敗した場合に実行されるコードを指定することができます。失敗は、schedule された Artisan またはシステム command がゼロ以外の終了 code で終了したことを示します。
+
+```php
+Schedule::command('emails:send')
+         ->daily()
+         ->onSuccess(function () {
+             // The task succeeded...
+         })
+         ->onFailure(function () {
+             // The task failed...
+         });
+```
+
+あなたの command から output が利用可能な場合、`after`、`onSuccess`、または `onFailure` フックでそれにアクセスすることができます。その方法は、フックのクロージャ定義の `$output` 引数として `Illuminate\Support\Stringable` インスタンスを型ヒントとして用いることです。
+
+```php
+use Illuminate\Support\Stringable;
+
+Schedule::command('emails:send')
+         ->daily()
+         ->onSuccess(function (Stringable $output) {
+             // The task succeeded...
+         })
+         ->onFailure(function (Stringable $output) {
+             // The task failed...
+         });
+```
+
+<a name="pinging-urls"></a>
+
+#### URL をピンギングする
+
+`pingBefore`と`thenPing`メソッドを使用して、スケジューラはタスクが実行される前または後に指定した URL を自動的にピングすることができます。この method は、schedule されたタスクが開始または終了したことを[Envoyer](https://envoyer.io)のような外部の service に通知するために便利です：
+
+```php
+Schedule::command('emails:send')
+         ->daily()
+         ->pingBefore($url)
+         ->thenPing($url);
+```
+
+`pingBeforeIf`および`thenPingIf`メソッドは、指定された条件が`true`である場合にのみ指定された URL をピンするために使用できます：
+
+```php
+Schedule::command('emails:send')
+         ->daily()
+         ->pingBeforeIf($condition, $url)
+         ->thenPingIf($condition, $url);
+```
+
+`pingOnSuccess` および `pingOnFailure` メソッドは、タスクが成功または失敗した場合にのみ指定の URL を ping するために使用することができます。失敗は、スケジュールされた Artisan またはシステムの command が非ゼロの終了 code で終了したことを示します。
+
+```php
+Schedule::command('emails:send')
+         ->daily()
+         ->pingOnSuccess($successUrl)
+         ->pingOnFailure($failureUrl);
+```
+
+<a name="events"></a>
+
+## Events
+
+Laravel はスケジューリングの process 中に様々な[events](/ja/php/laravel/v11.x/05-digging-deeper/events)を dispatches します。以下の events のいずれかに対して[listeners を定義](/docs/11.x/events)することができます：
+
+| Event Name                                                  |
+| ----------------------------------------------------------- |
+| `Illuminate\Console\Events\ScheduledTaskStarting`           |
+| `Illuminate\Console\Events\ScheduledTaskFinished`           |
+| `Illuminate\Console\Events\ScheduledBackgroundTaskFinished` |
+| `Illuminate\Console\Events\ScheduledTaskSkipped`            |
+| `Illuminate\Console\Events\ScheduledTaskFailed`             |

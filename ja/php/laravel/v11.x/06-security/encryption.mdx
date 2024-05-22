@@ -1,0 +1,98 @@
+---
+filePath: "source/laravel/encryption.md"
+title: "Encryption"
+description: "Encryption"
+org_path: "/docs/11.x/encryption"
+is_empty: "false"
+nav_title: "Encryption"
+org_title: "Encryption"
+---
+
+# Encryption
+
+- [Introduction](#introduction)
+- [Configuration](#configuration)
+  - [Gracefully Rotating Encryption Keys](#gracefully-rotating-encryption-keys)
+- [Using the Encrypter](#using-the-encrypter)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel の encryption services は、OpenSSL を使用した AES-256 および AES-128 の encryption を通じてテキストを暗号化および復号化するためのシンプルで便利なインターフェースを提供します。Laravel のすべての暗号化された values は、メッセージの authentication code (MAC)を使って署名されているため、一度暗号化されるとその基盤となる value は改ざんまたは変更することができません。
+
+<a name="configuration"></a>
+
+## Configuration
+
+Laravel の暗号化機能を使用する前に、`config/app.php`設定ファイル内で`key`設定オプションを設定する必要があります。この設定の value は、`APP_KEY` environment 変数によって制御されます。`php artisan key:generate` command を使用して、この変数の value を生成すべきです。なぜなら、`key:generate` command は、PHP のセキュアな random バイトジェネレータを使用して、あなたの application のための暗号学的に安全なキーを build するからです。通常、`APP_KEY` environment 変数の value は、[Laravel のインストール](/ja/php/laravel/v11.x/02-getting-started/01-installation)中にあなたのために生成されます。
+
+<a name="gracefully-rotating-encryption-keys"></a>
+
+### 優雅に回転する Encryption Keys
+
+あなたのアプリケーションの encryption キーを変更すると、すべての認証された user セッションがあなたの application からログアウトされます。これは、 session クッキーを含むすべての cookie が Laravel によって暗号化されているためです。また、以前の encryption キーで暗号化された任意の data を復号化することはもはや可能ではありません。
+
+この問題を緩和するために、 Laravel は、application の`APP_PREVIOUS_KEYS` environment variables に以前の暗号化 keys をリスト化することを許可します。この variable は、以前のすべての暗号化 keys のコンマ区切りのリストを含む可能性があります。
+
+```ini
+APP_KEY="base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY="
+APP_PREVIOUS_KEYS="base64:2nLsGFGzyoae2ax3EF2Lyq/hH6QghBGLIq5uL+Gp8/w="
+```
+
+この environment 変数を設定すると、 Laravel は "current" の encryption キーを使用して必ず values を暗号化します。しかし、 values を復号化するときに、 Laravel はまず現在のキーを試し、現在のキーを使用した復号化が失敗した場合、 Laravel は value を復号化できる keys の 1 つが見つかるまで、以前のすべての keys を試します。
+
+この優雅な復号化のアプローチにより、 users はあなたの encryption キーがローテーションされても、あなたの application を中断することなく使用し続けることが可能です。
+
+<a name="using-the-encrypter"></a>
+
+## Using the Encrypter
+
+<a name="encrypting-a-value"></a>
+
+#### Value の暗号化
+
+`Crypt`facade が提供する`encryptString`method を使用して value を暗号化することができます。すべての暗号化された value は、OpenSSL と AES-256-CBC 暗号を使用して暗号化されます。さらに、すべての暗号化された value はメッセージ authentication コード(MAC)で署名されます。統合されたメッセージ authentication コードは、悪意のある users によって改ざんされたすべての value の復号化を防ぎます：
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+
+class DigitalOceanTokenController extends Controller
+{
+    /**
+     * Store a DigitalOcean API token for the user.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->user()->fill([
+            'token' => Crypt::encryptString($request->token),
+        ])->save();
+
+        return redirect('/secrets');
+    }
+}
+```
+
+<a name="decrypting-a-value"></a>
+
+#### Value の復号化
+
+`Crypt`の facade が提供する`decryptString` method を使用して values を復号化することができます。 values が正しく復号化されない場合、たとえば、メッセージ authentication コードが無効である場合は、`Illuminate\Contracts\Encryption\DecryptException`が throw されます。
+
+```php
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Crypt;
+
+try {
+    $decrypted = Crypt::decryptString($encryptedValue);
+} catch (DecryptException $e) {
+    // ...
+}
+
+```

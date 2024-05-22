@@ -1,0 +1,590 @@
+---
+filePath: "source/laravel/container.md"
+title: "Service Container"
+description: "Service Container"
+org_path: "/docs/11.x/container"
+is_empty: "false"
+nav_title: "Service Container"
+org_title: "Service Container"
+---
+
+# Service Container
+
+- [Introduction](#introduction)
+  - [Zero Configuration Resolution](#zero-configuration-resolution)
+  - [When to Utilize the Container](#when-to-use-the-container)
+- [Binding](#binding)
+  - [Binding Basics](#binding-basics)
+  - [Binding Interfaces to Implementations](#binding-interfaces-to-implementations)
+  - [Contextual Binding](#contextual-binding)
+  - [Binding Primitives](#binding-primitives)
+  - [Binding Typed Variadics](#binding-typed-variadics)
+  - [Tagging](#tagging)
+  - [Extending Bindings](#extending-bindings)
+- [Resolving](#resolving)
+  - [The Make Method](#the-make-method)
+  - [Automatic Injection](#automatic-injection)
+- [Method Invocation and Injection](#method-invocation-and-injection)
+- [Container Events](#container-events)
+- [PSR-11](#psr-11)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel service container は、class の依存関係の管理や依存性の注入を実行するための強力なツールです。"依存性の注入"は、基本的にこのような意味を持つ高尚なフレーズです：class の依存関係は、コンストラクタまたは、場合によっては"setter"method を介して class に"注入"されます。
+
+簡単な例を見てみましょう：
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Repositories\UserRepository;
+use App\Models\User;
+use Illuminate\View\View;
+
+class UserController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(
+        protected UserRepository $users,
+    ) {}
+
+    /**
+     * Show the profile for the given user.
+     */
+    public function show(string $id): View
+    {
+        $user = $this->users->find($id);
+
+        return view('user.profile', ['user' => $user]);
+    }
+}
+```
+
+この例では、`UserController`は「users」を「data」ソースから取得する必要があります。したがって、「users」を取得することが可能な「service」を**注入**します。この「context」では、おそらく私たちの`UserRepository`は「users」情報を「database」から取得するために[「Eloquent」](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)を使用しています。しかし、リポジトリが注入されているため、「別の実装」に簡単に「スワップ」できます。また、「testing」の際に`UserRepository`のダミー実装を作成する、つまり「モック」を簡単に作成することも可能です。
+
+強力で大規模な application を開発するため、また Laravel のコア自体に貢献するためにも、 Laravel service container についての深い理解が不可欠です。
+
+<a name="zero-configuration-resolution"></a>
+
+### ゼロ設定解決
+
+もし class が依存関係を持たない、または他の具象クラス(インターフェースではない)にのみ依存している場合、コンテナにその class の解決方法を指示する必要はありません。例えば、次のような code をあなたの`routes/web.php`ファイルに配置することができます：
+
+```php
+<?php
+
+class Service
+{
+    // ...
+}
+
+Route::get('/', function (Service $service) {
+    die($service::class);
+});
+```
+
+この例では、application の`/` route にアクセスすると、自動的に`Service` class が解決され、route の handler に注入されます。これはゲームチェンジングです。つまり、あなたは自身の application を development し、dependency injection を活用することができるのです。それも、設定ファイルが肥大化することを心配することなく。
+
+ありがたいことに、Laravel application を構築する際に書く多くのクラスは、[controllers](/ja/php/laravel/v11.x/04-the-basics/05-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) など、コンテナを通じて自動的に依存関係を受け取ります。さらに、[queued jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues) の`handle` method で依存関係をタイプヒントすることもできます。自動かつゼロ構成の dependency injection の力を一度味わうと、それなしで開発することが不可能に感じられるでしょう。
+
+<a name="when-to-use-the-container"></a>
+
+### コンテナを利用するタイミング
+
+ゼロ構成解決のおかげで、コンテナを手動で操作することなく、 routes 、コントローラー、 event listeners などの依存関係をしばしばタイプヒントします。例えば、`Illuminate\Http\Request` object を route 定義にタイプヒントすることで、現在の request に容易にアクセスできるようになるでしょう。この code を書くためにコンテナとつながらなくても、依存関係の注入は裏側で管理されています：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/', function (Request $request) {
+    // ...
+});
+```
+
+多くの場合、自動的な dependency injection や[facades](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)のおかげで、**一度も**手動で何もバインドしたりコンテナから解決したりせずに、 build Laravel アプリケーションを作成することができます。**では、いつコンテナと手動で対話する必要があるのでしょうか？** 2 つの状況を見てみましょう。
+
+まず、 class を書き、そのインターフェースを route または class のコンストラクタに型ヒントしたい場合、そのインターフェースが[どのように解決するかコンテナに指示する必要があります](#binding-interfaces-to-implementations)。次に、他の Laravel 開発者と共有する予定の[Laravel パッケージを書く場合](/ja/php/laravel/v11.x/05-digging-deeper/packages)は、パッケージの services をコンテナにバインドする必要があるかもしれません。
+
+<a name="binding"></a>
+
+## Binding
+
+<a name="binding-basics"></a>
+
+### バインディングの基本
+
+<a name="simple-bindings"></a>
+
+#### シンプルなバインディング
+
+ほとんどすべてのあなたの service container のバインディングは[service providers](/ja/php/laravel/v11.x/03-architecture-concepts)の中で登録されるでしょう、そのため、これらの例のほとんどはその context でコンテナを使うことを示しています。
+
+service provider 内では、常に`$this->app` プロパティを通じてコンテナにアクセスすることが可能です。我々は `bind` method を使用して、登録したい class 名やインターフェース名と、その class のインスタンスを返すクロージャを一緒に登録するバインディングを登録することができます。
+
+```php
+use App\Services\Transistor;
+use App\Services\PodcastParser;
+use Illuminate\Contracts\Foundation\Application;
+
+$this->app->bind(Transistor::class, function (Application $app) {
+    return new Transistor($app->make(PodcastParser::class));
+});
+```
+
+リゾルバへの引数としてコンテナ自体を受け取ることに注意してください。その後、構築している object のサブ依存関係を解決するために、コンテナを使用することができます。
+
+前述の通り、通常は service プロバイダ内でコンテナと対話することになりますが、もし service provider の外部でコンテナと対話したい場合は、`App` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)を通じて行うことができます。
+
+```php
+use App\Services\Transistor;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\App;
+
+App::bind(Transistor::class, function (Application $app) {
+    // ...
+});
+```
+
+ある type に対してまだバインディングが登録されていない場合にのみ、コンテナバインディングを register するために`bindIf` method を使用することができます：
+
+```php
+$this->app->bindIf(Transistor::class, function (Application $app) {
+    return new Transistor($app->make(PodcastParser::class));
+});
+```
+
+> [!NOTE]  
+> インターフェースに依存しないクラスをコンテナにバインドする必要はありません。これらのオブジェクトを build する方法についてコンテナに指示する必要はありません。なぜなら、それはリフレクションを使用してこれらのオブジェクトを自動的に解決することができるからです。
+
+<a name="binding-a-singleton"></a>
+
+#### Singleton のバインディング
+
+`singleton` method は、一度だけ解決されるべき class あるいはインターフェースをコンテナに結びつけます。一度 singleton バインディングが解決されると、その後のコンテナへの呼び出しで同じ object インスタンスが返されます：
+
+```php
+use App\Services\Transistor;
+use App\Services\PodcastParser;
+use Illuminate\Contracts\Foundation\Application;
+
+$this->app->singleton(Transistor::class, function (Application $app) {
+    return new Transistor($app->make(PodcastParser::class));
+});
+```
+
+`singletonIf`という method を使用して、指定した type のバインディングがまだ登録されていない場合にのみ、シングルトンコンテナバインディングを登録することができます:
+
+```php
+$this->app->singletonIf(Transistor::class, function (Application $app) {
+    return new Transistor($app->make(PodcastParser::class));
+});
+```
+
+<a name="binding-scoped"></a>
+
+#### バインディングスコープ付きシングルトン
+
+`scoped`" method は、与えられた Laravelrequest / job のライフサイクル内で一度だけ解決されるべき class またはインターフェイスをコンテナにバインドします。この method は `singleton` method に似ていますが、`scoped` method を使用して登録されたインスタンスは、新しい "ライフサイクル"が始まるたびにフラッシュされます。例えば、[Laravel Octane](/ja/php/laravel/v11.x/10-packages/octane) ワーカーが新しい request を処理した時や、Laravel の [queue ワーカー](/ja/php/laravel/v11.x/05-digging-deeper/queues)が新しい job を処理するといった場合です。
+
+```php
+use App\Services\Transistor;
+use App\Services\PodcastParser;
+use Illuminate\Contracts\Foundation\Application;
+
+$this->app->scoped(Transistor::class, function (Application $app) {
+    return new Transistor($app->make(PodcastParser::class));
+});
+```
+
+<a name="binding-instances"></a>
+
+#### インスタンスのバインディング
+
+既存の object インスタンスをコンテナにバインドすることもできます。これは`instance` method を使用します。与えられたインスタンスは、その後のコンテナへの呼び出しで常に返されます。
+
+```php
+use App\Services\Transistor;
+use App\Services\PodcastParser;
+
+$service = new Transistor(new PodcastParser);
+
+$this->app->instance(Transistor::class, $service);
+```
+
+<a name="binding-interfaces-to-implementations"></a>
+
+### インターフェースを実装にバインドする
+
+service container の非常に強力な特徴の一つは、インターフェースを特定の実装にバインドする能力です。例えば、`EventPusher`インターフェースと`RedisEventPusher`実装があると仮定しましょう。このインターフェースの`RedisEventPusher`実装をコード化した後、登録して service container に以下のようにすることができます:
+
+```php
+use App\Contracts\EventPusher;
+use App\Services\RedisEventPusher;
+
+$this->app->bind(EventPusher::class, RedisEventPusher::class);
+```
+
+この statement は、コンテナに対して、ある class が`EventPusher`の実装を必要とする場合には`RedisEventPusher`を注入すべきであることを告げます。これで、コンテナによって解決される class のコンストラクタで`EventPusher`インターフェースに型ヒントを付けることができます。コントローラー、 event listeners 、 middleware 、そして Laravel アプリケーション内のさまざまな他のタイプのクラスは常にコンテナを使用して解決されることを覚えておいてください。
+
+```php
+use App\Contracts\EventPusher;
+
+/**
+ * Create a new class instance.
+ */
+public function __construct(
+    protected EventPusher $pusher
+) {}
+```
+
+<a name="contextual-binding"></a>
+
+### コンテキストバインディング
+
+場合によっては、同じインターフェースを利用する 2 つのクラスがあるかもしれませんが、それぞれの class に異なる実装を注入したいと思うかもしれません。たとえば、2 つのコントローラは`Illuminate\Contracts\Filesystem\Filesystem` [契約](/ja/php/laravel/v11.x/05-digging-deeper/contracts)の異なる実装に依存するかもしれません。 Laravel は、この動作を定義するためのシンプルで流暢なインターフェースを提供します：
+
+```php
+use App\Http\Controllers\PhotoController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\VideoController;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Storage;
+
+$this->app->when(PhotoController::class)
+          ->needs(Filesystem::class)
+          ->give(function () {
+              return Storage::disk('local');
+          });
+
+$this->app->when([VideoController::class, UploadController::class])
+          ->needs(Filesystem::class)
+          ->give(function () {
+              return Storage::disk('s3');
+          });
+```
+
+<a name="binding-primitives"></a>
+
+### プリミティブのバインディング
+
+時々、いくつかの注入 integer を受け取る class を持つ場合がありますが、整数などの注入されたプリミティブ value も必要とする場合があります。context バインディングを使用することで、 class が必要とする任意の value を簡単に注入できます。
+
+```php
+use App\Http\Controllers\UserController;
+
+$this->app->when(UserController::class)
+          ->needs('$variableName')
+          ->give($value);
+```
+
+時々、 class は[tagged](#tagging)インスタンスの array に依存することがあります。`giveTagged` method を使用すると、そのタグを持つすべてのコンテナバインディングを簡単に注入できます：
+
+```php
+$this->app->when(ReportAggregator::class)
+    ->needs('$reports')
+    ->giveTagged('reports');
+```
+
+アプリケーションの設定ファイルの一つから value を注入する必要がある場合、`giveConfig` method を使用することができます。
+
+```php
+$this->app->when(ReportAggregator::class)
+    ->needs('$timezone')
+    ->giveConfig('app.timezone');
+```
+
+<a name="binding-typed-variadics"></a>
+
+### タイプ指定可変長引数のバインディング
+
+たまに、可変長コンストラクタ引数を使用して型付きオブジェクトの array を受け取る class があるかもしれません：
+
+```php
+<?php
+
+use App\Models\Filter;
+use App\Services\Logger;
+
+class Firewall
+{
+    /**
+     * The filter instances.
+     *
+     * @var array
+     */
+    protected $filters;
+
+    /**
+     * Create a new class instance.
+     */
+    public function __construct(
+        protected Logger $logger,
+        Filter ...$filters,
+    ) {
+        $this->filters = $filters;
+    }
+}
+```
+
+context バインディングを使用すると、この依存関係を解決するために、解決された`Filter`インスタンスの array を返すクロージャーを method `give`に提供することができます。
+
+```php
+$this->app->when(Firewall::class)
+          ->needs(Filter::class)
+          ->give(function (Application $app) {
+                return [
+                    $app->make(NullFilter::class),
+                    $app->make(ProfanityFilter::class),
+                    $app->make(TooLongFilter::class),
+                ];
+          });
+```
+
+便宜上、`Firewall`が`Filter`インスタンスを必要とするたびに、コンテナによって解決される class の名前の array を提供することもできます。
+
+```php
+$this->app->when(Firewall::class)
+          ->needs(Filter::class)
+          ->give([
+              NullFilter::class,
+              ProfanityFilter::class,
+              TooLongFilter::class,
+          ]);
+```
+
+<a name="variadic-tag-dependencies"></a>
+
+#### 可変長タグ依存関係
+
+時折、 class は特定の class (`Report ...$reports`)として types 指定されたバリアディックな依存性を持つことがあります。`needs`と`giveTagged`の method を使うと、その依存性に対する[tag](#tagging)を持つすべてのコンテナのバインドを簡単に注入できます：
+
+```php
+$this->app->when(ReportAggregator::class)
+    ->needs(Report::class)
+    ->giveTagged('reports');
+```
+
+<a name="tagging"></a>
+
+### Tagging
+
+たまに、特定の "category" のバインディング全てを解決する必要があるかもしれません。例えば、あなたが様々な `Report` インターフェースの実装を含む「””array””」を受け取るレポート分析エンジンを作成している場合があります。 `Report` の実装を登録した後、それらに `tag` ””method””を使用して tag を割り当てることができます:
+
+```php
+$this->app->bind(CpuReport::class, function () {
+    // ...
+});
+
+$this->app->bind(MemoryReport::class, function () {
+    // ...
+});
+
+$this->app->tag([CpuReport::class, MemoryReport::class], 'reports');
+```
+
+一旦 services がタグ付けされると、コンテナの`tagged` method を使って簡単にそれらすべてを解決できます：
+
+```php
+$this->app->bind(ReportAnalyzer::class, function (Application $app) {
+    return new ReportAnalyzer($app->tagged('reports'));
+});
+```
+
+<a name="extending-bindings"></a>
+
+### バインディングの拡張
+
+`extend`method は、解決された service の変更を可能にします。たとえば、service が解決されると、追加のコードを実行して service を設定または装飾することができます。 `extend`method は、2 つの引数を受け取ります。拡張する serviceclass と、変更された service を返すべきクロージャです。クロージャは、解決される service とコンテナインスタンスを受け取ります。
+
+```php
+$this->app->extend(Service::class, function (Service $service, Application $app) {
+    return new DecoratedService($service);
+});
+```
+
+<a name="resolving"></a>
+
+## Resolving
+
+<a name="the-make-method"></a>
+
+### `make` Method
+
+あなたは、コンテナからの `make` method を使用して、 class インスタンスを解決することができます。 `make` method は、解決したい class またはインターフェイスの名前を受け入れます：
+
+```php
+use App\Services\Transistor;
+
+$transistor = $this->app->make(Transistor::class);
+```
+
+あなたのクラスの依存関係の一部がコンテナ経由で解決できない場合、それらをアソシエーション array として`makeWith` method に渡すことで注入できます。例えば、`Transistor` service が required とする`$id`のコンストラクタ引数を手動で渡すことができます。
+
+```php
+use App\Services\Transistor;
+
+$transistor = $this->app->makeWith(Transistor::class, ['id' => 1]);
+```
+
+`bound` method は、 class やインターフェースがコンテナに明示的にバインドされているかどうかを判断するために使用することができます：
+
+```php
+if ($this->app->bound(Transistor::class)) {
+    // ...
+}
+```
+
+`$app` 変数へのアクセスがない code の位置の service provider の外側にいる場合、`App` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades) または `app` [helper](/ja/php/laravel/v11.x/05-digging-deeper/helpers#method-app) を使用してコンテナから class インスタンスを解決することができます。
+
+```php
+use App\Services\Transistor;
+use Illuminate\Support\Facades\App;
+
+$transistor = App::make(Transistor::class);
+
+$transistor = app(Transistor::class);
+```
+
+もしもコンテナにより解決される class の中に、 Laravel のコンテナインスタンス自体を注入したい場合は、自分のクラスのコンストラクタで`Illuminate\Container\Container` class に types ヒントを与えることができます：
+
+```php
+use Illuminate\Container\Container;
+
+/**
+ * Create a new class instance.
+ */
+public function __construct(
+    protected Container $container
+) {}
+```
+
+<a name="automatic-injection"></a>
+
+### 自動注入
+
+あるいは、重要なことに、コンテナによって解決される class のコンストラクターで依存関係を types ヒントすることができます。これには、[コントローラー](/ja/php/laravel/v11.x/04-the-basics/05-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)などが含まれます。さらに、`handle` method で[queue に入れられた jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues)の依存関係を types ヒントすることもできます。実際には、これがコンテナによって解決されるべき objects のほとんどの方法です。
+
+たとえば、コントローラのコンストラクタで application によって定義されたリポジトリを型ヒントとして指定することができます。リポジトリは自動的に解決され、 class に注入されます：
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Repositories\UserRepository;
+use App\Models\User;
+
+class UserController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(
+        protected UserRepository $users,
+    ) {}
+
+    /**
+     * Show the user with the given ID.
+     */
+    public function show(string $id): User
+    {
+        $user = $this->users->findOrFail($id);
+
+        return $user;
+    }
+}
+```
+
+<a name="method-invocation-and-injection"></a>
+
+## Method Invocation and Injection
+
+時々、あなたはコンテナにそのメソッドの依存関係を自動的に注入させながら、 object インスタンス上の method を呼び出すことを望むかもしれません。例えば、以下のような class が与えられた場合:
+
+```php
+<?php
+
+namespace App;
+
+use App\Repositories\UserRepository;
+
+class UserReport
+{
+    /**
+     * Generate a new user report.
+     */
+    public function generate(UserRepository $repository): array
+    {
+        return [
+            // ...
+        ];
+    }
+}
+```
+
+次のようにコンテナから`generate` method を呼び出すことができます：
+
+```php
+use App\UserReport;
+use Illuminate\Support\Facades\App;
+
+$report = App::call([new UserReport, 'generate']);
+```
+
+`call` method は、任意の PHP コール可能を受け入れます。 コンテナの`call` method は、依存関係を自動的に注入しながらクロージャを呼び出すためにも使用できます。
+
+```php
+use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\App;
+
+$result = App::call(function (UserRepository $repository) {
+    // ...
+});
+```
+
+<a name="container-events"></a>
+
+## Container Events
+
+service container は、 object を解決するたびに event を発火します。この event は、`resolving` method を使用してリッスンすることができます：
+
+```php
+use App\Services\Transistor;
+use Illuminate\Contracts\Foundation\Application;
+
+$this->app->resolving(Transistor::class, function (Transistor $transistor, Application $app) {
+    // Called when container resolves objects of type "Transistor"...
+});
+
+$this->app->resolving(function (mixed $object, Application $app) {
+    // Called when container resolves object of any type...
+});
+```
+
+ご覧の通り、解決される object はコールバックに渡され、 object にインスタンス化する前に追加のプロパティを設定することができます。
+
+<a name="psr-11"></a>
+
+## PSR-11
+
+Laravel の service container は、[PSR-11](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md)インターフェースを実装しています。したがって、PSR-11 コンテナインターフェースを types ヒントとして指定して、Laravel コンテナのインスタンスを取得することができます：
+
+```php
+use App\Services\Transistor;
+use Psr\Container\ContainerInterface;
+
+Route::get('/', function (ContainerInterface $container) {
+    $service = $container->get(Transistor::class);
+
+    // ...
+});
+```
+
+指定された識別子が解決できない場合、例外がスローされます。識別子が一度もバインドされていない場合、例外は`Psr\Container\NotFoundExceptionInterface`のインスタンスになります。識別子がバインドされていたが解決できなかった場合、`Psr\Container\ContainerExceptionInterface`のインスタンスがスローされます。

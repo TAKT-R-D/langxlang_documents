@@ -1,0 +1,314 @@
+---
+filePath: "source/laravel/mocking.md"
+title: "Mocking"
+description: "Mocking"
+org_path: "/docs/11.x/mocking"
+is_empty: "false"
+nav_title: "Mocking"
+org_title: "Mocking"
+---
+
+# Mocking
+
+- [Introduction](#introduction)
+- [Mocking Objects](#mocking-objects)
+- [Mocking Facades](#mocking-facades)
+  - [Facade Spies](#facade-spies)
+- [Interacting With Time](#interacting-with-time)
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravelapplication を「testing」する際には、特定の application の側面を「モック」にしたいと思うかもしれません。これにより、一部の testing では実際には実行されません。例えば、「event」を dispatches する「コントローラ」を「testing」する場合、testing 中に実際には実行されない「event listeners」をモックにしたいかもしれません。これにより、「event listeners」の実行を気にすることなく、コントローラの「HTTP response」のみを testing することができます。なぜなら、「event listeners」はそれ自体の testing ケースで testing することができるからです。
+
+Laravel は、ボックスから events 、 jobs 、および他の facades をモックするための便利なメソッドを提供します。これらの helpers は主に、手動で複雑な Mockery の method 呼び出しを行う必要がないように、Mockery の上に便利なレイヤーを提供します。
+
+<a name="mocking-objects"></a>
+
+## Mocking Objects
+
+object をモックする際、それが Laravel の [service container](INL0011) を介して application に注入される場合、モックされたインスタンスをコンテナに `instance` バインディングとしてバインドする必要があります。これにより、コンテナはその object を自ら構築する代わりに、モックされた object のインスタンスを使用するよう指示されます:
+
+```php tab=Pest
+use App\Service;
+use Mockery;
+use Mockery\MockInterface;
+
+test('something can be mocked', function () {
+    $this->instance(
+        Service::class,
+        Mockery::mock(Service::class, function (MockInterface $mock) {
+            $mock->shouldReceive('process')->once();
+        })
+    );
+});
+```
+
+```php tab=PHPUnit
+use App\Service;
+use Mockery;
+use Mockery\MockInterface;
+
+public function test_something_can_be_mocked(): void
+{
+    $this->instance(
+        Service::class,
+        Mockery::mock(Service::class, function (MockInterface $mock) {
+            $mock->shouldReceive('process')->once();
+        })
+    );
+}
+```
+
+これをより便利にするために、Laravel のベーステストケースの class で提供されている`mock`の method を使用することができます。例えば、以下の例は上記の例と同等です：
+
+```php
+use App\Service;
+use Mockery\MockInterface;
+
+$mock = $this->mock(Service::class, function (MockInterface $mock) {
+    $mock->shouldReceive('process')->once();
+});
+```
+
+あなたは、 object のいくつかのメソッドのみをモックする必要がある場合に、`partialMock` method を使うことができます。モックされていないメソッドは、呼び出されたときに正常に実行されます：
+
+```php
+use App\Service;
+use Mockery\MockInterface;
+
+$mock = $this->partialMock(Service::class, function (MockInterface $mock) {
+    $mock->shouldReceive('process')->once();
+});
+```
+
+同様に、[spy](http://docs.mockery.io/en/latest/reference/spies.html) を使用して object をスパイしたい場合、Laravel のベーステストケース class は `Mockery::spy` method の便利なラッパーとして `spy` method を提供しています。スパイはモックに似ていますが、スパイとテスト対象の code との間のすべてのインタラクションを記録し、code が実行された後にアサーションを行うことができます。
+
+```php
+use App\Service;
+
+$spy = $this->spy(Service::class);
+
+// ...
+
+$spy->shouldHaveReceived('process');
+```
+
+<a name="mocking-facades"></a>
+
+## Mocking Facades
+
+伝統的な静的な method の呼び出しとは異なり、[facades](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)([リアルタイムの facades](/docs/11.x/facades#real-time-facades)を含む)はモックが可能です。これは伝統的な静的メソッドよりも大きな利点を提供し、伝統的な dependency injection を使用している場合と同じテスト可能性をあなたに提供します。 testing の際、コントローラの中で Laravel facade への呼び出しをモックしたいことがよくあります。たとえば、次の controller action を考えてみてください：
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Cache;
+
+class UserController extends Controller
+{
+    /**
+     * Retrieve a list of all users of the application.
+     */
+    public function index(): array
+    {
+        $value = Cache::get('key');
+
+        return [
+            // ...
+        ];
+    }
+}
+```
+
+`Cache`の facade への呼び出しは、[Mockery](https://github.com/padraic/mockery)モックのインスタンスを返す`shouldReceive`の method を使用してモック化できます。実際のところ、 facades は Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって解決され、管理されているため、典 types 的な静的な class よりも test 可能性がはるかに高いです。例えば、`Cache`ファサードの`get`の method への呼び出しをモック化してみましょう。
+
+```php tab=Pest
+<?php
+
+use Illuminate\Support\Facades\Cache;
+
+test('get index', function () {
+    Cache::shouldReceive('get')
+                ->once()
+                ->with('key')
+                ->andReturn('value');
+
+    $response = $this->get('/users');
+
+    // ...
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Support\Facades\Cache;
+use Tests\TestCase;
+
+class UserControllerTest extends TestCase
+{
+    public function test_get_index(): void
+    {
+        Cache::shouldReceive('get')
+                    ->once()
+                    ->with('key')
+                    ->andReturn('value');
+
+        $response = $this->get('/users');
+
+        // ...
+    }
+}
+```
+
+> [!WARNING]  
+> `Request`の facade をモックするべきではありません。代わりに、testing を実行する際に`get`や`post`のような[HTTP testing methods](/ja/php/laravel/v11.x/09-testing/02-http-tests)に望む input を渡してください。同様に、`Config`の facade をモックする代わりに、testing の中で`Config::set`の method を呼び出してください。
+
+<a name="facade-spies"></a>
+
+### Facade スパイ
+
+[spy](http://docs.mockery.io/en/latest/reference/spies.html) を使用して facade をスパイしたい場合は、対応する facade の `spy` method を呼び出すことができます。スパイはモックに似ていますが、スパイとテスト対象の code との間のすべてのインタラクションを記録し、code が実行された後にアサーションを行うことができます。
+
+```php tab=Pest
+<?php
+
+use Illuminate\Support\Facades\Cache;
+
+test('values are be stored in cache', function () {
+    Cache::spy();
+
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+
+    Cache::shouldHaveReceived('put')->once()->with('name', 'Taylor', 10);
+});
+```
+
+```php tab=PHPUnit
+use Illuminate\Support\Facades\Cache;
+
+public function test_values_are_be_stored_in_cache(): void
+{
+    Cache::spy();
+
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+
+    Cache::shouldHaveReceived('put')->once()->with('name', 'Taylor', 10);
+}
+```
+
+<a name="interacting-with-time"></a>
+
+## Interacting With Time
+
+testing を行う際には、`now`や`Illuminate\Support\Carbon::now()`のような helpers が返す時間を変更する必要が時々あります。ありがたいことに、Laravel の基本機能 testingclass には、現在の時間を操作するための helpers が含まれています：
+
+```php tab=Pest
+test('time can be manipulated', function () {
+    // Travel into the future...
+    $this->travel(5)->milliseconds();
+    $this->travel(5)->seconds();
+    $this->travel(5)->minutes();
+    $this->travel(5)->hours();
+    $this->travel(5)->days();
+    $this->travel(5)->weeks();
+    $this->travel(5)->years();
+
+    // Travel into the past...
+    $this->travel(-5)->hours();
+
+    // Travel to an explicit time...
+    $this->travelTo(now()->subHours(6));
+
+    // Return back to the present time...
+    $this->travelBack();
+});
+```
+
+```php tab=PHPUnit
+public function test_time_can_be_manipulated(): void
+{
+    // Travel into the future...
+    $this->travel(5)->milliseconds();
+    $this->travel(5)->seconds();
+    $this->travel(5)->minutes();
+    $this->travel(5)->hours();
+    $this->travel(5)->days();
+    $this->travel(5)->weeks();
+    $this->travel(5)->years();
+
+    // Travel into the past...
+    $this->travel(-5)->hours();
+
+    // Travel to an explicit time...
+    $this->travelTo(now()->subHours(6));
+
+    // Return back to the present time...
+    $this->travelBack();
+}
+```
+
+また、さまざまなタイムトラベルメソッドにクロージャを提供することもできます。クロージャは、指定された時間で時間が凍結された状態で呼び出されます。クロージャが実行されると、時間は通常通り再開されます。
+
+```php
+$this->travel(5)->days(function () {
+    // Test something five days into the future...
+});
+
+$this->travelTo(now()->subDays(10), function () {
+    // Test something during a given moment...
+});
+```
+
+`freezeTime`の method は現在の時間を固定するために使用することができます。同様に、`freezeSecond`の method は現在の時間を固定しますが、現在の秒の開始時に:
+
+```php
+use Illuminate\Support\Carbon;
+
+// Freeze time and resume normal time after executing closure...
+$this->freezeTime(function (Carbon $time) {
+    // ...
+});
+
+// Freeze time at the current second and resume normal time after executing closure...
+$this->freezeSecond(function (Carbon $time) {
+    // ...
+})
+```
+
+ご想像の通り、上で議論されたすべての方法は、主に testing 時間に敏感な application の振る舞い、例えばディスカッションフォーラムで非活動の posts をロックするなどのために役立ちます。
+
+```php tab=Pest
+use App\Models\Thread;
+
+test('forum threads lock after one week of inactivity', function () {
+    $thread = Thread::factory()->create();
+
+    $this->travel(1)->week();
+
+    expect($thread->isLockedByInactivity())->toBeTrue();
+});
+```
+
+```php tab=PHPUnit
+use App\Models\Thread;
+
+public function test_forum_threads_lock_after_one_week_of_inactivity()
+{
+    $thread = Thread::factory()->create();
+
+    $this->travel(1)->week();
+
+    $this->assertTrue($thread->isLockedByInactivity());
+}
+```

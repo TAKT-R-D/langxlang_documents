@@ -1,0 +1,43 @@
+---
+filePath: "source/laravel/valet.md"
+title: "Laravel Valet"
+description: "Laravel Valet"
+org_path: "/docs/11.x/valet"
+is_empty: "false"
+nav_title: "Valet"
+org_title: "Laravel Valet"
+---
+
+# Laravel Valet
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+  - [Upgrading Valet](#upgrading-valet)
+- [Serving Sites](#serving-sites)
+  - [The "Park" Command](#the-park-command)
+  - [The "Link" Command](#the-link-command)
+  - [Securing Sites With TLS](#securing-sites)
+  - [Serving a Default Site](#serving-a-default-site)
+  - [Per-Site PHP Versions](#per-site-php-versions)
+- [Sharing Sites](#sharing-sites)
+  - [Sharing Sites on Your Local Network](#sharing-sites-on-your-local-network)
+- [Site Specific Environment Variables](#site-specific-environment-variables)
+- [Proxying Services](#proxying-services)
+- [Custom Valet Drivers](#custom-valet-drivers)
+  - [Local Drivers](#local-drivers)
+- [Other Valet Commands](#other-valet-commands)
+- [Valet Directories and Files](#valet-directories-and-files)
+  - [Disk Access](#disk-access)
+
+<a name="introduction"></a>
+
+## Introduction
+
+> [!NOTE]  
+> macOS または Windows でさらに簡単に Laravel アプリケーションを開発する方法をお探しですか？ [Laravel Herd](https://herd.laravel.com)をご覧ください。 Herd には、Valet、PHP、そして Composer を含む、 Laravel 開発を始めるために必要な全てが含まれています。
+
+[Laravel Valet](https://github.com/laravel/valet)は、macOS のミニマリスト向けの development environment です。 Laravel Valet は、あなたの Mac が起動するときに常に[Nginx](https://www.nginx.com/)をバックグラウンドで実行するように設定します。その後、[DnsMasq](https://en.wikipedia.org/wiki/Dnsmasq)を使用して、Valet はすべての `*.test` domain への requests を、ローカルマシンにインストールされたサイトを指すようにプロキシします。
+
+つまり、Valet は約 7MB の RAM を使用する、非常に高速な Laravel 開発 environment です。Valet は[Sail](/ja/php/laravel/v11.x/10-packages/sail)や[Homestead](/ja/php/laravel/v11.x/10-packages/homestead)を完全に置き換えるものではありませんが、柔軟な基本を求める方、極端な速さを好む方、または RAM が限られたマシンで作業している方にとっては、優れた代替手段となります。
+
+そのまま使える Valet のサポートには、以下が含まれますが、それに限定されません：

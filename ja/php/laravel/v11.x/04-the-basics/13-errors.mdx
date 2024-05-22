@@ -1,0 +1,486 @@
+---
+filePath: "source/laravel/errors.md"
+title: "Error Handling"
+description: "Error Handling"
+org_path: "/docs/11.x/errors"
+is_empty: "false"
+nav_title: "Error Handling"
+org_title: "Error Handling"
+---
+
+# Error Handling
+
+- [Introduction](#introduction)
+- [Configuration](#configuration)
+- [Handling Exceptions](#handling-exceptions)
+  - [Reporting Exceptions](#reporting-exceptions)
+  - [Exception Log Levels](#exception-log-levels)
+  - [Ignoring Exceptions by Type](#ignoring-exceptions-by-type)
+  - [Rendering Exceptions](#rendering-exceptions)
+  - [Reportable and Renderable Exceptions](#renderable-exceptions)
+- [Throttling Reported Exceptions](#throttling-reported-exceptions)
+- [HTTP Exceptions](#http-exceptions)
+  - [Custom HTTP Error Pages](#custom-http-error-pages)
+
+<a name="introduction"></a>
+
+## Introduction
+
+新しい Laravel project を開始するとき、すでに””error””および例外処理が設定されています。しかし、いつでも、あなたの””application””の `bootstrap/app.php` で `withExceptions` ””method””を使用して、例外があなたの””application””によってどのように報告され、描画されるかを管理することができます。
+
+`withExceptions`クロージャに提供される`$exceptions` object は、`Illuminate\Foundation\Configuration\Exceptions`のインスタンスであり、あなたの application における例外処理の管理を担当しています。この object については、このドキュメンテーション全体で詳しく掘り下げていきます。
+
+<a name="configuration"></a>
+
+## Configuration
+
+The `debug` option in your `config/app.php` configuration file determines how much information about an error is actually displayed to the user. By default, this option is set to respect the value of the `APP_DEBUG` environment variable, which is stored in your `.env` file.
+
+ローカル開発中は、`APP_DEBUG` environment 変数を `true`に設定すべきです。**あなたの production environment では、この value は常に`false`であるべきです。 value が`true`に設定されている場合、 production においては、あなたのアプリケーションの最終 users に対して機密設定の values を露出するリスクがあります。**
+
+<a name="handling-exceptions"></a>
+
+## Handling Exceptions
+
+<a name="reporting-exceptions"></a>
+
+### Exceptions の報告
+
+Laravel では、例外レポーティングは、例外の log を取るためや、それらを外部の service [Sentry](https://github.com/getsentry/sentry-laravel) や [Flare](https://flareapp.io)に送るために使用されます。default では、あなたの[logging](/ja/php/laravel/v11.x/04-the-basics/14-logging)設定に基づいて例外が log に記録されます。しかし、あなたは例外の log を自由に取ることができます。
+
+異なる種類の例外を異なる方法で報告する必要がある場合、application の`bootstrap/app.php`で`report`例外の method を使って、特定の type の例外が報告されるべき時に実行すべきクロージャを登録することができます。Laravel は、クロージャのタイプヒントを調べることで、クロージャがどの種類の例外を報告するかを判断します:
+
+```php
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->report(function (InvalidOrderException $e) {
+        // ...
+    });
+})
+```
+
+`report` method を使用して custom 例外報告コールバックを登録すると、Laravel は、application の default のログ設定を使用して例外を依然として log に記録します。例外の伝播を default のログ stack に停止させたい場合は、報告コールバックを定義する際に`stop` method を使用するか、コールバックから`false`を返すことができます。
+
+```php
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->report(function (InvalidOrderException $e) {
+        // ...
+    })->stop();
+
+    $exceptions->report(function (InvalidOrderException $e) {
+        return false;
+    });
+})
+```
+
+> [!NOTE]  
+> 与えられた例外に対する例外報告をカスタマイズするために、[reportable exceptions](/ja/php/laravel/v11.x/04-the-basics/13-errors#renderable-exceptions)を利用することもできます。
+
+<a name="global-log-context"></a>
+
+#### グローバル Log Context
+
+利用可能であれば、 Laravel は自動的に現在のユーザーの ID を全ての例外の log メッセージにコンテクストの data として追加します。あなたは、アプリケーションの`bootstrap/app.php`ファイル内の`context`例外 method を使って自身のグローバルなコンテクスト data を定義することができます。この情報は、あなたの application によって書かれる全ての例外の log メッセージに含まれます：
+
+```php
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->context(fn () => [
+        'foo' => 'bar',
+    ]);
+})
+```
+
+<a name="exception-log-context"></a>
+
+#### 例外 Log Context
+
+すべての log メッセージに context を追加することは有用な場合もありますが、特定の例外には unique context が存在し、それをログに含めたいと思うかもしれません。アプリケーションの exceptions の一つに`context`の method を定義することで、その例外に関連する任意の data を指定し、その例外の log エントリに追加すべきものを追加することができます。
+
+```php
+<?php
+
+namespace App\Exceptions;
+
+use Exception;
+
+class InvalidOrderException extends Exception
+{
+    // ...
+
+    /**
+     * Get the exception's context information.
+     *
+     * @return array<string, mixed>
+     */
+    public function context(): array
+    {
+        return ['order_id' => $this->orderId];
+    }
+}
+```
+
+<a name="the-report-helper"></a>
+
+#### `report` ヘルパー
+
+時々、例外を報告しながら現在の request を処理し続ける必要があるかもしれません。`report`ヘルパー関数を使用すると、 user に対して error ページをレンダリングせずにすばやく例外を報告することができます：
+
+```php
+public function isValid(string $value): bool
+{
+    try {
+        // Validate the value...
+    } catch (Throwable $e) {
+        report($e);
+
+        return false;
+    }
+}
+```
+
+<a name="deduplicating-reported-exceptions"></a>
+
+#### 報告された Exceptions の重複排除
+
+あなたが '' application '' の全体で `report` 機能を使用している場合、時折同じ例外を複数回報告し、ログに重複したエントリーを作成することがあります。
+
+例外の single インスタンスが一度だけ報告されるように確認したい場合は、アプリケーションの `bootstrap/app.php` ファイルで `dontReportDuplicates` 例外の method を呼び出すことができます。
+
+```php
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->dontReportDuplicates();
+})
+```
+
+これで、`report` ヘルパーが同じ例外のインスタンスで呼び出された場合、最初の呼び出しだけが報告されます：
+
+```php
+$original = new RuntimeException('Whoops!');
+
+report($original); // reported
+
+try {
+    throw $original;
+} catch (Throwable $caught) {
+    report($caught); // ignored
+}
+
+report($original); // ignored
+report($caught); // ignored
+```
+
+<a name="exception-log-levels"></a>
+
+### 例外 Log レベル
+
+メッセージがあなたの application の[logs](/ja/php/laravel/v11.x/04-the-basics/14-logging)に書き込まれる時、メッセージは指定された[log level](/docs/11.x/logging#log-levels)で書き込まれます。これは、log に記録されるメッセージの重要度や重大性を示します。
+
+上記の通り、`report` method を使用して custom の例外レポートのコールバックを register しても、 Laravel は依然として、アプリケーションの default logging 設定を使用して例外を log します。しかし、 log レベルがメッセージがログに記録されるチャンネルに影響を及ぼすことがあるため、特定の exceptions が記録される log レベルを設定することを検討することを望んでいるかもしれません。
+
+これを達成するためには、アプリケーションの`bootstrap/app.php`ファイルで`level`例外の method を使用することができます。この method は、第一引数として例外の type を、第二引数として log レベルを受け取ります。
+
+```php
+use PDOException;
+use Psr\Log\LogLevel;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->level(PDOException::class, LogLevel::CRITICAL);
+})
+```
+
+<a name="ignoring-exceptions-by-type"></a>
+
+### Type による Exceptions の無視
+
+あなたの application を構築する際、報告したくない exceptions のタイプがいくつかあるでしょう。これらの exceptions を ignore するために、あなたのアプリケーションの`bootstrap/app.php` ファイル内の `dontReport` 异常 method を使用することができます。 この method に提供される任意の class は報告されることはありませんが、それでも custom なレンダリングロジックを持つことができます:
+
+```php
+use App\Exceptions\InvalidOrderException;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->dontReport([
+        InvalidOrderException::class,
+    ]);
+})
+```
+
+内部的に、Laravel はすでに、404 HTTP errors や、無効な CSRF tokens によって生成された 419 HTTP responses から発生する例外など、あなたに代わっていくつかの errors を無視しています。特定の type の例外を無視しないように Laravel に指示したい場合は、application の`bootstrap/app.php`ファイルで`stopIgnoring`例外 method を使用することができます。
+
+```php
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->stopIgnoring(HttpException::class);
+})
+```
+
+<a name="rendering-exceptions"></a>
+
+### Exceptions のレンダリング
+
+default では、 Laravel の例外 handler は、 exceptions をあなたのために HTTP response に変換します。ただし、与えられた type の exceptions に対して、 custom なレンダリングクロージャを register することが自由です。これは、アプリケーションの`bootstrap/app.php`ファイル内の`render`例外 method を使用して達成することができます。
+
+`render` ””method””に渡されるクロージャは、`response` helper を介して生成することが可能な `Illuminate\Http\Response` のインスタンスを返すべきです。””Laravel””は、クロージャの””type””ヒントを調べることにより、クロージャが rendering する””type””の例外を判断します。
+
+```php
+use App\Exceptions\InvalidOrderException;
+use Illuminate\Http\Request;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->render(function (InvalidOrderException $e, Request $request) {
+        return response()->view('errors.invalid-order', [], 500);
+    });
+})
+```
+
+あなたはまた、組み込みの ””Laravel”” または Symfony の ””exceptions”” 、たとえば `NotFoundHttpException` の rendering 動作を上書きするために`render` ””method”” を使用することもできます。`render` ””method”” に与えられたクロージャが ””value”” を返さない場合、””Laravel”” の ””default”” の例外 rendering が利用されます。
+
+```php
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        if ($request->is('api/*')) {
+            return response()->json([
+                'message' => 'Record not found.'
+            ], 404);
+        }
+    });
+})
+```
+
+<a name="rendering-exceptions-as-json"></a>
+
+#### Exceptions を JSON としてレンダリングする
+
+例外を rendering する際、Laravel は、`Accept` header の request に基づいて、例外を HTML または JSON レスポンスとして rendering する必要があるかどうかを自動的に判断します。あなたが Laravel が HTML を rendering するか JSON の例外レスポンスをどのように判断するかをカスタマイズしたい場合は、`shouldRenderJsonWhen` method を利用することができます：
+
+```php
+use Illuminate\Http\Request;
+use Throwable;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
+        if ($request->is('admin/*')) {
+            return true;
+        }
+
+        return $request->expectsJson();
+    });
+})
+```
+
+<a name="customizing-the-exception-response"></a>
+
+#### 例外 Response のカスタマイズ
+
+まれに、Laravel の例外ハンドラによって rendering される全体の HTTP response をカスタマイズする必要があるかもしれません。これを達成するためには、register の response カスタマイゼーションクロージャを`respond`method を使用して登録することができます：
+
+```php
+use Symfony\Component\HttpFoundation\Response;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->respond(function (Response $response) {
+        if ($response->getStatusCode() === 419) {
+            return back()->with([
+                'message' => 'The page expired, please try again.',
+            ]);
+        }
+
+        return $response;
+    });
+})
+```
+
+<a name="renderable-exceptions"></a>
+
+### 報告可能でレンダリング可能な Exceptions
+
+アプリケーションの`bootstrap/app.php`ファイルで custom レポートや描画の振る舞いを定義する代わりに、アプリケーションの exceptions で直接`report`と`render`メソッドを定義することができます。これらのメソッドが存在する場合、フレームワークによって自動的に呼び出されます:
+
+```php
+<?php
+
+namespace App\Exceptions;
+
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class InvalidOrderException extends Exception
+{
+    /**
+     * Report the exception.
+     */
+    public function report(): void
+    {
+        // ...
+    }
+
+    /**
+     * Render the exception into an HTTP response.
+     */
+    public function render(Request $request): Response
+    {
+        return response(/* ... */);
+    }
+}
+```
+
+例外が既に rendering 可能な例外(例えば、組み込みの Laravel や Symfony の例外など)を拡張している場合、例外の `render` method から `false` を返すことで、例外の default の HTTP response を レンダー することができます：
+
+```php
+/**
+ * Render the exception into an HTTP response.
+ */
+public function render(Request $request): Response|bool
+{
+    if (/** Determine if the exception needs custom rendering */) {
+
+        return response(/* ... */);
+    }
+
+    return false;
+}
+```
+
+あなたの例外が特定の条件が満たされた時にのみ必要な custom レポートのロジックを含んでいる場合、 Laravel に対して時折 default の例外処理設定を使用して例外を報告するよう指示する必要があります。この目的を達成するために、例外の`report` method から`false`を返すことができます。
+
+```php
+/**
+ * Report the exception.
+ */
+public function report(): bool
+{
+    if (/** Determine if the exception needs custom reporting */) {
+
+        // ...
+
+        return true;
+    }
+
+    return false;
+}
+```
+
+> [!NOTE]  
+> `report` method のすべての必要な依存関係を types ヒントとして指定することができ、それらは Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって自動的に method に注入されます。
+
+<a name="throttling-reported-exceptions"></a>
+
+### 制限が報告された Exceptions
+
+あなたの application が非常に多くの exceptions を報告する場合、実際にログに記録されるか、またはアプリケーションの外部 error トラッキング service に送信される exceptions の数を throttle することを検討したいかもしれません。
+
+exceptions のランダムなサンプルレートを取るには、application の`bootstrap/app.php`ファイルで`throttle`例外 method を使用することができます。`throttle` method は、`Lottery`インスタンスを返すべきクロージャを受け取ります。
+
+```php
+use Illuminate\Support\Lottery;
+use Throwable;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->throttle(function (Throwable $e) {
+        return Lottery::odds(1, 1000);
+    });
+})
+```
+
+また、 type という例外に基づいて条件付きでサンプリングすることも可能です。特定の例外の class のインスタンスのみをサンプリングしたい場合、その class 用の`Lottery`インスタンスを返すことができます。
+
+```php
+use App\Exceptions\ApiMonitoringException;
+use Illuminate\Support\Lottery;
+use Throwable;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->throttle(function (Throwable $e) {
+        if ($e instanceof ApiMonitoringException) {
+            return Lottery::odds(1, 1000);
+        }
+    });
+})
+```
+
+また、`Limit` インスタンスを `Lottery` の代わりに返すことで、log に記録されたり外部の error 追跡 service に送信された例外のレート制限も行うことができます。これは、application が使用するサードパーティの service がダウンした際に、例外が突如として log を溢れさせるのを防ぐのに役立ちます：
+
+```php
+use Illuminate\Broadcasting\BroadcastException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Throwable;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->throttle(function (Throwable $e) {
+        if ($e instanceof BroadcastException) {
+            return Limit::perMinute(300);
+        }
+    });
+})
+```
+
+default によれば、制限は例外の class をレート制限 key として使用します。これをカスタマイズするには、`Limit`上の `by` method を使用して自分の key を指定できます。
+
+```php
+use Illuminate\Broadcasting\BroadcastException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Throwable;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->throttle(function (Throwable $e) {
+        if ($e instanceof BroadcastException) {
+            return Limit::perMinute(300)->by($e->getMessage());
+        }
+    });
+})
+```
+
+もちろん、異なる exceptions に対して`Lottery`と`Limit`のインスタンスを混在させて返すことができます。
+
+```php
+use App\Exceptions\ApiMonitoringException;
+use Illuminate\Broadcasting\BroadcastException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Lottery;
+use Throwable;
+
+->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->throttle(function (Throwable $e) {
+        return match (true) {
+            $e instanceof BroadcastException => Limit::perMinute(300),
+            $e instanceof ApiMonitoringException => Lottery::odds(1, 1000),
+            default => Limit::none(),
+        };
+    });
+})
+```
+
+<a name="http-exceptions"></a>
+
+## HTTP Exceptions
+
+一部の例外は servers からの HTTP error コードを説明しています。たとえば、これは"ページが見つかりません"の error(404)、"未 authentication エラー"(401)、または development 者が生成した 500 の エラーとなるかもしれません。あなたの application の任意の場所からこのような response を生成するために、あなたは`abort`helper を使用することができます。
+
+```php
+abort(404);
+```
+
+<a name="custom-http-error-pages"></a>
+
+### Custom HTTP Error ページ
+
+Laravel は、様々な HTTP status コードに対する custom エラーページの表示を容易にします。例えば、404 HTTP status コードのための errors ページをカスタマイズするには、`resources/views/errors/404.blade.php` view テンプレートを作成します。この view は、あなたの application で生成されるすべての 404errors に対して rendering されます。このディレクトリ内の view は、それぞれが対応する HTTPstatus code と一致するように命名されるべきです。 `Symfony\Component\HttpKernel\Exception\HttpException`インスタンスは、`abort`関数によって引き起こされ、`$exception`variables として view に渡されます。
+
+```php
+<h2>{{ $exception->getMessage() }}</h2>
+```
+
+あなたは `vendor:publish`の Artisan command を使用して、Laravel の default error ページテンプレートを publish することができます。テンプレートが公開されたら、あなたの好みに合わせてカスタマイズすることができます。
+
+```shell
+php artisan vendor:publish --tag=laravel-errors
+```
+
+<a name="fallback-http-error-pages"></a>
+
+#### フォールバック HTTP Error ページ
+
+また、一連の "fallback" error ページを特定の HTTP status code コード用に定義することもできます。具体的な HTTP status コード” に対応するページが存在しない場合、このページが rendering されます。これを実現するには、あなたの application の `resources/views/errors` ディレクトリに `4xx.blade.php` テンプレートと `5xx.blade.php` テンプレートを定義してください。

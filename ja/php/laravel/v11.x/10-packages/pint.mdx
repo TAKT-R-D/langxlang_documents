@@ -1,0 +1,169 @@
+---
+filePath: "source/laravel/pint.md"
+title: "Laravel Pint"
+description: "Laravel Pint"
+org_path: "/docs/11.x/pint"
+is_empty: "false"
+nav_title: "Pint"
+org_title: "Laravel Pint"
+---
+
+# Laravel Pint
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Running Pint](#running-pint)
+- [Configuring Pint](#configuring-pint)
+  - [Presets](#presets)
+  - [Rules](#rules)
+  - [Excluding Files / Folders](#excluding-files-or-folders)
+
+<a name="introduction"></a>
+
+## Introduction
+
+[Laravel Pint](https://github.com/laravel/pint)はミニマリスト向けの独自の PHP code スタイル修正ツールです。Pint は PHP-CS-Fixer の上に構築されており、あなたの code スタイルがクリーンで一貫性を保つことを簡単にします。
+
+新規の Laravel アプリケーションすべてに Pint は自動的にインストールされるため、すぐに使用を開始できます。 default では、Pint は設定を必要とせず、 code スタイルの問題を、 Laravel の独自のコーディングスタイルに従って code で修正します。
+
+<a name="installation"></a>
+
+## Installation
+
+Pint は最新版の Laravel フレームワークに含まれているため、通常はインストールの必要はありません。しかし、古いアプリケーションの場合、 Composer を通じて Laravel Pint をインストールすることも可能です：
+
+```shell
+composer require laravel/pint --dev
+```
+
+<a name="running-pint"></a>
+
+## Running Pint
+
+Pint を呼び出してプロジェクトの `vendor/bin` ディレクトリにある `pint` binary を実行することで、code スタイルの問題を修正するように Pint に指示できます:
+
+```shell
+./vendor/bin/pint
+```
+
+特定のファイルやディレクトリで Pint を実行することもできます：
+
+```shell
+./vendor/bin/pint app/Models
+
+./vendor/bin/pint app/Models/User.php
+```
+
+Pint は更新するすべてのファイルの詳細なリストを表示します。Pint の変更についてさらに詳しく view するには、Pint を呼び出す際に`-v`オプションを指定します：
+
+```shell
+./vendor/bin/pint -v
+```
+
+あなたが Pint に単に code のスタイル errors を検査してもらいたいだけで、実際にファイルを変更しない場合、`--test`オプションを使用できます。Pint は、 code スタイルの errors が見つかった場合、非ゼロの終了 code を返します:
+
+```shell
+./vendor/bin/pint --test
+```
+
+Git によると未コミットの変更があるファイルのみを Pint が変更するようにしたい場合は、`--dirty` オプションを使用することができます。
+
+```shell
+./vendor/bin/pint --dirty
+```
+
+もしあなたが code スタイルの errors を持つファイルを Pint に修正してもらいたいけれども、 errors が修正された場合に非ゼロの exit code で終了してもらいたい場合、`--repair`オプションを使用できます。
+
+```shell
+./vendor/bin/pint --repair
+```
+
+<a name="configuring-pint"></a>
+
+## Configuring Pint
+
+前述の通り、Pint は設定を必要としません。ただし、プリセット、ルール、または調査するフォルダをカスタマイズしたい場合は、プロジェクトの root ディレクトリに`pint.json`ファイルを作成することで行うことができます：
+
+```json
+{
+  "preset": "laravel"
+}
+```
+
+さらに、特定のディレクトリから `pint.json` を使用したい場合は、Pint を呼び出す際に `--config` オプションを提供することができます。
+
+```shell
+pint --config vendor/my-company/coding-style/pint.json
+```
+
+<a name="presets"></a>
+
+### Presets
+
+Presets は、code の style 問題を修正するために使用できる一連のルールを定義します。default として、Pint は`laravel`プ reset を使用し、Laravel の主張的なコーディング style に従って問題を修正します。ただし、Pint に`--preset`option を指定することで、異なるプ reset を指定することができます。
+
+```shell
+pint --preset psr12
+```
+
+ご希望であれば、プロジェクトの`pint.json`ファイルにプリセットを設定することもできます：
+
+```json
+{
+  "preset": "psr12"
+}
+```
+
+Pint が現在サポートしているプリセットは、`laravel`、`per`、`psr12`、そして`symfony`です。
+
+<a name="rules"></a>
+
+### Rules
+
+Rules は、Pint があなたの codestyle の問題を解決するために使用する style ガイドラインです。上記のように、presets は多くの PHPproject に最適なルールの事前定義されたグループであるため、通常はそれらが含む個々のルールについて心配する必要はありません。
+
+ただし、ご希望であれば、`pint.json`ファイルで特定のルールを有効化または無効化することができます：
+
+```json
+{
+  "preset": "laravel",
+  "rules": {
+    "simplified_null_return": true,
+    "braces": false,
+    "new_with_braces": {
+      "anonymous_class": false,
+      "named_class": false
+    }
+  }
+}
+```
+
+Pint は[PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)を基盤に構築されています。したがって、そのルールを何でも使って、あなたの project の code スタイルの問題を修正することができます。詳細は[PHP-CS-Fixer Configurator](https://mlocati.github.io/php-cs-fixer-configurator)をご覧ください。
+
+<a name="excluding-files-or-folders"></a>
+
+### ファイル/フォルダの除外
+
+default では、Pint はあなたの project の中のすべての `.php` ファイルを検査しますが、`vendor` ディレクトリ内のものは除外します。もし、さらにフォルダを除外したい場合は、`exclude` 設定 option を使用して行うことができます:
+
+```json
+{
+  "exclude": ["my-specific/folder"]
+}
+```
+
+指定した名前のパターンを含むすべてのファイルを除外したい場合、`notName`設定オプションを使用して行うことができます:
+
+```json
+{
+  "notName": ["*-my-file.php"]
+}
+```
+
+ファイルへの正確な path を提供することでファイルを除外したい場合は、`notPath`設定オプションを使用して行うことができます。
+
+```json
+{
+  "notPath": ["path/to/excluded-file.php"]
+}
+```

@@ -1,0 +1,293 @@
+---
+filePath: "source/laravel/eloquent-collections.md"
+title: "Eloquent: Collections"
+description: "Eloquent: Collections"
+org_path: "/docs/11.x/eloquent-collections"
+is_empty: "false"
+nav_title: "Collections"
+org_title: "Eloquent: Collections"
+---
+
+# Eloquent: Collections
+
+- [Introduction](#introduction)
+- [Available Methods](#available-methods)
+- [Custom Collections](#custom-collections)
+
+<a name="introduction"></a>
+
+## Introduction
+
+すべての Eloquent メソッドは、複数の model の結果を返すとき、関連性によってアクセスされたり`get` method を介して retrieved された結果を含めて、`Illuminate\Database\Eloquent\Collection` class のインスタンスを返します。 Eloquent collection object は Laravel の[基本的な collection](/ja/php/laravel/v11.x/05-digging-deeper/collections)を拡張しているので、自然に Eloquent models の array と流暢に作業するために使われる数十のメソッドを継承します。これらの便利なメソッドについて全て学ぶために、 Laravel collection のドキュメンテーションを必ず確認してください!
+
+すべての collections もまたイテレータとして機能し、それらをシンプルな PHP 配列であるかのようにループできます：
+
+```php
+use App\Models\User;
+
+$users = User::where('active', 1)->get();
+
+foreach ($users as $user) {
+    echo $user->name;
+}
+```
+
+しかし、前述の通り、 collections は配列よりもはるかに強力で、直感的なインターフェースを使用して連鎖させることができるさまざまなマップ/ reduce 操作を公開します。例えば、すべての非アクティブな models を削除し、残った各 user の名前を取得することができます。
+
+```php
+$names = User::all()->reject(function (User $user) {
+    return $user->active === false;
+})->map(function (User $user) {
+    return $user->name;
+});
+```
+
+<a name="eloquent-collection-conversion"></a>
+
+#### Eloquent Collection の変換
+
+ほとんどの Eloquent collection メソッドは新しい Eloquent collection のインスタンスを返しますが、`collapse`、`flatten`、`flip`、`keys`、`pluck`、`zip`メソッドは[ベースの collection](/ja/php/laravel/v11.x/05-digging-deeper/collections)インスタンスを返します。同様に、`map`操作が Eloquent models を含まない collection を返す場合、それはベースの collection インスタンスに変換されます。
+
+<a name="available-methods"></a>
+
+## Available Methods
+
+すべての Eloquent collections は基本の [Laravel collection](/ja/php/laravel/v11.x/05-digging-deeper/collections#available-methods) オブジェクトを拡張します。したがって、基本の collection class が提供する強力なメソッドをすべて継承します。
+
+また、`Illuminate\Database\Eloquent\Collection` class は、 model collections の管理を支援するための methods のスーパーセットを提供します。ほとんどの methods は`Illuminate\Database\Eloquent\Collection`インスタンスを返しますが、`modelKeys`のような一部の methods は`Illuminate\Support\Collection`インスタンスを返します。
+
+<div class="collection-method-list" markdown="1">
+
+[append](#method-append) [contains](#method-contains) [diff](#method-diff) [except](#method-except) [find](#method-find) [fresh](#method-fresh) [intersect](#method-intersect) [load](#method-load) [loadMissing](#method-loadMissing) [modelKeys](#method-modelKeys) [makeVisible](#method-makeVisible) [makeHidden](#method-makeHidden) [only](#method-only) [setVisible](#method-setVisible) [setHidden](#method-setHidden) [toQuery](#method-toquery) [unique](#method-unique)
+
+</div>
+
+<a name="method-append"></a>
+
+#### `append($attributes)`
+
+`append` method は、collection 内のすべての model に対して属性を[追加](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#appending-values-to-json)することを示すために使用できます。この method は、属性の array または単一の属性を受け入れます。
+
+```php
+$users->append('team');
+
+$users->append(['team', 'is_admin']);
+```
+
+<a name="method-contains"></a>
+
+#### `contains($key, $operator = null, $value = null)`
+
+`contains` method は、特定の model インスタンスが collection に含まれるかどうかを判断するために使用できます。この method は、 primary key または model インスタンスを受け入れます：
+
+```php
+$users->contains(1);
+
+$users->contains(User::find(1));
+```
+
+<a name="method-diff"></a>
+
+#### `diff($items)`
+
+`diff` method は、与えられた collection に存在しないすべての models を返します。
+
+```php
+use App\Models\User;
+
+$users = $users->diff(User::whereIn('id', [1, 2, 3])->get());
+```
+
+<a name="method-except"></a>
+
+#### `except($keys)`
+
+`except` method は、指定された primary keys を持たないすべての models を返します：
+
+```php
+$users = $users->except([1, 2, 3]);
+```
+
+<a name="method-find"></a>
+
+#### `find($key)`
+
+`find`の method は、指定されたキーと一致する primary キーを持つ model を返します。`$key`が model のインスタンスの場合、`find`は primary キーと一致する model を返そうと attempt します。`$key`が keys の array である場合、`find`は指定された array 内にある primary キーを持つすべての models を返します。
+
+```php
+$users = User::all();
+
+$user = $users->find(1);
+```
+
+<a name="method-fresh"></a>
+
+#### `fresh($with = [])`
+
+`fresh` method は、 database から collection 内の各 model の新しいインスタンスを取得します。また、指定されたリレーションシップは、事前に読み込まれます。
+
+```php
+$users = $users->fresh();
+
+$users = $users->fresh('comments');
+```
+
+<a name="method-intersect"></a>
+
+#### `intersect($items)`
+
+`intersect` method は、指定された collection 内にも存在するすべての models を返します。
+
+```php
+use App\Models\User;
+
+$users = $users->intersect(User::whereIn('id', [1, 2, 3])->get());
+```
+
+<a name="method-load"></a>
+
+#### `load($relations)`
+
+`load` method は、与えられた関連性をすべての models について、 collection 内で先読みします。
+
+```php
+$users->load(['comments', 'posts']);
+
+$users->load('comments.author');
+
+$users->load(['comments', 'posts' => fn ($query) => $query->where('active', 1)]);
+```
+
+<a name="method-loadMissing"></a>
+
+#### `loadMissing($relations)`
+
+`loadMissing` method は、すでにロードされていない場合、与えられた collection 内のすべての models の関係性を事前にロードします。
+
+```php
+$users->loadMissing(['comments', 'posts']);
+
+$users->loadMissing('comments.author');
+
+$users->loadMissing(['comments', 'posts' => fn ($query) => $query->where('active', 1)]);
+```
+
+<a name="method-modelKeys"></a>
+
+#### `modelKeys()`
+
+`modelKeys`の method は、 collection 内のすべての models の primary keys を返します。
+
+```php
+$users->modelKeys();
+
+// [1, 2, 3, 4, 5]
+```
+
+<a name="method-makeVisible"></a>
+
+#### `makeVisible($attributes)`
+
+`makeVisible` method は、通常は collection 中の各 model で「非表示」になっている[attributes を表示します](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#hiding-attributes-from-json)：
+
+```php
+$users = $users->makeVisible(['address', 'phone_number']);
+```
+
+<a name="method-makeHidden"></a>
+
+#### `makeHidden($attributes)`
+
+`makeHidden` method は、通常は各 model で"見える" [attributes を隠します](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#hiding-attributes-from-json) collection に:
+
+```php
+$users = $users->makeHidden(['address', 'phone_number']);
+```
+
+<a name="method-only"></a>
+
+#### `only($keys)`
+
+`only`の method は、指定された primary keys を持つ全ての models を返します。
+
+```php
+$users = $users->only([1, 2, 3]);
+```
+
+<a name="method-setVisible"></a>
+
+#### `setVisible($attributes)`
+
+`setVisible`method は、collection 内の各 model のすべての可視属性を[一時的に上書きします](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#temporarily-modifying-attribute-visibility):
+
+```php
+$users = $users->setVisible(['id', 'name']);
+```
+
+<a name="method-setHidden"></a>
+
+#### `setHidden($attributes)`
+
+`setHidden` method は[一時的にオーバーライド](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#temporarily-modifying-attribute-visibility)すべての hidden attributes を各 model に対して collection 中で行います：
+
+```php
+$users = $users->setHidden(['email', 'password', 'remember_token']);
+```
+
+<a name="method-toquery"></a>
+
+#### `toQuery()`
+
+`toQuery` method は、collectionmodel の primarykey に`whereIn`制約を含む Eloquentquery ビルダーインスタンスを返します。
+
+```php
+use App\Models\User;
+
+$users = User::where('status', 'VIP')->get();
+
+$users->toQuery()->update([
+    'status' => 'Administrator',
+]);
+```
+
+<a name="method-unique"></a>
+
+#### `unique($key = null, $strict = false)`
+
+`unique` method は、 collection 内のすべての unique models を返します。 collection 内の別の model と同じ primary キーを持つ models は削除されます。
+
+```php
+$users = $users->unique();
+```
+
+<a name="custom-collections"></a>
+
+## Custom Collections
+
+ある特定の model と対話する際に、 custom `Collection` object を使用したい場合は、 model 上に`newCollection` method を定義することができます。
+
+```php
+<?php
+
+namespace App\Models;
+
+use App\Support\UserCollection;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Create a new Eloquent Collection instance.
+     *
+     * @param  array<int, \Illuminate\Database\Eloquent\Model>  $models
+     * @return \Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
+     */
+    public function newCollection(array $models = []): Collection
+    {
+        return new UserCollection($models);
+    }
+}
+```
+
+`newCollection` ””method””を定義すると、通常ならば `Illuminate\Database\Eloquent\Collection` インスタンスを返すはずの””Eloquent””が、あなたの””custom collection””のインスタンスを返します。あなたが””application””内のすべての””models””で””custom collection””を使用したい場合には、 `newCollection` ””method””をすべての””application””の””models””に展開される基本の””model class””上で定義するべきです。

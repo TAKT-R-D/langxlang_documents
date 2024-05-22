@@ -1,0 +1,216 @@
+---
+filePath: "source/laravel/structure.md"
+title: "Directory Structure"
+description: "Directory Structure"
+org_path: "/docs/11.x/structure"
+is_empty: "false"
+nav_title: "Directory Structure"
+org_title: "Directory Structure"
+---
+
+# Directory Structure
+
+- [Introduction](#introduction)
+- [The Root Directory](#the-root-directory)
+  - [The `app` Directory](#the-root-app-directory)
+  - [The `bootstrap` Directory](#the-bootstrap-directory)
+  - [The `config` Directory](#the-config-directory)
+  - [The `database` Directory](#the-database-directory)
+  - [The `public` Directory](#the-public-directory)
+  - [The `resources` Directory](#the-resources-directory)
+  - [The `routes` Directory](#the-routes-directory)
+  - [The `storage` Directory](#the-storage-directory)
+  - [The `tests` Directory](#the-tests-directory)
+  - [The `vendor` Directory](#the-vendor-directory)
+- [The App Directory](#the-app-directory)
+  - [The `Broadcasting` Directory](#the-broadcasting-directory)
+  - [The `Console` Directory](#the-console-directory)
+  - [The `Events` Directory](#the-events-directory)
+  - [The `Exceptions` Directory](#the-exceptions-directory)
+  - [The `Http` Directory](#the-http-directory)
+  - [The `Jobs` Directory](#the-jobs-directory)
+  - [The `Listeners` Directory](#the-listeners-directory)
+  - [The `Mail` Directory](#the-mail-directory)
+  - [The `Models` Directory](#the-models-directory)
+  - [The `Notifications` Directory](#the-notifications-directory)
+  - [The `Policies` Directory](#the-policies-directory)
+  - [The `Providers` Directory](#the-providers-directory)
+  - [The `Rules` Directory](#the-rules-directory)
+
+<a name="introduction"></a>
+
+## Introduction
+
+default の Laravelapplication 構造は、大規模でも小規模でも application の開始点として非常に適しています。しかし、あなたの application をどのように整理するかは自由です。Laravel は、Composer が class を自動的に読み込むことができる限り、特定の class がどこに配置されているかにほとんど制限を設けていません。
+
+> [!NOTE]  
+> New to Laravel? Check out the [Laravel Bootcamp](https://bootcamp.laravel.com) for a hands-on tour of the framework while we walk you through building your first Laravel application.
+
+<a name="the-root-directory"></a>
+
+## The Root Directory
+
+<a name="the-root-app-directory"></a>
+
+#### App ディレクトリ
+
+`app`ディレクトリには、 application の中心となる code が含まれています。このディレクトリはもうすぐ詳しく見ていきますが、 application のほとんどすべてのクラスはこのディレクトリに存在します。
+
+<a name="the-bootstrap-directory"></a>
+
+#### ブートストラップディレクトリ
+
+`bootstrap`ディレクトリには、フレームワークをブートストラップする`app.php`ファイルが含まれています。また、このディレクトリには、 route や services cache ファイルなど、パフォーマンス最適化のためのフレームワーク生成ファイルを格納する`cache`ディレクトリも併設されています。
+
+<a name="the-config-directory"></a>
+
+#### Config ディレクトリ
+
+`config`ディレクトリは、その名前が示す通り、アプリケーションのすべての設定ファイルを含んでいます。これらのファイルをすべて読んで、あなたに利用可能なすべての options について理解するのは素晴らしいアイデアです。
+
+<a name="the-database-directory"></a>
+
+#### Database ディレクトリ
+
+`database`ディレクトリには、 database migrations 、 model ファクトリー、およびシードが含まれています。ご希望であれば、このディレクトリを SQLite の database を保管するためにも使用することができます。
+
+<a name="the-public-directory"></a>
+
+#### Public ディレクトリ
+
+`public`ディレクトリには、すべての requests のエントリポイントである`index.php`ファイルが含まれており、オートローディングを設定します。このディレクトリには、images や、JavaScript、CSS などのアセットも格納されています。
+
+<a name="the-resources-directory"></a>
+
+#### Resources ディレクトリ
+
+`resources`ディレクトリには、あなたの[views](/ja/php/laravel/v11.x/04-the-basics/07-views)だけでなく、 CSS や JavaScript などの未コンパイルの素材も含まれています。
+
+<a name="the-routes-directory"></a>
+
+#### Routes ディレクトリ
+
+`routes` ディレクトリには、あなたの application のすべての route の定義が含まれています。 default では、 Laravel には `web.php` と `console.php` の 2 つの route ファイルが含まれています。
+
+`web.php`ファイルには、`web`の middleware グループに Laravel が配置する routes が含まれており、これにより session state 、 CSRF protection 、および cookie encryption が提供されます。あなたの application がステートレスな、RESTful な API を提供しない場合、すべての routes はおそらく`web.php`ファイルで定義されるでしょう。
+
+`console.php` ファイルは、すべてのクロージャベースの console コマンドを定義できる場所です。各クロージャは、各コマンドの IO メソッドと対話する簡単なアプローチを可能にする command インスタンスにバインドされています。このファイルは HTTP routes を定義していませんが、 console ベースのエントリーポイント( routes )を application に定義します。また、 `console.php` ファイルで[schedule](/ja/php/laravel/v11.x/05-digging-deeper/scheduling)タスクも可能です。
+
+オプションとして、 API routes (`api.php`)や broadcasting チャンネル(`channels.php`)の追加の route ファイルを、`install:api`と`install:broadcasting`の Artisan コマンドを使用してインストールすることができます。
+
+`api.php`ファイルには、ステートレスを目指す routes が含まれているため、これらの routes を通じて application に入る requests は、[tokens を介した](/ja/php/laravel/v11.x/10-packages/sanctum)authentication を目指し、 session state へのアクセスは持ちません。
+
+`channels.php`ファイルは、あなたの application がサポートするすべての[event 放送](/ja/php/laravel/v11.x/05-digging-deeper/broadcasting)channels を登録する場所です。
+
+<a name="the-storage-directory"></a>
+
+#### Storage ディレクトリ
+
+`storage`ディレクトリには、ログ、コンパイル済みの Blade templates 、ファイルベースの session、ファイル cache、およびフレームワークによって生成されるその他のファイルが格納されています。このディレクトリは、`app`、`framework`、そして`logs`ディレクトリに分割されています。 `app`ディレクトリは、あなたの application によって生成される任意のファイルを保存するために使用することができます。`framework`ディレクトリは、フレームワークによって生成されるファイルと cache を保存するために使用されます。最後に、`logs`ディレクトリには、あなたのアプリケーションの log ファイルが格納されています。
+
+`storage/app/public` ディレクトリは、公にアクセス可能であるべきプロフィールのアバターやユーザーが生成したファイルを保存するために利用されます。このディレクトリを指すシンボリックリンクを `public/storage` に作成するべきです。`php artisan storage:link` Artisan command を使用してリンクを作成することが可能です。
+
+<a name="the-tests-directory"></a>
+
+#### テストディレクトリ
+
+`tests`ディレクトリには自動化テストが含まれています。例えば、[””Pest””](https://pestphp.com) または [””PHPUnit””](https://phpunit.de/) のユニットテストや””feature””テストが既に提供されています。各テストの””class””は、単語 `Test` を接尾辞にすべきです。テストは `/vendor/bin/pest` または `/vendor/bin/phpunit` command を使って実行できます。また、`tests`結果をより詳細で美しい表現で見たい場合は、`php artisan test` ””Artisan command””を使ってテストを実行することもできます。
+
+<a name="the-vendor-directory"></a>
+
+#### Vendor ディレクトリ
+
+`vendor`ディレクトリには、あなたの[Composer](https://getcomposer.org)の依存関係が含まれています。
+
+<a name="the-app-directory"></a>
+
+## The App Directory
+
+あなたの application の大半は、`App`ディレクトリに収容されています。 default では、このディレクトリは `app` という名前空間であり、 Composer が[PSR-4 オートローディングスタンダード](https://www.php-fig.org/psr/psr-4/)を使って自動的にロードされます。
+
+default で、`app`ディレクトリには、`Http`、`Models`、および`Providers`ディレクトリが含まれています。しかし、時間の経過とともに、クラスを生成するために Artisan コマンドを使用すると、 app ディレクトリ内にさまざまな他のディレクトリが生成されます。例えば、`app/Console`ディレクトリは、 command class を生成するために`make:command` Artisan command を実行するまで存在しません。
+
+`Console` と `Http` ディレクトリは、それぞれ以下のセクションで詳しく説明されていますが、`Console` と `Http` ディレクトリをあなたの application の中核への API と考えてみて下さい。 HTTP プロトコルと CLI は両方ともあなたの application と対話する手段ですが、実際の application のロジックを含んでいるわけではありません。言い換えれば、それらはあなたの application への命令を出す 2 つの方法です。`Console` ディレクトリには、あなたの Artisan commands がすべて含まれており、`Http` ディレクトリには、あなたのコントローラー、 middleware 、そして request が含まれています。
+
+> [!NOTE]  
+> `app`ディレクトリ内の多くのクラスは、Artisan のコマンドを介して生成することができます。利用可能なコマンドを確認するには、ターミナルで`php artisan list make` command を実行してください。
+
+<a name="the-broadcasting-directory"></a>
+
+#### Broadcasting ディレクトリ
+
+`Broadcasting`ディレクトリには、application のすべての broadcast チャンネル classes が含まれています。これらの classes は、`make:channel` command を使用して生成されます。このディレクトリは default では存在しませんが、最初の channel を作成するときに作成されます。チャンネルについて詳しく知りたい場合は、[eventbroadcast](/ja/php/laravel/v11.x/05-digging-deeper/broadcasting)のドキュメンテーションをチェックしてください。
+
+<a name="the-console-directory"></a>
+
+#### Console ディレクトリ
+
+`Console`ディレクトリには、 application のすべての custom Artisan コマンドが含まれています。これらのコマンドは、`make:command` command を使用して生成することができます。
+
+<a name="the-events-directory"></a>
+
+#### Events ディレクトリ
+
+このディレクトリは、 default では存在しませんが、`event:generate` と `make:event` の Artisan コマンドによって作成されます。`Events` ディレクトリには[event クラス](/ja/php/laravel/v11.x/05-digging-deeper/events)が格納されています。 Events は、特定の action が発生したことをあなたの application の他の部分に alert するために使用することができ、大きな柔軟性とデクープリングを提供します。
+
+<a name="the-exceptions-directory"></a>
+
+#### Exceptions ディレクトリ
+
+`Exceptions`ディレクトリは、application の全ての custom 例外を含んでいます。これらの例外は、`make:exception` command を使用して生成することができます。
+
+<a name="the-http-directory"></a>
+
+#### Http ディレクトリ
+
+`Http` ディレクトリには、コントローラー、 middleware 、そしてフォームリクエストが含まれています。 application に入るリクエストを handle するためのほぼ全てのロジックは、このディレクトリに配置されます。
+
+<a name="the-jobs-directory"></a>
+
+#### Jobs ディレクトリ
+
+このディレクトリは、default では存在しませんが、`make:job` Artisan command を実行すると、あなたのために作成されます。`Jobs`ディレクトリは、あなたの application のための[queueable jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues)を収容しています。jobs は、あなたの application によって queue に入れられるか、または現在の request ライフサイクル内で同期的に実行されることがあります。現在の request 中に同期的に実行される jobs は、[command pattern](https://en.wikipedia.org/wiki/Command_pattern)の実装であるため、"commands"と呼ばれることもあります。
+
+<a name="the-listeners-directory"></a>
+
+#### Listeners ディレクトリ
+
+このディレクトリは default では存在しないが、`event:generate`または`make:listener`という Artisan コマンドを実行すると作成されます。`Listeners`ディレクトリには、あなたの[events](/ja/php/laravel/v11.x/05-digging-deeper/events)を handle するクラスが含まれています。 Event listeners は event のインスタンスを受け取り、 event が発火された response にロジックを実行します。例えば、`UserRegistered`という event は`SendWelcomeEmail`リスナーによって処理されるかもしれません。
+
+<a name="the-mail-directory"></a>
+
+#### Mail ディレクトリ
+
+このディレクトリは default としては存在しませんが、`make:mail` Artisan command を実行すると作成されます。`Mail`ディレクトリには、あなたの application から送信される[電子メールを表すクラス](/ja/php/laravel/v11.x/05-digging-deeper/mail)がすべて含まれています。 Mail オブジェクトを使用すると、 email の構築に関するすべてのロジックを、 single でシンプルな class にカプセル化して、`Mail::send` method を使用して送信することができます。
+
+<a name="the-models-directory"></a>
+
+#### Models ディレクトリ
+
+`Models`ディレクトリには、すべての[Eloquent model class](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)が含まれています。 Laravel に含まれている Eloquent ORM は、あなたの database で作業するための美しくシンプルな ActiveRecord の実装を提供します。各 database のテーブルには、そのテーブルと対話するための対応する"Model"があります。 Models は、テーブル内の data の query と、テーブルへの新しいレコードの insert を可能にします。
+
+<a name="the-notifications-directory"></a>
+
+#### Notifications ディレクトリ
+
+このディレクトリは default では存在しませんが、`make:notification` Artisan command を実行すると作成されます。`Notifications`ディレクトリには、あなたの application から送信される"transactional" [notifications](/ja/php/laravel/v11.x/05-digging-deeper/notifications)が全て含まれています。これらは、あなたの application 内で発生する events についてのシンプルな notifications などです。Laravel の notification feature は、 email 、 Slack 、SMS、または database に保存されるなど、さまざまなドライバーを介して notifications を送信することを抽象化します。
+
+<a name="the-policies-directory"></a>
+
+#### Policies ディレクトリ
+
+このディレクトリは default としては存在しませんが、`make:policy`の Artisan command を実行すると作成されます。`Policies`ディレクトリは、あなたの application のための[authorization policy classes](/ja/php/laravel/v11.x/06-security/authorization)を含んでいます。 Policies は、 user が resource に対して特定の action を実行できるかどうかを決定するために使用されます。
+
+<a name="the-providers-directory"></a>
+
+#### Providers ディレクトリ
+
+`Providers`ディレクトリには、あなたの application のためのすべての[service providers](/ja/php/laravel/v11.x/03-architecture-concepts)が含まれています。 service providers は、service container ー内に services をバインドしたり、events を登録したり、またはその他のタスクを実行して、あなたの application が受信 request を受け入れる準備をします。
+
+新たな Laravel application では、このディレクトリには既に`AppServiceProvider`が含まれています。必要に応じて、自分自身の providers をこのディレクトリに追加することができます。
+
+<a name="the-rules-directory"></a>
+
+#### ルールディレクトリ
+
+このディレクトリは default では存在しませんが、`make:rule` Artisan command を実行すると作成されます。`Rules`ディレクトリには、application の customvalidation ルール object が含まれています。ルールは、複雑な validation ロジックをシンプルな object にカプセル化するために使用されます。詳細については、[validation ドキュメンテーション](/ja/php/laravel/v11.x/04-the-basics/12-validation)をご覧ください。
