@@ -1935,7 +1935,7 @@ context(['trace_id' => Str::uuid()->toString()]);
 
 #### `cookie()`
 
-`cookie`関数は新しい[cookie](/ja/php/laravel/v11.x/04-the-basics/05-requests#cookies)インスタンスを作成します:
+`cookie`関数は新しい[cookie](/ja/php/laravel/v11.x/04-the-basics/04-requests#cookies)インスタンスを作成します:
 
 ```php
 $cookie = cookie('name', 'value', $minutes);
@@ -2181,7 +2181,7 @@ $now = now();
 
 #### `old()`
 
-`old` 関数は、[以前の input](/docs/11.x/requests#old-input) value を session に[取得](/ja/php/laravel/v11.x/04-the-basics/05-requests#retrieving-input)します：
+`old` 関数は、[以前の input](/docs/11.x/requests#old-input) value を session に[取得](/ja/php/laravel/v11.x/04-the-basics/04-requests#retrieving-input)します：
 
 ```php
 $value = old('value');
@@ -2330,7 +2330,7 @@ report_unless($reportingDisabled, 'Something went wrong.');
 
 #### `request()`
 
-`request`関数は現在の[request](/ja/php/laravel/v11.x/04-the-basics/05-requests)インスタンスを返すか、現在の request から input フィールドの value を取得します:
+`request`関数は現在の[request](/ja/php/laravel/v11.x/04-the-basics/04-requests)インスタンスを返すか、現在の request から input フィールドの value を取得します:
 
 ```php
 $request = request();
