@@ -145,7 +145,7 @@ class FlightFactory extends Factory
 
 <a name="factory-states"></a>
 
-### Factory 州
+### Factory states
 
 State 操作方法により、model ファクトリに任意の組み合わせで適用できる離散的な変更を定義することができます。たとえば、あなたの`Database\Factories\UserFactory` factory には、その default 属性 values の 1 つを変更する`suspended` ステート methods が含まれるかもしれません。
 
@@ -240,7 +240,7 @@ public function suspended(): Factory
 
 ### Models のインスタンス化
 
-あなたがあなたの factory ーを定義したら、`Illuminate\Database\Eloquent\Factories\HasFactory` トレイトがあなたの models に提供する static `factory` method を使ってその models のための factory ーインスタンスを生成することができます。 models の作成例をいくつか見てみましょう。まず、`make` method を使用して database に保存せずに models を作成します：
+あなたがあなたの factory を定義したら、`Illuminate\Database\Eloquent\Factories\HasFactory` トレイトがあなたの models に提供する static `factory` method を使ってその models のための factory ーインスタンスを生成することができます。 models の作成例をいくつか見てみましょう。まず、`make` method を使用して database に保存せずに models を作成します：
 
 ```php
 use App\Models\User;
@@ -372,7 +372,7 @@ $users = User::factory()
 
 <a name="has-many-relationships"></a>
 
-### Has Many Relationships を直訳すると、多数の関係性を持つもしくは、多くのリレーションシップを持つとなりますが、これはプログラミングの言葉で one-to-many の意味も含まれています。ですから、日本のプログラマーの間では一対多の関係という表現が一般的です。しかしながら、もともとの英文がそのコンテクストをはっきり表していないため、それらの翻訳は推定に過ぎません。具体的な英文のコンテクストが分からない限り、正確な翻訳を提供することは難しいです
+### Has Many Relationships
 
 次に、Laravel の流暢な factory メソッドを使用して、 Eloquent model の関連付けを構築する方法を探ってみましょう。まず、`App\Models\User` model と`App\Models\Post` model があると仮定して、我々の application があると仮定しましょう。また、`User` model が`Post`と`hasMany`の関連性を定義していると仮定しましょう。Laravel の factories が提供する`has` method を使用して、三つの posts を持つ user を作成することができます。`has` method は、 factory インスタンスを受け入れます：
 

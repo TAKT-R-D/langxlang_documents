@@ -56,7 +56,7 @@ Laravel の database query builder は、便利で流暢なインターフェー
 Laravel query ビルダーは PDO パラメーターバインディングを使用して、 application を SQL インジェクション攻撃から保護します。 query ビルダーに渡す文字列をクリーンアップまたはサニタイズする必要はありません。 query バインディングとして。
 
 > [!WARNING]  
-> PDO は「column」名のバインディングをサポートしていません。そのため、query で参照される「column」名、"order by"の列を含め、ユーザ入力を決定させるべきではありません。
+> PDO は column 名のバインディングをサポートしていません。そのため、query で参照される column 名、"order by"の列を含め、ユーザ入力を決定させるべきではありません。
 
 <a name="running-database-queries"></a>
 
@@ -272,7 +272,7 @@ if (DB::table('orders')->where('finalized', 1)->doesntExist()) {
 
 #### Select 節の指定
 
-あなたは必ずしも"database"の全ての列を"select"したくないかもしれません。`select` "method"を使用すると、"query"に対して"custom" "select"節を指定することができます。
+あなたは必ずしも database の全ての列を select したくないかもしれません。`select` method を使用すると、query に対して custom select 節を指定することができます。
 
 ```php
 use Illuminate\Support\Facades\DB;
@@ -388,9 +388,9 @@ $orders = DB::table('orders')
 
 <a name="inner-join-clause"></a>
 
-#### 内部の Join 句
+#### Inner Join 句
 
-query ビルダーは、クエリに join 句を追加するためにも使用できます。基本的な「内結合」を実行するには、query ビルダーインスタンスで `join` method を使用します。`join` method に渡される最初の引数は結合するテーブルの名前であり、残りの引数は join の column 制約を指定します。単一のクエリで複数のテーブルを join することもできます:
+query ビルダーは、クエリに join 句を追加するためにも使用できます。基本的な inner join を実行するには、query ビルダーインスタンスで `join` method を使用します。`join` method に渡される最初の引数は結合するテーブルの名前であり、残りの引数は join の column 制約を指定します。単一のクエリで複数のテーブルを join することもできます:
 
 ```php
 use Illuminate\Support\Facades\DB;
@@ -404,9 +404,9 @@ $users = DB::table('users')
 
 <a name="left-join-right-join-clause"></a>
 
-#### 左の Join / 右の Join 節
+#### Left Join / Right Join 節
 
-"left join" または "right join" を "inner join" の代わりに実行する場合は、`leftJoin` または `rightJoin` メソッドを使用します。これらのメソッドは `join` method と同じ signature です:
+left join または right join を inner join の代わりに実行する場合は、`leftJoin` または `rightJoin` メソッドを使用します。これらのメソッドは `join` method と同じ signature です:
 
 ```php
 $users = DB::table('users')
@@ -422,7 +422,7 @@ $users = DB::table('users')
 
 #### クロス Join 句
 
-`crossJoin`" method を使用して"クロスジョイン"を実行することができます。クロスジョインは、最初のテーブルと結合されたテーブルの間のデカルト積を生成します。
+`crossJoin` method を使用してクロスジョインを実行することができます。クロスジョインは、最初のテーブルと結合されたテーブルの間のデカルト積を生成します。
 
 ```php
 $sizes = DB::table('sizes')
@@ -567,7 +567,7 @@ $users = DB::table('users')->where([
 ```
 
 > [!WARNING]  
-> PDO は「 column 」名のバインディングをサポートしていません。そのため、"order by" の列を含むクエリで参照される「 column 」の名前を「 user input 」で決定することは決して許されません。
+> PDO は column 名のバインディングをサポートしていません。そのため、"order by" の列を含むクエリで参照される column の名前を user input で決定することは決して許されません。
 
 <a name="or-where-clauses"></a>
 

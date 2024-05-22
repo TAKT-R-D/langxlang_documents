@@ -137,7 +137,7 @@ composer require aws/aws-sdk-php
 
 <a name="obtaining-a-cache-instance"></a>
 
-### '' Cache ''インスタンスの取得
+### Cache インスタンスの取得
 
 cache ストアインスタンスを取得するために、`Cache` facade を使用することができます。これは、このドキュメント全体で使用するものです。`Cache` facade は、Laravel cache contracts の基本実装に対して便利で簡潔なアクセスを提供します：
 
@@ -363,7 +363,7 @@ cache()->remember('users', $seconds, function () {
 ## Atomic Locks
 
 > [!WARNING]  
-> To utilize this feature, your application must be using the `memcached`, `redis`, `dynamodb`, `database`, `file`, or `array` cache driver as your application's default cache driver. In addition, all servers must be communicating with the same central cache server.
+> この feature を利用するために、あなたの application は、`memcached`、`redis`、`dynamodb`、`database`、`file`、または`array`の cache driver を、あなたのアプリケーションの default cache driver として使用する必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
 
 <a name="managing-locks"></a>
 
@@ -488,7 +488,7 @@ Cache::extend('mongo', function (Application $app) {
 ```
 
 > [!NOTE]  
-> もし‘' custom cache driver code ‘'をどこに配置すればいいか疑問に思っているなら、`app`ディレクトリ内に`Extensions`という名前空間を作成することができます。ただし、‘' Laravel ‘'は厳密な‘' application ‘'の構造を持っていないことと、あなたが自由に自分の‘' application ‘'を整理することができるということを覚えておいてください。
+> もし custom cache driver code をどこに配置すればいいか疑問に思っているなら、`app`ディレクトリ内に`Extensions`という名前空間を作成することができます。ただし、 Laravel は厳密な application の構造を持っていないことと、あなたが自由に自分の application を整理することができるということを覚えておいてください。
 
 <a name="registering-the-driver"></a>
 

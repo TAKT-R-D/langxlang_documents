@@ -46,7 +46,7 @@ org_title: "Database: Getting Started"
 
 Laravel の database services の設定は、アプリケーションの`config/database.php`設定ファイルに置かれています。このファイルでは、すべての database 接続を定義するとともに、どの connection を default として使用するべきかを指定することもできます。このファイル内の設定 options のほとんどは、アプリケーションの environment 変数の values によって制御されています。このファイルには、Laravel がサポートしているほとんどの database システムの例が提供されています。
 
-default として、Laravel のサンプル[環境設定](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)は、ローカルマシンで Laravelapplications を development するための Docker 設定である[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使用する準備ができています。しかし、ローカルの database に必要な設定を自由に変更することができます。
+default として、Laravel のサンプル[環境設定](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)は、ローカルマシンで Laravel applications を development するための Docker 設定である[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使用する準備ができています。しかし、ローカルの database に必要な設定を自由に変更することができます。
 
 <a name="sqlite-configuration"></a>
 
@@ -491,7 +491,7 @@ command の output 内にテーブル行のカウントと database view の詳�
 php artisan db:show --counts --views
 ```
 
-また、以下の `Schema` メも数ある database を検査するために使用することができます：
+また、以下の `Schema` も数ある database を検査するために使用することができます：
 
 ```php
 use Illuminate\Support\Facades\Schema;

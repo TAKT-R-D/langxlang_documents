@@ -29,7 +29,7 @@ org_title: "Localization"
 ## Introduction
 
 > [!NOTE]  
-> By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 Laravel の localization features は、さまざまな言語で文字列を取得する便利な方法を提供し、あなたの application 内で複数の言語を簡単にサポートできるようにします。
 
@@ -57,7 +57,7 @@ Laravel は、翻訳 strings を管理するための 2 つの方法を提供し
 
 ### 言語ファイルの公開
 
-default で、Laravelapplication のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたり、独自のものを作成したい場合は、`lang`ディレクトリを`lang:publish` Artisan command を使ってスキャフォールドする必要があります。 `lang:publish` command は、あなたの application に`lang`ディレクトリを作成し、Laravel が使用する default の言語ファイルセットを公開します。
+default で、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたり、独自のものを作成したい場合は、`lang`ディレクトリを`lang:publish` Artisan command を使ってスキャフォールドする必要があります。 `lang:publish` command は、あなたの application に`lang`ディレクトリを作成し、Laravel が使用する default の言語ファイルセットを公開します。
 
 ```shell
 php artisan lang:publish
@@ -69,7 +69,7 @@ php artisan lang:publish
 
 あなたの application のための default 言語は、`config/app.php`設定ファイルの`locale`設定オプションに保存されています。これは通常、`APP_LOCALE` environment 変数を使用して設定されます。あなたは自由にこの value をあなたの application のニーズに合わせて変更することができます。
 
-fallback language"という設定も可能で、これは"default"の言語に特定の"string"が含まれていないときに使用されます。"default"の言語と同様に、fallback 言語も`config/app.php`設定ファイルで設定され、その"value"は通常、`APP_FALLBACK_LOCALE` "環境"variables を使用して設定されます。
+fallback language という設定も可能で、これは default の言語に特定の string が含まれていないときに使用されます。default の言語と同様に、fallback 言語も`config/app.php`設定ファイルで設定され、その value は通常、`APP_FALLBACK_LOCALE` 環境 variables を使用して設定されます。
 
 `App` facade が提供する`setLocale` method を使用して、ランタイムで単一の HTTP request のための default 言語を変更することができます：
 
@@ -107,7 +107,7 @@ if (App::isLocale('en')) {
 
 ### 複数形化言語
 
-Eloquent "やフレームワークの他の部分で使用され、単数の文字列を複数の文字列に変換するために使用される Laravel の"pluralizer"に、英語以外の言語を使用するよう指示することができます。これは、あなたのアプリケーションの" service providers "のうちの一つの`boot` " method " 内で`useLanguage` " method " を呼び出すことで達成することができます。pluralizer が現在サポートしている言語は以下の通りです：`french`、`norwegian-bokmal`、`portuguese`、`spanish`、および`turkish`:
+Eloquent やフレームワークの他の部分で使用され、単数の文字列を複数の文字列に変換するために使用される Laravel の pluralizer に、英語以外の言語を使用するよう指示することができます。これは、あなたのアプリケーションの service providers のうちの一つの`boot` method 内で`useLanguage` method を呼び出すことで達成することができます。pluralizer が現在サポートしている言語は以下の通りです：`french`、`norwegian-bokmal`、`portuguese`、`spanish`、および`turkish`:
 
 ```php
 use Illuminate\Support\Pluralizer;

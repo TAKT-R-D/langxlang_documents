@@ -85,7 +85,7 @@ $user->posts()->where('active', 1)->get();
 
 <a name="one-to-one"></a>
 
-### ワン・トゥ・ワン
+### One-to-One
 
 一対一の関係は、非常に基本的な type の database 関係です。例えば、`User` model は一つの`Phone` model と関連付けられるかもしれません。この関係を定義するために、私たちは`User` model 上に`phone` method を置きます。`phone` method は、`hasOne` method を呼び出し、その結果を返すべきです。`hasOne` method は、model の`Illuminate\Database\Eloquent\Model`基底 class を通じてあなたの model で利用可能です。
 
@@ -181,7 +181,7 @@ public function user(): BelongsTo
 
 <a name="one-to-many"></a>
 
-### ワン・トゥ・メニー
+### One-to-Many
 
 一対多の関係は、 single model が一つ以上の子の models を持つ関係を定義するために使用されます。例えば、ブログ投稿は無数の comments を持つことができます。他のすべての Eloquent の関係と同じように、一対多の関係は、 Eloquent model 上に method を定義することで定義されます：
 
@@ -261,7 +261,7 @@ class Comment extends Model
 }
 ```
 
-関係性が定義されると、`post` "動的関係性プロパティ"にアクセスすることで、コメントの親投稿を取得することができます。
+関係性が定義されると、`post` 動的関係性プロパティにアクセスすることで、コメントの親投稿を取得することができます。
 
 ```php
 use App\Models\Comment;
@@ -343,7 +343,7 @@ public function user(): BelongsTo
 
 #### Belongs To 関係のクエリ
 
-Belongs to"関係の子要素をクエリするとき、対応する" Eloquent models "を取得するための`where`句を手動で" build "することができます。
+Belongs to 関係の子要素をクエリするとき、対応する Eloquent models を取得するための`where`句を手動で build することができます。
 
 ```php
 use App\Models\Post;
@@ -375,7 +375,7 @@ $posts = Post::whereBelongsTo($user, 'author')->get();
 
 ### たくさんの中の一つがある
 
-時には、" model "が多数の関連" models "を持っている場合でも、関連性の中で"最新"または"最古"の" model "を簡単に取得したいと思うことがあります。たとえば、`User` " model "が多数の`Order` " models "と関連しているが、" user "が最も最近発注した注文と便利にやり取りをする方法を定義したいとします。これは、`hasOne` 関連性" type "と `ofMany` メソッドの組み合わせを使用して達成できます。
+時には、 model が多数の関連 models を持っている場合でも、関連性の中で最新または最古の model を簡単に取得したいと思うことがあります。たとえば、`User` model が多数の`Order` models と関連しているが、 user が最も最近発注した注文と便利にやり取りをする方法を定義したいとします。これは、`hasOne` 関連性 type と `ofMany` メソッドの組み合わせを使用して達成できます。
 
 ```php
 /**
@@ -387,7 +387,7 @@ public function latestOrder(): HasOne
 }
 ```
 
-同様に、関係性の"oldest"、または最初の、関連する model を取得するための method を定義することができます：
+同様に、関係性の oldest、または最初の、関連する model を取得するための method を定義することができます：
 
 ```php
 /**
@@ -399,7 +399,7 @@ public function oldestOrder(): HasOne
 }
 ```
 
-default では、`latestOfMany`および`oldestOfMany`methods は、ソート可能でなければならない model の primarykey に基づいて、最新または最古の関連 model を取得します。しかし、時折、異なるソート基準を使用して大規模な関係からシングル model を取得したい場合があります。
+default では、`latestOfMany`および`oldestOfMany` methods は、ソート可能でなければならない model の primarykey に基づいて、最新または最古の関連 model を取得します。しかし、時折、異なるソート基準を使用して大規模な関係からシングル model を取得したい場合があります。
 
 例えば、`ofMany` method を使うと、user の最も高価な注文を取得することができます。`ofMany` method は、最初の引数としてソート可能な column を受け入れ、関連する model を query する際にどの集計関数(`min`または`max`)を適用するかを指定します：
 
@@ -418,7 +418,7 @@ public function largestOrder(): HasOne
 
 <a name="converting-many-relationships-to-has-one-relationships"></a>
 
-#### 「Many」の関係性を「Has One」の関係性に変換する
+#### Many の関係性を Has One の関係性に変換する
 
 しばしば、`latestOfMany`、`oldestOfMany`、または`ofMany`メソッドを使用して single model を取得する場合、同じ model に対して"has many"関係が定義されていることがあります。便宜上、Laravel では、関係に`one` method を呼び出すことで、この関係を簡単に"has one"関係に変換することができます：
 
@@ -465,9 +465,9 @@ public function currentPricing(): HasOne
 
 <a name="has-one-through"></a>
 
-### 通った一つ
+### Has-One-Through
 
-has-one-through"関係は、別の model との一対一の関係を定義します。しかし、この関係は、宣言する model が第三の model を経由して他の model のインスタンスと一致できることを示しています。
+has-one-through 関係は、別の model との一対一の関係を定義します。しかし、この関係は、宣言する model が第三の model を経由して他の model のインスタンスと一致できることを示しています。
 
 たとえば、車の修理工場の application では、各`Mechanic` model は 1 つの`Car` model と関連付けることができ、各`Car` model は 1 つの`Owner` model と関連付けることができます。修理工とオーナーの間には database 内で直接的な関係性はありませんが、修理工は`Car` model を*通じて*オーナーにアクセスすることができます。この関係性を定義するために必要なテーブルを見てみましょう：
 
@@ -736,7 +736,7 @@ return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
 
 #### 関係の逆関数の定義
 
-多対多の関係の「逆」を定義するためには、関連する「model」で「method」を定義し、その結果も`belongsToMany` 「method」を返すようにするべきです。私たちの「user」/「ロール」の例を完成させるために、`Role` 「model」で`users` 「method」を定義しましょう：
+多対多の関係の逆を定義するためには、関連する model で method を定義し、その結果も`belongsToMany` method を返すようにするべきです。私たちの user/ロールの例を完成させるために、`Role` model で`users` method を定義しましょう：
 
 ```php
 <?php
@@ -758,7 +758,7 @@ class Role extends Model
 }
 ```
 
-ご覧のように、この関係性は`User` model と全く同じように定義されていますが、`App\Models\User` model を参照するという違いがあります。 `belongsToMany` method を再利用しているので、多対多の関係性の「逆」を定義する際に、通常のテーブルやキーのカスタマイズ options すべてが利用可能です。
+ご覧のように、この関係性は`User` model と全く同じように定義されていますが、`App\Models\User` model を参照するという違いがあります。 `belongsToMany` method を再利用しているので、多対多の関係性の逆を定義する際に、通常のテーブルやキーのカスタマイズ options すべてが利用可能です。
 
 <a name="retrieving-intermediate-table-columns"></a>
 
@@ -1041,7 +1041,7 @@ $imageable = $image->imageable;
 
 #### 主な規約
 
-必要に応じて、ポリモーフィックな子の " model "の使用する "id"と "type" の列の名前を指定することができます。それを行う場合、常に関連関係の名前を `morphTo` " method "への最初の引数として渡すことを確認してください。通常、この " value "は " method "の名前と " match "するべきなので、PHP の `__FUNCTION__` 定数を使用することができます。
+必要に応じて、ポリモーフィックな子の model の使用する id と type の列の名前を指定することができます。それを行う場合、常に関連関係の名前を `morphTo` method への最初の引数として渡すことを確認してください。通常、この value は method の名前と match するべきなので、PHP の `__FUNCTION__` 定数を使用することができます。
 
 ```php
 /**
@@ -1061,7 +1061,7 @@ public function imageable(): MorphTo
 
 #### テーブル構造
 
-ワンツーマニー多態性関連は、典型的なワンツーマニー関連に似ています。ただし、子の model は、 single の関連を使用して、複数の type の model に所属することができます。例えば、「 users 」があなたの application でコメントを posts やビデオに投稿できると想像してみてください。多態性関連を使用すると、あなたは single の `comments` テーブルを使って、 posts とビデオの両方に対する comments を含めることができます。まず、この関係を build するために required のテーブル構造を見てみましょう。
+One to Many (ポリモーフィック)関連は、典型的な One to Many 関連に似ています。ただし、子の model は、 single の関連を使用して、複数の type の model に所属することができます。例えば、 users があなたの application でコメントを posts やビデオに投稿できると想像してみてください。多態性関連を使用すると、あなたは single の `comments` テーブルを使って、 posts とビデオの両方に対する comments を含めることができます。まず、この関係を build するために required のテーブル構造を見てみましょう。
 
 ```php
 posts
@@ -1165,9 +1165,9 @@ $commentable = $comment->commentable;
 
 <a name="one-of-many-polymorphic-relations"></a>
 
-### 多数の一つ(ポリモーフィズム)
+### One of Many(ポリモーフィズム)
 
-時には"model"が関連する"model"が多くある場合でも、関連する"model"の中から「最新の」や「最古の」ものを簡単に取得したいことがあります。たとえば、`User` "model"はたくさんの`Image` "model"と関連しているかもしれませんが、"user"がアップロードした最新の"イメージ"とやりとりできる便利な方法を定義したいと思うかもしれません。これは`morphOne`リレーションシップ"type"と`ofMany`method を組み合わせて達成できます。
+時には model が関連する model が多くある場合でも、関連する model の中から最新のや最古のものを簡単に取得したいことがあります。たとえば、`User` model はたくさんの`Image` model と関連しているかもしれませんが、user がアップロードした最新のイメージとやりとりできる便利な方法を定義したいと思うかもしれません。これは`morphOne`リレーションシップ type と`ofMany`method を組み合わせて達成できます。
 
 ```php
 /**
@@ -1179,7 +1179,7 @@ public function latestImage(): MorphOne
 }
 ```
 
-同様に、関連する「" model "」の中で「"oldest"」、つまり最初のものを取得する「" method "」を定義することもできます。
+同様に、関連する model の中で oldest、つまり最初のものを取得する method を定義することもできます。
 
 ```php
 /**
@@ -1210,13 +1210,13 @@ public function bestImage(): MorphOne
 
 <a name="many-to-many-polymorphic-relations"></a>
 
-### 多対多(ポリモーフィック)
+### Many to Many(ポリモーフィック)
 
 <a name="many-to-many-polymorphic-table-structure"></a>
 
 #### テーブル構造
 
-多対多のポリモーフィック関連は、"morph one"と"morph many"との関係よりも少し複雑です。たとえば、`Post` model と`Video` model は、`Tag` model に対してポリモーフィック関係を共有することができます。この場合、多対多のポリモーフィック関係を使用すると、あなたの application には、posts や videos と関連付けられる可能性のある一意の tags の単一のテーブルを持つことができます。まず、この関係を構築するために必要なテーブル構造を見てみましょう。
+Many to Many のポリモーフィック関連は、"morph one"と"morph many"との関係よりも少し複雑です。たとえば、`Post` model と`Video` model は、`Tag` model に対してポリモーフィック関係を共有することができます。この場合、多対多のポリモーフィック関係を使用すると、あなたの application には、posts や videos と関連付けられる可能性のある一意の tags の単一のテーブルを持つことができます。まず、この関係を構築するために必要なテーブル構造を見てみましょう。
 
 ```php
 posts
@@ -1238,7 +1238,7 @@ taggables
 ```
 
 > [!NOTE]  
-> ポリモーフィックな多対多の関係に深入りする前に、典型的な[多対多の関係](#many-to-many)に関する文書を読むことで有益な情報を得ることができます。
+> ポリモーフィックな Many to Many の関係に深入りする前に、典型的な[Many to Many の関係](#many-to-many)に関する文書を読むことで有益な情報を得ることができます。
 
 <a name="many-to-many-polymorphic-model-structure"></a>
 
@@ -1340,9 +1340,9 @@ foreach ($tag->videos as $video) {
 
 ### Custom ポリモーフィックタイプ
 
-default "で、" Laravel "は関連する" model "の"types"を保存するために完全修飾" class "名を使用します。例えば、上記の一対多の関係の例では、`Comment` " model "が`Post`または`Video` " model "に属している可能性があります。その場合、" default "の`commentable_type`は、それぞれ`App\Models\Post`または`App\Models\Video`になります。ただし、これらの" values "を application の内部構造から切り離すことを希望する場合もあります。
+default で、 Laravel は関連する model の types を保存するために完全修飾 class 名を使用します。例えば、上記の一対多の関係の例では、`Comment` model が`Post`または`Video` model に属している可能性があります。その場合、 default の`commentable_type`は、それぞれ`App\Models\Post`または`App\Models\Video`になります。ただし、これらの values を application の内部構造から切り離すことを希望する場合もあります。
 
-たとえば、"type"として model の名前を使う代わりに、`post`や`video`などの単純な文字列を使うことができます。そうすることで、 database の多態的な"type"の column values は、 models が名前を変更しても有効なままでしょう。
+たとえば、type として model の名前を使う代わりに、`post`や`video`などの単純な文字列を使うことができます。そうすることで、 database の多態的な type の column values は、 models が名前を変更しても有効なままでしょう。
 
 ```php
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -1366,7 +1366,7 @@ $class = Relation::getMorphedModel($alias);
 ```
 
 > [!WARNING]  
-> 既存の application に「morph map」を追加すると、´`*_type`´ column value (列の値)でまだ完全に限定された class を含んでいる全ての database (データベース)を「map」名に変換する必要があります。
+> 既存の application に morph map を追加すると、`*_type` column value (列の値)でまだ完全に限定された class を含んでいる全ての database (データベース)を map 名に変換する必要があります。
 
 <a name="dynamic-relationships"></a>
 
@@ -1486,7 +1486,7 @@ foreach ($user->posts as $post) {
 }
 ```
 
-動的な関係プロパティは「遅延ロード」を実行し、これは関係の data が実際にアクセスされたときにのみロードされることを意味します。このため、開発者は[eager loading](#eager-loading)を使って、モデルのロード後にアクセスされることがわかっている関係を事前にロードします。 model をロードするために実行する必要がある SQL クエリの大幅な削減を提供します。
+動的な関係プロパティは遅延ロードを実行し、これは関係の data が実際にアクセスされたときにのみロードされることを意味します。このため、開発者は[eager loading](#eager-loading)を使って、モデルのロード後にアクセスされることがわかっている関係を事前にロードします。 model をロードするために実行する必要がある SQL クエリの大幅な削減を提供します。
 
 <a name="querying-relationship-existence"></a>
 
@@ -1774,7 +1774,7 @@ $posts = Post::select(['title', 'body'])
 
 ### Morph To 関係に関連する Models の数え方
 
-morph to"の関係性を事前にロードしたい場合、または、その関係性によって返される可能性のある様々なエンティティの" model "数を関連付けたい場合は、`with` " method "を`morphTo`関係性の`morphWithCount` " method "と組み合わせて使用することができます。
+morph to の関係性を事前にロードしたい場合、または、その関係性によって返される可能性のある様々なエンティティの model 数を関連付けたい場合は、`with` method を`morphTo`関係性の`morphWithCount` method と組み合わせて使用することができます。
 
 この例では、`Photo`と`Post`の models が`ActivityFeed`の models を作成すると仮定しましょう。`ActivityFeed`の models が`parentable`という"MorphTo"関係を定義し、親の`Photo`または`Post`の models を特定の`ActivityFeed`インスタンスで取得できると仮定します。さらに、`Photo`の models が多数の`Tag`の models を "保有している"、`Post`の models が多数の`Comment`の models を "保有している"と仮定しましょう。
 
@@ -1811,7 +1811,7 @@ $activities->loadMorphCount('parentable', [
 
 ## Eager Loading
 
-Eloquent "の関係性をプロパティとしてアクセスするとき、関連する" models "は"lazy loaded"されます。これは、関係性の" data "が実際にはプロパティに初めてアクセスしたときにしかロードされないことを意味します。しかし、" Eloquent "は、親の" model "を" query "する時点で関係性を"eager load"することができます。Eager loading は、"N + 1" " query "問題を軽減します。N + 1 " query "問題を説明するために、`Book` " model "が`Author` " model "に"belongs to"であることを考えてみてください。
+Eloquent の関係性をプロパティとしてアクセスするとき、関連する models は lazy loaded されます。これは、関係性の data が実際にはプロパティに初めてアクセスしたときにしかロードされないことを意味します。しかし、 Eloquent は、親の model を query する時点で関係性を eager load することができます。Eager loading は、N + 1 query 問題を軽減します。N + 1 query 問題を説明するために、`Book` model が`Author` model に belongs to であることを考えてみてください。
 
 ```php
 <?php
@@ -2047,7 +2047,7 @@ $comments = Comment::with(['commentable' => function (MorphTo $morphTo) {
 }])->get();
 ```
 
-この例では、 Eloquent は、「 hidden 」状態でない「 posts 」のみと、`type`の「 value 」が"educational"であるビデオのみを先読みします。
+この例では、 Eloquent は、 hidden 状態でない posts のみと、`type`の value が"educational"であるビデオのみを先読みします。
 
 <a name="constraining-eager-loads-with-relationship-existence"></a>
 

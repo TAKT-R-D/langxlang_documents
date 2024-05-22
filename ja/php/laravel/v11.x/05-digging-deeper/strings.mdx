@@ -662,7 +662,7 @@ $string = Str::mask('taylor@example.com', '*', -15, 3);
 
 #### `Str::orderedUuid()`
 
-`Str::orderedUuid` "" method ""は、「timestamp を最初に」配置した"" database column ""を生成し、それを効率的にインデックス付き""database 列""に保存することができます。この"" method ""を使用して生成されるすべての"" UUID ""は、"" method ""を使用して以前に生成された UUID の後に並べられます。
+`Str::orderedUuid` method は、timestamp を最初に配置した database column を生成し、それを効率的にインデックス付き database 列に保存することができます。この method を使用して生成されるすべての UUID は、 method を使用して以前に生成された UUID の後に並べられます。
 
 ```php
 use Illuminate\Support\Str;
@@ -836,7 +836,7 @@ use Illuminate\Support\Str;
 $random = Str::random(40);
 ```
 
-「 testing 」の間、`Str::random` 「 method 」によって返される「 value 」を「偽装」することが有用かもしれません。これを達成するために、`createRandomStringsUsing`「 method 」を使用することができます。
+testing の間、`Str::random` method によって返される value を偽装することが有用かもしれません。これを達成するために、`createRandomStringsUsing` method を使用することができます。
 
 ```php
 Str::createRandomStringsUsing(function () {
@@ -844,7 +844,7 @@ Str::createRandomStringsUsing(function () {
 });
 ```
 
-`random` ''method''が通常どおりに''ランダム''な strings を生成するように指示するには、`createRandomStringsNormally` ''method''を呼び出すことができます。
+`random` method が通常どおりにランダムな strings を生成するように指示するには、`createRandomStringsNormally` method を呼び出すことができます。
 
 ```php
 Str::createRandomStringsNormally();
@@ -961,7 +961,7 @@ use Illuminate\Support\Str;
 
 $replaced = Str::replaceMatches(
     pattern: '/[^A-Za-z0-9]++/',
-    replace: '',
+    replace: ,
     subject: '(+1) 501-555-1000'
 )
 
@@ -1370,7 +1370,7 @@ use Illuminate\Support\Str;
 $date = Carbon::createFromId((string) Str::ulid());
 ```
 
-「 testing 」中には、「(`Str::ulid`)」の「 method 」が返す「 value 」を「偽造」することが有用かもしれません。これを達成するためには、`createUlidsUsing` 「 method 」を使用することができます：
+testing 中には、(`Str::ulid`)の method が返す value を偽造することが有用かもしれません。これを達成するためには、`createUlidsUsing` method を使用することができます：
 
 ```php
 use Symfony\Component\Uid\Ulid;
@@ -1416,7 +1416,7 @@ use Illuminate\Support\Str;
 return (string) Str::uuid();
 ```
 
-「 testing 」中には、`Str::uuid`「 method 」によって返される「 value 」を「フェイク」することが役立つかもしれません。そのためには、`createUuidsUsing`「 method 」を使用できます：
+testing 中には、`Str::uuid` method によって返される value をフェイクすることが役立つかもしれません。そのためには、`createUuidsUsing` method を使用できます：
 
 ```php
 use Ramsey\Uuid\Uuid;
@@ -1891,7 +1891,7 @@ $collection = Str::of('foo bar baz')->explode(' ');
 
 #### `finish`
 
-`finish` '' method ''は与えられた'' value ''が既に'' string ''の終わりに存在しない場合、その'' value ''の'' single ''インスタンスを追加します。
+`finish` method は与えられた value が既に string の終わりに存在しない場合、その value の single インスタンスを追加します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2313,7 +2313,7 @@ $result = Str::of('laravel')->isMatch('/foo (.*)/');
 
 #### `newLine`
 
-`newLine`"の method は""に"行の終わり"のキャラクターを追加します。
+`newLine` の method はに行の終わりのキャラクターを追加します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2568,7 +2568,7 @@ $replaced = Str::of('the quick brown fox jumps over the lazy dog')->replaceLast(
 ```php
 use Illuminate\Support\Str;
 
-$replaced = Str::of('(+1) 501-555-1000')->replaceMatches('/[^A-Za-z0-9]++/', '')
+$replaced = Str::of('(+1) 501-555-1000')->replaceMatches('/[^A-Za-z0-9]++/', )
 
 // '15015551000'
 ```

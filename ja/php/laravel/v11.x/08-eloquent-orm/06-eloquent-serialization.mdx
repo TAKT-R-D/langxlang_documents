@@ -97,7 +97,7 @@ Route::get('users', function () {
 
 #### Relationships
 
-「Eloquent model」が「JSON」に変換されると、ロードされた関連性が自動的に「JSONobject」の「属性」に含まれます。また、「Eloquent」のリレーションシップ方法は「camel case」の「method」名を使用して定義されますが、リレーションシップの「JSON 属性」は"snake case"になります。
+Eloquent model が JSON に変換されると、ロードされた関連性が自動的に JSONobject の属性に含まれます。また、Eloquent のリレーションシップ方法は camel case の method 名を使用して定義されますが、リレーションシップの JSON 属性は"snake case"になります。
 
 <a name="hiding-attributes-from-json"></a>
 
@@ -156,7 +156,7 @@ class User extends Model
 return $user->makeVisible('attribute')->toArray();
 ```
 
-同様に、通常は見える ''属性'' の一部を隠したい場合は、`makeHidden` ''method''を使用することができます。
+同様に、通常は見える 属性 の一部を隠したい場合は、`makeHidden` method を使用することができます。
 
 ```php
 return $user->makeHidden('attribute')->toArray();

@@ -258,7 +258,7 @@ PhpRedis 拡張機能は、さまざまなシリアライザや圧縮アルゴ�
 
 ## Interacting With Redis
 
-`Redis` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades) のさまざまなメソッドを呼び出して、Redis と対話することができます。`Redis` facade はダイナミックメソッドをサポートしているため、facade 上で任意の[Rediscommand](https://redis.io/commands)を呼び出すことができ、その command は Redis に直接渡されます。この例では、`Redis` facade 上で`GET` method を呼び出して、Redis の`get` command を呼び出します。
+`Redis` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades) のさまざまなメソッドを呼び出して、Redis と対話することができます。`Redis` facade はダイナミックメソッドをサポートしているため、facade 上で任意の[Redis command](https://redis.io/commands)を呼び出すことができ、その command は Redis に直接渡されます。この例では、`Redis` facade 上で`GET` method を呼び出して、Redis の`get` command を呼び出します。
 
 ```php
 <?php
@@ -319,7 +319,7 @@ $redis = Redis::connection();
 
 ### Transactions
 
-`Redis`facade の`transaction`method は、Redis のネイティブ`MULTI`および`EXEC`commands の便利なラッパーを提供します。`transaction`method では、引数としてクロージャのみを受け入れます。このクロージャは Redis 接続インスタンスを受け取り、このインスタンスに対して任意の commands を発行することができます。このクロージャ内で発行されたすべての Rediscommands は、単一の原子的な transaction で実行されます：
+`Redis`facade の`transaction`method は、Redis のネイティブ`MULTI`および`EXEC`commands の便利なラッパーを提供します。`transaction`method では、引数としてクロージャのみを受け入れます。このクロージャは Redis 接続インスタンスを受け取り、このインスタンスに対して任意の commands を発行することができます。このクロージャ内で発行されたすべての Redis commands は、単一の原子的な transaction で実行されます：
 
 ```php
 use Redis;
@@ -336,7 +336,7 @@ Facades\Redis::transaction(function (Redis $redis) {
 
 #### Lua スクリプト
 
-`eval`method は、単一の、アトミックな操作で複数の Rediscommands を実行する別の方法を提供します。ただし、`eval`method の利点は、その操作中に Redis キー values と対話し、それを検査できることです。Redisscripts は[Lua プ log ラミング言語](https://www.lua.org)で書かれています。
+`eval`method は、単一の、アトミックな操作で複数の Redis commands を実行する別の方法を提供します。ただし、`eval`method の利点は、その操作中に Redis キー values と対話し、それを検査できることです。Redis scripts は[Lua プ log ラミング言語](https://www.lua.org)で書かれています。
 
 `eval` method は最初は少し怖いかもしれませんが、基本的な例を探って氷を破ることにしましょう。`eval` method はいくつかの引数を期待します。まず、Luascript( string として)を method に渡すべきです。次に、script が対話する keys の数( integer として)を渡すべきです。三つ目に、それらの keys の名前を渡すべきです。最後に、script 内でアクセスする必要がある他の追加の引数を渡すこともできます。
 
@@ -378,7 +378,7 @@ Facades\Redis::pipeline(function (Redis $pipe) {
 
 ## Pub / Sub
 
-Laravel は、Redis の `publish` および `subscribe` commands への便利なインターフェイスを提供します。これらの Rediscommands を使うと、特定の "channel" でメッセージを待ち受けることができます。あなたは別の application から、あるいは別のプ log ラミング言語を使って、channel へメッセージを publish することができます。これにより、application と process 間でのコミュニケーションが容易になります。
+Laravel は、Redis の `publish` および `subscribe` commands への便利なインターフェイスを提供します。これらの Redis commands を使うと、特定の "channel" でメッセージを待ち受けることができます。あなたは別の application から、あるいは別のプ log ラミング言語を使って、channel へメッセージを publish することができます。これにより、application と process 間でのコミュニケーションが容易になります。
 
 まず、`subscribe` method を使用して channel リスナーをセットアップしましょう。`subscribe` method の呼び出しは長時間実行される process を開始するため、この method 呼び出しを[Artisan command](/ja/php/laravel/v11.x/05-digging-deeper/artisan)内に配置します：
 

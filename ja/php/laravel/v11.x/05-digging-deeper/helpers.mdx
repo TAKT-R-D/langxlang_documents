@@ -2123,7 +2123,7 @@ info('User login attempt failed.', ['id' => $user->id]);
 
 #### `literal()`
 
-"`literal`関数は与えられた名前付き引数をプロパティとして新しい[stdClass](https://www.php.net/manual/en/class.stdclass.php)インスタンスを作成します：
+`literal`関数は与えられた名前付き引数をプロパティとして新しい[stdClass](https://www.php.net/manual/en/class.stdclass.php)インスタンスを作成します：
 
 ```php
 $obj = literal(
@@ -2755,7 +2755,7 @@ Lottery::determineResultsNormally();
 
 ### Pipeline
 
-Laravel の`Pipeline`の""facade""は、与えられた""input""を一連の呼び出し可能な class、クロージャ、またはコールバックを通じて""パイプ""する便利な方法を提供し、各""class""に""input""を検査または修正し、""pipeline""の次の呼び出し可能なものを呼び出す機会を提供します。
+Laravel の`Pipeline`の facade は、与えられた input を一連の呼び出し可能な class、クロージャ、またはコールバックを通じてパイプする便利な方法を提供し、各 class に input を検査または修正し、pipeline の次の呼び出し可能なものを呼び出す機会を提供します。
 
 ```php
 use Closure;
@@ -2861,7 +2861,7 @@ while ($waiting) {
 }
 ```
 
-通常、この「 code 」を「 testing 」するには、少なくとも*1 秒*かかります。幸いなことに、`Sleep`「 class 」により、テストスイートを高速で保つために「fake」スリープをすることができます。
+通常、この code を testing するには、少なくとも*1 秒*かかります。幸いなことに、`Sleep` class により、テストスイートを高速で保つために fake スリープをすることができます。
 
 ```php tab=Pest
 it('waits until ready', function () {
@@ -2882,7 +2882,7 @@ public function test_it_waits_until_ready()
 
 `Sleep` class を偽装すると、実際の実行一時停止がバイパスされ、テストが大幅に高速化します。
 
-`Sleep` class がフェイクされたら、期待される"sleeps"が発生したかに対してアサーションを行うことができます。これを説明するために、実行を 3 回一時停止し、それぞれの停止が single 秒ずつ増加するという testing code を想像してみましょう。`assertSequence` method を使用して、code が適切な時間"slept"したことを assert し、テストを速く保つことができます：
+`Sleep` class がフェイクされたら、期待される sleeps が発生したかに対してアサーションを行うことができます。これを説明するために、実行を 3 回一時停止し、それぞれの停止が single 秒ずつ増加するという testing code を想像してみましょう。`assertSequence` method を使用して、code が適切な時間 sleep したことを assert し、テストを速く保つことができます：
 
 ```php tab=Pest
 it('checks if ready three times', function () {
@@ -2961,4 +2961,4 @@ Sleep::for(1)->second();
 $start->diffForHumans(); // 1 second ago
 ```
 
-Laravel は実行を一時停止するたびに、内部的に`Sleep` class を使用します。たとえば、[`retry`](#method-retry)helper は、スリープ中に`Sleep` class を使用し、その helper を使用する際の test 可能性を向上させます。
+Laravel は実行を一時停止するたびに、内部的に`Sleep` class を使用します。たとえば、[`retry`](#method-retry) helper は、スリープ中に`Sleep` class を使用し、その helper を使用する際の test 可能性を向上させます。

@@ -184,7 +184,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]  
-> To utilize this feature, your application must be using the `memcached`, `redis`, `dynamodb`, `database`, `file`, or `array` cache driver as your application's default cache driver. In addition, all servers must be communicating with the same central cache server.
+> この feature を利用するためには、あなたの application は`database`、`memcached`、`dynamodb`、または`redis` cache driver をアプリケーションの default cache driver として使用している必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
 
 <a name="forcing-migrations-to-run-in-production"></a>
 
@@ -853,7 +853,7 @@ $table->smallInteger('votes');
 
 #### `softDeletesTz()`
 
-`softDeletesTz` ""method""は、option で小数点以下の秒を持つ""ヌル可能""な`deleted_at` `TIMESTAMP`(""タイムゾーン""付き)と同等の""column""を追加します。この""column""は、Eloquent の"soft delete"機能に必要な`deleted_at` ""timestamp""を保存するためのものです。
+`softDeletesTz` method は、option で小数点以下の秒を持つヌル可能な`deleted_at` `TIMESTAMP`(タイムゾーン付き)と同等の column を追加します。この column は、Eloquent の"soft delete"機能に必要な`deleted_at` timestamp を保存するためのものです。
 
 ```php
 $table->softDeletesTz('deleted_at', precision: 0);

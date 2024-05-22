@@ -225,7 +225,7 @@ $result = Process::pipe([
 ]);
 ```
 
-「 process output 」は、`pipe`「 method 」に 2 つ目の引数としてクロージャを渡すことでリアルタイムで収集できます。クロージャは 2 つの引数を受け取ります：「 output 」の"型"(`stdout`または`stderr`)と「 output string 」自体：
+process output は、`pipe` method に 2 つ目の引数としてクロージャを渡すことでリアルタイムで収集できます。クロージャは 2 つの引数を受け取ります： output の型(`stdout`または`stderr`)と output string 自体：
 
 ```php
 $result = Process::pipe(function (Pipe $pipe) {
@@ -395,7 +395,7 @@ process プールの`running` method で、 pool 内のすべての呼び出さ�
 $processIds = $pool->running()->each->id();
 ```
 
-そして、便宜上、あなたは `signal` method を ''process プールに呼び出して、''プール内のすべての''process に信号を送ることができます：
+そして、便宜上、あなたは `signal` method を process プールに呼び出して、プール内のすべての process に信号を送ることができます：
 
 ```php
 $pool->signal(SIGUSR2);
@@ -424,7 +424,7 @@ Route::get('/import', function () {
 });
 ```
 
-この「" route "」を「" testing "」する際、 `fake` 「" method "」を引数なしで `Process` 「" facade "」に呼び出すことで、「" Laravel "」に対して、「" process "」が呼び出された都度、「" fake "」で成功した「" process "」の結果を返すよう指示することができます。さらに、指定した「" process "」が"run"されたことさえも[「" assert "」](#available-assertions)できます。
+この route を testing する際、 `fake` method を引数なしで `Process` facade に呼び出すことで、 Laravel に対して、 process が呼び出された都度、 fake で成功した process の結果を返すよう指示することができます。さらに、指定した process が run されたことさえも[assert](#available-assertions)できます。
 
 ```php tab=Pest
 <?php
@@ -606,7 +606,7 @@ Process::assertRan(fn ($process, $result) =>
 
 #### assertDidntRun
 
-与えられた'' process ''が呼び出されなかったと'' Assert ''する：
+与えられた process が呼び出されなかったと Assert する：
 
 ```php
 use Illuminate\Support\Facades\Process;
@@ -626,7 +626,7 @@ Process::assertDidntRun(fn (PendingProcess $process, ProcessResult $result) =>
 
 #### assertRanTimes
 
-指定された回数だけ指定された'' process ''が呼び出されたことを'' Assert ''します：
+指定された回数だけ指定された process が呼び出されたことを Assert します：
 
 ```php
 use Illuminate\Support\Facades\Process;

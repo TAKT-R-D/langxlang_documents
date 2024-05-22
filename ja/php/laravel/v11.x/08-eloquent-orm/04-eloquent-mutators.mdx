@@ -43,7 +43,7 @@ Accessors, mutators, そして attribute キャスティングは、model イン
 
 ### アクセサの定義
 
-アクセサーは、アクセスされた際に「 Eloquent attribute value 」を変換します。アクセサーを定義するには、「 model 」上にアクセス可能な「 attribute 」を表す protected「 method 」を作成します。この「 method 」の名前は、該当する場合は、「camel case」表現の「 true 」の基本的な「 model attribute 」/「 database column 」に対応しているべきです。
+アクセサーは、アクセスされた際に Eloquent attribute value を変換します。アクセサーを定義するには、 model 上にアクセス可能な attribute を表す protected method を作成します。この method の名前は、該当する場合は、camel case 表現の true の基本的な model attribute / database column に対応しているべきです。
 
 この例では、 `first_name` 属性のアクセサを定義します。 このアクセサは、 `first_name` 属性の value を取得しようとするときに、自動的に Eloquent によって呼び出されます。 すべての属性アクセサ/ミューテータ methods は、返り値の types ヒントを`Illuminate\Database\Eloquent\Casts\Attribute`として宣言する必要があります。
 
@@ -579,7 +579,7 @@ protected function casts(): array
 
 ### Query タイムキャスティング
 
-時折、テーブルからの生の'' value ''を選択する場合など、'' query ''を実行する際にキャストを適用する必要があるかもしれません。例えば、次の'' query ''を考えてみてください：
+時折、テーブルからの生の value を選択する場合など、 query を実行する際にキャストを適用する必要があるかもしれません。例えば、次の query を考えてみてください：
 
 ```php
 use App\Models\Post;
@@ -679,7 +679,7 @@ class User extends Model
 
 ### Value Object キャスティング
 
-あなたは、''values''をプリミティブ types にキャストすることに限定されません。''values''を objects にキャストすることもできます。''values''を objects にキャストする''custom キャスト''の定義は、プリミティブ types にキャストするのと非常に似ていますが、`set`''method''は、''model''上で生の、保存可能な''values''を設定するために使用される key/''value''のペアの''array''を返すべきです。
+あなたは、values をプリミティブ types にキャストすることに限定されません。values を objects にキャストすることもできます。values を objects にキャストする custom キャストの定義は、プリミティブ types にキャストするのと非常に似ていますが、`set`method は、model 上で生の、保存可能な values を設定するために使用される key/value のペアの array を返すべきです。
 
 例として、複数の model values を single の`Address` value object にキャストする custom キャスト class を定義します。`Address` value には二つの public プロパティ：`lineOne`と`lineTwo`があると仮定します：
 
@@ -790,7 +790,7 @@ public function serialize(Model $model, string $key, mixed $value, array $attrib
 php artisan make:cast Hash --inbound
 ```
 
-受信専用キャストの古典的な例は「ハッシング」キャストです。例えば、与えられた「 algorithm 」を通じて受信「 values 」をハッシュするキャストを定義するかもしれません。
+受信専用キャストの古典的な例はハッシングキャストです。例えば、与えられた algorithm を通じて受信 values をハッシュするキャストを定義するかもしれません。
 
 ```php
 <?php

@@ -361,7 +361,7 @@ collect(['1', '2'])->containsOneItem();
 
 #### `containsStrict()`
 
-この" method "は、[`contains`](#method-contains)メソッドと同じ" signature "を持っていますが、すべての" values "は"strict"な比較で比較されます。
+この method は、[`contains`](#method-contains)メソッドと同じ signature を持っていますが、すべての values は strict な比較で比較されます。
 
 > [!NOTE]
 > このメソッドの動作は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-contains)を使用する場合に変更されます。
@@ -384,7 +384,7 @@ $collection->count();
 
 #### `countBy()`
 
-`countBy`"「method」は「collection」内の「values」の出現回数を数えます。 「default」では、method はすべての要素の出現回数を数え、collection 内の特定の"types"の「要素」の数を数えることができます：
+`countBy`method は collection 内の values の出現回数を数えます。 default では、method はすべての要素の出現回数を数え、collection 内の特定の types の要素の数を数えることができます：
 
 ```php
 $collection = collect([1, 2, 2, 2, 3]);
@@ -615,7 +615,7 @@ $collection->doesntContain('product', 'Bookcase');
 // true
 ```
 
-`doesntContain`"の"method"は、アイテムの"values"を確認する際に"ルーズ"な比較を使用します。つまり、"整数 values"を持つ"string"は、同じ"values"を持つ"整数"と等しいとみなされます。
+`doesntContain`の method は、アイテムの values を確認する際にルーズな比較を使用します。つまり、整数 values を持つ string は、同じ values を持つ整数と等しいとみなされます。
 
 <a name="method-dot"></a>
 
@@ -1019,7 +1019,7 @@ $collection->all();
 // ['framework' => 'laravel']
 ```
 
-> [!警告]
+> [!WARNING]
 > 他のほとんどの collection メソッドとは異なり、`forget`は新たに変更されたコレクションを返すのではなく、呼び出された collection 自体を変更します。
 
 <a name="method-forpage"></a>
@@ -1208,7 +1208,7 @@ $collection->hasAny(['name', 'price']);
 
 #### `implode()`
 
-`implode`"「」method」」は、「」collection」」のアイテムを結合します。その引数は、「」collection」」内のアイテムの「」type」」に依存します。 「」collection」」が arrays または object を含む場合、「」属性」」の key を渡すべきです。「」結合」」したいものと、「」values」」の間に置きたい「"glue"「」string」」：
+`implode`"method は、collection のアイテムを結合します。その引数は、collection 内のアイテムの type に依存します。 collection が arrays または object を含む場合、属性の key を渡すべきです。結合したいものと、values の間に置きたい"glue"string：
 
 ```php
 $collection = collect([
@@ -2451,7 +2451,7 @@ $subset->all();
 // [3, 4]
 ```
 
-> [!警告]
+> [!WARNING]
 > もし与えられた value が見つからない、またはコールバックが`true`を返さない場合、`skipUntil` method は空の collection を返します。
 
 <a name="method-skipwhile"></a>
@@ -2472,7 +2472,7 @@ $subset->all();
 // [4]
 ```
 
-> [!警告]
+> [!WARNING]
 > コールバックが`false`を返さない場合、`skipWhile` method は空の collection を返します。
 
 <a name="method-slice"></a>
@@ -3000,7 +3000,7 @@ $subset->all();
 // [1, 2]
 ```
 
-> [!警告]
+> [!WARNING]
 > 指定された value が見つからないか、コールバックが`true`を返さない場合、`takeUntil` method は collection 内のすべてのアイテムを返します。
 
 <a name="method-takewhile"></a>
@@ -3021,7 +3021,7 @@ $subset->all();
 // [1, 2]
 ```
 
-> [!警告]
+> [!WARNING]
 > コールバックが`false`を返さない場合、`takeWhile` method は collection 内のすべてのアイテムを返します。
 
 <a name="method-tap"></a>
@@ -3075,7 +3075,7 @@ $collection->toArray();
 */
 ```
 
-> [!警告] > `toArray`は、`Arrayable`のインスタンスであるコレクションのすべてのネストされた objects も array に変換します。 collection の下にある原始的な array を取得したい場合は、代わりに[`all`](#method-all) method を使用してください。
+> [!WARNING] > `toArray`は、`Arrayable`のインスタンスであるコレクションのすべてのネストされた objects も array に変換します。 collection の下にある原始的な array を取得したい場合は、代わりに[`all`](#method-all) method を使用してください。
 
 <a name="method-tojson"></a>
 
@@ -3109,7 +3109,7 @@ $collection->all();
 // [2, 4, 6, 8, 10]
 ```
 
-> [!警告]
+> [!WARNING]
 > ほとんどの他の collection メソッドとは異なり、 `transform`は collection 自体を変更します。代わりに新しい collection を作成したい場合は、[`map`](#method-map) method を使用してください。
 
 <a name="method-undot"></a>
@@ -3591,13 +3591,13 @@ $filtered->all();
 */
 ```
 
-`whereIn`"の「method」はアイテムの「values」をチェックする際に"ゆるい"比較を使用します。つまり、「整数 values」を持つ「string」は同じ「values」の「整数」と同等とみなされます。「厳密な」比較を使用してフィルタリングするには、[`whereInStrict`](#method-whereinstrict)の「method」を使用します。
+`whereIn`の method はアイテムの values をチェックする際にゆるい比較を使用します。つまり、整数 values を持つ string は同じ values の整数と同等とみなされます。厳密な比較を使用してフィルタリングするには、[`whereInStrict`](#method-whereinstrict)の method を使用します。
 
 <a name="method-whereinstrict"></a>
 
 #### `whereInStrict()`
 
-この" method "は、[`whereIn`](#method-wherein)メソッドと同じ" signature "を持っています。ただし、すべての" values "は"strict"な比較を使用して比較されます。
+この method は、[`whereIn`](#method-wherein)メソッドと同じ signature を持っています。ただし、すべての values は strict な比較を使用して比較されます。
 
 <a name="method-whereinstanceof"></a>
 
@@ -3675,13 +3675,13 @@ $filtered->all();
 */
 ```
 
-`whereNotIn`"の「method"」は、アイテムの「values」をチェックする際に "ルーズ"な比較を使います。つまり、「整数 values」を持つ「string」は、同じ「values」の「整数」と等しいと見なされるでしょう。"strict"な比較を使用してフィルタリングするには、[`whereNotInStrict`](#method-wherenotinstrict) の「method」を使ってください。
+`whereNotIn`の method は、アイテムの values をチェックする際に ルーズな比較を使います。つまり、整数 values を持つ string は、同じ values の整数と等しいと見なされるでしょう。strict な比較を使用してフィルタリングするには、[`whereNotInStrict`](#method-wherenotinstrict) の method を使ってください。
 
 <a name="method-wherenotinstrict"></a>
 
 #### `whereNotInStrict()`
 
-この" method "は、[`whereNotIn`](#method-wherenotin)メソッドと同じ" signature "を持ちます。ただし、全ての" values "は"strict"な比較を用いて比較されます。
+この method は、[`whereNotIn`](#method-wherenotin)メソッドと同じ signature を持ちます。ただし、全ての values は strict な比較を用いて比較されます。
 
 <a name="method-wherenotnull"></a>
 
@@ -3780,7 +3780,7 @@ $zipped->all();
 
 ## Higher Order Messages
 
-collections は、「高階メッセージ」と呼ばれる機能もサポートしており、これは collections に対する一般的な操作を短縮するためのものです。高階メッセージを提供する collections の methods は、次のとおりです：[`average`](#method-average)、[`avg`](#method-avg)、[`contains`](#method-contains)、[`each`](#method-each)、[`every`](#method-every)、[`filter`](#method-filter)、[`first`](#method-first)、[`flatMap`](#method-flatmap)、[`groupBy`](#method-groupby)、[`keyBy`](#method-keyby)、[`map`](#method-map)、[`max`](#method-max)、[`min`](#method-min)、[`partition`](#method-partition)、[`reject`](#method-reject)、[`skipUntil`](#method-skipuntil)、[`skipWhile`](#method-skipwhile)、[`some`](#method-some)、[`sortBy`](#method-sortby)、[`sortByDesc`](#method-sortbydesc)、[`sum`](#method-sum)、[`takeUntil`](#method-takeuntil)、[`takeWhile`](#method-takewhile)、そして[`unique`](#method-unique)です。
+collections は、Higher Order Messages と呼ばれる機能もサポートしており、これは collections に対する一般的な操作を短縮するためのものです。高階メッセージを提供する collections の methods は、次のとおりです：[`average`](#method-average)、[`avg`](#method-avg)、[`contains`](#method-contains)、[`each`](#method-each)、[`every`](#method-every)、[`filter`](#method-filter)、[`first`](#method-first)、[`flatMap`](#method-flatmap)、[`groupBy`](#method-groupby)、[`keyBy`](#method-keyby)、[`map`](#method-map)、[`max`](#method-max)、[`min`](#method-min)、[`partition`](#method-partition)、[`reject`](#method-reject)、[`skipUntil`](#method-skipuntil)、[`skipWhile`](#method-skipwhile)、[`some`](#method-some)、[`sortBy`](#method-sortby)、[`sortByDesc`](#method-sortbydesc)、[`sum`](#method-sum)、[`takeUntil`](#method-takeuntil)、[`takeWhile`](#method-takewhile)、そして[`unique`](#method-unique)です。
 
 各高次メッセージは、 collection インスタンスの動的プロパティとしてアクセスすることができます。例えば、`each` 高次メッセージを使用して、 collection 内の各 object 上の method を呼び出しましょう：
 
@@ -3792,7 +3792,7 @@ $users = User::where('votes', '>', 500)->get();
 $users->each->markAsVip();
 ```
 
-同様に、`sum` の高階メッセージを使用して、「 collection 」の「 users 」の「投票」の総数を集計することができます：
+同様に、`sum` の高階メッセージを使用して、 collection の users の投票の総数を集計することができます：
 
 ```php
 $users = User::where('group', 'Development')->get();
@@ -3808,7 +3808,7 @@ return $users->sum->votes;
 
 ### Introduction
 
-> [!警告]
+> [!WARNING]
 > Laravel の lazy collections について詳しく学ぶ前に、[PHP generators](https://www.php.net/manual/en/language.generators.overview.php)に慣れる時間を少し取ってください。
 
 既に強力な`Collection` class を補完するために、`LazyCollection` class は PHP の[ジェネレータ](https://www.php.net/manual/en/language.generators.overview.php)を利用して、非常に大きな data セットを低いメモリ使用量で操作できるようにします。
@@ -3886,7 +3886,7 @@ LazyCollection::make(function () {
 
 </div>
 
-> [！警告]
+> [!警告]
 > collection を変更する Methods(`shift`、`pop`、`prepend` etc )は、`LazyCollection` class では**利用できません**。
 
 <a name="lazy-collection-methods"></a>

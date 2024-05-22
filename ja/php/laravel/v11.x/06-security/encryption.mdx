@@ -42,7 +42,7 @@ APP_KEY="base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY="
 APP_PREVIOUS_KEYS="base64:2nLsGFGzyoae2ax3EF2Lyq/hH6QghBGLIq5uL+Gp8/w="
 ```
 
-この environment 変数を設定すると、 Laravel は "current" の encryption キーを使用して必ず values を暗号化します。しかし、 values を復号化するときに、 Laravel はまず現在のキーを試し、現在のキーを使用した復号化が失敗した場合、 Laravel は value を復号化できる keys の 1 つが見つかるまで、以前のすべての keys を試します。
+この environment 変数を設定すると、 Laravel は current の encryption キーを使用して必ず values を暗号化します。しかし、 values を復号化するときに、 Laravel はまず現在のキーを試し、現在のキーを使用した復号化が失敗した場合、 Laravel は value を復号化できる keys の 1 つが見つかるまで、以前のすべての keys を試します。
 
 この優雅な復号化のアプローチにより、 users はあなたの encryption キーがローテーションされても、あなたの application を中断することなく使用し続けることが可能です。
 
@@ -54,7 +54,7 @@ APP_PREVIOUS_KEYS="base64:2nLsGFGzyoae2ax3EF2Lyq/hH6QghBGLIq5uL+Gp8/w="
 
 #### Value の暗号化
 
-`Crypt`facade が提供する`encryptString`method を使用して value を暗号化することができます。すべての暗号化された value は、OpenSSL と AES-256-CBC 暗号を使用して暗号化されます。さらに、すべての暗号化された value はメッセージ authentication コード(MAC)で署名されます。統合されたメッセージ authentication コードは、悪意のある users によって改ざんされたすべての value の復号化を防ぎます：
+`Crypt` facade が提供する`encryptString` method を使用して value を暗号化することができます。すべての暗号化された value は、OpenSSL と AES-256-CBC 暗号を使用して暗号化されます。さらに、すべての暗号化された value はメッセージ authentication コード(MAC)で署名されます。統合されたメッセージ authentication コードは、悪意のある users によって改ざんされたすべての value の復号化を防ぎます：
 
 ```php
 <?php

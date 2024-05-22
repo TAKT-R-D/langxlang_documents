@@ -69,7 +69,7 @@ org_title: "Notifications"
 
 [email の送信](/ja/php/laravel/v11.x/05-digging-deeper/mail)をサポートするだけでなく、Laravel は email、SMS([Vonage](https://www.vonage.com/communications-apis/)(旧 Nexmo)を通じて)、そして[Slack](https://slack.com)を含むさまざまな配信 channel を通じて通知を送信するサポートを提供しています。さらに、[コミュニティが作った通知 channel](https://laravel-notification-channels.com/about/#suggesting-a-new-channel)のバリエーションが数十種類に渡って作成され、通知をさまざまな channel で送信することができます！ 通知は database に保存することも可能ですので、あなたの web インターフェースで表示することができます。
 
-通常、「"" notifications ""」は、「"" users ""」に何かがあなたの「"" application ""」で何が起こったかを通知するための短い情報メッセージであるべきです。たとえば、請求書「"" application ""」を作成している場合、「Invoice Paid」の「"" notification ""」を「"" email ""」や SMS チャネルを介して「"" users ""」に送るかもしれません。
+通常、 notifications は、 users に何かがあなたの application で何が起こったかを通知するための短い情報メッセージであるべきです。たとえば、請求書 application を作成している場合、Invoice Paid の notification を email や SMS チャネルを介して users に送るかもしれません。
 
 <a name="generating-notifications"></a>
 
@@ -362,7 +362,7 @@ class InvoicePaid extends Notification implements ShouldQueue
 ```
 
 > [!NOTE]  
-> To learn more about working around these issues, please review the documentation regarding [queued jobs and database transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions).
+> これらの問題を回避する方法について詳しく知るために、[キュー内の jobs と database transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
 
 <a name="determining-if-the-queued-notification-should-be-sent"></a>
 
@@ -478,7 +478,7 @@ public function toMail(object $notifiable): MailMessage
 
 #### 他の Mail Notification フォーマット Options
 
-テキストの「lines」を「 notification class 」で定義する代わりに、`view` 「 method 」を使って、「 custom 」テンプレートを指定し、「 notification email 」を「 render 」するためのテンプレートを指定することができます：
+テキストの lines を notification class で定義する代わりに、`view` method を使って、 custom テンプレートを指定し、 notification email を render するためのテンプレートを指定することができます：
 
 ```php
 /**
@@ -733,9 +733,9 @@ public function toMail(object $notifiable): MailMessage
 }
 ```
 
-If your application is using the Mailgun driver, you may consult Mailgun's documentation for more information on [tags](https://documentation.mailgun.com/en/latest/user_manual.html#tagging-1) and [metadata](https://documentation.mailgun.com/en/latest/user_manual.html#attaching-data-to-messages). Likewise, the Postmark documentation may also be consulted for more information on their support for [tags](https://postmarkapp.com/blog/tags-support-for-smtp) and [metadata](https://postmarkapp.com/support/article/1125-custom-metadata-faq).
+あなたの application が Mailgun の driver を使用している場合、詳細な情報を得るために Mailgun のドキュメンテーションを参照することができます。[tags](https://documentation.mailgun.com/en/latest/user_manual.html#tagging-1)や[metadata](https://documentation.mailgun.com/en/latest/user_manual.html#attaching-data-to-messages)についても同様です。同様に、Postmark のドキュメンテーションも、彼らの[tags](https://postmarkapp.com/blog/tags-support-for-smtp)や[metadata](https://postmarkapp.com/support/article/1125-custom-metadata-faq)に関するサポートの詳細な情報を得るために参照することができます
 
-If your application is using Amazon SES to send emails, you should use the `metadata` method to attach [SES "tags"](https://docs.aws.amazon.com/ses/latest/APIReference/API_MessageTag.html) to the message.
+あなたのアプリケーションが Amazon SES を使用してメールを送信している場合、メッセージに[SES "tags"](https://docs.aws.amazon.com/ses/latest/APIReference/API_MessageTag.html)を添付するために`metadata`メソッドを使用するべきです。
 
 <a name="customizing-the-symfony-message"></a>
 
@@ -904,7 +904,7 @@ This is the panel content.
 
 #### Table Component
 
-The table component allows you to transform a Markdown table into an HTML table. The component accepts the Markdown table as its content. Table column alignment is supported using the default Markdown table alignment syntax:
+このテーブルの component は、あなたが Markdown のテーブルを HTML のテーブルに transform できるようにします。 component は、 content として Markdown のテーブルを受け入れます。テーブルの column の整列は、 default Markdown のテーブル整列の syntax を使用してサポートされています。
 
 ```blade
 <x-mail::table>
@@ -925,7 +925,7 @@ The table component allows you to transform a Markdown table into an HTML table.
 php artisan vendor:publish --tag=laravel-mail
 ```
 
-This command will publish the Markdown mail components to the `resources/views/vendor/mail` directory. The `mail` directory will contain an `html` and a `text` directory, each containing their respective representations of every available component. You are free to customize these components however you like.
+この command は Markdown mail コンポーネントを `resources/views/vendor/mail` ディレクトリに publish します。 `mail` ディレクトリには、それぞれ利用可能な component のそれぞれの表現を含む `html` と `text` ディレクトリが含まれています。これらのコンポーネントは自由にカスタマイズすることができます。
 
 <a name="customizing-the-css"></a>
 
@@ -1237,7 +1237,7 @@ public function toVonage(object $notifiable): VonageMessage
 
 <a name="customizing-the-from-number"></a>
 
-### 「From」番号のカスタマイズ
+### From 番号のカスタマイズ
 
 あなたの`VONAGE_SMS_FROM`環境 variables で指定された電話番号とは異なる電話番号から通知を送りたい場合は、`VonageMessage`インスタンスで`from`method を呼び出すことができます：
 
@@ -1322,7 +1322,7 @@ composer require laravel/slack-notification-channel
 
 もし、作成した App と同じ Slack ワークスペースにのみ notifications を送る必要がある場合は、あなたの App が`chat:write`、`chat:write.public`、および`chat:write.customize`のスコープを持っていることを確認する必要があります。これらのスコープは、 Slack 内の"OAuth＆Permissions" App 管理タブから追加できます。
 
-次に、「Bot "User" OAuthtoken」をコピーし、それを application の`services.php`設定ファイル内の`slack`設定"array"に配置します。この"token"は、"OAuth＆Permissions"タブ内の"Slack"で見つけることができます。
+次に、Bot User OAuth token をコピーし、それを application の`services.php`設定ファイル内の`slack`設定 array に配置します。この token は、OAuth＆Permissions タブ内の Slack で見つけることができます。
 
 ```php
 'slack' => [
@@ -1378,9 +1378,9 @@ public function toSlack(object $notifiable): SlackMessage
 
 ### Slack の対話性
 
-Slack の Block Kit の「notification」システムは、[handle user interaction](https://api.slack.com/interactivity/handling)に強力な「features」を提供します。これらの「features」を利用するには、あなたの「Slack App」は"Interactivity"を有効にし、あなたの「application」によって提供される「URL」を指す"Request URL"を設定する必要があります。これらの設定は、「Interactivity & Shortcuts」の「App」管理タブから「Slack」内で管理することができます。
+Slack の Block Kit の notification システムは、[handle user interaction](https://api.slack.com/interactivity/handling)に強力な features を提供します。これらの features を利用するには、あなたの Slack App は"Interactivity"を有効にし、あなたの application によって提供される URL を指す"Request URL"を設定する必要があります。これらの設定は、Interactivity & Shortcuts の App 管理タブから Slack 内で管理することができます。
 
-次の例では、`actionsBlock`の method を活用して、Slack が"request URL"に対して`POST`の request を送信します。この request には、button をクリックした Slack user、クリックされた button の ID などが含まれるペイロードが含まれます。その後、あなたの application は、このペイロードに基づいて実行する action を決定できます。また、この request が Slack によって行われたことを[確認する](https://api.slack.com/authentication/verifying-requests-from-slack)べきです:
+次の例では、`actionsBlock`の method を活用して、Slack が request URL に対して`POST`の request を送信します。この request には、button をクリックした Slack user、クリックされた button の ID などが含まれるペイロードが含まれます。その後、あなたの application は、このペイロードに基づいて実行する action を決定できます。また、この request が Slack によって行われたことを[確認する](https://api.slack.com/authentication/verifying-requests-from-slack)べきです:
 
 ```php
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
@@ -1472,7 +1472,8 @@ return (new SlackMessage)
 
 Slack notifications を適切な Slack チームと channel に向けるために、 `routeNotificationForSlack` method を通知可能な model 上に定義します。この method は 3 つの values のうちの 1 つを返すことができます。
 
-- `null` - これは routing を、 notification 自体で設定された channel に委ねます。`SlackMessage`を構築する際に`to` method を使用して、 notification 内の channel を設定することができます。
+- `null`
+  - これは routing を、 notification 自体で設定された channel に委ねます。`SlackMessage`を構築する際に`to` method を使用して、 notification 内の channel を設定することができます。
 - notification を送るための Slack channel を指定する string 、例えば、`#support-channel`.
 - OAuth の token と channel の名前を指定できる`SlackRoute`インスタンス、例えば`SlackRoute::make($this->slack_channel, $this->slack_token)`. この method は外部のワークスペースに notifications を送るために使用すべきです。
 
@@ -1540,7 +1541,7 @@ class User extends Authenticatable
 
 ## Localizing Notifications
 
-Laravel は、HTTPrequest の現在の locale とは異なる locale で通知を送ることができ、さらにその locale は、通知が queue に入っている場合でも記憶されます。
+Laravel は、HTTP request の現在の locale とは異なる locale で通知を送ることができ、さらにその locale は、通知が queue に入っている場合でも記憶されます。
 
 これを実現するために、`Illuminate\Notifications\Notification` class は、希望する言語を設定するための`locale` method を提供します。application は、通知が評価されている間、この locale に変更し、評価が完了したら前の locale に戻ります。
 
@@ -1587,7 +1588,7 @@ $user->notify(new InvoicePaid($invoice));
 
 ## Testing
 
-`Notification`facade の`fake`method を使用して、通知の送信を防ぐことができます。通常、通知を送ることは、実際に testing しているコードとは無関係です。最も可能性が高いのは、単に Laravel が特定の通知を送信するよう指示されたことを assert するだけで十分であるということです。
+`Notification` facade の`fake` method を使用して、通知の送信を防ぐことができます。通常、通知を送ることは、実際に testing しているコードとは無関係です。最も可能性が高いのは、単に Laravel が特定の通知を送信するよう指示されたことを assert するだけで十分であるということです。
 
 `Notification`ファサードの`fake` method を呼び出した後、 notifications が users に送信するよう指示されたことを assert できます。さらに、 notifications が受け取った data をチェックすることも可能です:
 
@@ -1656,7 +1657,7 @@ class ExampleTest extends TestCase
 }
 ```
 
-`assertSentTo`または`assertNotSentTo`methods にクロージャを渡すことで、特定の"真理 test"を通過した"通知"が送信されたことを"主張"できます。少なくとも 1 つの"通知"が指定された真理 test を通過していれば、その主張は成功します。
+`assertSentTo`または`assertNotSentTo` methods にクロージャを渡すことで、特定の真理 test を通過した通知が送信されたことを"主張"できます。少なくとも 1 つの"通知"が指定された真理 test を通過していれば、その主張は成功します。
 
 ```php
 Notification::assertSentTo(
@@ -1677,7 +1678,7 @@ Notification::assertSentTo(
 Notification::assertSentOnDemand(OrderShipped::class);
 ```
 
-`assertSentOnDemand` "method"の第二引数としてクロージャを渡すことで、オンデマンドの"通知"が正しい"routes"アドレスに送信されたかどうかを判断できます。
+`assertSentOnDemand` method の第二引数としてクロージャを渡すことで、オンデマンドの通知が正しい routes アドレスに送信されたかどうかを判断できます。
 
 ```php
 Notification::assertSentOnDemand(
@@ -1696,7 +1697,7 @@ Notification::assertSentOnDemand(
 
 #### Notification 送信 Event
 
-通知"が送信されるとき、"`Illuminate\Notifications\Events\NotificationSending`" "event"が"通知"システムによって dispatch されます。これには、"notifiable"エンティティと"通知"インスタンス自体が含まれています。 "application"内でこの"event"のための["event listeners"](/ja/php/laravel/v11.x/05-digging-deeper/events)を作成することができます:
+通知が送信されるとき、`Illuminate\Notifications\Events\NotificationSending` event が通知システムによって dispatch されます。これには、notifiable エンティティと通知インスタンス自体が含まれています。 application 内でこの event のための[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を作成することができます:
 
 ```php
 use Illuminate\Notifications\Events\NotificationSending;
@@ -1743,7 +1744,7 @@ public function handle(NotificationSending $event): void
 
 #### Notification 送信 Event
 
-「 notification が送信されると、`Illuminate\Notifications\Events\NotificationSent` [event](/ja/php/laravel/v11.x/05-digging-deeper/events)が notification システムによって発行されます。これには、"notifiable"エンティティと notification インスタンスそのものが含まれます。 application 内でこの event のための[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を作成することもできます：」
+notification が送信されると、`Illuminate\Notifications\Events\NotificationSent` [event](/ja/php/laravel/v11.x/05-digging-deeper/events)が notification システムによって発行されます。これには、notifiable エンティティと notification インスタンスそのものが含まれます。 application 内でこの event のための[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を作成することもできます：
 
 ```php
 use Illuminate\Notifications\Events\NotificationSent;

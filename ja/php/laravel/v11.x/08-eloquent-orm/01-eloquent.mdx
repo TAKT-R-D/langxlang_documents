@@ -79,7 +79,7 @@ model を生成する際に[database migration](/ja/php/laravel/v11.x/07-databas
 php artisan make:model Flight --migration
 ```
 
-model を生成する際に、factory ー、シーダー、 policies 、コントローラー、form request など、さまざまな他の types の classes を生成することができます。さらに、これらの options は一度に複数の classes を作成するために組み合わせることができます：
+model を生成する際に、factory、seeder、 policies 、コントローラー、form request など、さまざまな他の types の classes を生成することができます。さらに、これらの options は一度に複数の classes を作成するために組み合わせることができます：
 
 ```shell
 # Generate a model and a FlightFactory class...
@@ -208,7 +208,7 @@ class Flight extends Model
 }
 ```
 
-あなたの model の primarykey が integer でない場合、保護された`$keyType`プロパティをあなたの model に定義するべきです。このプロパティは`string`の value を持つべきです:
+あなたの model の primary key が integer でない場合、保護された`$keyType`プロパティをあなたの model に定義するべきです。このプロパティは`string`の value を持つべきです:
 
 ```php
 <?php
@@ -228,7 +228,7 @@ class Flight extends Model
 
 #### "Composite" Primary Keys
 
-Eloquent は、各 model が少なくともひとつの一意に識別する"ID"を持ち、それがその primary キーとして機能することを要求します。"Composite"の primary keys は、 Eloquent models には対応していません。しかし、テーブルの一意に識別する primary キーに加えて、追加の複数列の unique インデックスをあなたの database テーブルに追加する自由があります。
+Eloquent は、各 model が少なくともひとつの一意に識別する ID を持ち、それがその primary キーとして機能することを要求します。Composite の primary keys は、 Eloquent models には対応していません。しかし、テーブルの一意に識別する primary キーに加えて、追加の複数列の unique インデックスをあなたの database テーブルに追加する自由があります。
 
 <a name="uuid-and-ulid-keys"></a>
 
@@ -236,7 +236,7 @@ Eloquent は、各 model が少なくともひとつの一意に識別する"ID"
 
 あなたの Eloquentmodel の primary key として自動インクリメントの整数を使用する代わりに、UUID を選択することもできます。UUID は、36 文字の長さを持つ全世界で一意の英数字識別子です。
 
-あなたが自動インクリメントの integerkey の代わりに model が UUIDkey を使用するようにしたい場合、`Illuminate\Database\Eloquent\Concerns\HasUuids` トレイトを model に使用することができます。もちろん、model が[UUID に対応する primarykey 列](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuid)を持っていることを確認する必要があります：
+あなたが自動インクリメントの integerkey の代わりに model が UUIDkey を使用するようにしたい場合、`Illuminate\Database\Eloquent\Concerns\HasUuids` トレイトを model に使用することができます。もちろん、model が[UUID に対応する primary key 列](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuid)を持っていることを確認する必要があります：
 
 ```php
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -254,7 +254,7 @@ $article = Article::create(['title' => 'Traveling to Europe']);
 $article->id; // "8f8e8478-9035-4d23-b9a7-62f4d2612ce5"
 ```
 
-default では、`HasUuids`トレイトは、あなたの""models""用に["順序付けられた" UUIDs](/ja/php/laravel/v11.x/05-digging-deeper/strings#method-str-ordered-uuid)を生成します。これらの UUID は、辞書順にソートできるため、インデックス付きの""databasestorage""にとって効率的です。
+default では、`HasUuids`トレイトは、あなたの models 用に[順序付けられた UUIDs](/ja/php/laravel/v11.x/05-digging-deeper/strings#method-str-ordered-uuid)を生成します。これらの UUID は、辞書順にソートできるため、インデックス付きの database storage にとって効率的です。
 
 特定の model の UUID 生成 process を上書きするためには、model 上で`newUniqueId`method を定義することで可能です。また、UUID を受け取るべき列を特定するためには、`uniqueIds`method を model 上で定義することができます。
 
@@ -280,7 +280,7 @@ public function uniqueIds(): array
 }
 ```
 
-ご希望であれば、UUID の代わりに"ULIDs"を使用することができます。ULIDs は UUID に似ていますが、その length は 26 文字だけです。順序付けされた UUID のように、ULIDs は効率的な database インデックス作成のために辞書順に並べ替えることができます。ULIDs を利用するには、ご自身の model に`Illuminate\Database\Eloquent\Concerns\HasUlids`トレイトを使用する必要があります。model が[ULID に対応する primarykey column](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-ulid)を持っていることも確認してください。
+ご希望であれば、UUID の代わりに"ULIDs"を使用することができます。ULIDs は UUID に似ていますが、その length は 26 文字だけです。順序付けされた UUID のように、ULIDs は効率的な database インデックス作成のために辞書順に並べ替えることができます。ULIDs を利用するには、ご自身の model に`Illuminate\Database\Eloquent\Concerns\HasUlids`トレイトを使用する必要があります。model が[ULID に対応する primary key column](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-ulid)を持っていることも確認してください。
 
 ```php
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -536,7 +536,7 @@ Flight::chunk(200, function (Collection $flights) {
 });
 ```
 
-`chunk`の""method""へ渡される最初の引数は、1 つの"chunk"あたりで受け取りたいレコードの数です。2 つ目の引数として渡されるクロージャは、""database""から""取得""される各""chunk""に対して呼び出されます。各""chunk""のレコードをクロージャに渡すために、""databasequery""が実行されます。
+`chunk`の method へ渡される最初の引数は、1 つの chunk あたりで受け取りたいレコードの数です。2 つ目の引数として渡されるクロージャは、database から取得される各 chunk に対して呼び出されます。各 chunk のレコードをクロージャに渡すために、database query が実行されます。
 
 `chunk` method の結果をフィルタリングしている場合で、その結果を繰り返し処理しながら更新するであろう column に基づいている場合、`chunkById` method を使用するべきです。これらのシナリオで `chunk` method を使用すると、予期せぬ不一致の結果を招くことがあります。内部的には、`chunkById` method は、前の chunk の最後の model よりも大きな`id` column を持つ models を常に取得します:
 
@@ -549,7 +549,7 @@ Flight::where('departed', true)
 
 <a name="chunking-using-lazy-collections"></a>
 
-### '' Lazy Collections ''を使ったチャンキング
+### Lazy Collections を使ったチャンキング
 
 `lazy`method は、裏側で query を chunk で実行するという点で、[the `chunk` method](#chunking-results)と同様に機能します。ただし、各 chunk をそのままコールバックに渡すのではなく、`lazy` method は、Eloquent model の一つのストリームとして結果を操作できるように、フラット化された[`LazyCollection`](/ja/php/laravel/v11.x/05-digging-deeper/collections#lazy-collections)を返します:
 
@@ -917,7 +917,7 @@ $user->getOriginal(); // Array of original attributes...
 
 ### マスアサインメント
 
-`create`"という method を使用して、新たな model を single の PHP statement で"保存"することができます。挿入された model インスタンスは、 method によって返されます：
+`create`という method を使用して、新たな model を single の PHP statement で"保存"することができます。挿入された model インスタンスは、 method によって返されます：
 
 ```php
 use App\Models\Flight;
@@ -1029,7 +1029,7 @@ Flight::upsert([
 ```
 
 > [!WARNING]  
-> すべての databases は、SQL Server を除き、`upsert` method の第二引数の列には、「primary」または「unique」のインデックスが必要です。さらに、 MySQL database driver は、`upsert` method の第二引数を無視し、常にテーブルの「primary」および「unique」のインデックスを使用して既存のレコードを検出します。
+> すべての databases は、SQL Server を除き、`upsert` method の第二引数の列には、primary または unique のインデックスが必要です。さらに、 MySQL database driver は、`upsert` method の第二引数を無視し、常にテーブルの primary および unique のインデックスを使用して既存のレコードを検出します。
 
 <a name="deleting-models"></a>
 
@@ -1087,7 +1087,7 @@ $deleted = Flight::where('active', 0)->delete();
 
 ### Soft Deleting
 
-実際にレコードを"database"から削除することに加えて、"Eloquent"は"model"を「ソフト削除」することもできます。"model"がソフト削除されると、"database"から実際には削除されません。代わりに、`deleted_at` "attribute"が"model"に設定され、"model"が「削除」された日時が示されます。"model"でソフトデリートを有効にするには、`Illuminate\Database\Eloquent\SoftDeletes`特性を"model"に追加します：
+実際にレコードを database から削除することに加えて、Eloquent は model をソフト削除することもできます。model がソフト削除されると、database から実際には削除されません。代わりに、`deleted_at` attribute が model に設定され、model が削除された日時が示されます。model でソフトデリートを有効にするには、`Illuminate\Database\Eloquent\SoftDeletes`特性を model に追加します：
 
 ```php
 <?php
@@ -1358,7 +1358,7 @@ $flight = $flight->replicate([
 
 ### グローバルスコープ
 
-グローバルスコープは、特定の " model " に対するすべての " database " に制約を追加することを可能にします。Laravel 自身の[ソフト " delete "](#soft-deleting)機能は、グローバルスコープを利用して "データベース"から "非削除"の " models " を取り出します。自分自身のグローバルスコープを作成することは、特定の " model " に対するすべての " query " に一定の制約を適用するための便利で簡単な方法を提供できます。
+グローバルスコープは、特定の model に対するすべての database に制約を追加することを可能にします。Laravel 自身の[ソフト delete ](#soft-deleting)機能は、グローバルスコープを利用して データベースから 非削除の models を取り出します。自分自身のグローバルスコープを作成することは、特定の model に対するすべての query に一定の制約を適用するための便利で簡単な方法を提供できます。
 
 <a name="generating-scopes"></a>
 
@@ -1561,7 +1561,7 @@ $users = User::popular()->orWhere(function (Builder $query) {
 })->get();
 ```
 
-しかし、これは面倒なこともあるため、「 Laravel 」は「高次の」`orWhere` method を提供しており、クロージャを使用せずにスコープをスムーズに連鎖させることができます：
+しかし、これは面倒なこともあるため、 Laravel は高次の`orWhere` method を提供しており、クロージャを使用せずにスコープをスムーズに連鎖させることができます：
 
 ```php
 $users = User::popular()->orWhere->active()->get();
@@ -1603,7 +1603,7 @@ $users = User::ofType('admin')->get();
 
 ## Comparing Models
 
-時折、二つの models が「同じ」かどうかを判断する必要があるかもしれません。`is` と `isNot` メソッドを使用して、二つの models が同じ primary キー、テーブル、そして database connection を持っているかどうかを素早く確認することができます。
+時折、二つの models が同じかどうかを判断する必要があるかもしれません。`is` と `isNot` メソッドを使用して、二つの models が同じ primary キー、テーブル、そして database connection を持っているかどうかを素早く確認することができます。
 
 ```php
 if ($post->is($anotherPost)) {
@@ -1848,7 +1848,7 @@ $user = User::withoutEvents(function () {
 
 #### Single Model を Events なしで保存する
 
-時々、特定の「 model 」を「 events 」を発行せずに「保存」したい場合があるかもしれません。これは `saveQuietly` 「 method 」を使用して実現できます。
+時々、特定の model を events を発行せずに保存したい場合があるかもしれません。これは `saveQuietly` method を使用して実現できます。
 
 ```php
 $user = User::findOrFail(1);
@@ -1858,7 +1858,7 @@ $user->name = 'Victoria Faith';
 $user->saveQuietly();
 ```
 
-また、「update」、「delete」、「soft delete」、「restore」、および「replicate」を、任意の model に対して、何も events をディスパッチせずに行うことも可能です：
+また、update、delete、soft delete、restore、および replicate を、任意の model に対して、何も events をディスパッチせずに行うことも可能です：
 
 ```php
 $user->deleteQuietly();

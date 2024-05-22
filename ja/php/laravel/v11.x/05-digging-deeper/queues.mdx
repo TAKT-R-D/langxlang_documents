@@ -128,7 +128,7 @@ php artisan migrate
 > [!WARNING]  
 > `serializer` および `compression` Redis options は、`redis` queue driver ではサポートされていません。
 
-** Redis クラスター**
+**Redis クラスター**
 
 あなたの Redis queue connection が Redis クラスターを使用している場合、あなたの queue 名には [key hash tag](https://redis.io/docs/reference/cluster-spec/#hash-tags) を含める必要があります。これは、指定された queue のすべての Redis keys が同じ hash スロットに配置されることを確保するために required です。
 
@@ -238,9 +238,7 @@ class ProcessPodcast implements ShouldQueue
 
 この例では、[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)を queue に入れられたジョブのコンストラクタに直接渡すことができたことに注目してください。`SerializesModels` という特性を使っているため、job によって、Eloquent models とそれらがロードしたリレーションシップは、job が処理される際にスムーズにシリアライズおよびアンシリアライズされます。
 
-If your queued job accepts an Eloquent model in its constructor, only the identifier for the model will be serialized onto the queue. When the job is actually handled, the queue system will automatically re-retrieve the full model instance and its loaded relationships from the database. This approach to model serialization allows for much smaller job payloads to be sent to your queue driver.
-
-クエューに追加された job がそのコンストラクタで Eloquent model を受け付ける場合、model の識別子のみが queue にシリアライズされます。実際に job が処理されると、queue システムは自動的に database から完全な model インスタンスとそのロード済みのリレーションシップを再取得します。この model のシリアライゼーションへのアプローチにより、queue driver に送信される job のペイロードを大幅に小さくすることができます。
+キューに追加された job がコンストラクタで Eloquent model を受け取る場合、queue には model の識別子だけがシリアライズされます。実際に job が処理されると、queue システムは database からフルの model インスタンスとそのロードされたリレーションシップを自動的に再取得します。この model シリアライゼーションのアプローチにより、queue driver に送信される job ペイロードが大幅に小さくなります。
 
 <a name="handle-method-dependency-injection"></a>
 
@@ -365,7 +363,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 
 #### Jobs Unique を Processing が始まるまで保持する
 
-default"では、"uniquejob"は"job"が"処理"を終了するか、すべての"リトライ"試行に失敗した後に "アンロック"されます。ただし、"job"が処理される前にすぐにアンロックしたい場合もあるかもしれません。それを実現するためには、"job"は`ShouldBeUnique`コントラクトの代わりに`ShouldBeUniqueUntilProcessing`コントラクトを実装するべきです。
+default では、unique job は job が処理を終了するか、すべてのリトライ試行に失敗した後に アンロックされます。ただし、job が処理される前にすぐにアンロックしたい場合もあるかもしれません。それを実現するためには、job は`ShouldBeUnique`コントラクトの代わりに`ShouldBeUniqueUntilProcessing`コントラクトを実装するべきです。
 
 ```php
 <?php
@@ -726,7 +724,7 @@ public function middleware(): array
 }
 ```
 
-内部的に、この " middleware " は Laravel の " cache " システムを使用して " rate limiting " を実装し、ジョブの " class " 名が " cache " の "key" として使用されます。このキーは、`by` " method " を使用して " middleware " をあなたの " job " に添付するときに上書きすることができます。これは、同じサードパーティの " service " とやりとりをする複数の " jobs " を持ち、それらが一般的なスロットリング "bucket" を共有したい場合に役立つかもしれません。
+内部的に、この middleware は Laravel の cache システムを使用して rate limiting を実装し、ジョブの class 名が cache の key として使用されます。このキーは、`by` method を使用して middleware をあなたの job に添付するときに上書きすることができます。これは、同じサードパーティの service とやりとりをする複数の jobs を持ち、それらが一般的なスロットリング bucket を共有したい場合に役立つかもしれません。
 
 ```php
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -1313,7 +1311,7 @@ class ProcessPodcast implements ShouldQueue
 
 #### Timeout
 
-多くの場合、あなたは自分の queue に入れられた「 jobs 」がどのくらいの時間かかるかを概算しています。このため、「 Laravel 」では、「timeout」の「 value 」を指定することができます。 default では、「 timeout value 」は 60 秒です。「 job 」が「 timeout value 」で指定された秒数よりも長く「 processing 」していた場合、その「 job 」を「 processing 」しているワーカーは「 error 」で終了します。通常、ワーカーは[あなたの servers で設定された「 process 」マネージャー](#supervisor-configuration)によって自動的に再起動されます。
+多くの場合、あなたは自分の queue に入れられた jobs がどのくらいの時間かかるかを概算しています。このため、 Laravel では、timeout の value を指定することができます。 default では、 timeout value は 60 秒です。 job が timeout value で指定された秒数よりも長く processing していた場合、その job を processing しているワーカーは error で終了します。通常、ワーカーは[あなたの servers で設定された process マネージャー](#supervisor-configuration)によって自動的に再起動されます。
 
 jobs が実行できる最大秒数は、 Artisan command 行で`--timeout`スイッチを使用して指定できます。
 
@@ -1397,7 +1395,7 @@ $this->release(now()->addSeconds(10));
 
 #### 手動で Job を失敗させる
 
-たまに、"" job ""を「失敗」として手動でマークする必要があるかもしれません。その場合は、`fail` "" method ""を呼び出すことができます。
+たまに、"" job ""を失敗として手動でマークする必要があるかもしれません。その場合は、`fail` "" method ""を呼び出すことができます。
 
 ```php
 /**
@@ -1508,7 +1506,7 @@ return $batch->id;
 batch の ID は、`$batch->id`プロパティを介してアクセスでき、dispatch 後の batch に関する情報について、[query という Laravel command バス](#inspecting-batches)を使用して問い合わせることができます。
 
 > [!WARNING]  
-> 『 batch 』のコールバックはシリアル化され、後で『 Laravel queue 』によって実行されますので、コールバック内で`$this`変数を使用しないでください。さらに、バッチ化された『 jobs 』は『 database transactions 』内でラップされているため、暗黙のコミットを実行する『 database 』ステートメントは『 jobs 』内で実行されるべきではありません。
+>  batch のコールバックはシリアル化され、後で Laravel queue によって実行されますので、コールバック内で`$this`変数を使用しないでください。さらに、バッチ化された jobs は database transactions 内でラップされているため、暗黙のコミットを実行する database ステートメントは jobs 内で実行されるべきではありません。
 
 <a name="naming-batches"></a>
 
@@ -1726,7 +1724,7 @@ public function middleware(): array
 
 #### 失敗を許可する
 
-batch "内の" job "が失敗した場合、" Laravel "は自動的に" batch "を「キャンセル済」にマークします。必要であれば、" job "の失敗が自動的に" batch "をキャンセルしないように、この動作を無効にすることも可能です。これは、" batch "をディスパッチしている間に、`allowFailures` " method "を呼び出すことで実現できます。
+batch 内の job が失敗した場合、 Laravel は自動的に batch をキャンセル済にマークします。必要であれば、 job の失敗が自動的に batch をキャンセルしないように、この動作を無効にすることも可能です。これは、 batch をディスパッチしている間に、`allowFailures` method を呼び出すことで実現できます。
 
 ```php
 $batch = Bus::batch([
@@ -1886,7 +1884,7 @@ php artisan queue:work
 > [!NOTE]  
 > `queue:work` process をバックグラウンドで常に実行し続けるためには、 process 監視ツールである[Supervisor](#supervisor-configuration)のようなものを使用して、 queue ワーカーが実行を停止しないようにするべきです。
 
-コマンドの'' output ''に処理済みの'' job ''ID を含めたい場合、`queue:work` '' command ''を呼び出す際に、`-v` フラグを含めることができます。
+コマンドの output に処理済みの job ID を含めたい場合、`queue:work` command を呼び出す際に、`-v` フラグを含めることができます。
 
 ```shell
 php artisan queue:work -v
@@ -1963,7 +1961,7 @@ php artisan queue:work --max-time=3600
 
 #### ワーカーの Sleep 時間
 
-jobs "が" queue "に利用可能な時、ワーカーは" jobs "の" processing jobs ing"を" delay "なしに続けます。ただし、`sleep`オプションは、利用可能な" jobs "がない場合にワーカーが「眠る」秒数を決定します。もちろん、眠っている間、ワーカーは新しい" jobs "を" process "しません：
+jobs が queue に利用可能な時、ワーカーは jobs の processing jobs を delay なしに続けます。ただし、`sleep`オプションは、利用可能な jobs がない場合にワーカーが眠る秒数を決定します。もちろん、眠っている間、ワーカーは新しい jobs を process しません：
 
 ```shell
 php artisan queue:work --sleep=3

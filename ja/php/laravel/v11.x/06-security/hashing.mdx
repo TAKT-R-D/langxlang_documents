@@ -26,7 +26,7 @@ org_title: "Hashing"
 
 Laravel の `Hash` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)は、安全な Bcrypt と Argon2 hashing を提供し、userpassword の保存に使用します。もしあなたが[Laravel アプリケーションのスターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)のいずれかを使用している場合、Bcrypt は default として登録と authentication に使われます。
 
-Bcrypt は、その"work factor"が調整可能であるため、「 hashing passwords 」に最適な選択です。つまり、ハードウェアのパワーが増えるにつれて、「 hash 」を生成する時間を増やすことができます。「 hashing passwords 」の際には、遅い方が良いです。「 algorithm 」が「 password 」を「 hash 」するのに時間がかかるほど、悪意のある「 users 」が全ての可能性のある「 string hash values 」の"rainbow tables"を生成するのに時間がかかります。これは、アプリケーションに対するブルートフォース攻撃に利用されるかもしれません。
+Bcrypt は、その work factor が調整可能であるため、 hashing passwords に最適な選択です。つまり、ハードウェアのパワーが増えるにつれて、 hash を生成する時間を増やすことができます。 hashing passwords の際には、遅い方が良いです。 algorithm が password を hash するのに時間がかかるほど、悪意のある users が全ての可能性のある string hash values の rainbow tables を生成するのに時間がかかります。これは、アプリケーションに対するブルートフォース攻撃に利用されるかもしれません。
 
 <a name="configuration"></a>
 

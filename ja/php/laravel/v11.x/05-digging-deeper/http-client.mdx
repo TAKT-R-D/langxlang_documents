@@ -170,7 +170,7 @@ $response = Http::asForm()->post('http://example.com/users', [
 
 #### 生の Request ボディの送信
 
-`withBody` “method を利用すると、request を行う際に生の request ボディを提供することができます。 contenttype は method の 2 つ目の引数を通じて提供することができます：
+`withBody` method を利用すると、request を行う際に生の request ボディを提供することができます。 contenttype は method の 2 つ目の引数を通じて提供することができます：
 
 ```php
 $response = Http::withBody(
@@ -204,7 +204,7 @@ $response = Http::attach(
 
 ### Headers
 
-`withHeaders` method を使用して、 Headers を requests に追加できます。この`withHeaders` method は、key/ value ペアの array を受け入れます：
+`withHeaders` method を使用して、 Headers を requests に追加できます。この`withHeaders` method は、key / value ペアの array を受け入れます：
 
 ```php
 $response = Http::withHeaders([
@@ -218,7 +218,7 @@ $response = Http::withHeaders([
 あなたは`accept`の method を使用して、あなたの application が request に対する response で期待している content type を指定することができます:
 
 ```php
-$response = Http::accept('application/json')->get('http://example.com/users');
+$response = H“ttp::accept('application/json')->get('http://example.com/users');
 ```
 
 便宜上、あなたの application があなたの request への response で `application/json` content type を期待していることを素早く指定するために、`acceptJson` method を使用することができます。
@@ -267,7 +267,7 @@ $response = Http::withToken('token')->post(/* ... */);
 
 ### Timeout
 
-`timeout` ''method''は、''response''を待つ最大秒数を指定するために使用できます。''default''では、''HTTP client''は 30 秒後に''タイムアウト''します。
+`timeout` method は、response を待つ最大秒数を指定するために使用できます。default では、HTTP client は 30 秒後にタイムアウトします。
 
 ```php
 $response = Http::timeout(3)->get(/* ... */);
@@ -760,7 +760,7 @@ Http::assertNotSent(function (Request $request) {
 });
 ```
 
-テスト中に"sent"が何回送信されたかを" assert "するために、`assertSentCount` " method "を使うことができます。
+テスト中に sent が何回送信されたかを assert するために、`assertSentCount` method を使うことができます。
 
 ```php
 Http::fake();

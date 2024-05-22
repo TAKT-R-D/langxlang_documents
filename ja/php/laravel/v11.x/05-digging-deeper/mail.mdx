@@ -312,7 +312,7 @@ MailerSend について詳しく知るには、ホストされたテンプレー
 
 ## Generating Mailables
 
-Laravel"application を構築する際、application が送信する各種類の"email"は"mailable" "class"として表現されます。これらの class は `app/Mail` ディレクトリに保存されます。自分の "application"でこのディレクトリを見つけられない場合でも心配する必要はありません。なぜなら、`make:mail` "Artisan command"を使用して最初の mailable "class"を作成するときに、このディレクトリが生成されるからです。
+Laravel application を構築する際、application が送信する各種類の email は mailable class として表現されます。これらの class は `app/Mail` ディレクトリに保存されます。自分の application でこのディレクトリを見つけられない場合でも心配する必要はありません。なぜなら、`make:mail` Artisan command を使用して最初の mailable class を作成するときに、このディレクトリが生成されるからです。
 
 ```shell
 php artisan make:mail OrderShipped
@@ -334,7 +334,7 @@ class という mailable を生成したら、それの内容を調べるため�
 
 #### Envelope の使用
 
-まず、" email "の送信者を設定する方法を探ってみましょう。つまり、" email "が誰から送られるのかを設定します。送信者を設定する方法は 2 つあります。まず一つ目は、メッセージの" envelope "に"from"アドレスを指定することです：
+まず、 email の送信者を設定する方法を探ってみましょう。つまり、 email が誰から送られるのかを設定します。送信者を設定する方法は 2 つあります。まず一つ目は、メッセージの envelope に from アドレスを指定することです：
 
 ```php
 use Illuminate\Mail\Mailables\Address;
@@ -528,7 +528,7 @@ class OrderShipped extends Mailable
 }
 ```
 
-一度'' data ''が`with`'' method ''に渡されると、それは自動的にあなたの'' view ''で利用可能になります。そのため、他のどんな'' data ''でも'' Blade templates ''の中でアクセスするように、それにアクセスすることができます：
+一度 data が`with` method に渡されると、それは自動的にあなたの view で利用可能になります。そのため、他のどんな data でも Blade templates の中でアクセスするように、それにアクセスすることができます：
 
 ```php
 <div>
@@ -1127,7 +1127,7 @@ class OrderShipped extends Mailable implements ShouldQueue
 ```
 
 > [!NOTE]  
-> To learn more about working around these issues, please review the documentation regarding [queued jobs and database transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions).
+> これらの問題を回避する方法について詳しく知るために、[キュー内の jobs と database transaction](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
 
 <a name="rendering-mailables"></a>
 
@@ -1419,7 +1419,7 @@ Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
 
 ## Mail and Local Development
 
-email "を送信する" application "を development する際、実際の" email "アドレスに mail を実際に送信したくないことでしょう。" Laravel "は、ローカル development 中に mail の実際の送信を"無効化"するためのいくつかの方法を提供しています。
+email を送信する application を development する際、実際の email アドレスに mail を実際に送信したくないことでしょう。 Laravel は、ローカル development 中に mail の実際の送信を無効化するためのいくつかの方法を提供しています。
 
 <a name="log-driver"></a>
 

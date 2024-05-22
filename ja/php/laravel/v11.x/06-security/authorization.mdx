@@ -605,7 +605,7 @@ class PostController extends Controller
 
 <a name="user-model-actions-that-dont-require-models"></a>
 
-#### '' Models ''が必要でないアクション
+#### Models が必要でないアクション
 
 覚えておいてください、一部のアクションは`create`のようなポリシーメソッドに対応しており、 model のインスタンスが必要とされない場合があります。そのような状況では、`can` method に class 名を渡すことができます。 class 名は、 action の認可時にどのポリシーを使用するかを決定するために使用されます。
 
@@ -729,7 +729,7 @@ Route::put('/post/{post}', function (Post $post) {
 
 <a name="middleware-actions-that-dont-require-models"></a>
 
-#### '' Models ''が必要ないアクション
+#### Models が必要ないアクション
 
 再度、`create`のようないくつかのポリシーメソッドは、 model インスタンスを必要としません。これらの状況では、 class 名を middleware に渡すことができます。 class 名は、 action を許可する際にどのポリシーを使用するかを決定するために使用されます。
 

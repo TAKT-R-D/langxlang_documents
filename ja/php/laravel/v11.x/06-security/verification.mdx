@@ -122,7 +122,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 
 ### 認証 Email の再送信
 
-時折、'' user ''が誤って'' email ''アドレスの確認の'' email ''を紛失したり'' delete ''したりすることがあります。このような事態に対応するため、'' user ''が確認の'' email ''を再送信するように'' request ''できる'' route ''を定義することができます。その後、[確認通知の'' view ''](#the-email-verification-notice)にシンプルな形式の送信'' button ''を設置することで、この'' route ''への'' request ''を行うことができます。
+時折、 user が誤って email アドレスの確認の email を紛失したり delete したりすることがあります。このような事態に対応するため、 user が確認の email を再送信するように request できる route を定義することができます。その後、[確認通知の view ](#the-email-verification-notice)にシンプルな形式の送信 button を設置することで、この route への request を行うことができます。
 
 ```php
 use Illuminate\Http\Request;

@@ -28,7 +28,7 @@ org_title: "Context"
 
 ## Introduction
 
-Laravel の"context"機能を使用すると、リクエスト、 jobs 、およびあなたの application 内で実行されるコマンドで情報を取得、取り出し、共有することができます。この取得された情報は、あなたの application によって書かれたログにも含まれており、これにより、 log エントリーが書き込まれる前に発生した周囲の code の実行履歴に深く洞察することができ、分散システム全体での実行フローをトレースすることが可能になります。
+Laravel の context 機能を使用すると、リクエスト、 jobs 、およびあなたの application 内で実行されるコマンドで情報を取得、取り出し、共有することができます。この取得された情報は、あなたの application によって書かれたログにも含まれており、これにより、 log エントリーが書き込まれる前に発生した周囲の code の実行履歴に深く洞察することができ、分散システム全体での実行フローをトレースすることが可能になります。
 
 <a name="how-it-works"></a>
 
@@ -70,8 +70,8 @@ Log::info('User authenticated.', ['auth_id' => Auth::id()]);
 
 記述された log には、 log エントリに渡された`auth_id`が含まれますが、`url`および`trace_id`もコンテキストとして metadata に含まれます。
 
-```
-User authenticated. {"auth_id":27} {"url":"https://example.com/login","trace_id":"e04e1a11-e75c-4db3-b5b5-cfef4ef56697"}
+```text
+User authenticated. {"auth_id":27} {"url":"https://example.com/login", "trace_id":"e04e1a11-e75c-4db3-b5b5-cfef4ef56697"}
 ```
 
 context に追加された情報は、queue に dispatch された jobs にも利用可能になります。例えば、ある情報を context に追加した後に、`ProcessPodcast`の job を queue に dispatch することを想像してみてください:
@@ -110,8 +110,8 @@ class ProcessPodcast implements ShouldQueue
 
 その結果の log エントリーには、元々 job を送出した request 中で context に追加された情報が含まれているでしょう。
 
-```
-Processing podcast. {"podcast_id":95} {"url":"https://example.com/login","trace_id":"e04e1a11-e75c-4db3-b5b5-cfef4ef56697"}
+```text
+Processing podcast. {"podcast_id":95} {"url":"https://example.com/login", "trace_id":"e04e1a11-e75c-4db3-b5b5-cfef4ef56697"}
 ```
 
 私たちは Laravel の context に関連した組み込みの logging 関連の features に焦点を当ててきましたが、以下のドキュメントでは、 context が HTTP request /キュー job の境界を越えて情報を共有する方法、さらに、 log エントリで書かれていない[hidden context data](#hidden-context)を追加する方法を示します。
@@ -281,7 +281,7 @@ Context::forget(['first_key', 'second_key']);
 
 ## Hidden Context
 
-「"Context」は、"隠された"「"data」を保管する能力を提供します。この「"隠された」情報は log に追加されず、上記で文書化された「"data」取得方法からはアクセスできません。「"Context」は、「"隠された Context」の情報と対話するための別の方法群を提供します。
+"Context は、"隠された""data を保管する能力を提供します。この"隠された情報は log に追加されず、上記で文書化された"data 取得方法からはアクセスできません。"Context は、"隠された Context の情報と対話するための別の方法群を提供します。
 
 ```php
 use Illuminate\Support\Facades\Context;
@@ -295,7 +295,7 @@ Context::get('key');
 // null
 ```
 
-「hidden」メソッドは、上記で文書化された非 hidden メソッドの機能を反映しています。
+hidden メソッドは、上記で文書化された非 hidden メソッドの機能を反映しています。
 
 ```php
 Context::addHidden(/* ... */);
@@ -321,7 +321,7 @@ Context は、 context のハイドレーションと脱水化の process に ho
 
 ### Dehydrating
 
-「job」が「queue」に dispatch されるたびに、「context」内の「data」は「脱水(dehydrated)」され、job のペイロードとともにキャプチャされます。`Context::dehydrating`「method」を使うと、脱水「process」中に呼び出されるクロージャーを「register」できます。このクロージャー内では、queue の「job」と共有される「data」に変更を加えることができます。
+job が queue に dispatch されるたびに、context 内の data は脱水(dehydrated)され、job のペイロードとともにキャプチャされます。`Context::dehydrating`method を使うと、脱水 process 中に呼び出されるクロージャーを register できます。このクロージャー内では、queue の job と共有される data に変更を加えることができます。
 
 通常、application の `AppServiceProvider` class の `boot` method 内で register `dehydrating` コールバックを登録するべきです。
 
@@ -347,7 +347,7 @@ public function boot(): void
 
 ### Hydrated
 
-キューに入った「 job 」が「 queue 」上で実行を開始すると、その「 job 」と共有された任意の「 context 」は現在の「 context 」に"hydrated"として戻されます。`Context::hydrated` 「 method 」は、hydration「 process 」中に呼び出されるクロージャーを「 register 」することができます。
+キューに入った job が queue 上で実行を開始すると、その job と共有された任意の context は現在の context に"hydrated"として戻されます。`Context::hydrated` method は、hydration process 中に呼び出されるクロージャーを register することができます。
 
 通常、application の`AppServiceProvider` class の`boot` method 内で`hydrated`コールバックを register するべきです。
 

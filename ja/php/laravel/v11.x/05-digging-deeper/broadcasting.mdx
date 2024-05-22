@@ -67,10 +67,10 @@ broadcasting の背後にある基本的なコンセプトはシンプルです�
 
 #### サポートされているドライバー
 
-default として、 Laravel は以下の 3 つのサーバーサイド broadcasting ドライバーを選択できます： [“ Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、そして [Ably](https://ably.com)。
+default として、 Laravel は以下の 3 つのサーバーサイド broadcasting ドライバーを選択できます： [Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、そして [Ably](https://ably.com)。
 
 > [!NOTE]  
-> '' event broadcasting ''に深く潜る前に、まず Laravel のドキュメンテーションの['' events ''と'' listeners ''](/ja/php/laravel/v11.x/05-digging-deeper/events)を読んでおくことを確認してください。
+> event broadcasting に深く潜る前に、まず Laravel のドキュメンテーションの[events と listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を読んでおくことを確認してください。
 
 <a name="server-side-installation"></a>
 
@@ -1178,7 +1178,7 @@ protected function newBroadcastableEvent(string $event): BroadcastableModelEvent
 
 <a name="model-broadcasting-channel-conventions"></a>
 
-#### “ Channel の規約
+#### Channel の規約
 
 お気づきかもしれませんが、上記の model の例での`broadcastOn` method は、`Channel`のインスタンスを返しませんでした。代わりに、 Eloquent models が直接返されました。もし`broadcastOn` method が(または array が method によって返される)あなたのモデルの Eloquent model のインスタンスを返す場合、 Laravel は自動的にモデルの class 名と primary key 識別子を使用して model のための private channel インスタンスを生成します。 channel の名前としてです。
 
@@ -1216,7 +1216,7 @@ $user->broadcastChannel()
 
 #### Event コンベンション
 
-`App\Events`ディレクトリ内の「実際の」" event "と関連付けられていないため、" model broadcast events "には、規約に基づいて名前とペイロードが割り当てられます。Laravel の規約では、" broadcast "を" event "として、" model "の" class "名(名前空間は含まれません)とトリガーした" model event "の名前を使用して" broadcast "します。
+`App\Events` ディレクトリ内の "実際の" event と関連付けられていないため、 model broadcast events には、規約に基づいて名前とペイロードが割り当てられます。Laravel の規約では、 broadcast を event として、 model の class 名(名前空間は含まれません)とトリガーした model event の名前を使用して broadcast します。
 
 つまり、例えば、`App\Models\Post`の model にアップデートがあると、あなたの client サイドの application に event を broadcast し、以下のペイロードで`PostUpdated`として送信します：
 
@@ -1270,7 +1270,7 @@ public function broadcastWith(string $event): array
 
 まず、`private` method を使用して channel のインスタンスを取得し、次に `listen` method を呼び出して指定の event を待ち受けます。通常、`private` method に与えられる channel の名前は、Laravel の[model broadcasting の規約](#model-broadcasting-conventions)に対応するべきです。
 
-「channel」インスタンスを取得したら、特定の「event」を待ち受けるために `listen` 「method」を使用できます。 「modelbroadcastevent」は application の`App\Events`ディレクトリ内の「実際の」「event」と関連付けられていないため、[「event」名](#model-broadcasting-event-conventions)では特定のネームスペースに属していないことを示すために`.`が接頭辞として付けられる必要があります。「modelbroadcastevent」はそれぞれが`model`プロパティを持っており、それには「model」の broadcast 可能なすべてのプロパティが含まれています：
+channel インスタンスを取得したら、特定の event を待ち受けるために `listen` method を使用できます。 modelbroadcastevent は application の`App\Events`ディレクトリ内の実際の event と関連付けられていないため、[event 名](#model-broadcasting-event-conventions)では特定のネームスペースに属していないことを示すために`.`が接頭辞として付けられる必要があります。modelbroadcastevent はそれぞれが`model`プロパティを持っており、それには model の broadcast 可能なすべてのプロパティが含まれています：
 
 ```js
 Echo.private(`App.Models.User.${this.user.id}`).listen(".PostUpdated", (e) => {
@@ -1285,7 +1285,7 @@ Echo.private(`App.Models.User.${this.user.id}`).listen(".PostUpdated", (e) => {
 > [!NOTE]  
 > [Pusher Channels](https://pusher.com/channels)を使用する際には、あなたの[application ダッシュボード](https://dashboard.pusher.com/) の "App Settings" セクションで "client events" option を有効にする必要があります。これにより、clientevent を送信することができます。
 
-時々、あなたは Laravel application に全く接触せずに、他の接続されたクライアントに event を broadcast したいと思うことがあるかもしれません。これは、"typing"のような notifications で特に便利で、あなたの application の他の user が特定の画面でメッセージを入力していることを alert users に知らせたいときに便利です。
+時々、あなたは Laravel application に全く接触せずに、他の接続されたクライアントに event を broadcast したいと思うことがあるかもしれません。これは、typing のような notifications で特に便利で、あなたの application の他の user が特定の画面でメッセージを入力していることを alert users に知らせたいときに便利です。
 
 clientevent を broadcast するためには、Echo の `whisper` method を使用することができます：
 

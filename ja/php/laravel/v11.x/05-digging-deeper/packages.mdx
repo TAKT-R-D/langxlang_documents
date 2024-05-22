@@ -99,7 +99,7 @@ Laravel application の`bootstrap/providers.php`ファイルには、 Laravel �
 
 [Service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)はあなたのパッケージと Laravel との間の接続ポイントです。Service providers は、Laravel の[service container ー](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)にものをバインドする責任を持ち、Laravel にパッケージの resources(views、設定、言語ファイルなど)をどこからロードするかを告げます。
 
-' service provider は、`Illuminate\Support\ServiceProvider` class を拡張し、二つの method：`register`と`boot`、を含んでいます。基本の`ServiceProvider` class は、`illuminate/support` Composer パッケージ内に位置しており、 それを自身のパッケージの依存性に追加するべきです。 ' service providers 'の構造と目的について詳しく知るには、[そのドキュメンテーション](/ja/php/laravel/v11.x/03-architecture-concepts/01-lifecycle)を確認してください。
+service provider は、`Illuminate\Support\ServiceProvider` class を拡張し、二つの method：`register`と`boot`、を含んでいます。基本の`ServiceProvider` class は、`illuminate/support` Composer パッケージ内に位置しており、 それを自身のパッケージの依存性に追加するべきです。 service providers の構造と目的について詳しく知るには、[そのドキュメンテーション](/ja/php/laravel/v11.x/03-architecture-concepts/01-lifecycle)を確認してください。
 
 <a name="resources"></a>
 
@@ -130,7 +130,7 @@ $value = config('courier.option');
 ```
 
 > [!WARNING]  
-> 設定ファイルでクロージャを定義するべきではありません。'' users ''が`config:cache`の'' Artisan command ''を実行するとき、正しくシリアライズできません。
+> 設定ファイルでクロージャを定義するべきではありません。 users が`config:cache`の Artisan command を実行するとき、正しくシリアライズできません。
 
 <a name="default-package-configuration"></a>
 
@@ -316,7 +316,7 @@ public function boot(): void
 }
 ```
 
-Once your component has been registered, it may be rendered using its tag alias:
+あなたの component が登録されたら、そのタグエイリアスを使用してレンダリングすることができます:
 
 ```blade
 <x-package-alert/>
@@ -340,14 +340,14 @@ public function boot(): void
 }
 ```
 
-This will allow the usage of package components by their vendor namespace using the `package-name::` syntax:
+これにより、`package-name::`の syntax を使用して、パッケージのコンポーネントをその vendor 名前空間で使用することができます。
 
 ```blade
 <x-nightshade::calendar />
 <x-nightshade::color-picker />
 ```
 
-Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation.
+Blade は、 component の名前をパスカルケースにすることで、この component にリンクされた class を自動的に検出します。また、"dot" 表記を使用してサブディレクトリもサポートしています
 
 <a name="anonymous-components"></a>
 

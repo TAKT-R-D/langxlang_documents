@@ -145,9 +145,9 @@ $users = User::where('votes', '>', 100)->paginate(
 
 ### Cursor Pagination
 
-`paginate`と`simplePaginate`は、SQL の"offset"句を使用してクエリを作成しますが、" cursor pagination "は、"where"句を作成して" query "に含まれる並べ替えられた列の" values "を比較し、Laravel の全ての" pagination "メソッドの中で最も効率的な" database "パフォーマンスを提供します。この" pagination "の" method "は、大量のデータセットや"無限"スクロールの" user "インターフェースに特に適しています。
+`paginate`と`simplePaginate`は、SQL の"offset"句を使用してクエリを作成しますが、 cursor pagination は、"where"句を作成して query に含まれる並べ替えられた列の values を比較し、Laravel の全ての pagination メソッドの中で最も効率的な database パフォーマンスを提供します。この pagination の method は、大量のデータセットや無限スクロールの user インターフェースに特に適しています。
 
-オフセットベースの「 pagination 」は、URL の「 query string 」にページ番号を含むのに対して、「 paginator 」ベースの「 pagination 」は、「 query string 」に「 cursor 」の「 string 」を配置します。「 cursor 」は、次のページネーションされた「 query 」が開始するべき場所と、それが「 paginate 」するべき方向を含むエンコードされた「 string 」です。
+オフセットベースの pagination は、URL の query string にページ番号を含むのに対して、 paginator ベースの pagination は、 query string に cursor の string を配置します。 cursor は、次のページネーションされた query が開始するべき場所と、それが paginate するべき方向を含むエンコードされた string です。
 
 ```nothing
 http://localhost/users?cursor=eyJpZCI6MTUsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0
@@ -168,7 +168,7 @@ cursor paginator インスタンスを取得したら、通常`paginate`や`simp
 
 #### Cursor vs. オフセット Pagination
 
-offset ページネーションと cursor ページネーションの違いを図示するために、いくつかの SQLqueries の例を見てみましょう。次の両方の queries は、`id`で並べ替えられた`users`テーブルの結果の「2 ページ目」を表示します。
+offset ページネーションと cursor ページネーションの違いを図示するために、いくつかの SQLqueries の例を見てみましょう。次の両方の queries は、`id`で並べ替えられた`users`テーブルの結果の 2 ページ目を表示します。
 
 ```sql
 # Offset Pagination...
@@ -180,12 +180,12 @@ select * from users where id > 15 order by id asc limit 15;
 
 cursor pagination query はオフセット pagination に対して次のような利点を提供します：
 
-- 大規模なデータセットに対しては、「 cursor pagination 」が「order by」列がインデックス化されている場合には、より良いパフォーマンスを提供します。これは、「offset」句が以前に一致した「 data 」すべてをスキャンするためです。
+- 大規模なデータセットに対しては、 cursor pagination が order by 列がインデックス化されている場合には、より良いパフォーマンスを提供します。これは、offset 句が以前に一致した data すべてをスキャンするためです。
 - 頻繁に書き込みが行われるデータセットの場合、オフセットの pagination は、結果が最近ページに追加されたり、ページから削除された場合、 user が現在閲覧しているページでレコードを skip したり、重複を表示する場合があります。
 
 ただし、 cursor pagination には以下の制限があります：
 
-- `simplePaginate`のように、 cursor pagination は「次」および「前」の links の表示のみに使用でき、ページ番号付きの links の生成をサポートしていません。
+- `simplePaginate`のように、 cursor pagination は次および前の links の表示のみに使用でき、ページ番号付きの links の生成をサポートしていません。
 - 順序付けは、少なくとも一つの unique column または unique な列の組み合わせに基づいていることが必要です。`null`の values が含まれる列はサポートされていません。
 - "order by"句内の Query 式は、エイリアスが付けられ、"select"句に追加されている場合にのみサポートされます。
 - パラメータを含む Query 式はサポートされていません。
@@ -261,7 +261,7 @@ $users = User::paginate(15)->fragment('users');
 
 `paginate` method を呼び出すと、`Illuminate\Pagination\LengthAwarePaginator`のインスタンスが返されます。一方、`simplePaginate` method を呼び出すと、`Illuminate\Pagination\Paginator`のインスタンスが返されます。そして最後に、`cursorPaginate` method を呼び出すと、`Illuminate\Pagination\CursorPaginator`のインスタンスが返されます。
 
-これらのオブジェクトは、結果セットを説明するいくつかのメソッドを提供します。これらのヘルパーメソッドに加えて、 paginator のインスタンスはイテレータであり、 array としてループすることができます。したがって、結果を retrieved (取得)したら、結果を表示し、ページの links (リンク)を[Blade](/ja/php/laravel/v11.x/04-the-basics/08-blade)を用いて render (レンダリング)することができます。
+これらのオブジェクトは、結果セットを説明するいくつかのメソッドを提供します。これらのヘルパーメソッドに加えて、 paginator のインスタンスはイテレータであり、 array としてループすることができます。したがって、結果を retrieved したら、結果を表示し、ページの links を[Blade](/ja/php/laravel/v11.x/04-the-basics/08-blade)を用いて render することができます。
 
 ```blade
 <div class="container">

@@ -311,7 +311,7 @@ public function toArray(Request $request): array
 
 #### Resource Collections
 
-一方で、" resources transform "は" single model "を" array "に変換し、" resource collections transform "は" models "の" collection "を" array "に変換します。しかし、全ての" resources "が`collection`" method "を提供しているため、" models "ごとに" resource collection class "を定義する必要は必ずしもありません。これにより、「その場で作られる」"ad-hoc"な" resource collection "を生成することが可能です。
+一方で、 resources transform は single model を array に変換し、 resource collections transform は models の collection を array に変換します。しかし、全ての resources が`collection` method を提供しているため、 models ごとに resource collection class を定義する必要は必ずしもありません。これにより、"その場で作られる" ad-hoc な resource collection を生成することが可能です。
 
 ```php
 use App\Http\Resources\UserResource;
@@ -561,7 +561,7 @@ public function paginationInformation($request, $paginated, $default)
 
 ### 条件付き Attributes
 
-場合によっては、特定の条件が満たされた場合にのみ、" attribute " を " resource response " に含めたいと思うことがあるかもしれません。たとえば、現在の " user " が "administrator" である場合にのみ、" value " を含めたいと思うかもしれません。" Laravel " は、このような状況を支援するためのさまざまなヘルパーメソッドを提供しています。`when` " method " を使用すると、条件付きで " attribute " を " resource response " に追加することができます。
+場合によっては、特定の条件が満たされた場合にのみ、 attribute を resource response に含めたいと思うことがあるかもしれません。たとえば、現在の user が administrator である場合にのみ、 value を含めたいと思うかもしれません。 Laravel は、このような状況を支援するためのさまざまなヘルパーメソッドを提供しています。`when` method を使用すると、条件付きで attribute を resource response に追加することができます。
 
 ```php
 /**
@@ -641,7 +641,7 @@ public function toArray(Request $request): array
 
 ### 条件付き関係
 
-attributes "を条件付きでロードすることに加えて、" model "に既にロードされている関係がある場合に限り、" resource "レスポンスに関係を条件付きで含めることができます。これにより、" controller "は" model "にどの関係をロードするべきかを決定し、" resource "は実際にロードされたときだけそれらを簡単に含めることができます。結局のところ、この特性により、"N+1" " query "の問題を" resources "内で回避するのが容易になります。
+attributes を条件付きでロードすることに加えて、 model に既にロードされている関係がある場合に限り、 resource レスポンスに関係を条件付きで含めることができます。これにより、 controller は model にどの関係をロードするべきかを決定し、 resource は実際にロードされたときだけそれらを簡単に含めることができます。結局のところ、この特性により、N+1 query の問題を resources 内で回避するのが容易になります。
 
 `whenLoaded` method は、条件付きでリレーションシップをロードするために使用できます。不必要にリレーションシップをロードしないために、この method はリレーションシップそのものではなく、リレーションシップの名前を受け入れます。
 
