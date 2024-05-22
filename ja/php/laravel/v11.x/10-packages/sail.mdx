@@ -259,7 +259,7 @@ sail yarn
 
 お気づきかもしれませんが、アプリケーションの `docker-compose.yml` ファイルには MySQL のコンテナのエントリが含まれています。このコンテナは[Docker volume](https://docs.docker.com/storage/volumes/)を使用しているため、 data が database 内に保存されていても、コンテナの停止と再起動時にもデータが保持されます。
 
-また、初めて””MySQL””コンテナを起動すると、2 つのデータベースが作成されます。最初の””database””は`DB_DATABASE`の””環境””variable の””value””で名前がつけられ、ローカル development 用です。2 つ目は専用の””testing database””で、名前は`testing`で、これによりテストが development ””data””を妨げないことを確認します。
+また、初めて MySQL コンテナを起動すると、2 つのデータベースが作成されます。最初の database は`DB_DATABASE`の環境 variable の value で名前がつけられ、ローカル development 用です。2 つ目は専用の testing database で、名前は`testing`で、これによりテストが development data を妨げないことを確認します。
 
 コンテナを起動したら、アプリケーションの `.env` ファイル内の `DB_HOST` environment 変数を `mysql` に設定することで、アプリケーション内の MySQL インスタンスに接続できます。
 

@@ -602,7 +602,7 @@ php83
 `homestead`の database は、既定で MySQL と PostgreSQL の両方に対応しています。ホストマシンの database client から MySQL または PostgreSQL の database に接続するには、`127.0.0.1`のポート`33060`( MySQL )または`54320`(PostgreSQL)に接続します。両方のデータベースの username と password は、`homestead`/`secret`です。
 
 > [!WARNING]  
-> これらの非標準ポートは、ホストマシンから databases に接続する際にのみ使用すべきです。 `database` の設定ファイルでは、””Laravel”” application が仮想マシンの _within_ で動作しているため、””default””の 3306 と 5432 のポートを使用します。
+> これらの非標準ポートは、ホストマシンから databases に接続する際にのみ使用すべきです。 `database` の設定ファイルでは、Laravel application が仮想マシンの _within_ で動作しているため、default の 3306 と 5432 のポートを使用します。
 
 <a name="database-backups"></a>
 

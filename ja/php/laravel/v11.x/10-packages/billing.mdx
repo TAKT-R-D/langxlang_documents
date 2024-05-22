@@ -2604,7 +2604,7 @@ try {
 }
 ```
 
-支払い確認ページでは、顧客に対して再度クレジットカード情報を入力し、Stripe が必要とする追加の actions を行うよう求められます、例えば "3D Secure" の確認です。支払いを確認した後、 ””user”” は、上記で指定された `redirect` パラメータによって提供された ””URL”” に `redirect` されます。redirect 後、 `message` (””string””) と `success` (””integer””) の ””query string”” variables が ””URL”” に追加されます。現在の支払いページは、以下の支払い ””method”” types をサポートしています:
+支払い確認ページでは、顧客に対して再度クレジットカード情報を入力し、Stripe が必要とする追加の actions を行うよう求められます、例えば "3D Secure" の確認です。支払いを確認した後、 user は、上記で指定された `redirect` パラメータによって提供された URL に `redirect` されます。redirect 後、 `message` (string) と `success` (integer) の query string variables が URL に追加されます。現在の支払いページは、以下の支払い method types をサポートしています:
 
 <div class="content-list" markdown="1">
 

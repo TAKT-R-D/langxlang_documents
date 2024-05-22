@@ -232,7 +232,7 @@ Eloquent は、各 model が少なくともひとつの一意に識別する"ID"
 
 ### UUID と ULID Keys
 
-あなたの””Eloquent””model の””primary key””として自動インクリメントの整数を使用する代わりに、UUID を選択することもできます。UUID は、36 文字の長さを持つ全世界で””一意””の英数字識別子です。
+あなたの Eloquentmodel の primary key として自動インクリメントの整数を使用する代わりに、UUID を選択することもできます。UUID は、36 文字の長さを持つ全世界で一意の英数字識別子です。
 
 あなたが自動インクリメントの integerkey の代わりに model が UUIDkey を使用するようにしたい場合、`Illuminate\Database\Eloquent\Concerns\HasUuids` トレイトを model に使用することができます。もちろん、model が[UUID に対応する primarykey 列](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuid)を持っていることを確認する必要があります：
 
@@ -549,7 +549,7 @@ Flight::where('departed', true)
 
 ### '' Lazy Collections ''を使ったチャンキング
 
-`lazy`””method””は、裏側で””query””を””chunk””で実行するという点で、[the `chunk` ””method””](#chunking-results)と同様に機能します。ただし、各””chunk””をそのままコールバックに渡すのではなく、`lazy` ””method””は、”Eloquent model”の”一つ”のストリームとして結果を操作できるように、フラット化された[`LazyCollection`](/ja/php/laravel/v11.x/05-digging-deeper/collections#lazy-collections)を返します:
+`lazy`method は、裏側で query を chunk で実行するという点で、[the `chunk` method](#chunking-results)と同様に機能します。ただし、各 chunk をそのままコールバックに渡すのではなく、`lazy` method は、Eloquent model の一つのストリームとして結果を操作できるように、フラット化された[`LazyCollection`](/ja/php/laravel/v11.x/05-digging-deeper/collections#lazy-collections)を返します:
 
 ```php
 use App\Models\Flight;
@@ -795,7 +795,7 @@ $flight = Flight::create([
 ]);
 ```
 
-しかし、`create` ””method””を使用する前に、`fillable` または `guarded` プロパティを ””model class””に指定する必要があります。これらのプロパティは、全ての ””Eloquent models””が ””default””で一括代入の脆弱性から保護されているため、””必須””です。一括代入について詳しく知りたい場合は、[一括代入のドキュメンテーション](#mass-assignment)を参照してください。
+しかし、`create` method を使用する前に、`fillable` または `guarded` プロパティを model class に指定する必要があります。これらのプロパティは、全ての Eloquent models が default で一括代入の脆弱性から保護されているため、必須です。一括代入について詳しく知りたい場合は、[一括代入のドキュメンテーション](#mass-assignment)を参照してください。
 
 <a name="updates"></a>
 

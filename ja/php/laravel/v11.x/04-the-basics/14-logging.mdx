@@ -44,7 +44,7 @@ Laravel logging は"channels"に基づいています。各 channel は、log �
 
 すべての設定 options は、アプリケーションの logging の振る舞いを制御し、`config/logging.php` 設定ファイルに収容されています。このファイルにより、アプリケーションの log チャンネルを設定できますので、利用可能な各チャンネルとその options を確認してください。以下でいくつかの一般的な options をご説明します。
 
-””Laravel””は””logging””メッセージをデフォルトで`stack` ””channel””を使用します。`stack` ””channel””は、複数の””log””チャンネルを 1 つの””channel””に集約するために使用されます。スタックの構築に関する詳細については、[以下のドキュメント](#building-log-stacks)を参照してください。
+Laravel は logging メッセージをデフォルトで`stack` channel を使用します。`stack` channel は、複数の log チャンネルを 1 つの channel に集約するために使用されます。スタックの構築に関する詳細については、[以下のドキュメント](#building-log-stacks)を参照してください。
 
 <a name="available-channel-drivers"></a>
 
@@ -161,7 +161,7 @@ PHP、Laravel、および他の libraries は、一部の機能が廃止予定�
 
 ## Building Log Stacks
 
-前述の通り、`stack` ””driver””を使用すると、複数の channels を””単一のログ channels””に結合することができ、便利です。 ””log”” stack の使用方法を示すために、””production application””で見かけるかもしれない設定例を見てみましょう：
+前述の通り、`stack` driver を使用すると、複数の channels を単一のログ channels に結合することができ、便利です。 log stack の使用方法を示すために、production application で見かけるかもしれない設定例を見てみましょう：
 
 ```php
 'channels' => [
@@ -213,7 +213,7 @@ Log::emergency('The system is down!');
 
 ## Writing Log Messages
 
-`Log` [””facade””](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)を使用して、Logs に情報を書き込むことができます。前述の通り、ロガーは[RFC 5424 の仕様](https://tools.ietf.org/html/rfc5424)で定義された 8 つの””logging””レベルを提供します： **emergency**, **””alert””**, **critical**, **””error””**, **warning**, **notice**, **””info””**, **””debug””**：
+`Log` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)を使用して、Logs に情報を書き込むことができます。前述の通り、ロガーは[RFC 5424 の仕様](https://tools.ietf.org/html/rfc5424)で定義された 8 つの logging レベルを提供します： **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, **debug**：
 
 ```php
 use Illuminate\Support\Facades\Log;

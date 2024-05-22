@@ -556,7 +556,7 @@ Feature::define('new-api', fn (User|null $user) => match (true) {// [tl! add]
 
 ### Scope の特定
 
-Pennant の組み込みの `array` および `database` ””storage””ドライバは、すべての PHP ””data””types および ””Eloquent model”” に対する正しい着色範囲識別子の保存方法を理解しています。しかし、あなたの ””application”” がサードパーティの Pennant ””driver”” を使用している場合、その ””driver””は ””Eloquent model”” やあなたの ””application”” の他の ””custom”” types の識別子を正しく保存する方法を理解できないかもしれません。
+Pennant の組み込みの `array` および `database` storage ドライバは、すべての PHP datatypes および Eloquent model に対する正しい着色範囲識別子の保存方法を理解しています。しかし、あなたの application がサードパーティの Pennant driver を使用している場合、その driver は Eloquent model やあなたの application の他の custom types の識別子を正しく保存する方法を理解できないかもしれません。
 
 これを受けて、Pennant では、Pennant の scope として使用される application の objects に`FeatureScopeable`契約を実装することで、scopevalues を storage 用にフォーマットすることができます。
 

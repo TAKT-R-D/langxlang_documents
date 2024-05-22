@@ -109,7 +109,7 @@ class ExampleTest extends TestCase
 ./vendor/bin/phpunit
 ```
 
-`pest`または`phpunit`コマンドに加えて、test を実行するために`test` ””Artisan””コマンド””を使用することもできます。””Artisan”” test ランナーは、development と””debugging””を容易にするために詳細な test レポートを提供します：
+`pest`または`phpunit`コマンドに加えて、test を実行するために`test` Artisan コマンドを使用することもできます。Artisan test ランナーは、development と debugging を容易にするために詳細な test レポートを提供します：
 
 ```shell
 php artisan test
@@ -125,7 +125,7 @@ php artisan test --testsuite=Feature --stop-on-failure
 
 ### テストの並列実行
 
-デフォルトでは、””Laravel”” および ””Pest”” / ””PHPUnit”” は、””single process”” 内でテストを順番に実行します。しかし、複数のプロセスで同時にテストを実行することで、テストを実行する時間を大幅に ””reduce”” することができます。まず、`brianium/paratest` ””Composer”” パッケージを "dev" dependency としてインストールします。その後、`test` ””Artisan command”” を実行するときに `--parallel` オプションを含めます。
+デフォルトでは、Laravel および Pest / PHPUnit は、single process 内でテストを順番に実行します。しかし、複数のプロセスで同時にテストを実行することで、テストを実行する時間を大幅に reduce することができます。まず、`brianium/paratest` Composer パッケージを "dev" dependency としてインストールします。その後、`test` Artisan command を実行するときに `--parallel` オプションを含めます。
 
 ```shell
 composer require brianium/paratest --dev
@@ -148,7 +148,7 @@ php artisan test --parallel --processes=4
 
 primary database connection を設定している限り、 Laravel はテスト database の作成と移行を自動的に行い、それぞれの並列 process ごとにテストを実行します。テストデータベースは、 process token を用いて接尾辞が付けられ、それは各 process ごとに unique です。例えば、並列テストプロセスが 2 つある場合、 Laravel は `your_db_test_1` と `your_db_test_2` テストデータベースを作成し使用します。
 
-””default””では、test databases は`test`の””Artisan command””を呼び出すたびに維持され、次の`test`の呼び出しでも再利用できます。ただし、`--recreate-databases` option を使用して再作成することもできます：
+default では、test databases は`test`の Artisan command を呼び出すたびに維持され、次の`test`の呼び出しでも再利用できます。ただし、`--recreate-databases` option を使用して再作成することもできます：
 
 ```shell
 php artisan test --parallel --recreate-databases

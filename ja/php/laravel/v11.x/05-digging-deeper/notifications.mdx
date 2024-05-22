@@ -541,7 +541,7 @@ public function toMail(object $notifiable): MailMessage
 
 ### 受信者のカスタマイズ
 
-`mail` channel を介して通知を送信する際、通知システムは自動的に通知可能なエンティティの `email` プロパティを探します。`routeNotificationForMail` ””method””を通知可能なエンティティで定義することで、通知の配信に使用する mail アドレスをカスタマイズすることができます。
+`mail` channel を介して通知を送信する際、通知システムは自動的に通知可能なエンティティの `email` プロパティを探します。`routeNotificationForMail` method を通知可能なエンティティで定義することで、通知の配信に使用する mail アドレスをカスタマイズすることができます。
 
 ```php
 <?php
@@ -637,7 +637,7 @@ public function toMail(object $notifiable): MailMessage
 ```
 
 > [!NOTE]  
-> `attach` ””method””は、”notification mail”メッセージによって提供され、また[attach 可能なオブジェクト](/ja/php/laravel/v11.x/05-digging-deeper/mail#attachable-objects)も受け入れます。詳細については、詳細な[attach 可能な””object””ドキュメンテーション](/docs/11.x/mail#attachable-objects)をご覧ください。
+> `attach` method は、notification mail メッセージによって提供され、また[attach 可能なオブジェクト](/ja/php/laravel/v11.x/05-digging-deeper/mail#attachable-objects)も受け入れます。詳細については、詳細な[attach 可能な object ドキュメンテーション](/docs/11.x/mail#attachable-objects)をご覧ください。
 
 メッセージにファイルを添付する際には、表示名や MIME type を、二つ目の引数として`array`を `attach` method に渡すことで指定することもできます。
 
@@ -967,7 +967,7 @@ php artisan migrate
 ```
 
 > [!NOTE]  
-> 通知可能な””models””が [””UUID”” または ULID の primary key](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#uuid-and-ulid-keys)を使用している場合、`morphs` ””method”” をは、通知テーブルの migration で[`uuidMorphs`](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuidMorphs)または[`ulidMorphs`](/docs/11.x/migrations#column-method-ulidMorphs)に置き換える必要があります。
+> 通知可能な models が [UUID または ULID の primary key](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#uuid-and-ulid-keys)を使用している場合、`morphs` method をは、通知テーブルの migration で[`uuidMorphs`](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuidMorphs)または[`ulidMorphs`](/docs/11.x/migrations#column-method-ulidMorphs)に置き換える必要があります。
 
 <a name="formatting-database-notifications"></a>
 

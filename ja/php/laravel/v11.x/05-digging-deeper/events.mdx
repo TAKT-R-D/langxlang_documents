@@ -67,7 +67,7 @@ php artisan make:listener
 
 ### Event 発見
 
-””default””として、””Laravel””は、あなたの application の`Listeners`ディレクトリをスキャンして、自動的にあなたの””event listeners””を登録します。””Laravel””が、`handle`または`__invoke`で始まる listener class methods を見つけたとき、その methods が signature で types 指定されている””event””の””event listeners””として、それらの methods を登録します。
+default として、Laravel は、あなたの application の`Listeners`ディレクトリをスキャンして、自動的にあなたの event listeners を登録します。Laravel が、`handle`または`__invoke`で始まる listener class methods を見つけたとき、その methods が signature で types 指定されている event の event listeners として、それらの methods を登録します。
 
 ```php
 use App\Events\PodcastProcessed;
@@ -634,7 +634,7 @@ class OrderShipped implements ShouldDispatchAfterCommit
 
 ### Event サブスクライバーの記述
 
-””event””の購読者は、購読者の””class””内から複数の””event””を””購読””することができるクラスであり、一つの””class””内にいくつもの””event””ハンドラーを定義することが可能です。購読者は、 `subscribe` ””method””を定義すべきで、このメソッドは””event””dispatch ャーインスタンスが渡されます。その dispatch ャーに対して`listen` ””method””を呼び出すことで、””event”” listener の登録””が可能です。
+event の購読者は、購読者の class 内から複数の event を購読することができるクラスであり、一つの class 内にいくつもの event ハンドラーを定義することが可能です。購読者は、 `subscribe` method を定義すべきで、このメソッドは event dispatcher インスタンスが渡されます。その dispatch ャーに対して`listen` method を呼び出すことで、event listener の登録が可能です。
 
 ```php
 <?php

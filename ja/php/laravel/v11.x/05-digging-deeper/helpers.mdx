@@ -23,7 +23,7 @@ org_title: "Helpers"
 
 ## Introduction
 
-Laravel "は、さまざまなグローバル”ヘルパー"PHP 関数を含んでいます。これらの関数の多くはフレームワーク自体で使用されていますが、便利だと思われる場合には自由にそれらを自分のアプリケーションで使用することができます。
+Laravel "は、さまざまなグローバルヘルパー"PHP 関数を含んでいます。これらの関数の多くはフレームワーク自体で使用されていますが、便利だと思われる場合には自由にそれらを自分のアプリケーションで使用することができます。
 
 <a name="available-methods"></a>
 
@@ -1556,7 +1556,7 @@ $path = lang_path('en/messages.php');
 
 #### `mix()`
 
-`mix`関数は[バージョン化された`Mix`ファイル](/ja/php/laravel/v11.x/10-packages/mix)への ””path”” を返します。
+`mix`関数は[バージョン化された`Mix`ファイル](/ja/php/laravel/v11.x/10-packages/mix)への path を返します。
 
 ```php
 $path = mix('css/app.css');
@@ -2189,7 +2189,7 @@ $value = old('value');
 $value = old('value', 'default');
 ```
 
-`old`関数の第二引数として提供される"default values"は、しばしば””属性””の””Eloquent model””となりますが、””Laravel””では、第二引数として単に全体の””Eloquent model””を`old`関数に渡すことができます。そうすると、””Laravel””は`old`関数に提供された最初の引数が"default values"とみなされるべき””Eloquent 属性””の名前であると想定します。
+`old`関数の第二引数として提供される"default values"は、しばしば属性の Eloquent model となりますが、Laravel では、第二引数として単に全体の Eloquent model を`old`関数に渡すことができます。そうすると、Laravel は`old`関数に提供された最初の引数が"default values"とみなされるべき Eloquent 属性の名前であると想定します。
 
 ```php
 {{ old('name', $user->name) }}

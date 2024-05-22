@@ -416,7 +416,7 @@ Schedule::call(fn () => User::resetApiRequestCount())
 
 ### バックグラウンドタスク
 
-””default”” では、同時に schedule された複数のタスクは、`schedule` ””method”” で定義された順序に基づいて順番に実行されます。 長時間実行されるタスクがある場合、これにより後続のタスクの開始が大幅に遅れる可能性があります。すべてのタスクを同時に実行するためにバックグラウンドでタスクを実行したい場合は、 `runInBackground` ””method”” を使用できます。
+default では、同時に schedule された複数のタスクは、`schedule` method で定義された順序に基づいて順番に実行されます。 長時間実行されるタスクがある場合、これにより後続のタスクの開始が大幅に遅れる可能性があります。すべてのタスクを同時に実行するためにバックグラウンドでタスクを実行したい場合は、 `runInBackground` method を使用できます。
 
 ```php
 use Illuminate\Support\Facades\Schedule;

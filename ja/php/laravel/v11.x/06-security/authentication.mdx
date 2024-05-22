@@ -60,7 +60,7 @@ providers は、永続的な storage から users がどのように retrieved �
 
 すぐに始めたいですか？新たな Laravel application に[Laravel application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をインストールします。 database を移行した後、あなたのブラウザを`/register`またはあなたの application に割り当てられた他の URL に移動させます。スターターキットは、あなたの全体的な authentication システムの足場を整えるのを手助けします！
 
-**最終的な””Laravel application””でスターターキットを使うことを選ばなくても、[””Laravel Breeze””](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#laravel-breeze)スターターキットをインストールすることは、実際の””Laravel project””で Laravel の””authentication””機能をすべて実装する方法を学ぶ絶好の機会になるかもしれません。** ””Laravel Breeze””は””authentication””コントローラ、””routes””、および””views””を作成するため、これらのファイル内の””コード””を調査して、Laravel の””認証機能””がどのように実装されるかを学ぶことができます。
+**最終的な Laravel application でスターターキットを使うことを選ばなくても、[Laravel Breeze](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#laravel-breeze)スターターキットをインストールすることは、実際の Laravel project で Laravel の authentication 機能をすべて実装する方法を学ぶ絶好の機会になるかもしれません。** Laravel Breeze は authentication コントローラ、routes、および views を作成するため、これらのファイル内のコードを調査して、Laravel の認証機能がどのように実装されるかを学ぶことができます。
 
 <a name="introduction-database-considerations"></a>
 
@@ -222,7 +222,7 @@ Route::get('/flights', function () {
 
 #### 未認証の Users をリダイレクトする
 
-`auth` ””middleware”” が authentication されていない ””user”” を検出すると、その””user””を `login` [名前付き””route””](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)に””redirect””します。この振る舞いは、application の`bootstrap/app.php`ファイルの””method”” `redirectGuestsTo`を使用して変更することができます。
+`auth` middleware が authentication されていない user を検出すると、その user を `login` [名前付き route](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)に redirect します。この振る舞いは、application の`bootstrap/app.php`ファイルの method `redirectGuestsTo`を使用して変更することができます。
 
 ```php
 use Illuminate\Http\Request;
@@ -239,7 +239,7 @@ use Illuminate\Http\Request;
 
 #### ガードの指定
 
-`auth` ””middleware”” を ””route”” に付加する際に、user を authentication するのに使用するべき "guard" も指定することができます。指定された guard は、`auth.php`設定ファイルの`guards` ””array”” の中の一つの ””keys”” に対応しているべきです:
+`auth` middleware を route に付加する際に、user を authentication するのに使用するべき "guard" も指定することができます。指定された guard は、`auth.php`設定ファイルの`guards` array の中の一つの keys に対応しているべきです:
 
 ```php
 Route::get('/flights', function () {

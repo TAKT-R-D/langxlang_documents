@@ -1507,7 +1507,7 @@ webhook の検証を有効にするには、`PADDLE_WEBHOOK_SECRET`environment v
 
 ### 製品の課金
 
-お客様のために製品の購入を開始したい場合、 `checkout` の ””method”” を billable model のインスタンスで使用して、購入のための checkout session を生成できます。 `checkout` の ””method”” は 1 つまたは複数の価格 ID を受け付けます。必要に応じて、関連する ””array”” が使用され、購入される製品の数量を提供することができます:
+お客様のために製品の購入を開始したい場合、 `checkout` の method を billable model のインスタンスで使用して、購入のための checkout session を生成できます。 `checkout` の method は 1 つまたは複数の価格 ID を受け付けます。必要に応じて、関連する array が使用され、購入される製品の数量を提供することができます:
 
 ```php
 use Illuminate\Http\Request;
@@ -1527,7 +1527,7 @@ checkout session を生成した後、Cashier が提供する`paddle-button` [Bl
 </x-paddle-button>
 ```
 
-checkout session には、`customData` ””method”” があり、希望する custom data を基礎となる ””transaction”” の作成に渡すことができます。 custom data を渡す際の利用可能な ””options”” については、[Paddle のドキュメンテーション](https://developer.paddle.com/build/transactions/custom-data)をご覧ください。
+checkout session には、`customData` method があり、希望する custom data を基礎となる transaction の作成に渡すことができます。 custom data を渡す際の利用可能な options については、[Paddle のドキュメンテーション](https://developer.paddle.com/build/transactions/custom-data)をご覧ください。
 
 ```php
 $checkout = $user->checkout('pri_tshirt')

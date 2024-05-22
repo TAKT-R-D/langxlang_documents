@@ -610,7 +610,7 @@ $order = Order::find(1);
 $order->save();
 ```
 
-また、`searchable`の””method””を Eloquent query インスタンスに呼び出して、””models””の””collection””を更新することもできます。もし””models””があなたの検索インデックスに存在しない場合、それらは作成されます：
+また、`searchable`の method を Eloquent query インスタンスに呼び出して、models の collection を更新することもできます。もし models があなたの検索インデックスに存在しない場合、それらは作成されます：
 
 ```php
 Order::where('price', '>', 100)->searchable();
@@ -660,7 +660,7 @@ $order = Order::find(1);
 $order->delete();
 ```
 
-レコードを””削除””する前に””model””を取得したくない場合は、`unsearchable` ””method””を””Eloquent query””インスタンスで使用することができます：
+レコードを削除する前に model を取得したくない場合は、`unsearchable` method を Eloquent query インスタンスで使用することができます：
 
 ```php
 Order::where('price', '>', 100)->unsearchable();
@@ -791,7 +791,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 
 ### Pagination
 
-””models””の””collection””を取得するだけでなく、`paginate` ””method””を使用して””検索””結果を””ページネート””することができます。この””method””は、[伝統的な””Eloquent query””をページネートした](/ja/php/laravel/v11.x/07-database/03-pagination)かのように、`Illuminate\Pagination\LengthAwarePaginator`インスタンスを返します。
+models の collection を取得するだけでなく、`paginate` method を使用して検索結果をページネートすることができます。この method は、[伝統的な Eloquent query をページネートした](/ja/php/laravel/v11.x/07-database/03-pagination)かのように、`Illuminate\Pagination\LengthAwarePaginator`インスタンスを返します。
 
 ```php
 use App\Models\Order;

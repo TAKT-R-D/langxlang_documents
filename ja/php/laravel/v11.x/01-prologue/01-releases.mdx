@@ -143,7 +143,7 @@ Laravel 11 では、これらの middleware はフレームワーク自体に移
 
 #### Scheduling
 
-新しい`Schedule` ””facade””を使用すると、schedule されたタスクは、あなたの application の`routes/console.php`ファイル内で直接定義することができるようになりました。これにより、個別の””console”” "kernel" ””class””の必要性がなくなりました：
+新しい`Schedule` facade を使用すると、schedule されたタスクは、あなたの application の`routes/console.php`ファイル内で直接定義することができるようになりました。これにより、個別の console "kernel" class の必要性がなくなりました：
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -188,7 +188,7 @@ abstract class Controller
 
 #### Application Defaults
 
-””default””として、新しい””Laravel application””は database storage に SQLite を使用し、`database` ””driver””を””Laravel””の””session””、””cache””、および””queue””のために使います。これにより、新しい””Laravel application””を作成した直後から””application””の構築を始めることができ、追加のソフトウェアをインストールしたり、追加の database migration を作成することが必要なくなります。
+default として、新しい Laravel application は database storage に SQLite を使用し、`database` driver を Laravel の session、cache、および queue のために使います。これにより、新しい Laravel application を作成した直後から application の構築を始めることができ、追加のソフトウェアをインストールしたり、追加の database migration を作成することが必要なくなります。
 
 さらに、時間の経過とともに、`database`ドライバは、これらの Laravel services に対して十分に堅牢になり、多くの application コンテキストでの production 使用に適しています。したがって、それらはローカルと production アプリケーションの両方に対する合理的で統一感のある選択肢を提供します。
 

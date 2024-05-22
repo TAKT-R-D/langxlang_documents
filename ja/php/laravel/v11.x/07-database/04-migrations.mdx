@@ -259,7 +259,7 @@ php artisan migrate:fresh
 php artisan migrate:fresh --seed
 ```
 
-””default””では、`migrate:fresh` ””command””は””default””の database 接続からのみテーブルをドロップします。しかし、`--database` option を使用して移行すべき database 接続 を指定することもできます。 database 接続名は、application の `database` [設定ファイル](/ja/php/laravel/v11.x/02-getting-started/02-configuration)で定義された 接続 に対応しているべきです。
+default では、`migrate:fresh` command は default の database 接続からのみテーブルをドロップします。しかし、`--database` option を使用して移行すべき database 接続 を指定することもできます。 database 接続名は、application の `database` [設定ファイル](/ja/php/laravel/v11.x/02-getting-started/02-configuration)で定義された 接続 に対応しているべきです。
 
 ```shell
 php artisan migrate:fresh --database=admin
@@ -1124,7 +1124,7 @@ Schema::table('users', function (Blueprint $table) {
 | `->nullable($value = true)`         | NULLvalues を列に挿入できるように許可します。                                                          |
 | `->storedAs($expression)`           | ストアド生成された column ( MySQL / PostgreSQL / SQLite)を作成します。                                 |
 | `->unsigned()`                      | INTEGER カラムを UNSIGNED ( MySQL )として設定します。                                                  |
-| `->useCurrent()`                    | ””TIMESTAMP””列を、default values として CURRENT\_””TIMESTAMP””を使用するように設定します。            |
+| `->useCurrent()`                    | TIMESTAMP 列を、default values として CURRENT_TIMESTAMP を使用するように設定します。                   |
 | `->useCurrentOnUpdate()`            | レコードが更新されたときに、 TIMESTAMP 列に CURRENT\_ TIMESTAMP を使用するように設定します( MySQL )。  |
 | `->virtualAs($expression)`          | column という仮想生成( MySQL / SQLite)を作成します。                                                   |
 | `->generatedAs($expression)`        | 指定された sequence options を使用して、アイデンティティの column を作成します(PostgreSQL)。           |

@@ -49,7 +49,7 @@ HTTP カーネルは、request が実行される前に実行される`bootstrap
 
 HTTP カーネルは、request を application の middlewarestack を通して伝達する役割を担っています。これらの middleware ハンドルは、[HTTPsession](/ja/php/laravel/v11.x/04-the-basics/11-session)の読み取りと書き込み、application がメンテナンスモードにあるかどうかの判断、[CSRFtoken の確認](/ja/php/laravel/v11.x/04-the-basics/03-csrf)などを行います。これらについては後ほど詳しく説明します。
 
-””HTTP””カーネルの`handle` ””method””の””method””シグネチャは非常にシンプルで、`Request`を受け取り、`Response`を返します。カーネルをあなたの全体の””application””を表す大きな黒いボックスと考えてみてください。それに””HTTP”” requests を与えると、””HTTP”” Response を返します。
+HTTP カーネルの`handle` method の method シグネチャは非常にシンプルで、`Request`を受け取り、`Response`を返します。カーネルをあなたの全体の application を表す大きな黒いボックスと考えてみてください。それに HTTP requests を与えると、HTTP Response を返します。
 
 <a name="service-providers"></a>
 

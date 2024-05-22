@@ -294,7 +294,7 @@ Gate::after(function (User $user, string $ability, bool|null $result, mixed $arg
 
 ### インライン Authorization
 
-時折、現在認証されている" user "”が指定された" action "”を実行できるかどうかを、その" action "”に対応する専用のゲートを作成することなく判断したい場合があります。" Laravel "”では、これらの種類の"インライン" " authorization "”チェックを、`Gate::allowIf`および`Gate::denyIf`メソッドを介して実行できます。インライン" authorization "”は、定義済みの["before"または"after" " authorization "”フック](#intercepting-gate-checks)を実行しません：
+時折、現在認証されている user が指定された action を実行できるかどうかを、その action に対応する専用のゲートを作成することなく判断したい場合があります。 Laravel では、これらの種類のインライン authorization チェックを、`Gate::allowIf`および`Gate::denyIf`メソッドを介して実行できます。インライン authorization は、定義済みの[before または after authorization フック](#intercepting-gate-checks)を実行しません：
 
 ```php
 use App\Models\User;

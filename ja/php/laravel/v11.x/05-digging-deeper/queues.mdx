@@ -234,7 +234,7 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-この例では、[””Eloquent models””](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)を queue に入れられたジョブのコンストラクタに直接渡すことができたことに注目してください。`SerializesModels` という特性を使っているため、””job””によって、””Eloquent models””とそれらがロードしたリレーションシップは、””job””が””処理””される際にスムーズにシリアライズおよびアンシリアライズされます。
+この例では、[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)を queue に入れられたジョブのコンストラクタに直接渡すことができたことに注目してください。`SerializesModels` という特性を使っているため、job によって、Eloquent models とそれらがロードしたリレーションシップは、job が処理される際にスムーズにシリアライズおよびアンシリアライズされます。
 
 If your queued job accepts an Eloquent model in its constructor, only the identifier for the model will be serialized onto the queue. When the job is actually handled, the queue system will automatically re-retrieve the full model instance and its loaded relationships from the database. This approach to model serialization allows for much smaller job payloads to be sent to your queue driver.
 

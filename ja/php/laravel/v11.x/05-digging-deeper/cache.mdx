@@ -107,7 +107,7 @@ Redis の設定についての詳しい情報は、その[Laravel ドキュメ�
 
 #### DynamoDB
 
-[””DynamoDB””](https://aws.amazon.com/dynamodb) ””cache driver”” を使用する前に、cache した ””data”” をすべて保存するための ””DynamoDB”” テーブルを作成する必要があります。通常、このテーブルの名前は `cache` とすべきです。ただし、テーブルの名前は、 `cache` 設定ファイル内の `stores.dynamodb.table` 設定の ””value”” に基づいて名付けるべきです。また、テーブル名は `DYNAMODB_CACHE_TABLE` ””environment”” variables を通じて設定することも可能です。
+[DynamoDB](https://aws.amazon.com/dynamodb) cache driver を使用する前に、cache した data をすべて保存するための DynamoDB テーブルを作成する必要があります。通常、このテーブルの名前は `cache` とすべきです。ただし、テーブルの名前は、 `cache` 設定ファイル内の `stores.dynamodb.table` 設定の value に基づいて名付けるべきです。また、テーブル名は `DYNAMODB_CACHE_TABLE` environment variables を通じて設定することも可能です。
 
 このテーブルには、アプリケーションの `cache` 設定ファイル内の `stores.dynamodb.attributes.key` 設定項目の value に対応する名前を持つ string パーティションキーも含まれているべきです。 default によると、パーティションキーは `key` という名前であるべきです。
 

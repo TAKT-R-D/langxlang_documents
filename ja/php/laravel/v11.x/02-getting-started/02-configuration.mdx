@@ -361,7 +361,7 @@ default で、 Laravel はファイルベースのシステムを使用して、
 
 `php artisan down` command を デプロイメントの際に使用すると、あなたの users は、Composer の依存関係やその他のインフラストラクチャ components が更新されている間に application にアクセスすると、まだ時折 errors に遭遇する可能性があります。これは、application がメンテナンスモードであることを判断し、テンプレートエンジンを使用してメンテナンスモード view を rendering するために、Laravel フレームワークの重要な部分が ブートする必要があるためです。
 
-このため、””Laravel””は、””request””サイクルの最初に返されるメンテナンスモードの””view””を事前に rendering することを許可しています。この””view””は、application の依存性がロードされる前に rendering されます。あなたは`down` command の `render` option を使用して、選択したテンプレートを事前に rendering することができます:
+このため、Laravel は、request サイクルの最初に返されるメンテナンスモードの view を事前に rendering することを許可しています。この view は、application の依存性がロードされる前に rendering されます。あなたは`down` command の `render` option を使用して、選択したテンプレートを事前に rendering することができます:
 
 ```shell
 php artisan down --render="errors::503"

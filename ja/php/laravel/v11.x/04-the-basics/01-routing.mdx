@@ -456,7 +456,7 @@ Route::get(
 
 #### 名前付き Routes への URL の生成
 
-特定の””route””に名前を割り当てたら、Laravel の `route`や`redirect` helper 関数を通じて URL を生成したり、redirects したりするときに、その””route””の名前を使用することができます。
+特定の route に名前を割り当てたら、Laravel の `route`や`redirect` helper 関数を通じて URL を生成したり、redirects したりするときに、その route の名前を使用することができます。
 
 ```php
 // Generating URLs...
@@ -609,7 +609,7 @@ Route::name('admin.')->group(function () {
 
 ## Route Model Binding
 
-””model”” ID を””routes””や controller action に注入する際には、その ID に対応する””model””を取得するために、””database””を””query””することがよくあります。””Laravel route ””model””バインディングは、””model””のインスタンスを自動的にあなたの””routes””に注入する便利な方法を提供します。たとえば、User の ID を注入する代わりに、指定した ID に一致する`User` ””model””インスタンス全体を注入することができます。
+model ID を routes や controller action に注入する際には、その ID に対応する model を取得するために、database を query することがよくあります。Laravel route model バインディングは、model のインスタンスを自動的にあなたの routes に注入する便利な方法を提供します。たとえば、User の ID を注入する代わりに、指定した ID に一致する`User` model インスタンス全体を注入することができます。
 
 <a name="implicit-binding"></a>
 

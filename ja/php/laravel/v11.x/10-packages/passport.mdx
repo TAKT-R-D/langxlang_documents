@@ -308,7 +308,7 @@ http://example.com/callback,http://examplefoo.com/callback
 
 #### JSON API
 
-あなたの application の””users””は`client`の””command””を利用できないため、Passport は client を作成するための””JSON API””を提供しています。これにより、client の作成、更新、そして””削除””のためのコントローラを手動で””code””する手間が省けます。
+あなたの application の users は`client`の command を利用できないため、Passport は client を作成するための JSON API を提供しています。これにより、client の作成、更新、そして削除のためのコントローラを手動で code する手間が省けます。
 
 しかし、あなたは Passport の JSON API を自身のフロントエンドとペアリングし、 users が自分たちのクライアントを管理するためのダッシュボードを提供する必要があります。以下では、クライアントを管理するための API エンドポイントすべてを見直します。便宜上、エンドポイントへの HTTP requests の作成を示すために[Axios](https://github.com/axios/axios)を使用します。
 
@@ -435,7 +435,7 @@ authorization 承認画面をカスタマイズしたい場合は、`vendor:publ
 php artisan vendor:publish --tag=passport-views
 ```
 
-時々、ファーストパーティの””client””を認証する際など、””authorization prompt””をスキップしたい場合があります。これを実現するために、[`Client` ””model””を拡張](ANL0030)し、`skipsAuthorization` ””method””を定義します。`skipsAuthorization` が `true` を返すと、””client””は承認され、””user””は即座に `redirect_uri` にリダイレクトされます。ただし、消費する””application””が””authorization””のリダイレクト時に `prompt` パラメータを明示的に設定していない場合を除きます。
+時々、ファーストパーティの client を認証する際など、authorization prompt をスキップしたい場合があります。これを実現するために、[`Client` model を拡張](ANL0030)し、`skipsAuthorization` method を定義します。`skipsAuthorization` が `true` を返すと、client は承認され、user は即座に `redirect_uri` にリダイレクトされます。ただし、消費する application が authorization のリダイレクト時に `prompt` パラメータを明示的に設定していない場合を除きます。
 
 ```php
 <?php
@@ -1225,7 +1225,7 @@ Route::get('/orders', function () {
 
 #### 任意のスコープをチェックする
 
-`scope` の””middleware””は、受信した request のアクセス””token””が*少なくとも一つ*のリストされた scope を持っていることを確認するために、””route””に割り当てることができます。
+`scope` の middleware は、受信した request のアクセス token が*少なくとも一つ*のリストされた scope を持っていることを確認するために、route に割り当てることができます。
 
 ```php
 Route::get('/orders', function () {

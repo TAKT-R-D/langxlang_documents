@@ -167,7 +167,7 @@ public function test_basic_example(): void
 
 Laravel application において、 facade は、コンテナから object へのアクセスを提供する class です。これを可能にする仕組みは、`Facade` class にあります。Laravel の facades および作成する custom facades は、基底の`Illuminate\Support\Facades\Facade` class を拡張します。
 
-`Facade`ベースの””class””では、`__callStatic()`マジックメソッドを使って、あなたの””facade””からコンテナから解決された””object””への呼び出しを遅延させます。以下の例では、””Laravel cache””システムへの呼び出しが行われています。この””コード””を一見すると、静的な`get` ””method””が`Cache` ””class””上で呼び出されていると思うかもしれません:
+`Facade`ベースの class では、`__callStatic()`マジックメソッドを使って、あなたの facade からコンテナから解決された object への呼び出しを遅延させます。以下の例では、Laravel cache システムへの呼び出しが行われています。このコードを一見すると、静的な`get` method が`Cache` class 上で呼び出されていると思うかもしれません:
 
 ```php
 <?php

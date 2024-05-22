@@ -375,7 +375,7 @@ $this->app->when(ReportAggregator::class)
 
 ### Tagging
 
-たまに、特定の "category" のバインディング全てを解決する必要があるかもしれません。例えば、あなたが様々な `Report` インターフェースの実装を含む「””array””」を受け取るレポート分析エンジンを作成している場合があります。 `Report` の実装を登録した後、それらに `tag` ””method””を使用して tag を割り当てることができます:
+たまに、特定の "category" のバインディング全てを解決する必要があるかもしれません。例えば、あなたが様々な `Report` インターフェースの実装を含む「array」を受け取るレポート分析エンジンを作成している場合があります。 `Report` の実装を登録した後、それらに `tag` method を使用して tag を割り当てることができます:
 
 ```php
 $this->app->bind(CpuReport::class, function () {

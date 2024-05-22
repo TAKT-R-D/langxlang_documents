@@ -465,7 +465,7 @@ Laravel Precognition パッケージをインストールし、登録したら�
 </form>
 ```
 
-現在、フォームが" user "”が記入すると、Precognition はルートの" form request "”内の" validation "”ルールによって動作するリアルタイムの" validation output "”を提供します。フォームの入力が変更されると、デバウンスされた "precognitive" " validation request "”があなたの" Laravel application "”に送信されます。デバウンスの" timeout "”を設定するには、フォームの `setValidationTimeout` 関数を呼び出すことができます。
+現在、フォームが" user "が記入すると、Precognition はルートの" form request "内の" validation "ルールによって動作するリアルタイムの" validation output "を提供します。フォームの入力が変更されると、デバウンスされた "precognitive" " validation request "があなたの" Laravel application "に送信されます。デバウンスの" timeout "を設定するには、フォームの `setValidationTimeout` 関数を呼び出すことができます。
 
 ```js
 form.setValidationTimeout(3000);
@@ -663,7 +663,7 @@ form.validateFiles();
 
 `HandlePrecognitiveRequests` middleware を route に追加するときには、他の*他の* middleware で事前認知の request 中にスキップすべき副作用があるかどうかを考慮する必要があります。
 
-例えば、あなたが middleware を持っていて、それは各々の user があなたの application との”interactions”を増やすかもしれません。しかし、予知的なリクエストをインタラクションとしてカウントしたくないかもしれません。これを達成するために、インタラクションのカウントを増やす前に、リクエストの `isPrecognitive` method をチェックすることができます:
+例えば、あなたが middleware を持っていて、それは各々の user があなたの application との interactions を増やすかもしれません。しかし、予知的なリクエストをインタラクションとしてカウントしたくないかもしれません。これを達成するために、インタラクションのカウントを増やす前に、リクエストの `isPrecognitive` method をチェックすることができます:
 
 ```php
 <?php

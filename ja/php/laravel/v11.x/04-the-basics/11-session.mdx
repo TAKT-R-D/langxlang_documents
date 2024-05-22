@@ -145,7 +145,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]  
-> `HTTP request`インスタンス経由で””session””を使用するのと、グローバル`session`ヘルパーを使用するのとの間には実質的な違いはほとんどありません。どちらの方法も、すべてのテストケースで利用可能な `assertSessionHas` ””method”” を介して[テスト可能](/ja/php/laravel/v11.x/09-testing/01-testing)です。
+> `HTTP request`インスタンス経由で session を使用するのと、グローバル`session`ヘルパーを使用するのとの間には実質的な違いはほとんどありません。どちらの方法も、すべてのテストケースで利用可能な `assertSessionHas` method を介して[テスト可能](/ja/php/laravel/v11.x/09-testing/01-testing)です。
 
 <a name="retrieving-all-session-data"></a>
 
@@ -373,7 +373,7 @@ class MongoSessionHandler implements \SessionHandlerInterface
 
 - `open` method は、通常、ファイルベースの session ストアシステムで使用されます。 Laravel は`file`の session driver を標準で提供しているため、この method に何かを入れる必要はほとんどありません。この method は空のままにしておくことができます。
 - `close` method は、`open` method と同様に、通常は無視できます。ほとんどの driver では、それは必要ではありません。
-- `read` ””method””は、与えられた `$sessionId` に関連付けられた ””session data”” の ””string”” version を返すべきです。 ””session data”” をあなたの ””driver”” で取得または格納する際に、直列化や他のエンコーディングをする必要はありません。なぜなら、 ””Laravel”” が直列化を行ってくれるからです。
+- `read` method は、与えられた `$sessionId` に関連付けられた session data の string version を返すべきです。 session data をあなたの driver で取得または格納する際に、直列化や他のエンコーディングをする必要はありません。なぜなら、 Laravel が直列化を行ってくれるからです。
 - `write` method は与えられた`$data` string を`$sessionId`と関連付けて、MongoDB や他の選択した storage システムなどの永続的な storage システムに書き込むべきです。再度、任意のシリアライゼーションを実行しないでください - Laravel がすでにそれを処理してくれています。
 - `destroy` method は、`$sessionId`に関連付けられた data を永続的な storage から削除するべきです。
 - `gc` method は、与えられた `$lifetime`よりも古い全ての session data を破棄するべきです。これは UNIX の timestamp です。自身で有効期限が切れるシステム、例えば Memcached や Redis のようなものでは、この method は空のままにしておくことも可能です。

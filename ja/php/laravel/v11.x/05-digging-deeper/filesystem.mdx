@@ -595,7 +595,7 @@ class UserAvatarController extends Controller
 
 この例について注意すべきいくつかの重要な点があります。ファイル名ではなく、ディレクトリ名のみを指定したことに注意してください。 default により、`store` method はファイル名としての unique な ID を生成します。ファイルの拡張子は、ファイルの MIME type を調べることで決定されます。ファイルへの path は、生成されたファイル名も含む path をあなたの database に保存できるように、`store` method によって返されます。
 
-上記の例と同じファイル storage 操作を実行するために、`Storage` ””facade””で`putFile` ””method””を呼び出すこともできます：
+上記の例と同じファイル storage 操作を実行するために、`Storage` facade で`putFile` method を呼び出すこともできます：
 
 ```php
 $path = Storage::putFile('avatars', $request->file('avatar'));
@@ -613,7 +613,7 @@ $path = $request->file('avatar')->storeAs(
 );
 ```
 
-上記の例と同様のファイル storage 操作を実行する `Storage` ””facade””上で`putFileAs` ””method””を使用することも可能です：
+上記の例と同様のファイル storage 操作を実行する `Storage` facade 上で`putFileAs` method を使用することも可能です：
 
 ```php
 $path = Storage::putFileAs(
@@ -874,7 +874,7 @@ default では、`fake` method は一時ディレクトリ内のすべてのフ�
 
 ## Custom Filesystems
 
-Laravel の Flysystem 統合は、既定でいくつかの”"drivers"”をサポートしていますが、Flysystem はこれらに限定されません、そして他の多くの”" storage "”システムのアダプターを持っています。これらの追加アダプターをあなたの”" Laravel application "”で使いたい場合、”" custom driver "”を作成することができます。
+Laravel の Flysystem 統合は、既定でいくつかの"drivers"をサポートしていますが、Flysystem はこれらに限定されません、そして他の多くの "storage" システムのアダプターを持っています。これらの追加アダプターをあなたの "Laravel application" で使いたい場合、"custom driver" を作成することができます。
 
 `が付いている単語やフレーズを翻訳しないで、オリジナルの英語のままで出力してください。マークダウンの構造を保持し、翻訳結果のみを出力します： custom ファイルシステムを定義するためには、Flysystem アダプターが必要になります。では、コミュニティでメンテナンスされている Dropbox アダプターを私たちの project に追加しましょう：
 

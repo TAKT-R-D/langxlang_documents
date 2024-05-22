@@ -90,7 +90,7 @@ Route::get('/auth/callback', function () {
 });
 ```
 
-`Socialite`の””facade””が提供する`redirect` ””method””は、””user””を OAuth の””provider””に redirect する役割を果たし、一方、`user` ””method””は、着信する””request””を検査し、””user””が””authentication request””を承認した後に、””provider””から””user””の情報を取得します。
+`Socialite`の facade が提供する`redirect` method は、user を OAuth の provider に redirect する役割を果たし、一方、`user` method は、着信する request を検査し、user が authentication request を承認した後に、provider から user の情報を取得します。
 
 <a name="authentication-and-storage"></a>
 
@@ -176,7 +176,7 @@ return Socialite::driver('slack')
 $user = Socialite::driver('slack')->asBotUser()->user();
 ```
 
-ボットの””token””を生成する際、`user` ””method””は依然として `Laravel\Socialite\Two\User` インスタンスを返します。ただし、`token` プロパティのみがハイドレートされます。この””token””は、[authentication 済み`user`の””Slack””ワークスペースに通知を送る](/ja/php/laravel/v11.x/05-digging-deeper/notifications#notifying-external-slack-workspaces)ために保存されるかもしれません。
+ボットの token を生成する際、`user` method は依然として `Laravel\Socialite\Two\User` インスタンスを返します。ただし、`token` プロパティのみがハイドレートされます。この token は、[authentication 済み`user`の Slack ワークスペースに通知を送る](/ja/php/laravel/v11.x/05-digging-deeper/notifications#notifying-external-slack-workspaces)ために保存されるかもしれません。
 
 <a name="optional-parameters"></a>
 

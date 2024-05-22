@@ -26,7 +26,7 @@ org_title: "Error Handling"
 
 ## Introduction
 
-新しい Laravel project を開始するとき、すでに””error””および例外処理が設定されています。しかし、いつでも、あなたの””application””の `bootstrap/app.php` で `withExceptions` ””method””を使用して、例外があなたの””application””によってどのように報告され、描画されるかを管理することができます。
+新しい Laravel project を開始するとき、すでに error および例外処理が設定されています。しかし、いつでも、あなたの application の `bootstrap/app.php` で `withExceptions` method を使用して、例外があなたの application によってどのように報告され、描画されるかを管理することができます。
 
 `withExceptions`クロージャに提供される`$exceptions` object は、`Illuminate\Foundation\Configuration\Exceptions`のインスタンスであり、あなたの application における例外処理の管理を担当しています。この object については、このドキュメンテーション全体で詳しく掘り下げていきます。
 
@@ -219,7 +219,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 default では、 Laravel の例外 handler は、 exceptions をあなたのために HTTP response に変換します。ただし、与えられた type の exceptions に対して、 custom なレンダリングクロージャを register することが自由です。これは、アプリケーションの`bootstrap/app.php`ファイル内の`render`例外 method を使用して達成することができます。
 
-`render` ””method””に渡されるクロージャは、`response` helper を介して生成することが可能な `Illuminate\Http\Response` のインスタンスを返すべきです。””Laravel””は、クロージャの””type””ヒントを調べることにより、クロージャが rendering する””type””の例外を判断します。
+`render` method に渡されるクロージャは、`response` helper を介して生成することが可能な `Illuminate\Http\Response` のインスタンスを返すべきです。Laravel は、クロージャの type ヒントを調べることにより、クロージャが rendering する type の例外を判断します。
 
 ```php
 use App\Exceptions\InvalidOrderException;
@@ -232,7 +232,7 @@ use Illuminate\Http\Request;
 })
 ```
 
-あなたはまた、組み込みの ””Laravel”” または Symfony の ””exceptions”” 、たとえば `NotFoundHttpException` の rendering 動作を上書きするために`render` ””method”” を使用することもできます。`render` ””method”” に与えられたクロージャが ””value”” を返さない場合、””Laravel”” の ””default”” の例外 rendering が利用されます。
+あなたはまた、組み込みの Laravel または Symfony の exceptions 、たとえば `NotFoundHttpException` の rendering 動作を上書きするために`render` method を使用することもできます。`render` method に与えられたクロージャが value を返さない場合、Laravel の default の例外 rendering が利用されます。
 
 ```php
 use Illuminate\Http\Request;
@@ -483,4 +483,4 @@ php artisan vendor:publish --tag=laravel-errors
 
 #### フォールバック HTTP Error ページ
 
-また、一連の "fallback" error ページを特定の HTTP status code コード用に定義することもできます。具体的な HTTP status コード” に対応するページが存在しない場合、このページが rendering されます。これを実現するには、あなたの application の `resources/views/errors` ディレクトリに `4xx.blade.php` テンプレートと `5xx.blade.php` テンプレートを定義してください。
+また、一連の "fallback" error ページを特定の HTTP status code コード用に定義することもできます。具体的な HTTP status コード に対応するページが存在しない場合、このページが rendering されます。これを実現するには、あなたの application の `resources/views/errors` ディレクトリに `4xx.blade.php` テンプレートと `5xx.blade.php` テンプレートを定義してください。

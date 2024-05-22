@@ -615,7 +615,7 @@ $response = Http::post(/* ... */);
 
 #### 特定の URL を偽装する
 
-あるいは、`fake` ””method””に””array””を渡すことも可能です。その””array””の””keys””は、あなたが””fake””にしたい””URL””のパターンを表し、それらに関連する`response`s です。`*`はワイルドカード文字として使用できます。フェイクされていない””URL””への requests は実際に実行されます。これらのエンドポイントに対する stub / ””fake”” responses を構築するために、`Http` facade の `response` ””method””を使用できます。
+あるいは、`fake` method に array を渡すことも可能です。その array の keys は、あなたが fake にしたい URL のパターンを表し、それらに関連する`response`s です。`*`はワイルドカード文字として使用できます。フェイクされていない URL への requests は実際に実行されます。これらのエンドポイントに対する stub / fake responses を構築するために、`Http` facade の `response` method を使用できます。
 
 ```php
 Http::fake([

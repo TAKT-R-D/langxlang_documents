@@ -369,7 +369,7 @@ $input = $request->input();
 
 #### Query String からの Input の取得
 
-`input` ””method””は、全体の””request””ペイロード(””query string””を含む)から””values””を取得しますが、`query` ””method””は、”query string””からのみ””values””を取得します：
+`input` method は、全体の request ペイロード(query string を含む)から values を取得しますが、`query` method は、query string からのみ values を取得します：
 
 ```php
 $name = $request->query('name');
@@ -381,7 +381,7 @@ $name = $request->query('name');
 $name = $request->query('name', 'Helen');
 ```
 
-あなたは全ての query string の values を関連付けられた””array””として取得するために、引数なしで `query`””method””を呼び出すことができます。
+あなたは全ての query string の values を関連付けられた array として取得するために、引数なしで `query`method を呼び出すことができます。
 
 ```php
 $query = $request->query();
@@ -652,7 +652,7 @@ Laravel はグローバルな`old`ヘルパーも提供しています。古い 
 
 #### リクエストからクッキーを取得する
 
-””Laravel””フレームワークによって作成されたすべての cookies は、暗号化され、””authentication code””で署名されています。これは、もし cookies が””client””によって変更されていたら、それは””invalid””とみなされることを意味します。 ””request””から””cookie value””を取得するには、 `Illuminate\Http\Request` インスタンス上で `cookie` ””method””を使用します。
+Laravel フレームワークによって作成されたすべての cookies は、暗号化され、authentication code で署名されています。これは、もし cookies が client によって変更されていたら、それは invalid とみなされることを意味します。 request から cookie value を取得するには、 `Illuminate\Http\Request` インスタンス上で `cookie` method を使用します。
 
 ```php
 $value = $request->cookie('name');

@@ -738,7 +738,7 @@ $collection->eachSpread(function (string $name, int $age) {
 
 #### `ensure()`
 
-`ensure` method は、 collection のすべての”エレメント”が指定された elements または type のリストであることを検証するために使用できます。そうでない場合、`UnexpectedValueException`が throw されます：
+`ensure` method は、 collection のすべてのエレメントが指定された elements または type のリストであることを検証するために使用できます。そうでない場合、`UnexpectedValueException`が throw されます：
 
 ```php
 return $collection->ensure(User::class);
@@ -1647,7 +1647,7 @@ $median = collect([1, 1, 2, 4])->median();
 
 #### `merge()`
 
-`merge` ””method”” は与えられた ””array”” または ””collection”” を元の ””collection”” と merges します。与えられたアイテムの””string”” key が元の””collection””の””string”” key と一致する場合、与えられたアイテムの””value””は元の””collection””の””value””を上書きします：
+`merge` method は与えられた array または collection を元の collection と merges します。与えられたアイテムの string key が元の collection の string key と一致する場合、与えられたアイテムの value は元の collection の value を上書きします：
 
 ```php
 $collection = collect(['product_id' => 1, 'price' => 100]);
@@ -3059,7 +3059,7 @@ $collection->all();
 
 #### `toArray()`
 
-`toArray` ””method””は””collection””をプレーンな PHP `array` に変換します。もしコレクションの””values””が[””Eloquent””](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent) ””models””であれば、””models””も arrays に変換されます：
+`toArray` method は collection をプレーンな PHP `array` に変換します。もしコレクションの values が[Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent) models であれば、models も arrays に変換されます：
 
 ```php
 $collection = collect(['name' => 'Desk', 'price' => 200]);

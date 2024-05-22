@@ -373,7 +373,7 @@ $posts = Post::whereBelongsTo($user, 'author')->get();
 
 ### たくさんの中の一つがある
 
-時には、" model "が多数の関連" models "を持っている場合でも、関連性の中で"最新"または"最古"の”" model "を簡単に取得したいと思うことがあります。たとえば、`User` " model "が多数の`Order` " models "と関連しているが、”" user "が最も最近発注した注文と便利にやり取りをする方法を定義したいとします。これは、`hasOne` 関連性" type "と `ofMany` メソッドの組み合わせを使用して達成できます。
+時には、" model "が多数の関連" models "を持っている場合でも、関連性の中で"最新"または"最古"の" model "を簡単に取得したいと思うことがあります。たとえば、`User` " model "が多数の`Order` " models "と関連しているが、" user "が最も最近発注した注文と便利にやり取りをする方法を定義したいとします。これは、`hasOne` 関連性" type "と `ofMany` メソッドの組み合わせを使用して達成できます。
 
 ```php
 /**
@@ -1159,7 +1159,7 @@ $comment = Comment::find(1);
 $commentable = $comment->commentable;
 ```
 
-`Comment`の””model””にある`commentable`関係は、Comment の親となる””model””の””type””により、`Post`または`Video`のインスタンスを返します。
+`Comment`の model にある`commentable`関係は、Comment の親となる model の type により、`Post`または`Video`のインスタンスを返します。
 
 <a name="one-of-many-polymorphic-relations"></a>
 
@@ -1214,7 +1214,7 @@ public function bestImage(): MorphOne
 
 #### テーブル構造
 
-多対多のポリモーフィック関連は、"morph one"と"morph many"との関係よりも少し複雑です。たとえば、`Post` ””model””と`Video` ””model””は、`Tag` ””model””に対してポリモーフィック関係を共有することができます。この場合、多対多のポリモーフィック関係を使用すると、あなたの ””application””には、””posts””や videos と関連付けられる可能性のある””一意の tags””の””単一””のテーブルを持つことができます。まず、この関係を””構築””するために””必要””なテーブル構造を見てみましょう。
+多対多のポリモーフィック関連は、"morph one"と"morph many"との関係よりも少し複雑です。たとえば、`Post` model と`Video` model は、`Tag` model に対してポリモーフィック関係を共有することができます。この場合、多対多のポリモーフィック関係を使用すると、あなたの application には、posts や videos と関連付けられる可能性のある一意の tags の単一のテーブルを持つことができます。まず、この関係を構築するために必要なテーブル構造を見てみましょう。
 
 ```php
 posts
@@ -1370,7 +1370,7 @@ $class = Relation::getMorphedModel($alias);
 
 ### ダイナミックな関係性
 
-`resolveRelationUsing`の””method””を使用して、Eloquent models 間の関係をランタイムで定義することができます。通常、””application””の development には推奨されませんが、””Laravel””パッケージを development する際には時折役立つ場合があります。
+`resolveRelationUsing`の method を使用して、Eloquent models 間の関係をランタイムで定義することができます。通常、application の development には推奨されませんが、Laravel パッケージを development する際には時折役立つ場合があります。
 
 `resolveRelationUsing` method は、第一引数として望ましいリレーションシップ名を受け入れます。第二引数として method に渡されるものは、 model インスタンスを受け入れ、有効な Eloquent リレーションシップ定義を返すクロージャであるべきです。一般的には、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の boot method 内で動的リレーションシップを設定するべきです。
 
@@ -1752,7 +1752,7 @@ foreach ($posts as $post) {
 }
 ```
 
-`loadCount`””method””のように、これらのメソッドの遅延 versions も利用可能です。これらの追加の集約操作は、すでに””取得””された””Eloquent models””に対して実行できます:
+`loadCount`method のように、これらのメソッドの遅延 versions も利用可能です。これらの追加の集約操作は、すでに取得された Eloquent models に対して実行できます:
 
 ```php
 $post = Post::first();

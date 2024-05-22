@@ -204,7 +204,7 @@ Route::get('/users', function () {
 
 #### 基礀となる Resource Class のカスタマイズ
 
-通常、””resource collection””の`$this->collection`プロパティは、””collection””の各アイテムを各々の””resource class””にマッピングした結果で自動的に構成されます。その単数形の””resource class””は、””class””名の末尾の`Collection`部分を除いたコレクションの””class””名と仮定されています。さらに、個人の好みにより、その単数形の””resource class””に`Resource`が追加されるかどうかも異なります。
+通常、resource collection の`$this->collection`プロパティは、collection の各アイテムを各々の resource class にマッピングした結果で自動的に構成されます。その単数形の resource class は、class 名の末尾の`Collection`部分を除いたコレクションの class 名と仮定されています。さらに、個人の好みにより、その単数形の resource class に`Resource`が追加されるかどうかも異なります。
 
 たとえば、`UserCollection`は与えられた user のインスタンスを`UserResource`の resource にマッピングしようと attempt 。この振る舞いをカスタマイズするには、 resource collection の`$collects`プロパティをオーバーライドすることができます。
 
@@ -449,7 +449,7 @@ class CommentsCollection extends ResourceCollection
 
 #### Data ラッピングと Pagination
 
-`withoutWrapping` ””method”” が呼び出されたとしても、 ””Laravel”” はページ分割された ””collections”” を ””resource response”” を通して返す際に、resource data を `data` ””keys””内に包み込みます。これは、ページ分割された responses が常に `meta`と`links`という””keys”” を含んでおり、それらがページネーターのステートに関する情報を持っているからです。
+`withoutWrapping` method が呼び出されたとしても、 Laravel はページ分割された collections を resource response を通して返す際に、resource data を `data` keys 内に包み込みます。これは、ページ分割された responses が常に `meta`と`links`という keys を含んでおり、それらがページネーターのステートに関する情報を持っているからです。
 
 ```json
 {

@@ -268,7 +268,7 @@ Route::get('/{locale}/posts', function () {
 })->name('post.index');
 ```
 
-`route` helper を呼び出すたびに毎回 `locale` を渡すのは面倒です。したがって、 `URL::defaults` ””method””を使用して、このパラメーターの””default value””を定義し、現在の””request””の間は常に適用できるようにすることができます。現在の””request””にアクセスできるように、この””method””を[””route middleware””](/ja/php/laravel/v11.x/04-the-basics/02-middleware#assigning-middleware-to-routes)から呼び出すことを検討してみて下さい。
+`route` helper を呼び出すたびに毎回 `locale` を渡すのは面倒です。したがって、 `URL::defaults` method を使用して、このパラメーターの default value を定義し、現在の request の間は常に適用できるようにすることができます。現在の request にアクセスできるように、この method を[route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware#assigning-middleware-to-routes)から呼び出すことを検討してみて下さい。
 
 ```php
 <?php

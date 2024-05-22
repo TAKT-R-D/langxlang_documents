@@ -926,7 +926,7 @@ public function isSelected(string $option): bool
 
 #### Component クラス内の Attributes とスロットへのアクセス
 
-””Blade””component””は、class の rendering ””method””内で””component””名、属性、およびスロットにアクセスすることも可能です。ただし、この””data””にアクセスするためには、`render` ””method””からクロージャを返すべきです。このクロージャは、引数として`$data` ””array””を受け取ります。この””array””には、””component””に関する情報を提供するいくつかの要素が含まれています。
+Blade component は、class の rendering method 内で component 名、属性、およびスロットにアクセスすることも可能です。ただし、この data にアクセスするためには、`render` method からクロージャを返すべきです。このクロージャは、引数として`$data` array を受け取ります。この array には、component に関する情報を提供するいくつかの要素が含まれています。
 
 ```php
 use Closure;
