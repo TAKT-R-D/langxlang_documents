@@ -1,0 +1,366 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/06-optimizing/04-metadata.mdx
+title: Metadata
+description: Use the Metadata API to define metadata in any layout or page.
+org_title: Metadata
+org_path: /docs/app/building-your-application/optimizing/metadata
+is_empty: false
+---
+
+Next.js は、あなたのアプリケーションの metadata (例えば、`meta`や`link`タグをあなたの HTML の`head`要素内に定義する)を設定するために使用できる Metadata API を持っており、 SEO の改善とウェブの共有性を向上させます。
+
+アプリケーションに metadata を追加する方法は 2 つあります：
+
+- **設定ベースの Metadata **：[静的な `metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#metadata-object) または dynamic の [`generateMetadata` 関数](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function)を`layout.js`または`page.js`ファイルに Export します。
+- **ファイルベースの Metadata **: スタティックまたは動的に生成される特別なファイルを route セグメントに追加します。
+
+これらの options、Next.js を使用すると、自動的にページに対応する`<head>`要素が生成されます。また、[`ImageResponse`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) コンストラクタを使って dynamic な OG 画像を作成することもできます。
+
+## Static Metadata
+
+静的な metadata を定義するには、`layout.js`または静的な`page.js`ファイルから[`Metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#metadata-object)を export します。
+
+```tsx:layout.tsx
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '...',
+  description: '...',
+}
+
+export default function Page() {}
+```
+
+```jsx:layout.js
+export const metadata = {
+  title: '...',
+  description: '...',
+}
+
+export default function Page() {}
+```
+
+すべての利用可能な options については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)を参照してください。
+
+## Dynamic Metadata
+
+`generateMetadata`関数を使用して、`fetch`する必要がある metadata が dynamic な値を要求します。
+
+```tsx:app/products/[id]/page.tsx
+import type { Metadata, ResolvingMetadata } from 'next'
+
+type Props = {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+  const id = params.id
+
+  // fetch data
+  const product = await fetch(`https://.../${id}`).then((res) => res.json())
+
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: product.title,
+    openGraph: {
+      images: ['/some-specific-page-image.jpg', ...previousImages],
+    },
+  }
+}
+
+export default function Page({ params, searchParams }: Props) {}
+```
+
+```jsx:app/products/[id]/page.js
+export async function generateMetadata({ params, searchParams }, parent) {
+  // read route params
+  const id = params.id
+
+  // fetch data
+  const product = await fetch(`https://.../${id}`).then((res) => res.json())
+
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: product.title,
+    openGraph: {
+      images: ['/some-specific-page-image.jpg', ...previousImages],
+    },
+  }
+}
+
+export default function Page({ params, searchParams }) {}
+```
+
+すべての使用可能な params については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata) をご覧ください。
+
+> **Good to know**:
+>
+> - 静的と dynamic metadata を通じての`generateMetadata`は、**Server Components**でのみサポートされています。
+> - `fetch`の要求は、`generateMetadata`、`generateStaticParams`、Layout、ページ、そして Server Components に跨って同じデータに対して自動的に[メモ化](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#request-memoization)されます。`fetch`が利用できない場合、React の[`cache`を使用することができます](/docs/app/building-your-application/caching#request-memoization)。
+> - Next.js は、UI を client に Streaming する前に、`generateMetadata`内でのデータフェッチが完了するのを待ちます。これにより、[Streaming された response](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)の最初の部分が`<head>`タグを含むことが保証されます。
+
+## File-based metadata
+
+これらの特別なファイルは metadata のために利用可能です：
+
+- [favicon.ico、apple-icon.jpg、そして icon.jpg](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons)
+- [opengraph-image.jpg と twitter-image.jpg](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image)
+- [robots.txt](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/robots)
+- [sitemap.xml](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/sitemap)
+
+これらは静的な metadata として使用することも、code でこれらのファイルをプログラム的に生成することもできます。
+
+実装と例については、[Metadata Files](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata) API Reference および[Dynamic Image Generation](#dynamic-image-generation)を参照してください。
+
+## Behavior
+
+ファイルベースの metadata は、より高い priority を持ち、任意の config ベースの metadata を上書きします。
+
+### Default フィールド
+
+metadata を定義しない route であっても、常に追加される二つの default `meta`タグがあります：
+
+- [meta charset tag](https://developer.mozilla.org/docs/Web/HTML/Element/meta#attr-charset)は、ウェブサイトの文字エンコーディングを設定します。
+- [meta viewport タグ](https://developer.mozilla.org/docs/Web/HTML/Viewport_meta_tag)はウェブサイトがさまざまなデバイスに対応できるように、viewport width とスケールを設定します。
+
+```html
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+```
+
+> **Good to know**: default の[`viewport`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#viewport)の meta タグを上書きすることができます。
+
+### Ordering
+
+Metadata は、root セグメントから最終的な`page.js`セグメントに最も近いセグメントまでの順番で評価されます。例えば:
+
+1. `app/layout.tsx` (Root Layout)
+2. `app/blog/layout.tsx`(ネストされたブログ Layout)
+3. `app/blog/[slug]/page.tsx` (ブログページ)
+
+### Merging
+
+[評価順序](#ordering)に従って、同じ route 内の複数のセグメントから export された MetadataObject は、**浅く**最終的な route の metadata 出力を形成するためにマージされます。重複するキーはそれらの順序に基づいて**置換**されます。
+
+これは、以前のセグメントで定義された[`openGraph`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#opengraph)や[`robots`](/docs/app/api-reference/functions/generate-metadata#robots)などのネストされたフィールドを持つ metadata を意味します。それらは最後のセグメントで定義することにより**上書き**されます。
+
+#### フィールドの上書き
+
+```jsx:app/layout.js
+export const metadata = {
+  title: 'Acme',
+  openGraph: {
+    title: 'Acme',
+    description: 'Acme is a...',
+  },
+}
+```
+
+```jsx:app/blog/page.js
+export const metadata = {
+  title: 'Blog',
+  openGraph: {
+    title: 'Blog',
+  },
+}
+
+// Output:
+// <title>Blog</title>
+// <meta property="og:title" content="Blog" />
+```
+
+上記の例では：
+
+- `app/layout.js`の`title`は、`app/blog/page.js`の`title`に**置き換えられます**。
+- すべての `openGraph` フィールドは、`app/layout.js` から `app/blog/page.js` に**置き換えられ**ます。なぜなら `app/blog/page.js` は `openGraph` metadata を設定するからです。 `openGraph.description` の欠如に注意してください。
+
+あるセグメント間でネストしたフィールドの一部を共有しながら、他のフィールドを上書きしたい場合、それらを別の variable に引き出すことができます。
+
+```jsx:app/shared-metadata.js
+export const openGraphImage = { images: ['http://...'] }
+```
+
+```jsx:app/page.js
+import { openGraphImage } from './shared-metadata'
+
+export const metadata = {
+  openGraph: {
+    ...openGraphImage,
+    title: 'Home',
+  },
+}
+```
+
+```jsx:app/about/page.js
+import { openGraphImage } from '../shared-metadata'
+
+export const metadata = {
+  openGraph: {
+    ...openGraphImage,
+    title: 'About',
+  },
+}
+```
+
+上記の例では、OG の image は`app/layout.js`と`app/about/page.js`で共有されていますが、タイトルは異なります。
+
+#### フィールドを継承する
+
+```jsx:app/layout.js
+export const metadata = {
+  title: 'Acme',
+  openGraph: {
+    title: 'Acme',
+    description: 'Acme is a...',
+  },
+}
+```
+
+```jsx:app/about/page.js
+export const metadata = {
+  title: 'About',
+}
+
+// Output:
+// <title>About</title>
+// <meta property="og:title" content="Acme" />
+// <meta property="og:description" content="Acme is a..." />
+```
+
+**Notes**
+
+- `app/layout.js`の`title`は`app/about/page.js`の`title`に**置き換えられます**。
+- すべての `openGraph` フィールドは、`app/layout.js` から **継承** されて `app/about/page.js` に存在します。なぜなら、`app/about/page.js` は `openGraph` metadata を設定していないからです。
+
+## Dynamic Image Generation
+
+`ImageResponse`コンストラクタは、JSX と CSS を使用して dynamic な画像を生成することができます。これは、Open Graph の画像や、Twitter カードなどのソーシャルメディア画像を作成するのに便利です。
+
+`ImageResponse`は[Edge Runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#edge-runtime)を使用し、Next.js は自動的にキャッシュされた画像に適切な headers を追加し、edge でのパフォーマンスを向上させ再計算を減らします。
+
+それを使用するには、`next/og`から`ImageResponse`を import することができます。
+
+```jsx:app/about/route.js
+import { ImageResponse } from 'next/og'
+
+export const runtime = 'edge'
+
+export async function GET() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          fontSize: 128,
+          background: 'white',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          textAlign: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        Hello world!
+      </div>
+    ),
+    {
+      width: 1200,
+      height: 600,
+    }
+  )
+}
+```
+
+`ImageResponse`は他の Next.js API、[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)やファイルベースの Metadata とよく統合されます。例えば、 `opengraph-image.tsx` ファイルで `ImageResponse`を使用して、 Open Graph の画像を build 時または動的に request 時に生成することができます。
+
+`ImageResponse`は、フレックスボックスや絶対配置、カスタムフォント、テキストの折り返し、中央寄せ、ネストした画像など、一般的な CSS プロパティをサポートしています。[サポートされている CSS プロパティの完全なリストを見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response)。
+
+> **Good to know**:
+>
+> - 例は、[Vercel OG Playground](https://og-playground.vercel.app/)で利用できます。
+> - `ImageResponse`は[@vercel/og](https://vercel.com/docs/concepts/functions/edge-functions/og-image-generation)、[Satori](https://github.com/vercel/satori)、そして Resvg を使用して、HTML と CSS を PNG に変換します。
+> - Edge Runtime のみがサポートされます。default Node.js runtime は機能しません。
+> - Flexbox と CSS プロパティの一部のみがサポートされています。高度な Layout(例えば、`display: grid`)は機能しません。
+> - `500KB`の最大バンドル size。バンドルの size には、あなたの JSX、CSS、フォント、画像、およびその他のアセットが含まれます。これを超える場合は、任意のアセットの size を減らすか、runtime で取得することを検討してください。
+> - ただし、`ttf`、`otf`、`woff`といったフォントの formats のみがサポートされています。フォントの解析速度を最大化するために、`woff`よりも`ttf`または`otf`が優先されます。
+
+## JSON-LD
+
+[JSON-LD](https://json-ld.org/)は、検索エンジンがあなたのコンテンツを理解するために使用できる構造化データのフォーマットです。例えば、それを使って人物、イベント、組織、映画、書籍、レシピなど、さまざまな種類のエンティティを説明することができます。
+
+現在、JSON-LD に対する私たちの推奨方針は、`layout.js`または`page.js`Component で構造化データを`<script>`タグとして render することです。例えば：
+
+```tsx:app/products/[id]/page.tsx
+export default async function Page({ params }) {
+  const product = await getProduct(params.id)
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.image,
+    description: product.description,
+  }
+
+  return (
+    <section>
+      {/* Add JSON-LD to your page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* ... */}
+    </section>
+  )
+}
+```
+
+```jsx:app/products/[id]/page.js
+export default async function Page({ params }) {
+  const product = await getProduct(params.id)
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.image,
+    description: product.description,
+  }
+
+  return (
+    <section>
+      {/* Add JSON-LD to your page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* ... */}
+    </section>
+  )
+}
+```
+
+[Rich Results Test](https://search.google.com/test/rich-results)で Google の構造化データを検証し、test することができます。また、汎用の[Schema Markup Validator](https://validator.schema.org/)も利用できます。
+
+あなたは、[`schema-dts`](https://www.npmjs.com/package/schema-dts) のようなコミュニティパッケージを使用して、JSON-LD を TypeScript で type することができます:
+
+```tsx
+import { Product, WithContext } from "schema-dts";
+
+const jsonLd: WithContext<Product> = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "Next.js Sticker",
+  image: "https://nextjs.org/imgs/sticker.png",
+  description: "Dynamic at the speed of static.",
+};
+```

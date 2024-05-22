@@ -1,0 +1,155 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/next-request.mdx
+title: NextRequest
+description: API Reference for NextRequest.
+org_title: NextRequest
+org_path: /docs/app/api-reference/functions/next-request
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+NextRequest は、追加の便利な Method で[Web Request API](https://developer.mozilla.org/docs/Web/API/Request)を拡張します。
+
+## `cookies`
+
+[`Set-Cookie`](https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie) header を request で読み込むか変更します。
+
+### `set(name, value)`
+
+名前が指定された場合、その指定された value を用いて、request 上に cookie を設定します。
+
+```ts
+// Given incoming request /home
+// Set a cookie to hide the banner
+// request will have a `Set-Cookie:show-banner=false;path=/home` header
+request.cookies.set("show-banner", "false");
+```
+
+### `get(name)`
+
+cookie の名前が与えられた場合、その cookie の value を返します。もし cookie が見つからなければ、`undefined`が返されます。複数の cookies が見つかった場合は、最初のものが返されます。
+
+```ts
+// Given incoming request /home
+// { name: 'show-banner', value: 'false', Path: '/home' }
+request.cookies.get("show-banner");
+```
+
+### `getAll()`
+
+cookie の名前が指定された場合、その cookie の値を返します。名前が指定されていない場合、request 上のすべての cookies を返します。
+
+```ts
+// Given incoming request /home
+// [
+//   { name: 'experiments', value: 'new-pricing-page', Path: '/home' },
+//   { name: 'experiments', value: 'winter-launch', Path: '/home' },
+// ]
+request.cookies.getAll("experiments");
+// Alternatively, get all cookies for the request
+request.cookies.getAll();
+```
+
+### `delete(name)`
+
+cookie の名前が与えられた場合、その cookie を request から delete してください。
+
+```ts
+// Returns true for deleted, false is nothing is deleted
+request.cookies.delete("experiments");
+```
+
+### `has(name)`
+
+cookie の名前が与えられた場合、その cookie が request 上に存在する場合は`true`を返します。
+
+```ts
+// Returns true if cookie exists, false if it does not
+request.cookies.has("experiments");
+```
+
+### `clear()`
+
+`Set-Cookie`の header を request から削除してください。
+
+```ts
+request.cookies.clear();
+```
+
+## `nextUrl`
+
+ネイティブの [`URL`](https://developer.mozilla.org/docs/Web/API/URL) API を拡張し、Next.js 特有のプロパティを含む追加の便利な Method を提供します。
+
+```ts
+// Given a request to /home, pathname is /home
+request.nextUrl.pathname;
+// Given a request to /home?name=lee, searchParams is { 'name': 'lee' }
+request.nextUrl.searchParams;
+```
+
+次の options が利用可能です。
+
+<PagesOnly>
+
+| プロパティ        | Type                      | Description                                                                                                                                               |
+| ----------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `basePath`        | `string`                  | URL の[ベース path](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/basePath)。                                                    |
+| `buildId`         | `string` \| `undefined`   | Next.js アプリケーションの build 識別子。[カスタマイズ](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/generateBuildId)可能です。 |
+| `defaultLocale`   | `string` \| `undefined`   | [国際化](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)のための default locale 。                   |
+| `domainLocale`    |                           |                                                                                                                                                           |
+| - `defaultLocale` | `string`                  | ドメイン内の default locale 。                                                                                                                            |
+| - `domain`        | `string`                  | 特定の locale に関連付けられたドメイン。                                                                                                                  |
+| - `http`          | `boolean` \| `undefined`  | ドメインが HTTP を使用しているかどうかを示します。                                                                                                        |
+| `locales`         | `string[]` \| `undefined` | 利用可能な locales の配列。                                                                                                                               |
+| `locale`          | `string` \| `undefined`   | 現在アクティブな locale 。                                                                                                                                |
+| `URL`             | `url`                     | URL object 。                                                                                                                                             |
+
+</PagesOnly>
+
+<AppOnly>
+
+| プロパティ     | Type                    | Description                                                                                                                                             |
+| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `basePath`     | `string`                | URL の[基本 path](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/basePath)。                                                      |
+| `buildId`      | `string` \| `undefined` | Next.js アプリケーションの build 識別子。[カスタマイズ](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/generateBuildId)可能です。 |
+| `pathname`     | `string`                | URL の pathname.                                                                                                                                        |
+| `searchParams` | `Object`                | URL の検索パラメータ。                                                                                                                                  |
+
+> **注意:** Pages Router からの国際化プロパティは、 App Router で使用することはできません。[App Router による国際化](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/14-internationalization)についてさらに詳しく学んでください。
+
+</AppOnly>
+
+## `ip`
+
+`ip` プロパティは、request の IP アドレスを含む string です。この value は、ホスティングプラットフォームからオプションで提供されることがあります。
+
+> **Good to know:** [Vercel](https://vercel.com/docs/frameworks/nextjs?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)では、この value は default によって提供されます。他のプラットフォームでは、IP アドレスを提供するために[`X-Forwarded-For`](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Forwarded-For) header を使用することができます。
+
+```ts
+// Provided by Vercel
+request.ip;
+// Self-hosting
+request.headers.get("X-Forwarded-For");
+```
+
+## `geo`
+
+`geo`プロパティは、request の地理的情報を含む object です。この value は、あなたのホスティングプラットフォームによってオプションで提供することができます。
+
+> **Good to know:** [Vercel](https://vercel.com/docs/frameworks/nextjs?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)では、この value は default によって提供されます。他のプラットフォームでは、[`X-Forwarded-For`](https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Forwarded-For) header を使用して IP アドレスを提供し、その後[第三者サービス](https://ip-api.com/)を使用して地理情報を検索します。
+
+```ts
+// Provided by Vercel
+request.geo.city;
+request.geo.country;
+request.geo.region;
+request.geo.latitude;
+request.geo.longitude;
+
+// Self-hosting
+function getGeo(request) {
+  let ip = request.headers.get("X-Forwarded-For");
+  // Use a third-party service to lookup the geographic information
+}
+```

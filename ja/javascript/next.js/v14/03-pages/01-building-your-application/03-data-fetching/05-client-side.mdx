@@ -1,0 +1,74 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/03-data-fetching/05-client-side.mdx
+title: Client-side Fetching
+description: Learn about client-side data fetching, and how to use SWR, a data fetching React hook library that handles caching, revalidation, focus tracking, refetching on interval and more.
+org_title: Client-side Fetching
+org_path: /docs/pages/building-your-application/data-fetching/client-side
+is_empty: false
+---
+
+Client 側のデータ取得は、ページが require SEO インデキシングを必要としない場合、データを事前にレンダリングする必要がない場合、またはページの内容を頻繁に更新する必要がある場合に便利です。 server-side renderingAPI とは異なり、Client 側のデータ取得は component レベルで使用することができます。
+
+ページレベルで行われた場合、データは runtime で取得され、データが変更されるとページの内容が更新されます。 component レベルで使用された場合、データは component のマウント時に取得され、データが変更されると component の内容が更新されます。
+
+Client・サイドデータフェッチングを使用すると、アプリケーションのパフォーマンスとページの読み込み速度に影響を与える可能性があることに注意が必要です。これは、データのフェッチングが component やページのマウント時に行われ、データがキャッシュされないためです。
+
+## Client-side data fetching with useEffect
+
+次の例は、あなたが client 側で useEffect hook を使用してデータを fetch する方法を示しています。
+
+```jsx
+import { useState, useEffect } from "react";
+
+function Profile() {
+  const [data, setData] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/profile-data")
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+        setLoading(false);
+      });
+  }, []);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (!data) return <p>No profile data</p>;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.bio}</p>
+    </div>
+  );
+}
+```
+
+## Client-side data fetching with SWR
+
+Next.js の開発チームが、データ取得用の React hook library を作成しました。その名も[**SWR**](https://swr.vercel.app/)です。Client サイドでデータを取得している場合、**非常におすすめ**です。キャッシュ管理、再検証、フォーカストラッキング、定期的な再取得など、さまざまな機能を取り扱っています。
+
+上記と同じ例を用いて、今度は SWR を使って fetch プロファイルデータを取得できます。SWR は自動的にデータを cache してくれ、データが stale になった場合には revalidate してくれます。
+
+SWR の使用方法についての詳細は、[SWR docs](https://swr.vercel.app/docs/getting-started)をご覧ください。
+
+```jsx
+import useSWR from "swr";
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
+function Profile() {
+  const { data, error } = useSWR("/api/profile-data", fetcher);
+
+  if (error) return <div>Failed to load</div>;
+  if (!data) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.bio}</p>
+    </div>
+  );
+}
+```

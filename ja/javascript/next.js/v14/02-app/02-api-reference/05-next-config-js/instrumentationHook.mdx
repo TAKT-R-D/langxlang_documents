@@ -1,0 +1,20 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/instrumentationHook.mdx
+title: instrumentationHook
+description: Use the instrumentationHook option to set up instrumentation in your Next.js App.
+org_title: instrumentationHook
+org_path: /docs/app/api-reference/next-config-js/instrumentationHook
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+実験的な `instrumentationHook` オプションは、 Next.js App 内の[`instrumentation` ファイル](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/instrumentation)を介して instrumentation を設定することを可能にします。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    instrumentationHook: true,
+  },
+}
+```

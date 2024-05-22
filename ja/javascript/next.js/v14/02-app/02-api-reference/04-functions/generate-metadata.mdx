@@ -1,0 +1,1134 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/generate-metadata.mdx
+title: Metadata Object and generateMetadata Options
+description: Learn how to add Metadata to your Next.js application for improved search engine optimization (SEO) and web shareability.
+org_title: Metadata Object and generateMetadata Options
+org_path: /docs/app/api-reference/functions/generate-metadata
+is_empty: false
+nav_title: generateMetadata
+---
+
+このページでは、すべての**Config ベースの Metadata**の options と`generateMetadata`、静的な metadata object について説明しています。
+
+```tsx:layout.tsx
+import { Metadata } from 'next'
+
+// either Static metadata
+export const metadata: Metadata = {
+  title: '...',
+}
+
+// or Dynamic metadata
+export async function generateMetadata({ params }) {
+  return {
+    title: '...',
+  }
+}
+```
+
+```jsx:layout.js
+// either Static metadata
+export const metadata = {
+  title: '...',
+}
+
+// or Dynamic metadata
+export async function generateMetadata({ params }) {
+  return {
+    title: '...',
+  }
+}
+```
+
+> **Good to know**:
+>
+> - `metadata`の object と`generateMetadata`関数の export は**Server Components でのみサポートされています**。
+> - 同じ route セグメントから、`metadata`の object と`generateMetadata`関数の両方を export することはできません。
+
+## The `metadata` object
+
+静的な metadata を定義するために、`layout.js`または`page.js`ファイルから[`Metadata` object](#metadata-fields)を export してください。
+
+```tsx:layout.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '...',
+  description: '...',
+}
+
+export default function Page() {}
+```
+
+```jsx:layout.js
+export const metadata = {
+  title: '...',
+  description: '...',
+}
+
+export default function Page() {}
+```
+
+サポートされている options の完全なリストについては、[Metadata Fields](#metadata-fields) をご覧ください。
+
+## `generateMetadata` function
+
+dynamic メタデータは、現在の route パラメータや外部データ、親セグメントの `Metadata`など、**dynamic インフォメーション**に依存します、これは `generateMetadata` 関数をエクスポートすることで設定でき、[`metadata` object](#metadata-fields)を返します。
+
+```tsx:app/products/[id]/page.tsx
+import { Metadata, ResolvingMetadata } from 'next'
+
+type Props = {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+  const id = params.id
+
+  // fetch data
+  const product = await fetch(`https://.../${id}`).then((res) => res.json())
+
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: product.title,
+    openGraph: {
+      images: ['/some-specific-page-image.jpg', ...previousImages],
+    },
+  }
+}
+
+export default function Page({ params, searchParams }: Props) {}
+```
+
+```jsx:app/products/[id]/page.js
+export async function generateMetadata({ params, searchParams }, parent) {
+  // read route params
+  const id = params.id
+
+  // fetch data
+  const product = await fetch(`https://.../${id}`).then((res) => res.json())
+
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: product.title,
+    openGraph: {
+      images: ['/some-specific-page-image.jpg', ...previousImages],
+    },
+  }
+}
+
+export default function Page({ params, searchParams }) {}
+```
+
+### Parameters
+
+`generateMetadata` 関数は以下のパラメータを受け入れます：
+
+- `props` - 現在の route のパラメータを含む object：
+
+  - `params` - object は、[dynamic route パラメーター](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) の object を root セグメントから`generateMetadata`が呼び出されるセグメントまで含んでいます。例：
+
+| Route                           | URL         | `params`                  |
+| ------------------------------- | ----------- | ------------------------- |
+| `app/shop/[slug]/page.js`       | `/shop/1`   | `{ slug: '1' }`           |
+| `app/shop/[tag]/[item]/page.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
+| `app/shop/[...slug]/page.js`    | `/shop/1/2` | `{ slug: ['1', '2'] }`    |
+
+- `searchParams` - 現在の URL の[検索 params](https://developer.mozilla.org/docs/Learn/Common_questions/What_is_a_URL#parameters)を含む object。例：
+
+| URL             | `searchParams`       |
+| --------------- | -------------------- |
+| `/shop?a=1`     | `{ a: '1' }`         |
+| `/shop?a=1&b=2` | `{ a: '1', b: '2' }` |
+| `/shop?a=1&a=2` | `{ a: ['1', '2'] }`  |
+
+- `parent` - 親の route セグメントから解決された metadata の約束。
+
+### Returns
+
+`generateMetadata`は、一つ以上の metadata フィールドを含む[`Metadata` object](#metadata-fields)を返すべきです。
+
+> **Good to know**:
+>
+> - もし metadata が runtime 情報に依存しないなら、それは`generateMetadata`よりも静的な[`metadata` object](#the-metadata-object)を使用して定義すべきです。
+> - `fetch` requests are automatically [memoized](/docs/app/building-your-application/caching#request-memoization) for the same data across `generateMetadata`, `generateStaticParams`, Layouts, Pages, and Server Components. React [`cache` can be used](/docs/app/building-your-application/caching#request-memoization) if `fetch` is unavailable.
+> - `searchParams`は`page.js`セグメントでのみ利用可能です。
+> - [`redirect()`](/ja/javascript/Next.js/v14/02-app/02-api-reference/04-functions/redirect)と[`notFound()`](/ja/javascript/Next.js/v14/02-app/02-api-reference/04-functions/not-found) Next.js methods も`generateMetadata`内で使用することができます。
+
+## Metadata Fields
+
+### `title`
+
+`title`属性は、document のタイトルを設定するために使用されます。これは単純な[string](#string)として定義するか、オプショナルな[template object](#template-object)として定義することができます。
+
+#### String
+
+```jsx:layout.js
+export const metadata = {
+  title: 'Next.js',
+}
+```
+
+```html:<head>
+<title>Next.js</title>
+```
+
+#### Template object
+
+```tsx:app/layout.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    template: '...',
+    default: '...',
+    absolute: '...',
+  },
+}
+```
+
+```jsx:app/layout.js
+export const metadata = {
+  title: {
+    default: '...',
+    template: '...',
+    absolute: '...',
+  },
+}
+```
+
+##### Default
+
+`title.default`は、`title`を定義していない子の route セグメントに**fallback タイトル**を提供するために使用できます。
+
+```tsx:app/layout.tsx
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Acme',
+  },
+}
+```
+
+```tsx:app/about/page.tsx
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {}
+
+// Output: <title>Acme</title>
+```
+
+##### Template
+
+`title.template`は、**children**の route セグメントで定義された`titles`に接頭語または接尾語を追加するために使うことができます。
+
+```tsx:app/layout.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Acme',
+    default: 'Acme', // a default is required when creating a template
+  },
+}
+```
+
+```jsx:app/layout.js
+export const metadata = {
+  title: {
+    template: '%s | Acme',
+    default: 'Acme', // a default is required when creating a template
+  },
+}
+```
+
+```tsx:app/about/page.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About',
+}
+
+// Output: <title>About | Acme</title>
+```
+
+```jsx:app/about/page.js
+export const metadata = {
+  title: 'About',
+}
+
+// Output: <title>About | Acme</title>
+```
+
+> **Good to know**:
+>
+> - `title.template`は**children**の route セグメントに適用され、それが定義されているセグメントには**適用されません**。これはつまり:
+>
+> - `title.default`は、`title.template`を追加するときに**必須**です。
+> - `layout.js`で定義された`title.template`は、同じ route セグメントの`page.js`で定義された`title`には適用されません。
+>
+>   - `page.js`で定義された`title.template`は、ページが常に終端セグメント(子 route セグメントはありません)であるため、影響を与えません。
+>
+> - `title.template`は、`title`または`title.default`が定義されていない route には**効果がありません**。
+
+##### Absolute
+
+`title.absolute`は、親セグメントで設定された`title.template`を**無視**するタイトルを提供するために使用できます。
+
+```tsx:app/layout.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Acme',
+  },
+}
+```
+
+```jsx:app/layout.js
+export const metadata = {
+  title: {
+    template: '%s | Acme',
+  },
+}
+```
+
+```tsx:app/about/page.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'About',
+  },
+}
+
+// Output: <title>About</title>
+```
+
+```jsx:app/about/page.js
+export const metadata = {
+  title: {
+    absolute: 'About',
+  },
+}
+
+// Output: <title>About</title>
+```
+
+> **Good to know**:
+>
+> - `layout.js`
+>
+> - `title` ( string ) と `title.default` は、自身の`title`を定義していない子セグメントの default タイトルを定義します。それは、存在する場合、最も近い親セグメントから `title.template` を拡張します。
+> - `title.absolute`は子セグメントの default タイトルを定義します。これは親セグメントからの`title.template`を無視します。
+> - `title.template` は子セグメントの新しいタイトル template を定義します。
+>
+> - `page.js`
+> - ページが独自のタイトルを定義していない場合、最も近い親の解決されたタイトルが使用されます。
+> - `title`( string )は、 routes のタイトルを定義します。もし存在する場合、最も近い親セグメントから`title.template`を強化します。
+> - `title.absolute`は route のタイトルを定義します。親セグメントからの`title.template`は無視されます。
+> - `title.template`は、ページが常に route の終端セグメントであるため、`page.js`では影響を及ぼしません。
+
+### `description`
+
+```jsx:layout.js
+export const metadata = {
+  description: 'The React Framework for the Web',
+}
+```
+
+```html:<head>
+<meta name="description" content="The React Framework for the Web" />
+```
+
+### 基本フィールド
+
+```jsx:layout.js
+export const metadata = {
+  generator: 'Next.js',
+  applicationName: 'Next.js',
+  referrer: 'origin-when-cross-origin',
+  keywords: ['Next.js', 'React', 'JavaScript'],
+  authors: [{ name: 'Seb' }, { name: 'Josh', url: 'https://nextjs.org' }],
+  creator: 'Jiachi Liu',
+  publisher: 'Sebastian Markbåge',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+}
+```
+
+```html:<head>
+<meta name="application-name" content="Next.js" />
+<meta name="author" content="Seb" />
+<link rel="author" href="https://nextjs.org" />
+<meta name="author" content="Josh" />
+<meta name="generator" content="Next.js" />
+<meta name="keywords" content="Next.js,React,JavaScript" />
+<meta name="referrer" content="origin-when-cross-origin" />
+<meta name="color-scheme" content="dark" />
+<meta name="creator" content="Jiachi Liu" />
+<meta name="publisher" content="Sebastian Markbåge" />
+<meta name="format-detection" content="telephone=no, address=no, email=no" />
+```
+
+### `metadataBase`
+
+`metadataBase`は、完全に修飾された URL を require`metadata`フィールドのベースとなる URL プレフィクスを設定するための便利なオプションです。
+
+- `metadataBase`は、**現在の route セグメントとその下**で定義された URL ベースの`metadata`フィールドが、それ以外の場合に必要な絶対的な URL ではなく、**相対的な path**を使用することを許可します。
+- フィールドの相対的な path は `metadataBase`と組み合わせて、完全に修飾された URL を形成します。
+- 設定されていない場合、`metadataBase`は自動的に[default value](#default-value)で**自動的に埋められます**。
+
+```jsx:layout.js
+export const metadata = {
+  metadataBase: new URL('https://acme.com'),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'en-US': '/en-US',
+      'de-DE': '/de-DE',
+    },
+  },
+  openGraph: {
+    images: '/og-image.png',
+  },
+}
+```
+
+```html:<head>
+<link rel="canonical" href="https://acme.com" />
+<link rel="alternate" hreflang="en-US" href="https://acme.com/en-US" />
+<link rel="alternate" hreflang="de-DE" href="https://acme.com/de-DE" />
+<meta property="og:image" content="https://acme.com/og-image.png" />
+```
+
+> **Good to know**:
+>
+> - `metadataBase`は通常、全ての routes における URL ベースの`metadata`フィールドに適用するために、root `app/layout.js`で設定されます。
+> - すべての URL ベースの`metadata`フィールドは、絶対 URL を require することができ、`metadataBase`オプションで設定できます。
+> - `metadataBase`は、サブドメイン(例：`https://app.acme.com`)またはベースの path(例：`https://acme.com/start/from/here`)を含むことができます。
+> - もし`metadata`フィールドが絶対的な URL を提供する場合、`metadataBase`は無視されます。
+> - URL ベースの`metadata`フィールドで相対的な path を使用し、`metadataBase`を設定せずに使用すると、build error が発生します。
+> - Next.js は、`metadataBase`(例：`https://acme.com/`)と相対フィールド(例：`/path`)の間の重複するスラッシュを 1 つのスラッシュ(例：`https://acme.com/path`)に正規化します
+
+#### Default value
+
+設定されていない場合、`metadataBase`は**default value**を持っています。
+
+- [`VERCEL_URL`](https://vercel.com/docs/concepts/projects/environment-variables/system-environment-variables#:~:text=.-,VERCEL_URL,-The%20domain%20name)が検出された場合：`https://${process.env.VERCEL_URL}` それ以外の場合は `http://localhost:${process.env.PORT || 3000}`にフォールバックします。
+- default を上書きする際には、URL を計算するために environment variables を使用することをお勧めします。これにより、ローション development、ステージング、そして production 環境のための URL を設定できます。
+
+#### URL の構成
+
+URL の構成は、default のディレクトリトラバーサルのセマンティクスよりも開発者の意図を優先します。
+
+- `metadataBase`と`metadata`フィールドの間の末尾スラッシュは正規化されます。
+- `metadata` フィールド内の "絶対" path (通常、全体の URL パス を 置き換える )は、 "相対" path (`metadataBase` の終端から始まる)として扱われます。
+
+例えば、以下の`metadataBase`が与えられた場合：
+
+```tsx:app/layout.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  metadataBase: new URL('https://acme.com'),
+}
+```
+
+```jsx:app/layout.js
+export const metadata = {
+  metadataBase: new URL('https://acme.com'),
+}
+```
+
+上記の`metadataBase`を継承し、自身の value を設定したすべての`metadata`フィールドは、次のように解決されます：
+
+| `metadata` フィールド            | 解決された URL                   |
+| -------------------------------- | -------------------------------- |
+| `/`                              | `https://acme.com`               |
+| `./`                             | `https://acme.com`               |
+| `payments`                       | `https://acme.com/payments`      |
+| `/payments`                      | `https://acme.com/payments`      |
+| `./payments`                     | `https://acme.com/payments`      |
+| `../payments`                    | `https://acme.com/payments`      |
+| `https://beta.acme.com/payments` | `https://beta.acme.com/payments` |
+
+### `openGraph`
+
+```jsx:layout.js
+export const metadata = {
+  openGraph: {
+    title: 'Next.js',
+    description: 'The React Framework for the Web',
+    url: 'https://nextjs.org',
+    siteName: 'Next.js',
+    images: [
+      {
+        url: 'https://nextjs.org/og.png', // Must be an absolute URL
+        width: 800,
+        height: 600,
+      },
+      {
+        url: 'https://nextjs.org/og-alt.png', // Must be an absolute URL
+        width: 1800,
+        height: 1600,
+        alt: 'My custom alt',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+}
+```
+
+```html:<head>
+<meta property="og:title" content="Next.js" />
+<meta property="og:description" content="The React Framework for the Web" />
+<meta property="og:url" content="https://nextjs.org/" />
+<meta property="og:site_name" content="Next.js" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:image:url" content="https://nextjs.org/og.png" />
+<meta property="og:image:width" content="800" />
+<meta property="og:image:height" content="600" />
+<meta property="og:image:url" content="https://nextjs.org/og-alt.png" />
+<meta property="og:image:width" content="1800" />
+<meta property="og:image:height" content="1600" />
+<meta property="og:image:alt" content="My custom alt" />
+<meta property="og:type" content="website" />
+```
+
+```jsx:layout.js
+export const metadata = {
+  openGraph: {
+    title: 'Next.js',
+    description: 'The React Framework for the Web',
+    type: 'article',
+    publishedTime: '2023-01-01T00:00:00.000Z',
+    authors: ['Seb', 'Josh'],
+  },
+}
+```
+
+```html:<head>
+<meta property="og:title" content="Next.js" />
+<meta property="og:description" content="The React Framework for the Web" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-01-01T00:00:00.000Z" />
+<meta property="article:author" content="Seb" />
+<meta property="article:author" content="Josh" />
+```
+
+> **Good to know**:
+>
+> - Open Graph の画像に対しては、[ファイルベースの Metadata API](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image#image-files-jpg-png-gif)を使用する方が便利かもしれません。実際のファイルと config export を同期させる必要はなく、ファイルベースの API は自動的に正しい metadata を生成します。
+
+### `robots`
+
+```tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: false,
+      noimageindex: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
+```
+
+```html:<head>
+<meta name="robots" content="noindex, follow, nocache" />
+<meta
+  name="googlebot"
+  content="index, nofollow, noimageindex, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+/>
+```
+
+### `icons`
+
+> **Good to know**: アイコンには可能な限り[file-based Metadata API](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons#image-files-ico-jpg-png)の使用をお勧めします。実際のファイルと config export を同期させる必要はなく、file-based API は自動的に正しい metadata を生成します。
+
+```jsx:layout.js
+export const metadata = {
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/shortcut-icon.png',
+    apple: '/apple-icon.png',
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/apple-touch-icon-precomposed.png',
+    },
+  },
+}
+```
+
+```html:<head>
+<link rel="shortcut icon" href="/shortcut-icon.png" />
+<link rel="icon" href="/icon.png" />
+<link rel="apple-touch-icon" href="/apple-icon.png" />
+<link
+  rel="apple-touch-icon-precomposed"
+  href="/apple-touch-icon-precomposed.png"
+/>
+```
+
+```jsx:layout.js
+export const metadata = {
+  icons: {
+    icon: [
+      { url: '/icon.png' },
+      new URL('/icon.png', 'https://example.com'),
+      { url: '/icon-dark.png', media: '(prefers-color-scheme: dark)' },
+    ],
+    shortcut: ['/shortcut-icon.png'],
+    apple: [
+      { url: '/apple-icon.png' },
+      { url: '/apple-icon-x3.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'apple-touch-icon-precomposed',
+        url: '/apple-touch-icon-precomposed.png',
+      },
+    ],
+  },
+}
+```
+
+```html:<head>
+<link rel="shortcut icon" href="/shortcut-icon.png" />
+<link rel="icon" href="/icon.png" />
+<link rel="icon" href="https://example.com/icon.png" />
+<link rel="icon" href="/icon-dark.png" media="(prefers-color-scheme: dark)" />
+<link rel="apple-touch-icon" href="/apple-icon.png" />
+<link
+  rel="apple-touch-icon-precomposed"
+  href="/apple-touch-icon-precomposed.png"
+/>
+<link
+  rel="apple-touch-icon"
+  href="/apple-icon-x3.png"
+  sizes="180x180"
+  type="image/png"
+/>
+```
+
+> **Good to know**: `msapplication-*` meta タグは、Microsoft の Edge の Chromiumbuild ではもうサポートされておらず、したがってもう必要ないです。
+
+### `themeColor`
+
+> **非推奨**: `metadata`内の`themeColor`オプションは、 Next.js 14 から非推奨となりました。代わりに[`viewport`設定](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-viewport)を使用してください。
+
+### `manifest`
+
+[Web Application Manifest specification](https://developer.mozilla.org/docs/Web/Manifest)で定義されているような、ウェブアプリケーションマニフェスト。
+
+```jsx:layout.js
+export const metadata = {
+  manifest: 'https://nextjs.org/manifest.json',
+}
+```
+
+```html:<head>
+<link rel="manifest" href="https://nextjs.org/manifest.json" />
+```
+
+### `twitter`
+
+Twitter の仕様は(驚くべきことに)X(以前は Twitter として知られていた)だけでなく、それ以上に使用されています。
+
+[Twitter カードマークアップリファレンス](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/markup)について詳しく学びましょう。
+
+```jsx:layout.js
+export const metadata = {
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Next.js',
+    description: 'The React Framework for the Web',
+    siteId: '1467726470533754880',
+    creator: '@nextjs',
+    creatorId: '1467726470533754880',
+    images: ['https://nextjs.org/og.png'], // Must be an absolute URL
+  },
+}
+```
+
+```html:<head>
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site:id" content="1467726470533754880" />
+<meta name="twitter:creator" content="@nextjs" />
+<meta name="twitter:creator:id" content="1467726470533754880" />
+<meta name="twitter:title" content="Next.js" />
+<meta name="twitter:description" content="The React Framework for the Web" />
+<meta name="twitter:image" content="https://nextjs.org/og.png" />
+```
+
+```jsx:layout.js
+export const metadata = {
+  twitter: {
+    card: 'app',
+    title: 'Next.js',
+    description: 'The React Framework for the Web',
+    siteId: '1467726470533754880',
+    creator: '@nextjs',
+    creatorId: '1467726470533754880',
+    images: {
+      url: 'https://nextjs.org/og.png',
+      alt: 'Next.js Logo',
+    },
+    app: {
+      name: 'twitter_app',
+      id: {
+        iphone: 'twitter_app://iphone',
+        ipad: 'twitter_app://ipad',
+        googleplay: 'twitter_app://googleplay',
+      },
+      url: {
+        iphone: 'https://iphone_url',
+        ipad: 'https://ipad_url',
+      },
+    },
+  },
+}
+```
+
+```html:<head>
+<meta name="twitter:site:id" content="1467726470533754880" />
+<meta name="twitter:creator" content="@nextjs" />
+<meta name="twitter:creator:id" content="1467726470533754880" />
+<meta name="twitter:title" content="Next.js" />
+<meta name="twitter:description" content="The React Framework for the Web" />
+<meta name="twitter:card" content="app" />
+<meta name="twitter:image" content="https://nextjs.org/og.png" />
+<meta name="twitter:image:alt" content="Next.js Logo" />
+<meta name="twitter:app:name:iphone" content="twitter_app" />
+<meta name="twitter:app:id:iphone" content="twitter_app://iphone" />
+<meta name="twitter:app:id:ipad" content="twitter_app://ipad" />
+<meta name="twitter:app:id:googleplay" content="twitter_app://googleplay" />
+<meta name="twitter:app:url:iphone" content="https://iphone_url" />
+<meta name="twitter:app:url:ipad" content="https://ipad_url" />
+<meta name="twitter:app:name:ipad" content="twitter_app" />
+<meta name="twitter:app:name:googleplay" content="twitter_app" />
+```
+
+### `viewport`
+
+> **非推奨**: `metadata`の`viewport`オプションは、 Next.js 14 から非推奨となりました。代わりに[`viewport`の設定](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-viewport)を使用してください。
+
+### `verification`
+
+```jsx:layout.js
+export const metadata = {
+  verification: {
+    google: 'google',
+    yandex: 'yandex',
+    yahoo: 'yahoo',
+    other: {
+      me: ['my-email', 'my-link'],
+    },
+  },
+}
+```
+
+```html:<head>
+<meta name="google-site-verification" content="google" />
+<meta name="y_key" content="yahoo" />
+<meta name="yandex-verification" content="yandex" />
+<meta name="me" content="my-email" />
+<meta name="me" content="my-link" />
+```
+
+### `appleWebApp`
+
+```jsx:layout.js
+export const metadata = {
+  itunes: {
+    appId: 'myAppStoreID',
+    appArgument: 'myAppArgument',
+  },
+  appleWebApp: {
+    title: 'Apple Web App',
+    statusBarStyle: 'black-translucent',
+    startupImage: [
+      '/assets/startup/apple-touch-startup-image-768x1004.png',
+      {
+        url: '/assets/startup/apple-touch-startup-image-1536x2008.png',
+        media: '(device-width: 768px) and (device-height: 1024px)',
+      },
+    ],
+  },
+}
+```
+
+```html:<head>
+<meta
+  name="apple-itunes-app"
+  content="app-id=myAppStoreID, app-argument=myAppArgument"
+/>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Apple Web App" />
+<link
+  href="/assets/startup/apple-touch-startup-image-768x1004.png"
+  rel="apple-touch-startup-image"
+/>
+<link
+  href="/assets/startup/apple-touch-startup-image-1536x2008.png"
+  media="(device-width: 768px) and (device-height: 1024px)"
+  rel="apple-touch-startup-image"
+/>
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="black-translucent"
+/>
+```
+
+### `alternates`
+
+```jsx:layout.js
+export const metadata = {
+  alternates: {
+    canonical: 'https://nextjs.org',
+    languages: {
+      'en-US': 'https://nextjs.org/en-US',
+      'de-DE': 'https://nextjs.org/de-DE',
+    },
+    media: {
+      'only screen and (max-width: 600px)': 'https://nextjs.org/mobile',
+    },
+    types: {
+      'application/rss+xml': 'https://nextjs.org/rss',
+    },
+  },
+}
+```
+
+```html:<head>
+<link rel="canonical" href="https://nextjs.org" />
+<link rel="alternate" hreflang="en-US" href="https://nextjs.org/en-US" />
+<link rel="alternate" hreflang="de-DE" href="https://nextjs.org/de-DE" />
+<link
+  rel="alternate"
+  media="only screen and (max-width: 600px)"
+  href="https://nextjs.org/mobile"
+/>
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  href="https://nextjs.org/rss"
+/>
+```
+
+### `appLinks`
+
+```jsx:layout.js
+export const metadata = {
+  appLinks: {
+    ios: {
+      url: 'https://nextjs.org/ios',
+      app_store_id: 'app_store_id',
+    },
+    android: {
+      package: 'com.example.android/package',
+      app_name: 'app_name_android',
+    },
+    web: {
+      url: 'https://nextjs.org/web',
+      should_fallback: true,
+    },
+  },
+}
+```
+
+```html:<head>
+<meta property="al:ios:url" content="https://nextjs.org/ios" />
+<meta property="al:ios:app_store_id" content="app_store_id" />
+<meta property="al:android:package" content="com.example.android/package" />
+<meta property="al:android:app_name" content="app_name_android" />
+<meta property="al:web:url" content="https://nextjs.org/web" />
+<meta property="al:web:should_fallback" content="true" />
+```
+
+### `archives`
+
+記録、書類、または他の歴史的な興味のある資料の集まりを記述します([source](https://www.w3.org/TR/2011/WD-html5-20110113/links.html#rel-archives))。
+
+```jsx:layout.js
+export const metadata = {
+  archives: ['https://nextjs.org/13'],
+}
+```
+
+```html:<head>
+<link rel="archives" href="https://nextjs.org/13" />
+```
+
+### `assets`
+
+```jsx:layout.js
+export const metadata = {
+  assets: ['https://nextjs.org/assets'],
+}
+```
+
+```html:<head>
+<link rel="assets" href="https://nextjs.org/assets" />
+```
+
+### `bookmarks`
+
+```jsx:layout.js
+export const metadata = {
+  bookmarks: ['https://nextjs.org/13'],
+}
+```
+
+```html:<head>
+<link rel="bookmarks" href="https://nextjs.org/13" />
+```
+
+### `category`
+
+```jsx:layout.js
+export const metadata = {
+  category: 'technology',
+}
+```
+
+```html:<head>
+<meta name="category" content="technology" />
+```
+
+### `other`
+
+すべての metadata options は、組み込みサポートを使用してカバーする必要があります。ただし、あなたのサイト特有のカスタム metadata タグ、または新しくリリースされた metadata タグが存在するかもしれません。カスタム metadata タグを render するために `other` のオプションを使用できます。
+
+```jsx:layout.js
+export const metadata = {
+  other: {
+    custom: 'meta',
+  },
+}
+```
+
+```html:<head>
+<meta name="custom" content="meta" />
+```
+
+複数の同じキー meta タグを生成したい場合、配列 value を使用できます。
+
+```jsx:layout.js
+export const metadata = {
+  other: {
+    custom: ['meta1', 'meta2'],
+  },
+}
+```
+
+```html:<head>
+<meta name="custom" content="meta1" /> <meta name="custom" content="meta2" />
+```
+
+## Unsupported Metadata
+
+次の metadata type は現在、組み込みのサポートがありません。しかし、それでも layout またはページ自体でレンダリングすることはできます。
+
+| Metadata                      | 推奨                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<meta http-equiv="...">`     | 適切な HTTP Headers を[`redirect()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#nextresponse)、[Security Headers](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/headers)で使用する |
+| `<base>`                      | Render タグを layout またはページ自体に表示します。                                                                                                                                                                                                                                                                                            |
+| `<noscript>`                  | Render タグを layout またはページ自体で行います。                                                                                                                                                                                                                                                                                              |
+| `<style>`                     | [Next.js のスタイリング](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules)について詳しく学びましょう。                                                                                                                                                                                                 |
+| `<script>`                    | [scripts の使用](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/05-scripts)について詳しく学びましょう。                                                                                                                                                                                                          |
+| `<link rel="stylesheet" />`   | layout またはページ自体に直接スタイルシートを`import`します。                                                                                                                                                                                                                                                                                  |
+| `<link rel="preload />`       | [ReactDOM の preload method](#link-relpreload)を使用する                                                                                                                                                                                                                                                                                       |
+| `<link rel="preconnect" />`   | [ReactDOM preconnect method](#link-relpreconnect)を使用する                                                                                                                                                                                                                                                                                    |
+| `<link rel="dns-prefetch" />` | [ReactDOM prefetchDNS method](#link-reldns-prefetch) を使用する                                                                                                                                                                                                                                                                                |
+
+### リソースヒント
+
+`<link>`要素には、外部リソースが必要になる可能性が高いことをブラウザに示唆するために使用できる number の`rel`キーワードがあります。ブラウザはこの情報を使用して、キーワードに応じてプレロードの最適化を適用します。
+
+Metadata API はこれらのヒントを直接サポートしていませんが、新しい[`ReactDOM` methods](https://github.com/facebook/react/pull/26237)を使用して、それらを安全に document の`<head>`に挿入することができます。
+
+```tsx:app/preload-resources.tsx
+'use client'
+
+import ReactDOM from 'react-dom'
+
+export function PreloadResources() {
+  ReactDOM.preload('...', { as: '...' })
+  ReactDOM.preconnect('...', { crossOrigin: '...' })
+  ReactDOM.prefetchDNS('...')
+
+  return null
+}
+```
+
+```jsx:app/preload-resources.js
+'use client'
+
+import ReactDOM from 'react-dom'
+
+export function PreloadResources() {
+  ReactDOM.preload('...', { as: '...' })
+  ReactDOM.preconnect('...', { crossOrigin: '...' })
+  ReactDOM.prefetchDNS('...')
+
+  return null
+}
+```
+
+##### `<link rel="preload">`
+
+ページのレンダリング(ブラウザ)ライフサイクルの初期でリソースを Start loading します。 [MDN Docs](https://developer.mozilla.org/docs/Web/HTML/Attributes/rel/preload)。
+
+```tsx
+ReactDOM.preload(href: string, options: { as: string })
+```
+
+```html:<head>
+<link rel="preload" href="..." as="..." />
+```
+
+##### `<link rel="preconnect">`
+
+事前に起源に対する接続を開始します。[MDN Docs](https://developer.mozilla.org/docs/Web/HTML/Attributes/rel/preconnect)。
+
+```tsx
+ReactDOM.preconnect(href: string, options?: { crossOrigin?: string })
+```
+
+```html:<head>
+<link rel="preconnect" href="..." crossorigin />
+```
+
+##### `<link rel="dns-prefetch">`
+
+リソースが要求される前にドメイン名を解決しようと試みます。 [MDN Docs](https://developer.mozilla.org/docs/Web/HTML/Attributes/rel/dns-prefetch)。
+
+```tsx
+ReactDOM.prefetchDNS(href: string)
+```
+
+```html:<head>
+<link rel="dns-prefetch" href="..." />
+```
+
+> **Good to know**:
+>
+> - これらの方法は現在、Client Components にのみ対応しており、初回のページロード時にはまだ ServerSide Rendered されています。
+> - Next.js の内蔵機能である`next/font`、`next/image`、`next/script`は、関連するリソースヒントを自動的に処理します。
+> - React18.3 はまだ `ReactDOM.preload`、`ReactDOM.preconnect`、そして `ReactDOM.preconnectDNS` の type 定義を含んでいません。一時的な解決策として `// @ts-ignore` を使用して typeerror を避けることができます。
+
+## Types
+
+`Metadata`の type を使用することで、あなたの metadata に type の安全性を追加することができます。もしあなたが IDE で[built-in TypeScript plugin](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/01-typescript)を使用しているなら、手動で type を追加する必要はありませんが、望むなら明示的に追加することも可能です。
+
+### `metadata` object
+
+```tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Next.js",
+};
+```
+
+### `generateMetadata` 関数
+
+#### 通常の関数
+
+```tsx
+import type { Metadata } from "next";
+
+export function generateMetadata(): Metadata {
+  return {
+    title: "Next.js",
+  };
+}
+```
+
+#### Async 関数
+
+```tsx
+import type { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Next.js",
+  };
+}
+```
+
+#### セグメントとしての props
+
+```tsx
+import type { Metadata } from "next";
+
+type Props = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export function generateMetadata({ params, searchParams }: Props): Metadata {
+  return {
+    title: "Next.js",
+  };
+}
+
+export default function Page({ params, searchParams }: Props) {}
+```
+
+#### 親と共に metadata
+
+```tsx
+import type { Metadata, ResolvingMetadata } from "next";
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  return {
+    title: "Next.js",
+  };
+}
+```
+
+#### JavaScript プロジェクト
+
+JavaScript プロジェクトには、JSDoc を使用して type セーフティを追加することができます。
+
+```js
+/** @type {import("next").Metadata} */
+export const metadata = {
+  title: "Next.js",
+};
+```
+
+## Version History
+
+| Version   | Changes                                                                                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v13.2.0` | `viewport`, `themeColor`, `colorScheme`は、[`viewport` 設定](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-viewport)を好むため、非推奨になりました。 |
+| `v13.2.0` | `metadata` と `generateMetadata` が導入されました。                                                                                                                             |

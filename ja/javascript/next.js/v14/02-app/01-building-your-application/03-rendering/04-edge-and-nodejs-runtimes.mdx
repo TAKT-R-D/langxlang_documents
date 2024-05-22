@@ -1,0 +1,88 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes.mdx
+title: Edge and Node.js Runtimes
+description: Learn about the switchable runtimes (Edge and Node.js) in Next.js.
+org_title: Edge and Node.js Runtimes
+org_path: /docs/app/building-your-application/rendering/edge-and-nodejs-runtimes
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+Next.js の context において、 runtime は実行中の code が利用できるライブラリ、API、一般的な機能のセットを指します。
+
+server 上には、アプリケーションの code の一部がレンダリングされる二つの runtimes があります:
+
+- **Node.js Runtime** (default)は、すべての Node.jsAPI とエコシステムからの互換性のあるパッケージにアクセスできます。
+- **Edge Runtime**は、[Web APIs](/ja/javascript/next.js/v14/02-app/02-api-reference/07-edge)を基にしています。
+
+## Runtime Differences
+
+runtime を選択する際に考慮すべき多くの点があります。この表は、一目で主な違いを示しています。差異についてより詳しい分析を希望する場合は、以下のセクションをチェックしてください。
+
+|                                                                                                                                                                   | ノード | サーバーレス | Edge                 |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------ | -------------------- |
+| 冷起動                                                                                                                                                            | /      | 通常         | 低                   |
+| [HTTP ストリーミング](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)                                      | はい   | はい         | はい                 |
+| IO                                                                                                                                                                | 全て   | 全て         | `fetch`              |
+| スケーラビリティ                                                                                                                                                  | /      | 高い         | 最高                 |
+| セキュリティ                                                                                                                                                      | 通常   | 高い         | 高い                 |
+| レイテンシ                                                                                                                                                        | 通常   | 低           | 最低                 |
+| npm パッケージ                                                                                                                                                    | すべて | すべて       | より小さなサブセット |
+| [Static Rendering](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)                     | はい   | はい         | いいえ               |
+| [Dynamic Rendering](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering)                           | はい   | はい         | はい                 |
+| [データ再検証 w/ `fetch`](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#revalidating-data) | はい   | はい         | はい                 |
+
+### Edge Runtime
+
+Next.js では、軽量な Edge Runtime は使用可能な Node.jsAPI の一部です。
+
+Edge Runtime は、小さくてシンプルな機能で低遅延で dynamic な、カスタマイズされたコンテンツを提供する必要がある場合に最適です。EdgeRuntime の速度は、リソースの最小限の使用から来ていますが、それは多くのシナリオで制限となることがあります。
+
+例えば、Edge Runtime で実行される code は[Vercel では 1MB から 4MB を超えない](https://vercel.com/docs/concepts/limits/overview#edge-middleware-and-edge-functions-size)、この制限にはインポートされたパッケージ、フォント、ファイルが含まれ、デプロイメントインフラストラクチャによって変動します。また、全ての Node.jsAPI を Edge Runtime はサポートしていないため、いくつかの`npm`パッケージが動作しない可能性があります。例えば、「Module not found: Can't resolve 'fs'」または類似の error があります。これらの API やパッケージを利用する必要がある場合は、Node.js runtime の利用をお勧めします。
+
+### Node.js Runtime
+
+Node.js runtime を使用すると、すべての Node.js API と、それに依存するすべての npm パッケージにアクセスできます。しかし、Edge runtime を使用する routes の start と比べて起動速度は速くありません。
+
+あなたの Next.js アプリケーションを Node.js server にデプロイすると、インフラストラクチャの管理、スケーリング、設定が 必要になります。代わりに、Vercel のような server レスプラットフォームにあなたの Next.js アプリケーションをデプロイすることを検討することができます。これにより、これらの問題を代わりに処理してくれます。
+
+### server レス Node.js
+
+Serverless は、Edge Runtime よりも複雑な計算処理を扱うスケーラブルなソリューションが必要な場合に最適です。例えば、Vercel の Serverless Functions を使用すると、インポートされたパッケージ、フォント、ファイルを含めて、全体の code size は[50MB](https://vercel.com/docs/concepts/limits/overview#serverless-function-size)です。
+
+[Edge](https://vercel.com/docs/concepts/functions/edge-functions)を使用する routes と比較してのデメリットは、Serverless Functions が起動してリクエストの処理を開始するまでに数百ミリ秒かかることです。あなたのサイトが受け取るトラフィックの量によっては、これは関数が頻繁に"warm"でないため、頻繁に発生する可能性があります。
+
+<AppOnly>
+
+## Examples
+
+### セグメント Runtime オプション
+
+あなたの Next.js アプリケーションで個々の route セグメントに対して runtime を指定することができます。それを行うために、`runtime`という名前の variable を[宣言して export してください](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config)。 variable は string でなければならず、 `'nodejs'` または `'edge'` runtime のどちらかの value を持つ必要があります。
+
+次の例は、`runtime`を export し、その value が`'edge'`であるページの route セグメントを示しています：
+
+```tsx:app/page.tsx
+export const runtime = 'edge' // 'nodejs' (default) | 'edge'
+```
+
+```jsx:app/page.js
+export const runtime = 'edge' // 'nodejs' (default) | 'edge'
+```
+
+また、 layout レベルで`runtime`を定義することもできます。これにより、その layout の下にあるすべての routes は edge runtime で実行されます。
+
+```tsx:app/layout.tsx
+export const runtime = 'edge' // 'nodejs' (default) | 'edge'
+```
+
+```jsx:app/layout.js
+export const runtime = 'edge' // 'nodejs' (default) | 'edge'
+```
+
+セグメント runtime が _設定されていない_ 場合、 default の `nodejs` runtime が使用されます。 Node.js runtime から変更する予定がない場合、 `runtime` オプションを使用する必要はありません。
+
+</AppOnly>
+
+> [Node.js ドキュメント](https://nodejs.org/docs/latest/api/)と[Edge ドキュメント](/ja/javascript/next.js/v14/02-app/02-api-reference/07-edge)を参照して、利用可能な API の完全なリストをご覧ください。両方の runtimes も、デプロイメントのインフラストラクチャによりますが、[streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)もサポート可能です。

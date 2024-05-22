@@ -1,0 +1,287 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/01-metadata/app-icons.mdx
+title: favicon, icon, and apple-icon
+description: API Reference for the Favicon, Icon and Apple Icon file conventions.
+org_title: favicon, icon, and apple-icon
+org_path: /docs/app/api-reference/file-conventions/metadata/app-icons
+is_empty: false
+---
+
+`favicon`、`icon`、または`apple-icon`ファイルの規則により、アプリケーションのアイコンを設定できます。
+
+彼らは、ウェブブラウザのタブや携帯電話のホーム画面、検索エンジンの結果など、さまざまな場所に表示される app のアイコンを追加するのに役立ちます。
+
+app アイコンを設定するには二つの方法があります：
+
+- [image ファイル (.ico、.jpg、.png)の使用](#image-files-ico-jpg-png)
+- [コードを使用してアイコンを生成する(.js、.ts、.tsx)](#generate- icon s-using- code -js-ts-tsx)
+
+## Image files (.ico, .jpg, .png)
+
+image ファイルを使用して、`favicon`、`icon`、または`apple-icon`の image ファイルを`/app`ディレクトリ内に配置することで、 app icon を設定します。`favicon`の image は、`app/`のトップレベルにしか配置できません。
+
+Next.js はファイルを評価し、自動的にあなたのアプリの`<head>`要素に適切なタグを追加します。
+
+| ファイル規約                | 対応するファイルタイプ                  | 有効な場所 |
+| --------------------------- | --------------------------------------- | ---------- |
+| [`favicon`](#favicon)       | `.ico`                                  | `app/`     |
+| [`icon`](#icon)             | `.ico`, `.jpg`, `.jpeg`, `.png`, `.svg` | `app/**/*` |
+| [`apple-icon`](#apple-icon) | `.jpg`, `.jpeg`, `.png`                 | `app/**/*` |
+
+### `favicon`
+
+`favicon.ico` image ファイルを root の`/app` route セグメントに追加してください。
+
+```html:<head>
+<link rel="icon" href="/favicon.ico" sizes="any" />
+```
+
+### `icon`
+
+`icon.(ico|jpg|jpeg|png|svg)`image ファイルを追加してください。
+
+```html:<head>
+<link
+  rel="icon"
+  href="/icon?<generated>"
+  type="image/<generated>"
+  sizes="<generated>"
+/>
+```
+
+### `apple-icon`
+
+`apple-icon.(jpg|jpeg|png)`image ファイルを追加してください。
+
+```html:<head>
+<link
+  rel="apple-touch-icon"
+  href="/apple-icon?<generated>"
+  type="image/<generated>"
+  sizes="<generated>"
+/>
+```
+
+> **Good to know**
+>
+> - あなたは、ファイル名に number という接尾詞を追加することで、複数のアイコンを設定することができます。例えば、`icon1.png`、`icon2.png`などです。番号付きのファイルは辞書順に並びます。
+> - Favicons は、root `/app`セグメントでのみ設定できます。もしもっと細かく設定が必要な場合は、[`icon`](#icon)を使用できます。
+> - 適切な`<link>`タグと属性(例えば`rel`、`href`、`type`、`sizes`)は、評価されたファイルの icon type と metadata によって決定されます。
+> - 例えば、32x32px の`.png`ファイルは、`type="image/png"`および`sizes="32x32"`の属性を持つでしょう。
+> - "`sizes="any"`は、`.ico` icon が`.svg`より優先される[ブラウザのバグ](https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs)を避けるために、`favicon.ico` の出力に追加されます。
+
+## Generate icons using code (.js, .ts, .tsx)
+
+さらに、[文字通りの image ファイル](#image-files-ico-jpg-png)を使用するだけでなく、code を使ってプログラム的に **generate** アイコンを作成することもできます。
+
+`icon` または `apple-icon` を作成することにより、 app icon を生成する route で、関数を default エクスポートします。
+
+| ファイル規約 | サポートされているファイル type |
+| ------------ | ------------------------------- |
+| `icon`       | `.js`, `.ts`, `.tsx`            |
+| `apple-icon` | `.js`, `.ts`, `.tsx`            |
+
+最も簡単な方法で icon を生成する方法は、`next/og`からの[`ImageResponse`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) API を使用することです。
+
+```tsx:app/icon.tsx
+import { ImageResponse } from 'next/og'
+
+// Route segment config
+export const runtime = 'edge'
+
+// Image metadata
+export const size = {
+  width: 32,
+  height: 32,
+}
+export const contentType = 'image/png'
+
+// Image generation
+export default function Icon() {
+  return new ImageResponse(
+    (
+      // ImageResponse JSX element
+      <div
+        style={{
+          fontSize: 24,
+          background: 'black',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+        }}
+      >
+        A
+      </div>
+    ),
+    // ImageResponse options
+    {
+      // For convenience, we can re-use the exported icons size metadata
+      // config to also set the ImageResponse's width and height.
+      ...size,
+    }
+  )
+}
+```
+
+```jsx:app/icon.js
+import { ImageResponse } from 'next/og'
+
+// Route segment config
+export const runtime = 'edge'
+
+// Image metadata
+export const size = {
+  width: 32,
+  height: 32,
+}
+export const contentType = 'image/png'
+
+// Image generation
+export default function Icon() {
+  return new ImageResponse(
+    (
+      // ImageResponse JSX element
+      <div
+        style={{
+          fontSize: 24,
+          background: 'black',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+        }}
+      >
+        A
+      </div>
+    ),
+    // ImageResponse options
+    {
+      // For convenience, we can re-use the exported icons size metadata
+      // config to also set the ImageResponse's width and height.
+      ...size,
+    }
+  )
+}
+```
+
+```html:<head>
+<link rel="icon" href="/icon?<generated>" type="image/png" sizes="32x32" />
+```
+
+> **Good to know**
+>
+> - default では、生成されたアイコンは[**静的に最適化**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されています(build 時に生成され、キャッシュされます)。ただし、[dynamic な関数](/docs/app/building-your-application/rendering/server-components#server-rendering-strategies#dynamic-functions)を使用するか、キャッシュされていないデータを使用する場合を除きます。
+> - あなたは、[`generateImageMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-image-metadata)を使用して同じファイル内に複数のアイコンを生成することができます。
+> - `favicon` icon を生成することはできません。代わりに、[`icon`](#icon) または [favicon.ico](#favicon) ファイルを使用してください。
+
+### Props
+
+default export 関数は次の props を受け取ります：
+
+#### `params` (オプショナル)
+
+`icon`または`apple-icon`セグメントまでの root セグメントからの[動的な root パラメータ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を含む object が共在します。
+
+```tsx:app/shop/[slug]/icon.tsx
+export default function Icon({ params }: { params: { slug: string } }) {
+  // ...
+}
+```
+
+```jsx:app/shop/[slug]/icon.js
+export default function Icon({ params }) {
+  // ...
+}
+```
+
+| Route                           | URL         | `params`                  |
+| ------------------------------- | ----------- | ------------------------- |
+| `app/shop/icon.js`              | `/shop`     | `undefined`               |
+| `app/shop/[slug]/icon.js`       | `/shop/1`   | `{ slug: '1' }`           |
+| `app/shop/[tag]/[item]/icon.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
+| `app/shop/[...slug]/icon.js`    | `/shop/1/2` | `{ slug: ['1', '2'] }`    |
+
+### Returns
+
+default エクスポート機能は、`Blob` | `ArrayBuffer` | `TypedArray` | `DataView` | `ReadableStream` | `Response`を返すべきです。
+
+> **Good to know**: `ImageResponse`はこの戻り type を満たします。
+
+### Config の export
+
+あなたはオプションでアイコンの metadata を、`icon`または`apple-icon`の route から`size`や`contentType`の変数を export することで設定することができます。
+
+| オプション                    | Type                                                                                                            |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [`size`](#size)               | `{ width: number; height: number }`                                                                             |
+| [`contentType`](#contenttype) | `string` - [image MIME type](https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/MIME_types#image_types) |
+
+#### `size`
+
+```tsx:icon.tsx
+export const size = { width: 32, height: 32 }
+
+export default function Icon() {}
+```
+
+```jsx:icon.js
+export const size = { width: 32, height: 32 }
+
+export default function Icon() {}
+```
+
+```html:<head>
+<link rel="icon" sizes="32x32" />
+```
+
+#### `contentType`
+
+```tsx:icon.tsx
+export const contentType = 'image/png'
+
+export default function Icon() {}
+```
+
+```jsx:icon.js
+export const contentType = 'image/png'
+
+export default function Icon() {}
+```
+
+```html:<head>
+<link rel="icon" type="image/png" />
+```
+
+#### Route セグメント Config
+
+`icon`および`apple-icon`は、ページや Layout と同じ[Route segment configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config) options を使用できる専門の[route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)です。
+
+| オプション                                                                                                                       | Type                                                     | Default    |
+| -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------- |
+| [`dynamic`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#dynamic)                 | `'auto' \| 'force-dynamic' \| 'error' \| 'force-static'` | `'auto'`   |
+| [`revalidate`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#revalidate)           | `false \| 'force-cache' \| 0 \| number`                  | `false`    |
+| [`runtime`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#runtime)                 | `'nodejs' \| 'edge'`                                     | `'nodejs'` |
+| [`preferredRegion`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#preferredregion) | `'auto' \| 'global' \| 'home' \| string \| string[]`     | `'auto'`   |
+
+```tsx:app/icon.tsx
+export const runtime = 'edge'
+
+export default function Icon() {}
+```
+
+```jsx:app/icon.js
+export const runtime = 'edge'
+
+export default function Icon() {}
+```
+
+## Version History
+
+| Version   | Changes                                               |
+| --------- | ----------------------------------------------------- |
+| `v13.3.0` | `favicon` `icon` および `apple-icon` が導入されました |

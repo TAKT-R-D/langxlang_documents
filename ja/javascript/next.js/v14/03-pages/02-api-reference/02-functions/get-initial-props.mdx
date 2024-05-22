@@ -1,0 +1,62 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/02-functions/get-initial-props.mdx
+title: getInitialProps
+description: Fetch dynamic data on the server for your React component with getInitialProps.
+org_title: getInitialProps
+org_path: /docs/pages/api-reference/functions/get-initial-props
+is_empty: false
+---
+
+> **Good to know**: `getInitialProps`はレガシーな API です。代わりに、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)または[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)の使用を推奨します。
+
+`getInitialProps`は、ページの default として export された React component に追加できる`async`関数です。それは server-side と Client 側の両方で、ページの遷移中に再度実行されます。関数の結果は`props`として React component に転送されます。
+
+```tsx:pages/index.tsx
+import { NextPageContext } from 'next'
+
+Page.getInitialProps = async (ctx: NextPageContext) => {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const json = await res.json()
+  return { stars: json.stargazers_count }
+}
+
+export default function Page({ stars }: { stars: number }) {
+  return stars
+}
+```
+
+```jsx:pages/index.js
+Page.getInitialProps = async (ctx) => {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const json = await res.json()
+  return { stars: json.stargazers_count }
+}
+
+export default function Page({ stars }) {
+  return stars
+}
+```
+
+> **Good to know**:
+>
+> - `getInitialProps`から返されるデータは、 server レンダリング時にシリアライズされます。`getInitialProps`から返される object が、普通の`Object`であり、`Date`、`Map`、または`Set`を使用していないことを確認してください。
+> - 初回のページ読み込みでは、`getInitialProps`は server だけで実行されます。その後、[`next/link`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/link) component を使用して別の route に移動したり、[`next/router`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を使用した場合にも、`getInitialProps`は client でも実行されます。
+> - `getInitialProps`がカスタムの`_app.js`で使用され、移動先のページが`getServerSideProps`を使用している場合、`getInitialProps`も server 上で実行されます。
+
+## Context Object
+
+`getInitialProps`は`context`と呼ばれる単一の引数を受け取り、それは以下のプロパティを持つ object です:
+
+| 名前       | Description                                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------------------ |
+| `pathname` | 現在の route 、`/pages`のページの path                                                                 |
+| `query`    | URL の Query string 、 object として解析されます                                                       |
+| `asPath`   | ブラウザに表示される実際の path ( query を含む)の `String`                                             |
+| `req`      | [HTTP request object](https://nodejs.org/api/http.html#http_class_http_incomingmessage) ( server のみ) |
+| `res`      | [HTTP response object](https://nodejs.org/api/http.html#http_class_http_serverresponse) ( server のみ) |
+| `err`      | rendering 中に何かしらの error が発生した場合の Error object                                           |
+
+## Caveats
+
+- `getInitialProps`は`pages/`の最上位ファイルでのみ使用でき、ネストされたコンポーネントでは使用できません。ネストされたデータフェッチングを component レベルで持つためには、[App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)の探索を検討してみてください。
+- あなたの route が静的であるか dynamic であるかに関わらず、 `getInitialProps`から返される任意のデータは`props`として、初期の HTML のクライアントサイドで見ることができます。これは、ページが [正しく補充される](https://react.dev/reference/react-dom/hydrate)ことを可能にするためです。 `props`の中に client で利用可能でないべき機密情報を渡さないように注意してください。

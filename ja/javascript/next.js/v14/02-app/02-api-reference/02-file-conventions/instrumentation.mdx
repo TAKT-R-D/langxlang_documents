@@ -1,0 +1,53 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/instrumentation.mdx
+title: instrumentation.js
+description: API reference for the instrumentation.js file.
+org_title: instrumentation.js
+org_path: /docs/app/api-reference/file-conventions/instrumentation
+is_empty: false
+---
+
+`instrumentation.js|ts` ファイルは、監視およびログツールをアプリケーションに統合するために使用されます。これにより、アプリケーションのパフォーマンスと動作を追跡し、production での問題を debugging することができます。
+
+それを使用するには、ファイルをアプリケーションの **root** に配置するか、[`src` folder](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/06-src-directory) を使用している場合はその内部に配置してください。
+
+## Config Option
+
+Instrumentation は現在、実験的な機能であり、`instrumentation`ファイルを使用するには、`next.config.js`で[`experimental.instrumentationHook = true;`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/instrumentationHook)と明示的にオプトインを定義する必要があります。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    instrumentationHook: true,
+  },
+}
+```
+
+## Exports
+
+### `register` (必須)
+
+そのファイルは、新しい Next.js server インスタンスが開始されると**一度だけ**呼び出される`register`関数を export します。 `register`は async 関数である可能性があります。
+
+```ts:instrumentation.ts
+import { registerOTel } from '@vercel/otel'
+
+export function register() {
+  registerOTel('next-app')
+}
+```
+
+```js:instrumentation.js
+import { registerOTel } from '@vercel/otel'
+
+export function register() {
+  registerOTel('next-app')
+}
+```
+
+## Version History
+
+| Version   | Changes                                             |
+| --------- | --------------------------------------------------- |
+| `v14.0.4` | `instrumentation`のための Turbopack サポート        |
+| `v13.2.0` | 実験的な機能として`instrumentation`が導入されました |

@@ -1,0 +1,76 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/01-components/head.mdx
+title: <Head>
+description: Add custom elements to the 'head' of your page with the built-in Head component.
+org_title: <Head>
+org_path: /docs/pages/api-reference/components/head
+is_empty: false
+---
+
+<details>
+  <summary>Examples</summary>
+
+- [Head エレメント](https://github.com/vercel/next.js/tree/canary/examples/head-elements)
+- [Layout Component](https://github.com/vercel/next.js/tree/canary/examples/layout-component)
+
+</details>
+
+ページの`head`に要素を追加するための組み込みの component を公開しています：
+
+```jsx
+import Head from "next/head";
+
+function IndexPage() {
+  return (
+    <div>
+      <Head>
+        <title>My page title</title>
+      </Head>
+      <p>Hello world!</p>
+    </div>
+  );
+}
+
+export default IndexPage;
+```
+
+## Avoid duplicated tags
+
+あなたの `head`内で重複するタグを避けるために、`key`プロパティーを使用できます。これにより、タグが一度だけ描画されることを確認できます。次の例のようにします：
+
+```jsx
+import Head from "next/head";
+
+function IndexPage() {
+  return (
+    <div>
+      <Head>
+        <title>My page title</title>
+        <meta property="og:title" content="My page title" key="title" />
+      </Head>
+      <Head>
+        <meta property="og:title" content="My new title" key="title" />
+      </Head>
+      <p>Hello world!</p>
+    </div>
+  );
+}
+
+export default IndexPage;
+```
+
+この場合、`<meta property="og:title" />`という second だけがレンダリングされます。重複する `key` 属性を持つ `meta` タグは自動的に処理されます。
+
+> `head`の内容は component がアンマウントされる際にクリアされるので、各ページが必要な内容を`head`に完全に定義して、他のページが追加した内容についての仮定をせずに確認してください。
+
+## Use minimal nesting
+
+`title`、`meta`、または他の要素(例：`script`)は、`Head`要素の**直接の** 子として含めるか、それらを最大一つの`<React.Fragment>`または配列にラップする必要があります。そうでなければ、client 側のナビゲーションでタグは正確に取得されません。
+
+## Use `next/script` for scripts
+
+私たちは、手動で`next/head`内に`<script>`を作成するのではなく、あなたの component で[`next/script`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/03-scripts)を使用することをお勧めします。
+
+## No `html` or `body` tags
+
+`<Head>`を使用して`<html>`または`<body>`タグの属性を設定することは**できません**。これにより、`next-head-count is missing` error が発生します。`next/head`は、 HTML の`<head>`タグ内のタグのみを処理できます。

@@ -1,0 +1,325 @@
+---
+filePath: source/next.js/docs/04-architecture/nextjs-compiler.mdx
+title: Next.js Compiler
+description: Next.js Compiler, written in Rust, which transforms and minifies your Next.js application.
+org_title: Next.js Compiler
+org_path: /docs/architecture/nextjs-compiler
+is_empty: false
+---
+
+Rust を用いて書かれた Next.js Compiler は、[SWC](https://swc.rs/)を使用して Next.js が transform し、 production 向けに JavaScript code を最小化することを可能にします。これは、 Babel を個々のファイルで、また Terser を出力バンドルの最小化で置き換えます。
+
+Next.js Compiler を使用したコンパイルは Babel よりも 17 倍速く、Next.js version12 から default で有効化されています。すでに Babel の設定があるか、[未対応の機能](#unsupported-features)を使用している場合、アプリケーションは Next.js Compiler の使用をオプトアウトし、Babel の使用を続けます。
+
+## Why SWC?
+
+[SWC](https://swc.rs/)は、次世代の高速 development ツールのための拡張性のある Rust ベースのプラットフォームです。
+
+SWC は、コンパイル、縮小化、バンドル化などに使用でき、拡張可能に設計されています。これは、code 変換(内蔵またはカスタムのどちらか)を実行するために呼び出すことができるものです。これらの変換の実行は、Next.js のような上位レベルのツールを通じて行われます。
+
+いくつかの理由から、私たちは SWC の上に build することを選びました：
+
+- **拡張性：** SWC は、ライブラリをフォークしたり、設計制約を回避したりすることなく、Next.js 内の Crate として使用できます。
+- **パフォーマンス：** SWC に切り替えることで、 Next.js の build が約 5 倍、Fast Refresh が約 3 倍高速化することができ、さらなる最適化が進行中です。
+- **WebAssembly:** Rust の WASM 対応は、全ての可能なプラットフォームをサポートし、 Next.js development をどこへでも持っていくために不可欠です。
+- **コミュニティ:** Rust のコミュニティとエコシステムは素晴らしく、まだ成長を続けています。
+
+## Supported Features
+
+### Styled Components
+
+私たちは`babel-plugin-styled-components`を Next.js Compiler に port するために作業しています。
+
+まず、最新の version の Next.js に更新してください：`npm install next@latest`。次に、あなたの`next.config.js`ファイルを更新してください：
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    styledComponents: true,
+  },
+}
+```
+
+高度な使用例のために、styled-components のコンパイルに対して個々のプロパティを設定することができます。
+
+> 注意：まだ `minify`、`transpileTemplateLiterals`、そして `pure` は実装されていません。進捗状況は[ここ](https://github.com/vercel/next.js/issues/30802)で追うことができます。 `ssr` と `displayName` トランスフォームは、 Next.js で `styled-components` を利用するための主要な要件です。
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    // see https://styled-components.com/docs/tooling#babel-plugin for more info on the options.
+    styledComponents: {
+      // Enabled by default in development, disabled in production to reduce file size,
+      // setting this will override the default for all environments.
+      displayName?: boolean,
+      // Enabled by default.
+      ssr?: boolean,
+      // Enabled by default.
+      fileName?: boolean,
+      // Empty by default.
+      topLevelImportPaths?: string[],
+      // Defaults to ["index"].
+      meaninglessFileNames?: string[],
+      // Enabled by default.
+      cssProp?: boolean,
+      // Empty by default.
+      namespace?: string,
+      // Not supported yet.
+      minify?: boolean,
+      // Not supported yet.
+      transpileTemplateLiterals?: boolean,
+      // Not supported yet.
+      pure?: boolean,
+    },
+  },
+}
+```
+
+### Jest
+
+Next.js Compiler はあなたのテストをトランスパイルし、Jest と Next.js の設定を簡単にします。これには以下が含まれます:
+
+- `.css`、`.module.css`(およびその`.scss`バリアント)および image インポートの自動モック
+- `transform`を使用して SWC を自動的に設定します
+- Loading `.env` (and all variants) into `process.env`
+- `node_modules`を無視し、test の解決と変換を行います
+- Ignoring `.next` from test resolving
+- `next.config.js`をロードして、実験的な SWC 変換を有効にするフラグを設定します
+
+まず、最新の version の Next.js に更新します：`npm install next@latest`。その後、`jest.config.js`ファイルを更新します：
+
+```js:jest.config.js
+const nextJest = require('next/jest')
+
+// Providing the path to your Next.js app which will enable loading next.config.js and .env files
+const createJestConfig = nextJest({ dir: './' })
+
+// Any custom config you want to pass to Jest
+const customJestConfig = {
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+}
+
+// createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async
+module.exports = createJestConfig(customJestConfig)
+```
+
+### Relay
+
+[Relay](https://relay.dev/)サポートを有効にするには：
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    relay: {
+      // This should match relay.config.js
+      src: './',
+      artifactDirectory: './__generated__',
+      language: 'typescript',
+      eagerEsModules: false,
+    },
+  },
+}
+```
+
+> **Good to know**: Next.js では、`pages`ディレクトリ内のすべての JavaScript ファイルは routes と見なされます。したがって、`relay-compiler` のためには、具体的には`artifactDirectory` configuration settings を `pages` の外側に指定する必要があります。さもなければ、`relay-compiler`は`__generated__` ディレクトリの source ファイルの next にファイルを生成し、このファイルは route と見なされ、結果として production build が中断されてしまいます。
+
+### React プロパティの削除
+
+JSX のプロパティを削除することができます。これはよくテストに使用されます。`babel-plugin-react-remove-properties`と似ています。
+
+default の正規表現 `^data-test` に一致するプロパティを削除するには:
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    reactRemoveProperties: true,
+  },
+}
+```
+
+カスタムプロパティを削除するには：
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    // The regexes defined here are processed in Rust so the syntax is different from
+    // JavaScript `RegExp`s. See https://docs.rs/regex.
+    reactRemoveProperties: { properties: ['^data-custom$'] },
+  },
+}
+```
+
+### コンソールを削除
+
+この transform は、アプリケーションの code(`node_modules`は除く)内のすべての`console.*`コールを削除することを可能にします。`babel-plugin-transform-remove-console`に似ています。
+
+すべての `console.*` コールを削除します：
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    removeConsole: true,
+  },
+}
+```
+
+`console.*` の出力を除去し、`console.error` のみを残します：
+
+```js:next.config.js
+module.exports = {
+  compiler: {
+    removeConsole: {
+      exclude: ['error'],
+    },
+  },
+}
+```
+
+### レガシーデコレーター
+
+Next.js は、`jsconfig.json`または`tsconfig.json`内の`experimentalDecorators`を自動的に検出します。レガシーデコレータは、`mobx`のような古い Version のライブラリでよく使用されます。
+
+このフラグは、既存のアプリケーションとの互換性を保つためだけにサポートされています。新しいアプリケーションではレガシーデコレーターの使用はお勧めしません。
+
+まず、最新の version の Next.js に更新してください： `npm install next@latest`。その後、`jsconfig.json`ファイルまたは`tsconfig.json`ファイルを更新してください：
+
+```js
+{
+  "compilerOptions": {
+    "experimentalDecorators": true
+  }
+}
+```
+
+### importSource
+
+Next.js は自動的に`jsxImportSource`を`jsconfig.json`または`tsconfig.json`から検出し、それを適用します。これは[Theme UI](https://theme-ui.com)などのライブラリでよく使用されます。
+
+まず、最新の version の Next.js に更新してください： `npm install next@latest`。その後、`jsconfig.json`ファイルまたは`tsconfig.json`ファイルを更新してください：
+
+```js
+{
+  "compilerOptions": {
+    "jsxImportSource": "theme-ui"
+  }
+}
+```
+
+### Emotion
+
+私たちは`@emotion/babel-plugin`を Next.js Compiler に移植する(port)ために取り組んでいます。
+
+まず、最新の version の Next.js に更新してください：`npm install next@latest`。次に、あなたの`next.config.js`ファイルを更新してください：
+
+```js:next.config.js
+
+module.exports = {
+  compiler: {
+    emotion: boolean | {
+      // default is true. It will be disabled when build type is production.
+      sourceMap?: boolean,
+      // default is 'dev-only'.
+      autoLabel?: 'never' | 'dev-only' | 'always',
+      // default is '[local]'.
+      // Allowed values: `[local]` `[filename]` and `[dirname]`
+      // This option only works when autoLabel is set to 'dev-only' or 'always'.
+      // It allows you to define the format of the resulting label.
+      // The format is defined via string where variable parts are enclosed in square brackets [].
+      // For example labelFormat: "my-classname--[local]", where [local] will be replaced with the name of the variable the result is assigned to.
+      labelFormat?: string,
+      // default is undefined.
+      // This option allows you to tell the compiler what imports it should
+      // look at to determine what it should transform so if you re-export
+      // Emotion's exports, you can still use transforms.
+      importMap?: {
+        [packageName: string]: {
+          [exportName: string]: {
+            canonicalImport?: [string, string],
+            styledBaseImport?: [string, string],
+          }
+        }
+      },
+    },
+  },
+}
+```
+
+### Minification
+
+Next.js の swc compiler は v13 以降、default で minification に使用されます。これは Terser より 7 倍速いです。
+
+何らかの理由でまだ Terser が必要な場合、これは設定することができます。
+
+```js:next.config.js
+module.exports = {
+  swcMinify: false,
+}
+```
+
+### モジュールトランスパイレーション
+
+Next.js can automatically transpile and bundle dependencies from local packages (like monorepos) or from external dependencies (`node_modules`). This replaces the `next-transpile-modules` package.
+
+```js:next.config.js
+module.exports = {
+  transpilePackages: ['@acme/ui', 'lodash-es'],
+}
+```
+
+### インポートのモジュライザション
+
+このオプションは、[`optimizePackageImports`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/optimizePackageImports)によって Next.js 13.5 で上書きされました。 import paths の手動設定を require しない新しいオプションを使用するためのアップグレードをお勧めします。
+
+## Experimental Features
+
+### SWC トレースプロファイリング
+
+あなたは、SWC の内部の transform トレースをクロミウムの[trace event format](https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview?mode=html#%21=)として生成することができます。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    swcTraceProfiling: true,
+  },
+}
+```
+
+一度有効化されると、swc は`swc-trace-profile-${timestamp}.json`という名前でトレースを生成し、`.next/`下に保存します。 Chromium のトレースビューア(chrome://tracing/, [https://ui.perfetto.dev/](https://ui.perfetto.dev/))、または互換性のあるフレームグラフビューア([https://www.speedscope.app/](https://www.speedscope.app/))で生成されたトレースを読み込み、視覚化することができます。
+
+### SWC プラグイン(実験的)
+
+swc の transform を設定して、wasm で記述された SWC の実験的な plugin サポートを使用し、変換動作をカスタマイズすることができます。
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    swcPlugins: [
+      [
+        'plugin',
+        {
+          ...pluginOptions,
+        },
+      ],
+    ],
+  },
+}
+```
+
+`swcPlugins`は、プラグインを設定するためのタプルの配列を受け入れます。'' plugin ''のためのタプルは、'' plugin ''への'' path ''と、'' plugin ''設定用の'' object ''を含みます。'' plugin ''への'' path ''は、'' npm ''モジュールパッケージ名または、`.wasm` '' binary ''自体への絶対'' path ''にすることができます。
+
+## Unsupported Features
+
+あなたのアプリケーションが `.babelrc` ファイルを持つ場合、Next.js は自動的に個々のファイルを変換するために Babel を使用するようにフォールバックします。これにより、カスタム Babel プラグインを活用する既存のアプリケーションとの後方互換性が確保されます。
+
+もしあなたがカスタムの Babel セットアップを利用している場合は、[あなたの設定を共有してください](https://github.com/vercel/next.js/discussions/30174)。我々は今後、できる限り多くの一般的に使用されている Babel 変換を port に取り組んでいるとともに、将来的にプラグインをサポートする予定です。
+
+## Version History
+
+| Version   | Changes                                                                                                                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v13.1.0` | [モジュールトランスパイル](https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable)と[モジュール化インポート](https://nextjs.org/blog/next-13-1#import-resolution-for-smaller-bundles)安定版。 |
+| `v13.0.0` | SWC Minifier は default で有効化されています。                                                                                                                                                                |
+| `v12.3.0` | SWC Minifier [安定版](https://nextjs.org/blog/next-12-3#swc-minifier-stable)。                                                                                                                                |
+| `v12.2.0` | [SWC プラグイン](#swc-plugins-experimental)の実験的サポートが追加されました。                                                                                                                                 |
+| `v12.1.0` | Styled Components 、 Jest 、Relay のサポートを追加し、 React のプロパティを削除、レガシーデコレーター、コンソールの削除、そして jsxImportSource を追加しました。                                              |
+| `v12.0.0` | Next.js Compiler が[introduced](https://nextjs.org/blog/next-12)されました。                                                                                                                                  |

@@ -1,0 +1,75 @@
+---
+filePath: source/next.js/docs/02-app/index.mdx
+title: App Router
+description: Use the new App Router with Next.js' and React's latest features, including Layouts, Server Components, Suspense, and more.
+org_title: App Router
+org_path: /docs/app
+is_empty: false
+---
+
+Next.js App Router は、[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Suspense を用いた Streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#streaming-with-suspense)、および[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)など、React の最新機能を使用したアプリケーション構築の新しいモデルを紹介します。
+
+App Router を使い始めるには、[最初のページを作成](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)します。
+
+## Frequently Asked Questions
+
+### Layout 内で request object にどのようにアクセスできますか？
+
+あなたは意図的に生の request object にアクセスすることはできません。しかし、[`headers`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/headers)や[`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies)はサーバー専用の関数を通じてアクセス可能です。また、[cookies を設定する](#how-can-i-set-cookies)こともできます。
+
+[layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)は再 rendering しません。ページ間の移動時に不要な計算を避けるために、cache 化して再利用することができます。layout からの生の request へのアクセスを制限することで、Next.js は、パフォーマンスに悪影響を及ぼす可能性のある遅いまたは高価なユーザーの code の実行を防ぐことができます。layout 内での。
+
+このデザインは、異なるページ間での Layout の一貫した予測可能な振る舞いも強制し、development と debugging を簡素化します。
+
+あなたが作っている UI パターンによって、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)は同じ layout 内で複数のページを render することを可能にし、ページは route セグメントと同様に URL の検索 params にアクセスできます。
+
+### ページ上の URL にどのようにアクセスできますか？
+
+default では、ページは Server Components です。特定のページについて、[`params`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/page#params-optional)プロップを通じて route のセグメントにアクセスしたり、[`searchParams`](/docs/app/api-reference/file-conventions/page#searchparams-optional)プロップを通じて URL の検索 params にアクセスすることができます。
+
+もし Client Components を使用しているなら、より複雑な routes のために、[`usePathname`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)、[`useSelectedLayoutSegment`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segment)、そして[`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments)を使うことができます。
+
+さらに、構築中の UI パターンによりますが、[Parallel Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/10-parallel-routes)は同じ layout 内で複数のページを render でき、ページは route セグメントと URL search params にアクセスできます。
+
+### 私はどのように ServerComponent から redirect できますか？
+
+あなたは[`redirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)を使用して、ページから相対的または絶対的な URL に redirect することができます。[`redirect`](/docs/app/api-reference/functions/redirect)は一時的な(307)redirect であり、一方[`permanentRedirect`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)はパーマネント(308)redirect です。これらの機能がストリーミング UI を使用しているときには、client サイドで redirect を発生させるためのメタタグを挿入します。
+
+### Approuter での認証処理はどのように行えますか？
+
+これらは、App Router をサポートする一般的な認証ソリューションの一部です：
+
+- [NextAuth.js](https://next-auth.js.org/configuration/nextjs#in-app-router)
+- [Clerk](https://clerk.com/docs/quickstarts/nextjs)
+- [Auth0](https://github.com/auth0/nextjs-auth0#app-router)
+- [Stytch](https://stytch.com/docs/example-apps/frontend/nextjs)
+- [Kinde](https://kinde.com/docs/developer-tools/nextjs-sdk/)
+- または手動でセッションや JWTs を処理する
+
+### 私はどのように Cookies を設定できますか？
+
+あなたは [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations#cookies) または [Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) で [`cookies`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/cookies) 関数を使用して、cookies を設定することができます。
+
+HTTP は Streaming が開始した後での cookies の設定を許可していないため、ページや layout から直接 cookies を設定することはできません。また、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#using-cookies)から cookies を設定することもできます。
+
+### 私はどのように build マルチテナントアプリを作成できますか？
+
+もし一つの Next.js アプリケーションを build して、複数のテナントに提供したいのであれば、我々が推奨するアーキテクチャを示す[built an example](https://vercel.com/templates/next.js/platforms-starter-kit)を作成しました。
+
+### App Router キャッシュはどのように無効化できますか？
+
+Next.js では複数のキャッシング層があり、したがって、cache の異なる部分を無効にするための複数の方法があります。[キャッシングについてもっと学ぶ](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)。
+
+### App router 上に構築された包括的でオープンソースのアプリケーションはありますか？
+
+はい。オープンソースの App Router の使用例として、大きな 2 つの例として[Next.js Commerce](https://vercel.com/templates/next.js/nextjs-commerce)または[Platforms Starter Kit](https://vercel.com/templates/next.js/platforms-starter-kit)を参照できます。
+
+## Learn More
+
+- [ルーティング基本](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)
+- [データフェッチ、キャッシング、再検証](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating)
+- [フォームと突然変異](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)
+- [Caching](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching)
+- [Rendering Fundamentals](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering)
+- [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)
+- [Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)

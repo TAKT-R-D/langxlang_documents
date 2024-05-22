@@ -1,0 +1,178 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/08-colocation.mdx
+title: Project Organization and File Colocation
+description: Learn how to organize your Next.js project and colocate files.
+org_title: Project Organization and File Colocation
+org_path: /docs/app/building-your-application/routing/colocation
+is_empty: false
+nav_title: Project Organization
+---
+
+[ルーティングフォルダーとファイルの規約](/ja/javascript/next.js/v14/01-getting-started/02-project-structure#app-routing-conventions)以外では、Next.js はプロジェクトのファイルをどのように整理し、配置するかについては**何も主張していません**。
+
+このページでは、プロジェクトを整理するために使用できる default の動作と機能を共有します。
+
+- [default による安全なコロケーション](#safe-colocation-by-default)
+- [Project organization features](#project-organization-features)
+- [プロジェクトの組織戦略](#project-organization-strategies)
+
+## Safe colocation by default
+
+`app`ディレクトリ内で、[nested folder hierarchy](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#route-segments)は route の構造を定義しています。
+
+各フォルダーは、URL path 内の対応するセグメントにマップされる route セグメントを表現しています。
+
+しかし、route の構造がフォルダーを通じて定義されていても、`page.js` もしくは `route.js` ファイルが route セグメントに追加されるまで、その route は**公開アクセス可能ではありません**。
+
+<Image
+  alt="A diagram showing how a route is not publicly accessible until a page.js or route.js file is added to a route segment."
+  srcLight="/docs/light/project-organization-not-routable.png"
+  srcDark="/docs/dark/project-organization-not-routable.png"
+  width="1600"
+  height="444"
+/>
+
+そして、たとえ route が公開アクセス可能になったとしても、`page.js`または`route.js`によって**返されるコンテンツ**のみが client に送信されます。
+
+<Image
+  alt="A diagram showing how page.js and route.js files make routes publicly accessible."
+  srcLight="/docs/light/project-organization-routable.png"
+  srcDark="/docs/dark/project-organization-routable.png"
+  width="1600"
+  height="687"
+/>
+
+これは、**プロジェクトファイル**が `app`ディレクトリ内の route セグメント内に**安全に共有配置**されても、誤ってルーティング可能になることなく、つまり、偶然ルーティングされることがないことを意味します。
+
+<Image
+  alt="A diagram showing colocated project files are not routable even when a segment contains a page.js or route.js file."
+  srcLight="/docs/light/project-organization-colocation.png"
+  srcDark="/docs/dark/project-organization-colocation.png"
+  width="1600"
+  height="1011"
+/>
+
+> **Good to know**:
+>
+> - これは `pages` ディレクトリとは異なり、`pages`内の任意のファイルは route と見なされます。
+> - あなたのプロジェクトファイルを `app` に共存させることが**できます**が、必ずしもそう**しなければならない**わけではありません。もし好みであれば、[`app` ディレクトリの外に保管することもできます](#store-project-files-outside-of-app)。
+
+## Project organization features
+
+Next.js は、プロジェクトの整理に役立ついくつかの機能を提供します。
+
+### プライベートフォルダ
+
+プライベートフォルダは、フォルダにアンダースコアを付けることで作成できます：`_folderName`
+
+これはフォルダがプライベートな実装詳細であり、ルーティングシステムによって考慮されるべきではないことを示しています。したがって、**opting the folder and all its subfolders**をルーティングから除外します。
+
+<Image
+  alt="An example folder structure using private folders"
+  srcLight="/docs/light/project-organization-private-folders.png"
+  srcDark="/docs/dark/project-organization-private-folders.png"
+  width="1600"
+  height="849"
+/>
+
+`app`ディレクトリ内のファイルは、[default で安全に共存できます](#safe-colocation-by-default)ため、共有のためのプライベートフォルダは必要ありません。ただし、以下の場合に役立つことがあります：
+
+- UI ロジックをルーティングロジックから分離する。
+- プロジェクト全体で一貫して内部ファイルを整理し、Next.js エコシステムを適応させる。
+- code エディターでファイルを整理し、グループ化する。
+- 将来の Next.js ファイル規約との潜在的な命名の競合を回避します。
+
+> **Good to know**
+>
+> - フレームワークの規約ではないものの、プライベートフォルダー以外のファイルを同じアンダースコアのパターンを使用して"private"とマークすることも検討するかもしれません。
+> - フォルダ名の前に `%5F`（アンダースコアの URL エンコード形式）を付けることで、アンダースコアで start する URL セグメントを作成できます: `%5FfolderName`.
+> - あなたがプライベートフォルダーを使用しない場合、予期しない命名の競合を防ぐために、Next.js [特別なファイル規約](/ja/javascript/next.js/v14/01-getting-started/02-project-structure#routing-files)を理解しておくと役立ちます。
+
+### Route グループ
+
+`(folderName)`という括弧でフォルダを囲むことにより、Route グループを作成することができます。
+
+これは、フォルダが組織的な目的のためのものであり、ルートの URL path には**含まれてはならない**ことを示しています。
+
+<Image
+  alt="An example folder structure using route groups"
+  srcLight="/docs/light/project-organization-route-groups.png"
+  srcDark="/docs/dark/project-organization-route-groups.png"
+  width="1600"
+  height="849"
+/>
+
+Route groups are useful for:
+
+- [routes をグループに編成する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups#organize-routes-without-affecting-the-url-path) 例えば、サイトセクション、意図、またはチームごとに。
+- 同じ route セグメントレベルでネストされた Layout を可能にする:
+  - [同じセグメント内で複数のネストされた Layout を作成し、複数の rootLayout を含む](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups#creating-multiple-root-layouts)
+  - [共通セグメントの routes のサブセットに layout を追加する](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/07-route-groups#opting-specific-segments-into-a-layout)
+
+### `src` ディレクトリ
+
+Next.js は、オプショナルな[`src` directory](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/06-src-directory)内にアプリケーションの code(`app`を含む)を保存することをサポートしています。これにより、プロジェクトの設定ファイルとアプリケーションの code が分離し、主にプロジェクトの root に live することができます。
+
+<Image
+  alt="An example folder structure with the `src` directory"
+  srcLight="/docs/light/project-organization-src-directory.png"
+  srcDark="/docs/dark/project-organization-src-directory.png"
+  width="1600"
+  height="687"
+/>
+
+### モジュール Path エイリアス
+
+Next.js は、深くネストされたプロジェクトファイル全体でのインポートを読みやすく、維持しやすくする[モジュール Path エイリアス](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/04-absolute-imports-and-module-aliases)をサポートしています。
+
+```jsx:app/dashboard/settings/analytics/page.js
+// before
+import { Button } from '../../../components/button'
+
+// after
+import { Button } from '@/components/button'
+```
+
+## Project organization strategies
+
+Next.js プロジェクトにおいて、自分のファイルやフォルダを整理する際に「正しい」や「間違った」方法は存在しません。
+
+次のセクションでは、一般的な戦略の非常に高レベルの概要をリスト化しています。最もシンプルな要点は、あなたとあなたのチームに適した strategy を選び、プロジェクト全体で一貫性を保つことです。
+
+> **Good to know**:以下の例では、`components`や`lib`といったフォルダーを一般的なプレースホルダーとして使用していますが、その名称は特別なフレームワークの意味はありません。あなたのプロジェクトでは、他に`ui`、`utils`、`hooks`、`styles`などのフォルダーを使用するかもしれません。
+
+### `app`の外部にプロジェクトファイルを保存する
+
+この strategy は、すべてのアプリケーションの code をプロジェクトの**root**内の共有フォルダに保存し、`app`ディレクトリはルーティング目的専用に保持します。
+
+<Image
+  alt="An example folder structure with project files outside of app"
+  srcLight="/docs/light/project-organization-project-root.png"
+  srcDark="/docs/dark/project-organization-project-root.png"
+  width="1600"
+  height="849"
+/>
+
+### `app`内のトップレベルのフォルダにプロジェクトファイルを保存する
+
+この strategy は、すべてのアプリケーション code を `app` ディレクトリ**の root **にある共有フォルダに保存します。
+
+<Image
+  alt="An example folder structure with project files inside app"
+  srcLight="/docs/light/project-organization-app-root.png"
+  srcDark="/docs/dark/project-organization-app-root.png"
+  width="1600"
+  height="849"
+/>
+
+### 機能または route ごとにプロジェクトファイルを分割
+
+この strategy は、グローバルに共有されるアプリケーションの code を`app`ディレクトリの root に保存し、より具体的なアプリケーションの code をそれを使用する route のセグメントに**分割**します。
+
+<Image
+  alt="An example folder structure with project files split by feature or route"
+  srcLight="/docs/light/project-organization-app-root-split.png"
+  srcDark="/docs/dark/project-organization-app-root-split.png"
+  width="1600"
+  height="1011"
+/>

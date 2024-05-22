@@ -1,0 +1,210 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/01-metadata/sitemap.mdx
+title: sitemap.xml
+description: API Reference for the sitemap.xml file.
+org_title: sitemap.xml
+org_path: /docs/app/api-reference/file-conventions/metadata/sitemap
+is_empty: false
+---
+
+`sitemap.(xml|js|ts)`は、[Sitemaps XML format](https://www.sitemaps.org/protocol.html)に対応して、検索エンジンのクローラがあなたのサイトをより効率的に index するのに役立つ特別なファイルです。
+
+### Sitemap ファイル (.xml)
+
+より小さなアプリケーションの場合、 `sitemap.xml` ファイルを作成し、`app`ディレクトリの root に配置することができます。
+
+```xml:app/sitemap.xml
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://acme.com</loc>
+    <lastmod>2023-04-06T15:02:24.021Z</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>1</priority>
+  </url>
+  <url>
+    <loc>https://acme.com/about</loc>
+    <lastmod>2023-04-06T15:02:24.021Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://acme.com/blog</loc>
+    <lastmod>2023-04-06T15:02:24.021Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
+```
+
+### code(.js、.ts)を使って sitemap を生成する
+
+`sitemap.(js|ts)`ファイルの慣例を利用して、URL の配列を返す default 関数をエクスポートすることで、プログラム的に**生成**する sitemap を利用することができます。 TypeScript を使用する場合、[`Sitemap`](#returns) type が利用可能です。
+
+```ts:app/sitemap.ts
+import { MetadataRoute } from 'next'
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [
+    {
+      url: 'https://acme.com',
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 1,
+    },
+    {
+      url: 'https://acme.com/about',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: 'https://acme.com/blog',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+  ]
+}
+```
+
+```js:app/sitemap.js
+export default function sitemap() {
+  return [
+    {
+      url: 'https://acme.com',
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 1,
+    },
+    {
+      url: 'https://acme.com/about',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: 'https://acme.com/blog',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+  ]
+}
+```
+
+Output:
+
+```xml:acme.com/sitemap.xml
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://acme.com</loc>
+    <lastmod>2023-04-06T15:02:24.021Z</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>1</priority>
+  </url>
+  <url>
+    <loc>https://acme.com/about</loc>
+    <lastmod>2023-04-06T15:02:24.021Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://acme.com/blog</loc>
+    <lastmod>2023-04-06T15:02:24.021Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
+```
+
+### 複数のサイトマップの生成
+
+一つの sitemap は、ほとんどのアプリケーションで機能します。しかし、大規模なウェブアプリケーションの場合、sitemap を複数のファイルに分割する必要があるかもしれません。
+
+複数のサイトマップを作成するための 2 つの方法があります：
+
+- `sitemap.(xml|js|ts)` を複数の route セグメント内にネストすることで、例えば `app/sitemap.xml` や `app/products/sitemap.xml` といったようになります。
+- [`generateSitemaps`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-sitemaps) 関数を使用することにより。
+
+たとえば、`generateSitemaps`を使用して sitemap を分割するには、sitemap の`id`を持つ Object の配列を返します。その後、その`id`を使用してユニークなサイトマップを生成します。
+
+```ts:app/product/sitemap.ts
+import { BASE_URL } from '@/app/lib/constants'
+
+export async function generateSitemaps() {
+  // Fetch the total number of products and calculate the number of sitemaps needed
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
+}
+
+export default async function sitemap({
+  id,
+}: {
+  id: number
+}): Promise<MetadataRoute.Sitemap> {
+  // Google's limit is 50,000 URLs per sitemap
+  const start = id * 50000
+  const end = start + 50000
+  const products = await getProducts(
+    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`
+  )
+  return products.map((product) => ({
+    url: `${BASE_URL}/product/${id}`,
+    lastModified: product.date,
+  }))
+}
+```
+
+```js:app/product/sitemap.js
+import { BASE_URL } from '@/app/lib/constants'
+
+export async function generateSitemaps() {
+  // Fetch the total number of products and calculate the number of sitemaps needed
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
+}
+
+export default async function sitemap({ id }) {
+  // Google's limit is 50,000 URLs per sitemap
+  const start = id * 50000
+  const end = start + 50000
+  const products = await getProducts(
+    `SELECT id, date FROM products WHERE id BETWEEN ${start} AND ${end}`
+  )
+  return products.map((product) => ({
+    url: `${BASE_URL}/product/${id}`
+    lastModified: product.date,
+  }))
+}
+```
+
+production では、生成したサイトマップは`/.../sitemap/[id].xml`で利用できます。例えば、`/product/sitemap/1.xml`のようになります。
+
+development では、生成された sitemap を`/.../sitemap.xml/[id]`で閲覧することができます。たとえば、`/product/sitemap.xml/1`です。この違いは一時的なもので、製造の形式に従います。
+
+詳細については、[`generateSitemaps` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-sitemaps)をご覧ください。
+
+## Returns
+
+`sitemap.(xml|ts|js)`から export される default 関数は、以下のプロパティを持つ Object の配列を返すべきです：
+
+```tsx
+type Sitemap = Array<{
+  url: string;
+  lastModified?: string | Date;
+  changeFrequency?:
+    | "always"
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "yearly"
+    | "never";
+  priority?: number;
+}>;
+```
+
+## Version History
+
+| Version   | Changes                                                           |
+| --------- | ----------------------------------------------------------------- |
+| `v13.4.5` | サイトマップに `changeFrequency` と `priority` 属性を追加します。 |
+| `v13.3.0` | `sitemap` 導入されました。                                        |

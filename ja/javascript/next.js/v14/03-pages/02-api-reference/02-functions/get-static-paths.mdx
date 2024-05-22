@@ -1,0 +1,263 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/02-functions/get-static-paths.mdx
+title: getStaticPaths
+description: API reference for 'getStaticPaths'. Learn how to fetch data and generate static pages with 'getStaticPaths'.
+org_title: getStaticPaths
+org_path: /docs/pages/api-reference/functions/get-static-paths
+is_empty: false
+---
+
+[Dynamic Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を使用するページから `getStaticPaths`という関数をエクスポートする場合、 Next.js は `getStaticPaths`で指定されたすべての paths を静的に事前にレンダリングします。
+
+```tsx:pages/repo/[name].tsx
+import type {
+  InferGetStaticPropsType,
+  GetStaticProps,
+  GetStaticPaths,
+} from 'next'
+
+type Repo = {
+  name: string
+  stargazers_count: number
+}
+
+export const getStaticPaths = (async () => {
+  return {
+    paths: [
+      {
+        params: {
+          name: 'next.js',
+        },
+      }, // See the "paths" section below
+    ],
+    fallback: true, // false or "blocking"
+  }
+}) satisfies GetStaticPaths
+
+export const getStaticProps = (async (context) => {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo = await res.json()
+  return { props: { repo } }
+}) satisfies GetStaticProps<{
+  repo: Repo
+}>
+
+export default function Page({
+  repo,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
+  return repo.stargazers_count
+}
+```
+
+```jsx:pages/repo/[name].js
+export async function getStaticPaths() {
+  return {
+    paths: [
+      {
+        params: {
+          name: 'next.js',
+        },
+      }, // See the "paths" section below
+    ],
+    fallback: true, // false or "blocking"
+  }
+}
+
+export async function getStaticProps() {
+  const res = await fetch('https://api.github.com/repos/vercel/next.js')
+  const repo = await res.json()
+  return { props: { repo } }
+}
+
+export default function Page({ repo }) {
+  return repo.stargazers_count
+}
+```
+
+## getStaticPaths return values
+
+`getStaticPaths`関数は、以下の**必須**プロパティを持つ object を返す必要があります：
+
+### `paths`
+
+`paths`キーは、どの paths が事前にレンダリングされるかを決定します。例えば、`pages/posts/[id].js`という名前の[Dynamic Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes)を使用するページがあるとします。あなたがこのページから`getStaticPaths`を export して、`paths`について次のように返すなら：
+
+```js
+return {
+  paths: [
+    { params: { id: '1' }},
+    {
+      params: { id: '2' },
+      // with i18n configured the locale for the path can be returned as well
+      locale: "en",
+    },
+  ],
+  fallback: ...
+}
+```
+
+その後、Next.js は`pages/posts/[id].js`のページ component を使用して、`next build`の間に`/posts/1`と`/posts/2`を静的に生成します。
+
+各`params`の object の value は、ページ名で使用されているパラメータと一致しなければなりません:
+
+- ページの名前が `pages/posts/[postId]/[commentId]` である場合、`params`は `postId`と `commentId`を含むべきです。
+- ページ名が[catch-all routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#catch-all-segments)を使う場合、つまり`pages/[...slug]`のような形式である場合、`params`は`slug`(配列)を含むべきです。この配列が`['hello', 'world']`である場合、Next.js は`/hello/world`でページを静的に生成します。
+- ページが[オプショナルな catch-all route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/02-dynamic-routes#optional-catch-all-segments)を使用している場合は、`null`、`[]`、`undefined`、または`false`を用いて最もルートの route を render してください。例えば、`pages/[[...slug]]`に対して`slug: false`を提供すると、 Next.js はページ`/`を静的に生成します。
+
+`params` 文字列は**大文字と小文字を区別します**。理想的には、 paths が正しく生成されるように正規化するべきです。例えば、`World`がパラメータに対して返された場合、それは`WoRLD`が訪れた実際の path と一致するだけで、`WoRLD`や`world`では一致しません。
+
+`params`の object とは別に、[i18n が設定されている場合](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/10-internationalization)、生成される path の locale を設定する`locale`フィールドが返されることがあります。
+
+### `fallback: false`
+
+`fallback`が`false`である場合、`getStaticPaths`によって返されない paths は**404 ページ**が出力されます。
+
+`next build`が実行されるとき、Next.js は`getStaticPaths`が`fallback: false`を返したかどうかを確認し、その場合、`getStaticPaths`によって返された paths のみを build します。このオプションは、作成する paths の number が少ない、または新しいページデータが頻繁に追加されない場合に便利です。もし新たな paths を追加する必要があると分かり、そして`fallback: false`を持っている場合、新しい paths を生成できるように再度`next build`を実行する必要があります。
+
+次の例では、`pages/posts/[id].js`という 1 ページごとに 1 つのブログの post を事前レンダリングします。ブログの投稿のリストは CMS からフェッチされ、`getStaticPaths`によって返されます。その後、各ページは CMS から post データを[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)を使用してフェッチします。
+
+```jsx:pages/posts/[id].js
+function Post({ post }) {
+  // Render post...
+}
+
+// This function gets called at build time
+export async function getStaticPaths() {
+  // Call an external API endpoint to get posts
+  const res = await fetch('https://.../posts')
+  const posts = await res.json()
+
+  // Get the paths we want to pre-render based on posts
+  const paths = posts.map((post) => ({
+    params: { id: post.id },
+  }))
+
+  // We'll pre-render only these paths at build time.
+  // { fallback: false } means other routes should 404.
+  return { paths, fallback: false }
+}
+
+// This also gets called at build time
+export async function getStaticProps({ params }) {
+  // params contains the post `id`.
+  // If the route is like /posts/1, then params.id is 1
+  const res = await fetch(`https://.../posts/${params.id}`)
+  const post = await res.json()
+
+  // Pass post data to the page via props
+  return { props: { post } }
+}
+
+export default Post
+```
+
+### `fallback: true`
+
+<details>
+  <summary>Examples</summary>
+
+- [大量の number ページの静的生成](https://static-tweet.vercel.app)
+
+</details>
+
+`fallback`が`true`の場合、`getStaticProps`の動作は以下のように変わります：
+
+- `getStaticPaths`から返される paths は、`getStaticProps`によって`HTML`へと build 時にレンダリングされます。
+- まだ build 時に生成されていない paths は、404 ページが表示され**ない**結果になります。その代わり、Next.js はそのような path への最初の request で、ページの[fallback](#fallback-pages)version を提供します。Google などの Web クローラは、fallback が提供されることはなく、代わりに path は、[`fallback: 'blocking'`](#fallback-blocking)のように動作します。
+- `fallback: true`のページが`next/link`や`next/router`(Client 側)を通じて移動した場合、Next.js は fallback を提供**しない**代わりに、ページは[`fallback: 'blocking'`](#fallback-blocking)のように振る舞います。
+- バックグラウンドで、Next.js は要求された path の`HTML`と`JSON`を静的に生成します。これには`getStaticProps`の実行が含まれます。
+- 完了すると、ブラウザは生成された path の`JSON`を受信します。これは、必要な props でページを自動的に render するために使用されます。ユーザーの視点からすると、ページは fallback ページからフルページに切り替わります。
+- 同時に、Next.js はこの path を事前レンダリングされたページのリストに追加します。同じ path への後続の Request は、build 時に事前レンダリングされた他のページと同様に、生成されたページを提供します。
+
+> **Good to know**: `fallback: true`は、[`output: 'export'`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用する場合にはサポートされていません。
+
+#### `fallback: true`はいつ役立つのでしょうか？
+
+`fallback: true`は、あなたの app がデータに依存する静的ページの number が非常に多い場合(大規模な e-commerce サイトなど)に役立ちます。すべての商品ページを事前にレンダリングしたい場合、build には非常に長い時間がかかります。
+
+それよりも、ページの小さな部分を静的に生成し、残りは `fallback: true` を使用することができます。まだ生成されていないページを誰かが要求したとき、ユーザーは loading インジケーターや component スケルトンと共にそのページを見ることになります。
+
+その後すぐに、`getStaticProps`が完了し、Request されたデータでページがレンダリングされます。これからは、同じページを Request する全ての人が静的に事前レンダリングされたページを取得します。
+
+これにより、ユーザーは常に高速な体験を持つことが保証される一方で、高速な build と Static Generation の利点が保持されます。
+
+`fallback: true`は生成されたページを**更新**しません、それについては[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)を参照してみてください。
+
+### `fallback: 'blocking'`
+
+`fallback`が`'blocking'`の場合、新しい paths は、`getStaticPaths`によって返されないため、`HTML`が生成されるのを待ち、それは SSR (それが**blocking**である理由)と同じで、その後、将来のリクエストのためにキャッシュされます。そのため、 path ごとに一度だけ起こります。
+
+`getStaticProps`は以下のように動作します：
+
+- `getStaticPaths`から返される paths は、`getStaticProps`によって`HTML`へと build 時にレンダリングされます。
+- build 時に生成されていない paths は 404 ページを**生じません**。代わりに、Next.js は初回の request で SSR を行い、生成された`HTML`を返します。
+- 完了時には、ブラウザは生成された path の`HTML`を受け取ります。ユーザーから見ると、"ブラウザがページを要求している"から"フルページがロードされた"へと遷移します。Loading/フォールバックの状態が一瞬表示されることはありません。
+- 同時に、Next.js はこの path を事前レンダリングされたページのリストに追加します。同じ path への後続の Request は、build 時に事前レンダリングされた他のページと同様に、生成されたページを提供します。
+
+`fallback: 'blocking'`は default では生成されたページを**更新**しません。生成されたページを更新するためには、`fallback: 'blocking'`と組み合わせて[Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)を使用してください。
+
+> **Good to know**: `fallback: 'blocking'`は[`output: 'export'`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用する際にはサポートされていません。
+
+### Fallback ページ
+
+ページの fallback の version では：
+
+- そのページの props は empty になります。
+- [router](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router) を使用すると、fallback がレンダリングされているかどうかを検出できます。`router.isFallback`は`true`になります。
+
+次の例は、`isFallback`の使用を示しています：
+
+```jsx:pages/posts/[id].js
+import { useRouter } from 'next/router'
+
+function Post({ post }) {
+  const router = useRouter()
+
+  // If the page is not yet generated, this will be displayed
+  // initially until getStaticProps() finishes running
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
+
+  // Render post...
+}
+
+// This function gets called at build time
+export async function getStaticPaths() {
+  return {
+    // Only `/posts/1` and `/posts/2` are generated at build time
+    paths: [{ params: { id: '1' } }, { params: { id: '2' } }],
+    // Enable statically generating additional pages
+    // For example: `/posts/3`
+    fallback: true,
+  }
+}
+
+// This also gets called at build time
+export async function getStaticProps({ params }) {
+  // params contains the post `id`.
+  // If the route is like /posts/1, then params.id is 1
+  const res = await fetch(`https://.../posts/${params.id}`)
+  const post = await res.json()
+
+  // Pass post data to the page via props
+  return {
+    props: { post },
+    // Re-generate the post at most once per second
+    // if a request comes in
+    revalidate: 1,
+  }
+}
+
+export default Post
+```
+
+## Version History
+
+| Version   | Changes                                                                                                                                                                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v13.4.0` | [App Router](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching)は、[`generateStaticParams()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params)を含む単純化されたデータフェッチで安定しています |
+| `v12.2.0` | [オンデマンド Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)は安定しています。                                                       |
+| `v12.1.0` | [オンデマンド Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration#on-demand-revalidation)追加(ベータ版)。                                                         |
+| `v9.5.0`  | 安定版 [Incremental Static Regeneration](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/04-incremental-static-regeneration)                                                                                                      |
+| `v9.3.0`  | `getStaticPaths`が導入されました。                                                                                                                                                                                                                                  |

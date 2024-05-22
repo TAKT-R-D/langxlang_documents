@@ -1,0 +1,587 @@
+---
+filePath: source/next.js/docs/03-pages/02-api-reference/01-components/image-legacy.mdx
+title: <Image> (Legacy)
+description: Backwards compatible Image Optimization with the Legacy Image component.
+org_title: <Image> (Legacy)
+org_path: /docs/pages/api-reference/components/image-legacy
+is_empty: false
+---
+
+<details>
+  <summary>Examples</summary>
+
+- [Legacy Image Component](https://github.com/vercel/next.js/tree/canary/examples/image-legacy-component)
+
+</details>
+
+Next.js13 から始まって、`next/image`component がパフォーマンスと開発者の経験を改善するために書き直されました。下位互換性のあるアップグレードソリューションを提供するために、古い`next/image`は`next/legacy/image`に名前が変更されました。
+
+新しい[`next/image` API Reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/image)をご覧ください
+
+## Comparison
+
+`next/legacy/image`と比べて、新しい`next/image`の component には以下の変更点があります：
+
+- `<span>`ラッパーを取り除き、代わりに[ネイティブ計算アスペクト比](https://caniuse.com/mdn-html_elements_img_aspect_ratio_computed_from_attributes)を用いるために`<img>`を推奨
+- `style` prop の正規サポートを追加します
+  - `layout`プロップを削除し、代わりに`style`または`className`を優先します
+  - `objectFit`のプロップを削除し、代わりに`style`または`className`を使用します。
+  - `objectPosition`プロップを削除し、代わりに`style`または`className`を優先します
+- `IntersectionObserver`の実装を削除し、[ネイティブの lazy loading](https://caniuse.com/loading-lazy-attr)を優先
+  - `lazyBoundary`プロパティを削除します。ネイティブの同等物が存在しないため。
+  - `lazyRoot`プロップを削除します。これにはネイティブに相当するものがありません。
+- [`loader`](#loader) prop を好むために`loader` config を削除します
+- `alt`プロップをオプショナルから必須に変更しました
+- `onLoadingComplete`コールバックを変更して、`<img>`エレメントへの参照を受け取るようにしました。
+
+## Required Props
+
+`<Image />`の component は次のプロパティが必要です。
+
+### src
+
+Must be one of the following:
+
+- [静的にインポートされた](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#local-images) image ファイル
+- path string 。これは、絶対的な外部の URL 、または[loader プロパティ](#loader)や[loader 設定](#loader-configuration)によっては内部の path になることがあります。
+
+外部の URL を使用する場合、それを[`next.config.js`]の[remotePatterns](#remote-patterns)に追加する必要があります。
+
+### width
+
+`width`プロパティは、描画された width または元の width をピクセル単位で表すことができ、これは[`layout`](#layout)プロパティと[`sizes`](#sizes)プロパティによります。
+
+`layout="intrinsic"`または`layout="fixed"`を使用すると、`width`プロパティは**レンダリングされた** width をピクセル単位で表現するため、 image がどれほど大きく表示されるかに影響を与えます。
+
+`layout="responsive"`、`layout="fill"`を使用する際、`width`プロパティは**元の** width をピクセル単位で表し、これはアスペクト比にのみ影響を与えます。
+
+`width`プロパティは必須です、ただし、[静的にインポートされた画像](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#local-images)や、`layout="fill"`を持つものは除きます。
+
+### height
+
+`height`プロパティは、[`layout`](#layout)と[`sizes`](#sizes)プロパティによって、表示された height または元の height をピクセル単位で表すことができます。
+
+`layout="intrinsic"` または `layout="fixed"` を使用すると、`height`プロパティは**pixel 描画**の height をピクセル単位で表し、したがって image の表示サイズに影響を与えます。
+
+`layout="responsive"`、`layout="fill"`を使用するとき、`height`プロパティは _元の_ height をピクセル単位で表しますので、アスペクト比にのみ影響を与えます。
+
+`height`プロパティは必須です。ただし、[静的にインポートされた画像](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#local-images)や、`layout="fill"`のものは除きます。
+
+## Optional Props
+
+The `<Image />` component accepts a number of additional properties beyond those which are required. This section describes the most commonly-used properties of the Image component. Find details about more rarely-used properties in the [Advanced Props](#advanced-props) section.
+
+### layout
+
+viewport が size を変更すると、image の layout 行動。
+
+| `layout`                | 振る舞い                                                  | `srcSet`                                                                                                 | `sizes` | ラッパーとサイザーがあります |
+| ----------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------- | ---------------------------- |
+| `intrinsic` ( default ) | container の width に合わせて**縮小**し、 image size まで | `1x`, `2x` ([imageSizes](#image-sizes)に基づく)                                                          | N/A     | はい                         |
+| `fixed`                 | `width`と`height`に正確にサイズ設定                       | `1x`, `2x` ([imageSizes](#image-sizes)に基づく)                                                          | N/A     | はい                         |
+| `responsive`            | container の width に合わせてスケール                     | `640w`, `750w`,... `2048w`, `3840w` ([imageSizes](#image-sizes)と[deviceSizes](#device-sizes)に基づく)   | `100vw` | はい                         |
+| `fill`                  | X と Y の axes が成長して container を埋める              | `640w`, `750w`,... `2048w`, `3840w` ([imageSizes](#image-sizes)と[deviceSizes](#device-sizes)に基づいて) | `100vw` | はい                         |
+
+- [`intrinsic` layout (default)のデモ](https://image-legacy-component.nextjs.gallery/layout-intrinsic)
+  - `intrinsic`の場合、image は小さなビューポートのために寸法を縮小しますが、大きなビューポートでは元の寸法を保持します。
+- [`fixed` layout のデモ](https://image-legacy-component.nextjs.gallery/layout-fixed)
+  - `fixed`が設定されると、image のサイズは viewport の変更によって変わらない(反応しない)。これはネイティブの `img` 要素と同様です。
+- [`responsive` layout のデモ](https://image-legacy-component.nextjs.gallery/layout-responsive)
+  - `responsive`の場合、image はより小さなビューポートのために次元を縮小し、より大きなビューポートのために次元を拡大します。
+  - 親要素がスタイルシートで`display: block`を使用するように確認してください。
+- [`fill` layout のデモ](https://image-legacy-component.nextjs.gallery/layout-fill)
+  - `fill`の場合、image は width と height の両方を親要素の次元に引き延ばしますが、これは親要素が相対である場合に限ります。
+  - これは通常、[`objectFit`](#objectfit) プロパティとペアになっています。
+  - 親要素がスタイルシート内で `position: relative` を持っていることを確認してください。
+- [デモ背景 image](https://image-legacy-component.nextjs.gallery/background)
+
+### loader
+
+URL を解決するために使用されるカスタム関数。Image component のプロッパティに loader を設定すると、[`images`セクションの`next.config.js`](#loader-configuration)で定義された default loader が上書きされます。
+
+A `loader` is a function returning a URL string for the image, given the following parameters:
+
+- [`src`](#src)
+- [`width`](#width)
+- [`quality`](#quality)
+
+Here is an example of using a custom loader:
+
+```js
+import Image from "next/legacy/image";
+
+const myLoader = ({ src, width, quality }) => {
+  return `https://example.com/${src}?w=${width}&q=${quality || 75}`;
+};
+
+const MyImage = (props) => {
+  return (
+    <Image
+      loader={myLoader}
+      src="me.png"
+      alt="Picture of the author"
+      width={500}
+      height={500}
+    />
+  );
+};
+```
+
+### sizes
+
+異なるブレークポイントで image の幅がどのようになるかについての情報を提供する string。`sizes` の value は`layout="responsive"`や`layout="fill"` を使用する画像のパフォーマンスに大きな影響を及ぼします。`layout="intrinsic"`や`layout="fixed"`を使用する画像では無視されます。
+
+The `sizes` property serves two important purposes related to image performance:
+
+まず、value の `sizes` の値は、自動的に生成された `next/legacy/image` の source セットからどの size の image をダウンロードするかをブラウザが判断するために使用されます。ブラウザが選択する時点では、ページ上の image の size がまだわかっていないので、その size が viewport と同じかそれ以上の image を選択します。 `sizes` プロパティを使用すると、ブラウザに対して image がフルスクリーンよりも小さいことを通知することができます。もし `sizes` の value を設定しない場合、default の default value として `100vw`(フルスクリーンの width)が使用されます。
+
+次に、`sizes` value が解析され、自動的に作成された source セットの値をトリムするために使用されます。もし`sizes`プロパティが、`50vw`のような viewport width のパーセンテージを表す sizes を含んでいる場合、その source セットは、決して必要とされないほど小さな値を含まないようにトリムされます。
+
+For example, if you know your styling will cause an image to be full-width on mobile devices, in a 2-column layout on tablets, and a 3-column layout on desktop displays, you should include a sizes property such as the following:
+
+```js
+import Image from "next/legacy/image";
+const Example = () => (
+  <div className="grid-element">
+    <Image
+      src="/example.png"
+      layout="fill"
+      sizes="(max-width: 768px) 100vw,
+              (max-width: 1200px) 50vw,
+              33vw"
+    />
+  </div>
+);
+```
+
+This example `sizes` could have a dramatic effect on performance metrics. Without the `33vw` sizes, the image selected from the server would be 3 times as wide as it needs to be. Because file size is proportional to the square of the width, without `sizes` the user would download an image that's 9 times larger than necessary.
+
+Learn more about `srcset` and `sizes`:
+
+- [web.dev](https://web.dev/learn/design/responsive-images/#sizes)
+- [mdn](https://developer.mozilla.org/docs/Web/HTML/Element/img#attr-sizes)
+
+### quality
+
+最適化された image の quality ，`1`と`100`の間の整数で、`100`が最高の quality を示します。 default は`75`です。
+
+### priority
+
+When true, the image will be considered high priority and [preload](https://web.dev/preload-responsive-images/). Lazy loading is automatically disabled for images using `priority`.
+
+You should use the `priority` property on any image detected as the [Largest Contentful Paint (LCP)](https://nextjs.org/learn/seo/web-performance/lcp) element. It may be appropriate to have multiple priority images, as different images may be the LCP element for different viewport sizes.
+
+Should only be used when the image is visible above the fold. Defaults to `false`.
+
+### placeholder
+
+image がロード中の間に使用する''placeholder''。可能な values は `blur` または `empty` です。default は `empty` です。
+
+`blur`の際には、[`blurDataURL`](#blurdataurl) プロパティが placeholder として使用されます。もし`src`が[static import](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#local-images)からの object であり、インポートされた image のフォーマットが`.jpg`、`.png`、`.webp`、または`.avif`である場合、`blurDataURL`は自動的に補充されます。
+
+For dynamic images, you must provide the [`blurDataURL`](#blurdataurl) property. Solutions such as [Plaiceholder](https://github.com/joe-bell/plaiceholder) can help with `base64` generation.
+
+When `empty`, there will be no placeholder while the image is loading, only empty space.
+
+Try it out:
+
+- [`blur` placeholder のデモ](https://image-legacy-component.nextjs.gallery/placeholder)
+- [`blurDataURL`プロパティを使ってシマー効果をデモする](https://image-legacy-component.nextjs.gallery/shimmer)
+- [`blurDataURL`プロップでカラーエフェクトをデモ](https://image-legacy-component.nextjs.gallery/color)
+
+## Advanced Props
+
+In some cases, you may need more advanced usage. The `<Image />` component optionally accepts the following advanced properties.
+
+### style
+
+基本的な image 要素に[CSS styles](https://developer.mozilla.org/docs/Web/HTML/Element/style)を渡すことを許可します。
+
+すべての `layout` モードは、自身の styles を image 要素に適用し、これらの自動的な styles は `style` prop よりも優先されることに注意してください。
+
+また、必要な`width`と`height`の props があなたのスタイリングと相互に作用することを覚えておいてください。画像の`width`をスタイリングで変更する場合、`height="auto"`の style も設定しなければならず、そうしないとあなたの image は歪むことになります。
+
+### objectFit
+
+"`layout="fill"`を使用しているとき、image が親の container にどのようにフィットするかを定義します。
+
+この value は、`src` image のための[object-fit CSS property](https://developer.mozilla.org/docs/Web/CSS/object-fit)に渡されます。
+
+### objectPosition
+
+"`layout="fill"`を使用した際に、親要素内で image がどのように配置されるかを定義します。
+
+この value は、image に適用された[object-position CSS property](https://developer.mozilla.org/docs/Web/CSS/object-position)に渡されます。
+
+### onLoadingComplete
+
+A callback function that is invoked once the image is completely loaded and the [placeholder](#placeholder) has been removed.
+
+`onLoadingComplete`関数は 1 つのパラメータを受け入れます。それは以下のプロパティを持つ object です：
+
+- [`naturalWidth`](https://developer.mozilla.org/docs/Web/API/HTMLImageElement/naturalWidth)
+- [`naturalHeight`](https://developer.mozilla.org/docs/Web/API/HTMLImageElement/naturalHeight)
+
+### loading
+
+> **注意**: このプロパティは高度な使用を意図したものです。切り替えると
+> `eager`でロードする image は通常、**パフォーマンスを損ないます**。
+>
+> 代わりに、[`priority`](#priority) プロパティを使用することをおすすめしますが、
+> image をほぼすべての使用ケースで熱心に適切にロードします。
+
+The loading behavior of the image. Defaults to `lazy`.
+
+When `lazy`, defer loading the image until it reaches a calculated distance from the viewport.
+
+When `eager`, load the image immediately.
+
+[詳しく学ぶ](https://developer.mozilla.org/docs/Web/HTML/Element/img#attr-loading)
+
+### blurDataURL
+
+A [Data URL](https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs) to be used as a placeholder image before the `src` image successfully loads. Only takes effect when combined with [`placeholder="blur"`](#placeholder).
+
+Must be a base64-encoded image. It will be enlarged and blurred, so a very small image (10px or less) is recommended. Including larger images as placeholders may harm your application performance.
+
+Try it out:
+
+- [`blurDataURL`プロパティの default をデモする](https://image-legacy-component.nextjs.gallery/placeholder)
+- [`blurDataURL`プロパティを使ってシマー効果をデモする](https://image-legacy-component.nextjs.gallery/shimmer)
+- [`blurDataURL`プロップでカラーエフェクトをデモする](https://image-legacy-component.nextjs.gallery/color)
+
+You can also [generate a solid color Data URL](https://png-pixel.com) to match the image.
+
+### lazyBoundary
+
+string(マージンプロパティと同様の syntax)を使用して、viewport と image の交差を検出し、lazy [loading](#loading)をトリガするためのバウンディングボックスとして働きます。default は`"200px"`です。
+
+もし image が root document 以外の Scroll 可能な親要素にネストされている場合、[lazyRoot](#lazyroot)プロパティも割り当てる必要があります。
+
+[詳しく学ぶ](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/rootMargin)
+
+### lazyRoot
+
+Scroll 可能な親要素を指す React[Ref](https://react.dev/learn/referencing-values-with-refs)。default は`null`(document viewport)。
+
+Ref は、DOM 要素または基礎となる DOM 要素に Ref を[転送する](https://react.dev/reference/react/forwardRef)React component を指す必要があります。
+
+**DOM 要素を指し示す例**
+
+```jsx
+import Image from "next/legacy/image";
+import React from "react";
+
+const Example = () => {
+  const lazyRoot = React.useRef(null);
+
+  return (
+    <div ref={lazyRoot} style={{ overflowX: "scroll", width: "500px" }}>
+      <Image lazyRoot={lazyRoot} src="/one.jpg" width="500" height="500" />
+      <Image lazyRoot={lazyRoot} src="/two.jpg" width="500" height="500" />
+    </div>
+  );
+};
+```
+
+**React component を指し示す例**
+
+```jsx
+import Image from "next/legacy/image";
+import React from "react";
+
+const Container = React.forwardRef((props, ref) => {
+  return (
+    <div ref={ref} style={{ overflowX: "scroll", width: "500px" }}>
+      {props.children}
+    </div>
+  );
+});
+
+const Example = () => {
+  const lazyRoot = React.useRef(null);
+
+  return (
+    <Container ref={lazyRoot}>
+      <Image lazyRoot={lazyRoot} src="/one.jpg" width="500" height="500" />
+      <Image lazyRoot={lazyRoot} src="/two.jpg" width="500" height="500" />
+    </Container>
+  );
+};
+```
+
+[もっと学ぶ](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/root)
+
+### unoptimized
+
+When true, the source image will be served as-is instead of changing quality, size, or format. Defaults to `false`.
+
+```js
+import Image from "next/image";
+
+const UnoptimizedImage = (props) => {
+  return <Image {...props} unoptimized />;
+};
+```
+
+Since Next.js 12.3.0, this prop can be assigned to all images by updating `next.config.js` with the following configuration:
+
+```js:next.config.js
+module.exports = {
+  images: {
+    unoptimized: true,
+  },
+}
+```
+
+## Other Props
+
+Other properties on the `<Image />` component will be passed to the underlying `img` element with the exception of the following:
+
+- `srcSet`. 代わりに[Device Sizes](#device-sizes)を使用してください。
+- `ref`を使用します。代わりに[`onLoadingComplete`](#onloadingcomplete)を使用してください。
+- `decoding`. It is always `"async"`.
+
+## Configuration Options
+
+### リモートパターン
+
+To protect your application from malicious users, configuration is required in order to use external images. This ensures that only external images from your account can be served from the Next.js Image Optimization API. These external images can be configured with the `remotePatterns` property in your `next.config.js` file, as shown below:
+
+```js:next.config.js
+module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        port: '',
+        pathname: '/account123/**',
+      },
+    ],
+  },
+}
+```
+
+> **Good to know**: 上記の例では、`next/legacy/image`の`src`プロパティは `https://example.com/account123/`で start しなければなりません。他のプロトコル、 hostname 、 port 、または一致しない path は 400 Bad Request を返します。
+
+Below is another example of the `remotePatterns` property in the `next.config.js` file:
+
+```js:next.config.js
+module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.example.com',
+        port: '',
+      },
+    ],
+  },
+}
+```
+
+> **Good to know**: 上記の例により、`next/legacy/image`の`src`プロパティは、`https://img1.example.com` または `https://me.avatar.example.com` または任意の数のサブドメインで 始まる 必要があります。それ以外のプロトコル、ポート、または一致しないホスト名は、400 Bad Request と返答します。
+
+`pathname`と`hostname`の両方でワイルドカードパターンを使用することができ、次の構文があります：
+
+- `*` は単一のパスセグメントまたはサブドメインに一致します
+- `**` はパターンの終わりにある任意の数のパスセグメントまたは始まりにあるサブドメインに一致します
+
+`**`構文はパターンの中間で機能しません。
+
+> **Good to know**: `protocol`、`port`、または`pathname`を省略すると、ワイルドカード`**`が暗黙的に適用されます。これは推奨されません。なぜなら、意図しない URL を最適化する機会を悪意のある行為者に提供する可能性があるからです。
+
+### Domains
+
+> **警告**: Next.js 14 から非推奨となり、あなたのアプリケーションを悪意のあるユーザーから守るための厳格な[`remotePatterns`](#remote-patterns)を導入しました。ドメインから提供されるすべてのコンテンツを所有している場合にのみ`domains`を使用してください。
+
+[`remotePatterns`](#remote-patterns)と同様に、`domains`設定を使用して、外部イメージの許可されたホスト名のリストを提供することができます。
+
+しかし、`domains`の設定はワイルドカードパターンマッチングをサポートしておらず、プロトコル、ポート、またはパスネームを制限することはできません。
+
+以下は`next.config.js`ファイル内の`domains`プロパティの例です：
+
+```js:next.config.js
+module.exports = {
+  images: {
+    domains: ['assets.acme.com'],
+  },
+}
+```
+
+### Loader 設定
+
+Next.js の組み込み Image Optimization API ではなく、クラウドプロバイダを使用して Image を最適化したい場合は、`next.config.js`ファイルで`loader`と`path`プレフィクスを設定できます。これにより、Image の[`src`](#src)に相対 URL を使用し、プロバイダーの正しい絶対 URL を自動的に生成することができます。
+
+```js:next.config.js
+module.exports = {
+  images: {
+    loader: 'imgix',
+    path: 'https://example.com/myaccount/',
+  },
+}
+```
+
+### ビルトインローダー
+
+次の Image Optimization クラウドプロバイダーが含まれています:
+
+- Default：`next dev`、`next start`、またはカスタムの server と自動的に動作します。
+- [Vercel](https://vercel.com)：Vercel に deploy すると自動的に機能します、設定の必要はありません。[詳しくはこちら](https://vercel.com/docs/concepts/image-optimization?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)
+- [Imgix](https://www.imgix.com): `loader: 'imgix'`
+- [Cloudinary](https://cloudinary.com): `loader: 'cloudinary'`
+- [Akamai](https://www.akamai.com): `loader: 'akamai'`
+- Custom：`loader: 'custom'`により、`next/legacy/image` component の[`loader`](#loader)プロップを実装することで、カスタムクラウドプロバイダーを使用します。
+
+異なるプロバイダーが必要な場合、`next/legacy/image`と共に[`loader`](#loader)プロップを使用できます。
+
+> 画像は[`output: 'export'`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)を使用する build 時に最適化することはできず、オンデマンドのみ可能です。`next/legacy/image`を`output: 'export'`と共に使用するには、default とは異なる別の loader を使用する必要があります。 [詳細は議論をご覧ください。](https://github.com/vercel/next.js/discussions/19065)
+
+> `next/legacy/image`Component の default loader は[`squoosh`](https://www.npmjs.com/package/@squoosh/lib)を使用しています。それはインストールが速く、development 環境に適しているからです。`next start`を production 環境で使用する場合、プロジェクトディレクトリで`npm i sharp`を実行して[`sharp`](https://www.npmjs.com/package/sharp)をインストールすることを強く推奨します。ただし、Vercel のデプロイメントでは必要ありません。なぜなら、`sharp`は自動的にインストールされるからです。
+
+## Advanced
+
+以下の設定は高度な使用例のためのもので、通常は必要ありません。以下のプロパティを設定する場合、将来のアップデートでの Next.js のデフォルトの変更が上書きされます。
+
+### デバイス Sizes
+
+"あなたがユーザーの予想デバイス幅を知っている場合は、 `next.config.js`の`deviceSizes`プロパティを使用して、「width ブレークポイント」のリストを指定することができます。これらの幅は、`next/legacy/image`の component が `layout="responsive"`または `layout="fill"` を使用してユーザーのデバイスに適した image が提供されることを確認するために使用されます。
+
+設定が提供されていない場合、下記のデフォルトが使用されます。
+
+```js:next.config.js
+module.exports = {
+  images: {
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+  },
+}
+```
+
+### Image Sizes
+
+あなたは `next.config.js` ファイル内の `images.imageSizes` プロパティを使用して、image の幅のリストを指定することができます。これらの幅は、[デバイスの sizes](#device-sizes)の配列と結合して、image [srcset](https://developer.mozilla.org/docs/Web/API/HTMLImageElement/srcset)を生成するために使用される sizes の完全な配列を形成します。
+
+2 つのリストが別々にある理由は、imageSizes が[`sizes`](#sizes)プロパティを提供する画像にのみ使用され、その画像が画面の全幅よりも小さいことを示しているためです。**したがって、imageSizes 内のサイズはすべて、deviceSizes 内の最小サイズよりも小さくなければなりません。**
+
+設定が提供されていない場合、下記のデフォルトが使用されます。
+
+```js:next.config.js
+module.exports = {
+  images: {
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+}
+```
+
+### 受け入れ可能な Formats
+
+default の[Image Optimization API](#loader-configuration)は、request の`Accept`ヘッダを介してブラウザがサポートする image 形式を自動的に検出します。
+
+`Accept`ヘッダーが設定されたフォーマットのうち複数に一致する場合、配列の最初の一致が使用されます。したがって、配列の順序が重要です。一致がない場合（またはソース画像が[アニメーション](#animated-images)の場合）、画像最適化 API は元の画像のフォーマットにフォールバックします。
+
+設定が提供されていない場合、下記のデフォルトが使用されます。
+
+```js:next.config.js
+module.exports = {
+  images: {
+    formats: ['image/webp'],
+  },
+}
+```
+
+以下の設定で AVIF サポートを有効にすることができます。
+
+```js:next.config.js
+module.exports = {
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
+}
+```
+
+> **Good to know**: AVIF は一般的にエンコードに 20%長い時間がかかりますが、WebP と比較して 20%小さく圧縮します。これは、 image が最初に要求されたときは通常遅く、その後のキャッシュされた要求はより速くなることを意味します。
+
+## Caching Behavior
+
+以下は、デフォルトの[ローダー](#loader)のキャッシングアルゴリズムについて説明しています。他のローダーについては、クラウドプロバイダーのドキュメントを参照してください。
+
+画像はリクエストに応じて動的に最適化され、`<distDir>/cache/images`ディレクトリに保存されます。最適化された画像ファイルは、有効期限が到達するまで後続のリクエストで提供されます。キャッシュされたが期限切れのファイルに一致するリクエストが行われた場合、期限切れの画像はすぐに古いものとして提供されます。その後、画像はバックグラウンドで再度最適化され（再検証とも呼ばれます）新しい有効期限と共にキャッシュに保存されます。
+
+image の cache 状態は、`x-nextjs-cache`(Vercel にデプロイされた場合は`x-vercel-cache`)の value を読み取ることで決定できます。 response header の可能な値は次のとおりです：
+
+- `MISS` - パスがキャッシュにない（最初の訪問時に最大で一度発生）
+- `STALE` - パスはキャッシュにありますが、再検証時間を超えているため、バックグラウンドで更新されます
+- `HIT` - パスがキャッシュにあり、再検証時間を超えていません
+
+[`minimumCacheTTL`](#minimum-cache-ttl)設定または上流の image `Cache-Control` header が定義する有効期限(むしろ最大期間)は、どちらか大きい方によって決まります。具体的には、`Cache-Control` header の`max-age` value が使用されます。`s-maxage`と`max-age`の両方が見つかった場合は、`s-maxage`が優先されます。`max-age`は、CDN やブラウザを含む任意の下流 clients にも通過します。
+
+- あなたは、上流の image に`Cache-Control`header が含まれていないか、value が非常に低い場合に、cache の期間を延ばすために、[`minimumCacheTTL`](#minimum-cache-ttl)を設定することができます。
+- あなたは、[`deviceSizes`](#device-sizes)と[`imageSizes`](#image-sizes)を設定することで、生成される可能性のある画像の総 number を減らすことができます。
+- [formats](#acceptable-formats)を設定して、複数の formats を無効にし、単一の image フォーマットを優先することができます。
+
+### 最小の Cache TTL
+
+キャッシュされた最適化画像の Live(TTL)を秒単位で設定することができます。多くの場合、ファイル内容を自動的にハッシュし、cache と image を`Cache-Control`header の`immutable`で永久に保持する[静的 Image Import](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/01-images#local-images)を使用する方が良いです。
+
+```js:next.config.js
+module.exports = {
+  images: {
+    minimumCacheTTL: 60,
+  },
+}
+```
+
+最適化された画像の有効期限（またはむしろ最大年齢）は、`minimumCacheTTL`または上流の画像`Cache-Control`ヘッダーのどちらか大きい方によって定義されます。
+
+image ごとのキャッシュ動作を変更する必要がある場合、[`headers`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/headers)を設定して、上流の image(例：`/some-asset.jpg`、`/_next/image`自体ではありません)に`Cache-Control`header を設定できます。
+
+現時点でキャッシュを無効にするメカニズムはありませんので、`minimumCacheTTL`を低く保つことが最善です。そうでなければ、[`src`](#src)プロパティを手動で変更するか、`<distDir>/cache/images`を削除する必要があるかもしれません。
+
+### スタティックインポートを無効にする
+
+デフォルトの挙動では、`import icon from './icon.png'` のように静的ファイルをインポートし、それを `src` プロパティに渡すことができます。
+
+場合によっては、インポートの動作が他のプラグインと競合する場合、この機能を無効にすることが望ましいかもしれません。
+
+`next.config.js`内で静的画像インポートを無効にすることができます：
+
+```js:next.config.js
+module.exports = {
+  images: {
+    disableStaticImages: true,
+  },
+}
+```
+
+### SVG を危険に許可する
+
+デフォルトの[ローダー](#loader)はいくつかの理由から SVG 画像を最適化しません。まず、SVG はベクターフォーマットであり、無損失でリサイズが可能です。次に、SVG には HTML/CSS と同様の機能が多く含まれており、適切な[コンテンツセキュリティポリシー（CSP）ヘッダー](/docs/app/api-reference/next-config-js/headers#content-security-policy)がないと脆弱性を引き起こす可能性があります。
+
+そのため、[`src`](#src)プロパティが SVG であることがわかっている場合は、[`unoptimized`](#unoptimized)プロパティの使用を推奨します。これは`src`が`".svg"`で終わる場合に自動的に行われます。
+
+しかし、デフォルトの画像最適化 API で SVG 画像を提供する必要がある場合は、`next.config.js`内で`dangerouslyAllowSVG`を設定できます：
+
+```js:next.config.js
+module.exports = {
+  images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+}
+```
+
+さらに、ブラウザが画像をダウンロードするように`contentDispositionType`を設定すること、および画像に埋め込まれたスクリプトの実行を防ぐために`contentSecurityPolicy`を設定することを強く推奨します。
+
+### アニメーション画像
+
+デフォルトの[ローダー](#loader)はアニメーション画像の画像最適化を自動的にバイパスし、画像をそのまま提供します。
+
+アニメーションファイルの自動検出はベストエフォートで、GIF、APNG、WebP をサポートしています。特定のアニメーション画像に対して画像最適化を明示的にバイパスしたい場合は、[unoptimized](#unoptimized)プロパティを使用してください。
+
+## Version History
+
+| Version   | Changes                                               |
+| --------- | ----------------------------------------------------- |
+| `v13.0.0` | `next/image`が`next/legacy/image`に名称変更されました |

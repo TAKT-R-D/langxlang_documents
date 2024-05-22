@@ -1,0 +1,93 @@
+---
+filePath: source/next.js/docs/03-pages/01-building-your-application/01-routing/05-custom-app.mdx
+title: Custom App
+description: Control page initialization and add a layout that persists for all pages by overriding the default App component used by Next.js.
+org_title: Custom App
+org_path: /docs/pages/building-your-application/routing/custom-app
+is_empty: false
+---
+
+Next.js は、ページを初期化するために`App` component を使用します。それを上書きして、ページの初期化と：
+
+- ページ変更間で共有の layout を作成する
+- ページに追加データを注入する
+- [グローバル CSS を追加する](/ja/javascript/next.js/v14/03-pages/01-building-your-application/04-styling)
+
+## Usage
+
+`App`の default をオーバーライドするには、以下に示すように`pages/_app`というファイルを作成してください：
+
+```tsx:pages/_app.tsx
+import type { AppProps } from 'next/app'
+
+export default function MyApp({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />
+}
+```
+
+```jsx:pages/_app.jsx
+export default function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />
+}
+```
+
+`Component`プロップはアクティブな`page`で、routes 間を移動するたびに、`Component`は新しい`page`に変わります。したがって、`Component`に送信した props はすべて`page`が受け取ります。
+
+`pageProps`は、私たちの[データ取得 Method](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)のいずれかによってページのために事前にロードされた初期の props を含む empty object です。それ以外の場合は、空の object です。
+
+> **Good to know**
+>
+> - あなたの app が稼働していて、カスタム`App`を追加した場合、 development server を再起動する必要があります。`pages/_app.js`が以前に存在しなかった場合にのみ必要です。
+> - `App`は、Next.js の[データ取得方法](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching)、 [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) や [`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props) などをサポートしていません。
+
+## `getInitialProps` with `App`
+
+[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)を`App`で使うと、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)がないページについての[Automatic Static Optimization](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)が無効になります。
+
+**このパターンの使用はお勧めしません。**代わりに、[徐々に採用](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/02-app-router-migration)することを検討してみてください。 App Router 。これにより、[ページとレイアウト](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)のデータをもっと簡単に fetch できます。
+
+```tsx:pages/_app.tsx
+import App, { AppContext, AppInitialProps, AppProps } from 'next/app'
+
+type AppOwnProps = { example: string }
+
+export default function MyApp({
+  Component,
+  pageProps,
+  example,
+}: AppProps & AppOwnProps) {
+  return (
+    <>
+      <p>Data: {example}</p>
+      <Component {...pageProps} />
+    </>
+  )
+}
+
+MyApp.getInitialProps = async (
+  context: AppContext
+): Promise<AppOwnProps & AppInitialProps> => {
+  const ctx = await App.getInitialProps(context)
+
+  return { ...ctx, example: 'data' }
+}
+```
+
+```jsx:pages/_app.jsx
+import App from 'next/app'
+
+export default function MyApp({ Component, pageProps, example }) {
+  return (
+    <>
+      <p>Data: {example}</p>
+      <Component {...pageProps} />
+    </>
+  )
+}
+
+MyApp.getInitialProps = async (context) => {
+  const ctx = await App.getInitialProps(context)
+
+  return { ...ctx, example: 'data' }
+}
+```

@@ -1,0 +1,226 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/04-functions/generate-image-metadata.mdx
+title: generateImageMetadata
+description: Learn how to generate multiple images in a single Metadata API special file.
+org_title: generateImageMetadata
+org_path: /docs/app/api-reference/functions/generate-image-metadata
+is_empty: false
+---
+
+あなたは`generateImageMetadata`を使用して、一つの image の異なる Version を生成したり、一つの route セグメントに対して複数の画像を返すことができます。これは、アイコンなどの metadata 値をハードコーディングしたくない場合に便利です。
+
+## Parameters
+
+`generateImageMetadata`関数は以下のパラメータを受け入れます：
+
+#### `params` (optional)
+
+`generateImageMetadata` から呼び出されるセグメントから root セグメントまでの [dynamic route parameters](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) を含む object は、 object と呼ばれます。
+
+```tsx:icon.tsx
+export function generateImageMetadata({
+  params,
+}: {
+  params: { slug: string }
+}) {
+  // ...
+}
+```
+
+```jsx:icon.js
+export function generateImageMetadata({ params }) {
+  // ...
+}
+```
+
+| Route                           | URL         | `params`                  |
+| ------------------------------- | ----------- | ------------------------- |
+| `app/shop/icon.js`              | `/shop`     | `undefined`               |
+| `app/shop/[slug]/icon.js`       | `/shop/1`   | `{ slug: '1' }`           |
+| `app/shop/[tag]/[item]/icon.js` | `/shop/1/2` | `{ tag: '1', item: '2' }` |
+| `app/shop/[...slug]/icon.js`    | `/shop/1/2` | `{ slug: ['1', '2'] }`    |
+
+## Returns
+
+`generateImageMetadata` 関数は、`alt` や `size` などの画像の metadata を含むオブジェクトの `array` を返すべきです。さらに、各項目には `id` value が **必ず** 含まれ、これは image 生成関数の props に渡されます。
+
+| Image Metadata Object | Type                                |
+| --------------------- | ----------------------------------- |
+| `id`                  | `string` (必須)                     |
+| `alt`                 | `string`                            |
+| `size`                | `{ width: number; height: number }` |
+| `contentType`         | `string`                            |
+
+```tsx:icon.tsx
+import { ImageResponse } from 'next/og'
+
+export function generateImageMetadata() {
+  return [
+    {
+      contentType: 'image/png',
+      size: { width: 48, height: 48 },
+      id: 'small',
+    },
+    {
+      contentType: 'image/png',
+      size: { width: 72, height: 72 },
+      id: 'medium',
+    },
+  ]
+}
+
+export default function Icon({ id }: { id: string }) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 88,
+          background: '#000',
+          color: '#fafafa',
+        }}
+      >
+        Icon {id}
+      </div>
+    )
+  )
+}
+```
+
+```jsx:icon.js
+import { ImageResponse } from 'next/og'
+
+export function generateImageMetadata() {
+  return [
+    {
+      contentType: 'image/png',
+      size: { width: 48, height: 48 },
+      id: 'small',
+    },
+    {
+      contentType: 'image/png',
+      size: { width: 72, height: 72 },
+      id: 'medium',
+    },
+  ]
+}
+
+export default function Icon({ id }) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 88,
+          background: '#000',
+          color: '#fafafa',
+        }}
+      >
+        Icon {id}
+      </div>
+    )
+  )
+}
+```
+
+### Examples
+
+#### Using external data
+
+この例では、`params` object と外部データを使用して、route セグメントのための複数の[Open Graph イメージ](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata/opengraph-image)を生成します。
+
+```tsx:app/products/[id]/opengraph-image.tsx
+import { ImageResponse } from 'next/og'
+import { getCaptionForImage, getOGImages } from '@/app/utils/images'
+
+export async function generateImageMetadata({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const images = await getOGImages(params.id)
+
+  return images.map((image, idx) => ({
+    id: idx,
+    size: { width: 1200, height: 600 },
+    alt: image.text,
+    contentType: 'image/png',
+  }))
+}
+
+export default async function Image({
+  params,
+  id,
+}: {
+  params: { id: string }
+  id: number
+}) {
+  const productId = params.id
+  const imageId = id
+  const text = await getCaptionForImage(productId, imageId)
+
+  return new ImageResponse(
+    (
+      <div
+        style={
+          {
+            // ...
+          }
+        }
+      >
+        {text}
+      </div>
+    )
+  )
+}
+```
+
+```jsx:app/products/[id]/opengraph-image.js
+import { ImageResponse } from 'next/og'
+import { getCaptionForImage, getOGImages } from '@/app/utils/images'
+
+export async function generateImageMetadata({ params }) {
+  const images = await getOGImages(params.id)
+
+  return images.map((image, idx) => ({
+    id: idx,
+    size: { width: 1200, height: 600 },
+    alt: image.text,
+    contentType: 'image/png',
+  }))
+}
+
+export default async function Image({ params, id }) {
+  const productId = params.id
+  const imageId = id
+  const text = await getCaptionForImage(productId, imageId)
+
+  return new ImageResponse(
+    (
+      <div
+        style={
+          {
+            // ...
+          }
+        }
+      >
+        {text}
+      </div>
+    )
+  )
+}
+```
+
+## Version History
+
+| Version   | Changes                                   |
+| --------- | ----------------------------------------- |
+| `v13.3.0` | `generateImageMetadata`が導入されました。 |

@@ -1,0 +1,58 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/01-routing/01-defining-routes.mdx
+title: Defining Routes
+description: Learn how to create your first route in Next.js.
+org_title: Defining Routes
+org_path: /docs/app/building-your-application/routing/defining-routes
+is_empty: false
+---
+
+> 続ける前に、[Routing Fundamentals](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing)ページを読むことをお勧めします。
+
+このページでは、Next.js アプリケーションでどのように routes を定義し、整理するかをご案内します。
+
+## Creating Routes
+
+Next.js は、ファイルシステムベースの router を使用し、**フォルダ**は routes を定義するために使用されます。
+
+各フォルダーは、**URL** セグメントにマッピングする[**route**セグメント](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#route-segments)を表現します。[ネストした route](/docs/app/building-your-application/routing#nested-routes)を作成するために、フォルダーを互いにネストすることができます。
+
+<Image
+  alt="Route segments to path segments"
+  srcLight="/docs/light/route-segments-to-path-segments.png"
+  srcDark="/docs/dark/route-segments-to-path-segments.png"
+  width="1600"
+  height="594"
+/>
+
+特別な[`page.js`ファイル](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)は、route セグメントを一般に公開するために使用されます。
+
+<Image
+  alt="Defining Routes"
+  srcLight="/docs/light/defining-routes.png"
+  srcDark="/docs/dark/defining-routes.png"
+  width="1600"
+  height="687"
+/>
+
+この例では、`/dashboard/analytics` URL path は、対応する`page.js`ファイルがないため、公開アクセス可能では*ありません*。このフォルダは、Component、スタイルシート、画像、または他の同位のファイルを保存するために使用できます。
+
+> **Good to know**: `.js`、`.jsx`、または`.tsx`のファイル拡張子は特別なファイルに使用することができます。
+
+## Creating UI
+
+[特別なファイル規約](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)は、各 route セグメントに対する UI を作成するために使用されます。最も一般的なものは、route 固有の UI を表示するための[ページ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#pages)、および複数の routes に共有される UI を表示するための[layouts](/docs/app/building-your-application/routing/pages-and-layouts#layouts)です。
+
+例えば、最初のページを作成するには、`app` ディレクトリ内に `page.js` ファイルを追加し、export という React component を行います。
+
+```tsx:app/page.tsx
+export default function Page() {
+  return <h1>Hello, Next.js!</h1>
+}
+```
+
+```jsx:app/page.js
+export default function Page() {
+  return <h1>Hello, Next.js!</h1>
+}
+```

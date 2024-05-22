@@ -1,0 +1,49 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/06-optimizing/06-bundle-analyzer.mdx
+title: Bundle Analyzer
+description: Analyze the size of your JavaScript bundles using the @next/bundle-analyzer plugin.
+org_title: Bundle Analyzer
+org_path: /docs/app/building-your-application/optimizing/bundle-analyzer
+is_empty: false
+---
+
+[`@next/bundle-analyzer`](https://www.npmjs.com/package/@next/bundle-analyzer)は、あなたの JavaScript modules の size を管理するのを助ける Next.js のための plugin です。それは各モジュールの size とその依存関係の視覚的なレポートを生成します。この情報を使用して、大きな依存関係を削除したり、code を分割したり、必要な部分だけをロードして、client へのデータ転送量を減らすことができます。
+
+## Installation
+
+以下のコマンドを実行して、plugin をインストールします：
+
+```bash
+npm i @next/bundle-analyzer
+# or
+yarn add @next/bundle-analyzer
+# or
+pnpm add @next/bundle-analyzer
+```
+
+次に、バンドルアナライザーの settings をあなたの `next.config.js` に追加してください。
+
+```js:next.config.js
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {}
+
+module.exports = withBundleAnalyzer(nextConfig)
+```
+
+## Analyzing your bundles
+
+バンドルを分析するために以下のコマンドを実行してください：
+
+```bash
+ANALYZE=true npm run build
+# or
+ANALYZE=true yarn build
+# or
+ANALYZE=true pnpm build
+```
+
+レポートは、あなたのブラウザで 3 つの新しいタブを開き、それらを調査することができます。これを定期적に実行し、サイトをデプロイする前に行うことで、大きなバンドルを早期に特定し、アプリケーションのアーキテクチャをよりパフォーマンスが高くなるように設計するのに役立ちます。

@@ -1,0 +1,99 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/exportPathMap.mdx
+title: exportPathMap (Deprecated)
+description: Customize the pages that will be exported as HTML files when using 'next export'.
+org_title: exportPathMap (Deprecated)
+org_path: /docs/app/api-reference/next-config-js/exportPathMap
+is_empty: false
+nav_title: exportPathMap
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+> この機能は `next export` 専用で、現在は `getStaticPaths` と `pages` または `generateStaticParams` と `app` を優先するために**非推奨**となっています。
+
+<details>
+<summary>例</summary>
+- [Static Export](https://github.com/vercel/next.js/tree/canary/examples/with-static-export)
+
+</details>
+
+`exportPathMap`は、request paths をページの目的地にマッピングすることを指定でき、export の間に使用されます。Paths は、 [`next dev`](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#development)を使用するときにも`exportPathMap`で定義されるものと同じく利用可能です。
+
+例から始めましょう、カスタム `exportPathMap` を作成するための以下のページを持つ app：
+
+- `pages/index.js`
+- `pages/about.js`
+- `pages/post.js`
+
+`next.config.js`を開き、次の`exportPathMap` config を追加してください：
+
+```js:next.config.js
+module.exports = {
+  exportPathMap: async function (
+    defaultPathMap,
+    { dev, dir, outDir, distDir, buildId }
+  ) {
+    return {
+      '/': { page: '/' },
+      '/about': { page: '/about' },
+      '/p/hello-nextjs': { page: '/post', query: { title: 'hello-nextjs' } },
+      '/p/learn-nextjs': { page: '/post', query: { title: 'learn-nextjs' } },
+      '/p/deploy-nextjs': { page: '/post', query: { title: 'deploy-nextjs' } },
+    }
+  },
+}
+```
+
+> **Good to know**: `exportPathMap`の`query`フィールドは、[自動的に静的に最適化されたページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/02-rendering/04-automatic-static-optimization)や[`getStaticProps`ページ](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と一緒に使用することはできません。これらは build 時に HTML ファイルにレンダリングされ、追加の query 情報は`next export`中に提供できません。
+
+その後、ページは例えば、`/about` が `/about.html` になるように、HTML ファイルとして export されます。
+
+`exportPathMap`は`async`関数で、2 つの引数を受け取ります。最初の引数は`defaultPathMap`で、これは Next.js が使用する default マップです。2 つ目の引数は以下の要素を持つ object です:
+
+- `dev` - `exportPathMap`が development で呼び出されているときは`true`。`next export`を実行しているときは`false`。 development では、`exportPathMap`は routes を定義するために使用されます。
+- `dir` - プロジェクトディレクトリへの絶対的な path
+- `outDir` - `out/` ディレクトリへの絶対 path(`-o`で[設定可能](#customizing-the-output-directory))。 `dev`が`true`の場合、`outDir`の value は`null`になります。
+- `distDir` - `.next/` ディレクトリへの絶対 path([`distDir`](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/distDir) config で設定可能)
+- `buildId` - 生成された build id
+
+返される object は、`key`が`pathname`で、`value`が以下のフィールドを受け入れる object であるページの map です。
+
+- `page`: `String` - `pages` ディレクトリ内のページを render します
+- `query`: `Object` - `getInitialProps`にプレ rendering 時に渡される`query` object 。default は`{}`です。
+
+> export された `pathname` はファイ lename(例えば、`/readme.md`)も可能ですが、内容がそれが `.html` と異なる場合、その内容を提供する際に `Content-Type` header を `text/html` に設定する必要があるかもしれません
+>
+> 。
+
+## Adding a trailing slash
+
+`index.html`ファイルとしてページをエクスポートするように Next.js を設定することが可能であり、`/about`が`/about/index.html`になり、`/about/`を介してルーティング可能になります。これは Next.js 9 より前の default の動作でした。
+
+元に戻してトレーリングスラッシュを追加するには、`next.config.js` を開き、`trailingSlash` config を有効にします。
+
+```js:next.config.js
+module.exports = {
+  trailingSlash: true,
+}
+```
+
+## Customizing the output directory
+
+<AppOnly>
+
+[`next export`](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports)は`out`を default の出力ディレクトリとして使用します。これは`-o`引数を使用してカスタマイズすることができます。例えば、次のようになります：
+
+</AppOnly>
+
+<PagesOnly>
+
+[`next export`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/09-deploying/02-static-exports)は、default の出力ディレクトリとして`out`を使用します。これは `-o` 引数を使ってカスタマイズすることができます。例えば、以下のようになります：
+
+</PagesOnly>
+
+```bash:Terminal
+next export -o outdir
+```
+
+> **警告**: `exportPathMap`の使用は非推奨であり、`pages`内の`getStaticPaths`によって上書きされます。 これらを一緒に使用することはお勧めしません。

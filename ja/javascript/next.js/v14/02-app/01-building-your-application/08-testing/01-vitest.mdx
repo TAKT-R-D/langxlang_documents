@@ -1,0 +1,210 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/08-testing/01-vitest.mdx
+title: Setting up Vitest with Next.js
+description: Learn how to set up Vitest with Next.js for Unit Testing.
+org_title: Setting up Vitest with Next.js
+org_path: /docs/app/building-your-application/testing/vitest
+is_empty: false
+nav_title: Vitest
+---
+
+Vite と React Testing Library は頻繁に**単体テスト**のために一緒に使用されます。このガイドでは、Next.js と Vitest をセットアップし、初めてのテストを書く方法を示します。
+
+> **Good to know:** `async` Server Components は、 React エコシステムにとって新しいものであるため、現在 Vitest はこれをサポートしていません。同期的な Server と Client Components に対する**ユニットテスト**は実行できますが、`async`コンポーネントに対しては**E2E テスト**を使用することをお勧めします。
+
+## Quickstart
+
+あなたは `create-next-app` を Next.js [with-vitest](https://github.com/vercel/next.js/tree/canary/examples/with-vitest) の例とともに使って、すぐに始めることができます：
+
+```bash:Terminal
+npx create-next-app@latest --example with-vitest with-vitest-app
+```
+
+## Manual Setup
+
+Vitest を手動で設定するには、`vitest`と次のパッケージを dev 依存関係としてインストールします：
+
+```bash:Terminal
+npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react
+# or
+yarn add -D vitest @vitejs/plugin-react jsdom @testing-library/react
+# or
+pnpm install -D vitest @vitejs/plugin-react jsdom @testing-library/react
+# or
+bun add -D vitest @vitejs/plugin-react jsdom @testing-library/react
+```
+
+あなたのプロジェクトの root に`vitest.config.ts|js` ファイルを作成し、次の options を追加してください：
+
+```ts:vitest.config.ts
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+  },
+})
+```
+
+```js:vitest.config.js
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+  },
+})
+```
+
+Vitest の設定についての詳細は、[Vitest Configuration](https://vitest.dev/config/#configuration) docs をご参照ください。
+
+次に、`package.json`に`test`スクリプトを追加します：
+
+```json:package.json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest"
+  }
+}
+```
+
+`npm run test`を実行すると、Vitest は default でプロジェクトの変更を**監視**します。
+
+## Creating your first Vitest Unit Test
+
+`<Page />`の component が見出しを正常にレンダリングするかどうかを確認するための test を作成することで、すべてが正常に動作しているかを確認してください：
+
+<AppOnly>
+
+```tsx:app/page.tsx
+import Link from 'next/link'
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Home</h1>
+      <Link href="/about">About</Link>
+    </div>
+  )
+}
+```
+
+```jsx:app/page.jsx
+import Link from 'next/link'
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Home</h1>
+      <Link href="/about">About</Link>
+    </div>
+  )
+}
+```
+
+```tsx:__tests__/page.test.tsx
+import { expect, test } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import Page from '../app/page'
+
+test('Page', () => {
+  render(<Page />)
+  expect(screen.getByRole('heading', { level: 1, name: 'Home' })).toBeDefined()
+})
+```
+
+```jsx:__tests__/page.test.jsx
+import { expect, test } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import Page from '../app/page'
+
+test('Page', () => {
+  render(<Page />)
+  expect(screen.getByRole('heading', { level: 1, name: 'Home' })).toBeDefined()
+})
+```
+
+> **Good to know**: 上記の例では一般的な`__tests__`の慣例を使用していますが、 test のファイルは`app`の router 内にも配置できます。
+
+</AppOnly>
+
+<PagesOnly>
+
+```tsx:pages/index.tsx
+import Link from 'next/link'
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Home</h1>
+      <Link href="/about">About</Link>
+    </div>
+  )
+}
+```
+
+```jsx:pages/index.jsx
+import Link from 'next/link'
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Home</h1>
+      <Link href="/about">About</Link>
+    </div>
+  )
+}
+```
+
+```tsx:__tests__/index.test.tsx
+import { expect, test } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import Page from '../pages/index'
+
+test('Page', () => {
+  render(<Page />)
+  expect(screen.getByRole('heading', { level: 1, name: 'Home' })).toBeDefined()
+})
+```
+
+```jsx:__tests__/index.test.jsx
+import { expect, test } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import Page from '../pages/index'
+
+test('Page', () => {
+  render(<Page />)
+  expect(screen.getByRole('heading', { level: 1, name: 'Home' })).toBeDefined()
+})
+```
+
+</PagesOnly>
+
+## Running your tests
+
+次に、テストを実行するための次のコマンドを実行します：
+
+```bash:Terminal
+npm run test
+# or
+yarn test
+# or
+pnpm test
+# or
+bun test
+```
+
+## Additional Resources
+
+これらのリソースが役立つかもしれません：
+
+- [Next.js と Vitest の例](https://github.com/vercel/next.js/tree/canary/examples/with-vitest)
+- [Vitest Docs](https://vitest.dev/guide/)
+- [React テスト Library ドキュメント](https://testing-library.com/docs/react-testing-library/intro/)

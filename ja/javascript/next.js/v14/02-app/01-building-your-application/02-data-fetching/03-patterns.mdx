@@ -1,0 +1,407 @@
+---
+filePath: source/next.js/docs/02-app/01-building-your-application/02-data-fetching/03-patterns.mdx
+title: Patterns and Best Practices
+description: Learn about common data fetching patterns in React and Next.js.
+org_title: Patterns and Best Practices
+org_path: /docs/app/building-your-application/data-fetching/patterns
+is_empty: false
+nav_title: Data Fetching Patterns and Best Practices
+---
+
+React と Next.js でデータを取得するための推奨パターンとベストプラクティスがいくつかあります。このページでは、最も一般的なパターンとその使用方法について説明します。
+
+## Fetching data on the server
+
+可能な限り、データは server 上で Server Components を使って取得することをお勧めします。これにより、以下のことが可能になります：
+
+- バックエンドデータリソース(例：データベース)に直接アクセスする。
+- access tokens や API キーなどの機密情報が client に露出するのを防ぐことにより、アプリケーションをより安全に保つことができます。
+- Fetch データと render を同一環境で行います。これにより、client と server 間の行き来の通信と、client の主な thread での[作業](https://vercel.com/blog/how-react-18-improves-application-performance)の両方が減少します。
+- client 上で複数の個別 Request の代わりに、単一の往復で複数のデータフェッチを実行します。
+- Client-server[waterfalls](#parallel-and-sequential-data-fetching)を減らす。
+- あなたの地域によっては、データのフェッチングはあなたのデータ source に近い場所で行われ、レイテンシを減らし、パフォーマンスを向上させることも可能です。
+
+その後、[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)を使用してデータを変更または更新できます。
+
+## Fetching data where it's needed
+
+ツリー内の複数のコンポーネントで同じデータ(例：現在のユーザー)を使用する必要がある場合、データをグローバルに fetch する必要もなければ、コンポーネント間で props を転送する必要もありません。代わりに、同じデータを複数回要求することによるパフォーマンスへの影響を心配せずに、データが必要な component で`fetch`または React `cache`を使用できます。
+
+これは`fetch`リクエストが自動的にメモ化されるため可能です。[request メモ化](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#request-memoization)についてもっと学びましょう。
+
+> **Good to know**: これはレイアウトにも適用されます。なぜなら、親の layout とその children の間でデータを受け渡すことは不可能だからです。
+
+## Streaming
+
+Streaming と[Suspense](https://react.dev/reference/react/Suspense)は、逐次的に render を行い、レンダリングされた UI のユニットを client にインクリメンタルにストリームで送信することが可能な React の機能です。
+
+Server Components と[nested layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)を使用することで、特定の require データが必要ないページの部分を即座に render でき、データを取得中のページの部分には[loading state](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を表示できます。これは、ユーザーがそれを start 操作する前にページ全体を読み込む必要がないことを意味します。
+
+<Image
+  alt="Server Rendering with Streaming"
+  srcLight="/docs/light/server-rendering-with-streaming.png"
+  srcDark="/docs/dark/server-rendering-with-streaming.png"
+  width="1600"
+  height="785"
+/>
+
+詳しくは、Streaming と Suspense については[LoadingUI](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)と、[Streaming と Suspense](/docs/app/building-your-application/routing/loading-ui-and-streaming#streaming-with-suspense)のページをご覧ください。
+
+## Parallel and sequential data fetching
+
+React Component 内でデータを取得する際には、Parallel と Sequential という二つのデータ取得パターンを理解する必要があります。
+
+<Image
+  alt="Sequential and Parallel Data Fetching"
+  srcLight="/docs/light/sequential-parallel-data-fetching.png"
+  srcDark="/docs/dark/sequential-parallel-data-fetching.png"
+  width="1600"
+  height="525"
+/>
+
+- **順次データの取得**により、route 内の Request は互いに依存し、その結果としてウォーターフォール(つまり一連の依存関係)を作成します。一方の next fetch が他方の結果に依存している場合や、リソースを節約するために次の fetch の前に条件を満たしたい場合など、このパターンを望むケースもあるかもしれません。しかし、この振る舞いは意図しないこともあり、より長い loading 時間につながる可能性があります。
+- **parallel データ取得**を用いると、route 内の要求が即座に開始され、同時にデータをロードします。これにより、Client-server 間のウォーターフォールが削減され、データをロードするための合計時間が短縮されます。
+
+### 逐次的なデータフェッチング
+
+もしネストされた components があって、それぞれの component が自身のデータを取得している場合、それらのデータリクエストが異なる場合にはデータの取得が順次行われます(これは同じデータへのリクエストには適用されません、なぜならそれらは自動的に[メモ化](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#request-memoization)されます)。
+
+例えば、`Playlists`の component は、`Artist`の component がデータのフェッチを終了した後にのみデータの start フェッチを開始します。なぜなら、`Playlists`は`artistID` prop に依存しているからです。
+
+```tsx:app/artist/[username]/page.tsx
+// ...
+
+async function Playlists({ artistID }: { artistID: string }) {
+  // Wait for the playlists
+  const playlists = await getArtistPlaylists(artistID)
+
+  return (
+    <ul>
+      {playlists.map((playlist) => (
+        <li key={playlist.id}>{playlist.name}</li>
+      ))}
+    </ul>
+  )
+}
+
+export default async function Page({
+  params: { username },
+}: {
+  params: { username: string }
+}) {
+  // Wait for the artist
+  const artist = await getArtist(username)
+
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Playlists artistID={artist.id} />
+      </Suspense>
+    </>
+  )
+}
+```
+
+```jsx:app/artist/[username]/page.js
+// ...
+
+async function Playlists({ artistID }) {
+  // Wait for the playlists
+  const playlists = await getArtistPlaylists(artistID)
+
+  return (
+    <ul>
+      {playlists.map((playlist) => (
+        <li key={playlist.id}>{playlist.name}</li>
+      ))}
+    </ul>
+  )
+}
+
+export default async function Page({ params: { username } }) {
+  // Wait for the artist
+  const artist = await getArtist(username)
+
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Playlists artistID={artist.id} />
+      </Suspense>
+    </>
+  )
+}
+```
+
+このような場合、[`loading.js`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)(route セグメント用)または [React `<Suspense>`](/docs/app/building-your-application/routing/loading-ui-and-streaming#streaming-with-suspense)(ネストされた Component 用)を使用して、React が結果を Streaming している間、即時の loading 状態を表示できます。
+
+これにより、データの取得によって route 全体がブロックされるのを防ぎ、ユーザーはブロックされていないページの部分と対話することができます。
+
+> **Blocking データリクエスト:**
+>
+> 滝の発生を防ぐ代替的なアプローチは、アプリケーションの root でデータを fetch することですが、これはデータの loading が完了するまで、その下のすべての route セグメントのレンダリングをブロックします。これは "all or nothing" のデータフェッチングと表現することができます。あなたはページまたはアプリケーションのための全てのデータを持っているか、全く持っていないかのどちらかです。
+>
+> `await` を使用したどんな fetch リクエストも、それが `<Suspense>` 境界内にラップされていない限り、または `loading.js` が使用されていない限り、その下の全てのツリーのレンダリングとデータ取得をブロックします。別の代替案としては、[parallel データ取得](#parallel-data-fetching)または[preload パターン](#preloading-data)を使用することがあります。
+
+### Parallel データフェッチング
+
+parallel でデータを fetch するためには、データを使用するコンポーネントの外部でそれらを定義し、その後、 component の内部からそれらを呼び出すことで、積極的にリクエストを開始することができます。これにより、両方のリクエストを parallel で開始することで時間を節約できますが、ユーザーは両方の約束が解決されるまでレンダリングされた結果を見ることはできません。
+
+以下の例では、`getArtist`および`getArtistAlbums`関数が`Page` component の外側で定義され、その後、component 内で呼び出され、両方の promises が解決するのを待ちます：
+
+```tsx:app/artist/[username]/page.tsx
+import Albums from './albums'
+
+async function getArtist(username: string) {
+  const res = await fetch(`https://api.example.com/artist/${username}`)
+  return res.json()
+}
+
+async function getArtistAlbums(username: string) {
+  const res = await fetch(`https://api.example.com/artist/${username}/albums`)
+  return res.json()
+}
+
+export default async function Page({
+  params: { username },
+}: {
+  params: { username: string }
+}) {
+  // Initiate both requests in parallel
+  const artistData = getArtist(username)
+  const albumsData = getArtistAlbums(username)
+
+  // Wait for the promises to resolve
+  const [artist, albums] = await Promise.all([artistData, albumsData])
+
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Albums list={albums}></Albums>
+    </>
+  )
+}
+```
+
+```jsx:app/artist/[username]/page.js
+import Albums from './albums'
+
+async function getArtist(username) {
+  const res = await fetch(`https://api.example.com/artist/${username}`)
+  return res.json()
+}
+
+async function getArtistAlbums(username) {
+  const res = await fetch(`https://api.example.com/artist/${username}/albums`)
+  return res.json()
+}
+
+export default async function Page({ params: { username } }) {
+  // Initiate both requests in parallel
+  const artistData = getArtist(username)
+  const albumsData = getArtistAlbums(username)
+
+  // Wait for the promises to resolve
+  const [artist, albums] = await Promise.all([artistData, albumsData])
+
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Albums list={albums}></Albums>
+    </>
+  )
+}
+```
+
+ユーザーエクスペリエンスを改善するために、描画作業を分割し、結果の一部をできるだけ早く表示するために、[Suspense Boundary](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を追加することができます。
+
+## Preloading Data
+
+別の方法でウォーターフォールを防ぐ方法は、 preload パターンを使用することです。オプションとして、 parallel データフェッチをさらに最適化するための`preload`関数を作成することができます。このアプローチを使用すると、 props として promise を渡す必要がなくなります。`preload`関数はパターンであるため、任意の名前を持つことができ、 API ではありません。
+
+```tsx:components/Item.tsx
+import { getItem } from '@/utils/get-item'
+
+export const preload = (id: string) => {
+  // void evaluates the given expression and returns undefined
+  // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/void
+  void getItem(id)
+}
+export default async function Item({ id }: { id: string }) {
+  const result = await getItem(id)
+  // ...
+}
+```
+
+```jsx:components/Item.js
+import { getItem } from '@/utils/get-item'
+
+export const preload = (id) => {
+  // void evaluates the given expression and returns undefined
+  // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/void
+  void getItem(id)
+}
+export default async function Item({ id }) {
+  const result = await getItem(id)
+  // ...
+}
+```
+
+```tsx:app/item/[id]/page.tsx
+import Item, { preload, checkIsAvailable } from '@/components/Item'
+
+export default async function Page({
+  params: { id },
+}: {
+  params: { id: string }
+}) {
+  // starting loading item data
+  preload(id)
+  // perform another asynchronous task
+  const isAvailable = await checkIsAvailable()
+
+  return isAvailable ? <Item id={id} /> : null
+}
+```
+
+```jsx:app/item/[id]/page.js
+import Item, { preload, checkIsAvailable } from '@/components/Item'
+
+export default async function Page({ params: { id } }) {
+  // starting loading item data
+  preload(id)
+  // perform another asynchronous task
+  const isAvailable = await checkIsAvailable()
+
+  return isAvailable ? <Item id={id} /> : null
+}
+```
+
+### React の`cache`、`server-only`、および Preload パターンの使用
+
+`cache`関数、`preload`パターン、および`server-only`パッケージを組み合わせて、app 全体で使用できるデータ取得ユーティリティを作成できます。
+
+```ts:utils/get-item.ts
+import { cache } from 'react'
+import 'server-only'
+
+export const preload = (id: string) => {
+  void getItem(id)
+}
+
+export const getItem = cache(async (id: string) => {
+  // ...
+})
+```
+
+```js:utils/get-item.js
+import { cache } from 'react'
+import 'server-only'
+
+export const preload = (id) => {
+  void getItem(id)
+}
+
+export const getItem = cache(async (id) => {
+  // ...
+})
+```
+
+このアプローチを使用すると、データを積極的に fetch したり、cache の Response をしたり、このデータフェッチが[server 上でのみ行われること](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/03-composition-patterns#keeping-server-only-code-out-of-the-client-environment)を保証することができます。
+
+`utils/get-item` の export は、アイテムのデータが取得されるタイミングを制御するために、Layout、ページ、または他の Component によって使用することができます。
+
+> **Good to know:**
+>
+> - [`server-only`パッケージ](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/03-composition-patterns#keeping-server-only-code-out-of-the-client-environment)を使うことをお勧めします。これにより、server のデータフェッチ関数が client 上で never 使用されないことを確認できます。
+
+## Preventing sensitive data from being exposed to the client
+
+私たちは React の taint API、[`taintObjectReference`](https://react.dev/reference/react/experimental_taintObjectReference) および [`taintUniqueValue`](https://react.dev/reference/react/experimental_taintUniqueValue) の使用を推奨し、全ての object インスタンスやセンシティブな値が client に渡されるのを防ぎます。
+
+アプリケーションで汚染を有効にするには、Next.js Config の`experimental.taint`オプションを`true`に設定します:
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    taint: true,
+  },
+}
+```
+
+次に、汚染したい object または value を、`experimental_taintObjectReference`または`experimental_taintUniqueValue`関数に渡します。
+
+```ts:app/utils.ts
+import { queryDataFromDB } from './api'
+import {
+  experimental_taintObjectReference,
+  experimental_taintUniqueValue,
+} from 'react'
+
+export async function getUserData() {
+  const data = await queryDataFromDB()
+  experimental_taintObjectReference(
+    'Do not pass the whole user object to the client',
+    data
+  )
+  experimental_taintUniqueValue(
+    "Do not pass the user's phone number to the client",
+    data,
+    data.phoneNumber
+  )
+  return data
+}
+```
+
+```js:app/utils.js
+import { queryDataFromDB } from './api'
+import {
+  experimental_taintObjectReference,
+  experimental_taintUniqueValue,
+} from 'react'
+
+export async function getUserData() {
+  const data = await queryDataFromDB()
+  experimental_taintObjectReference(
+    'Do not pass the whole user object to the client',
+    data
+  )
+  experimental_taintUniqueValue(
+    "Do not pass the user's phone number to the client",
+    data,
+    data.phoneNumber
+  )
+  return data
+}
+```
+
+```tsx:app/page.tsx
+import { getUserData } from './data'
+
+export async function Page() {
+  const userData = getUserData()
+  return (
+    <ClientComponent
+      user={userData} // this will cause an error because of taintObjectReference
+      phoneNumber={userData.phoneNumber} // this will cause an error because of taintUniqueValue
+    />
+  )
+}
+```
+
+```jsx:app/page.js
+import { getUserData } from './data'
+
+export async function Page() {
+  const userData = getUserData()
+  return (
+    <ClientComponent
+      user={userData} // this will cause an error because of taintObjectReference
+      phoneNumber={userData.phoneNumber} // this will cause an error because of taintUniqueValue
+    />
+  )
+}
+```
+
+詳細については、[Security and Server Actions](https://nextjs.org/blog/security-nextjs-server-components-actions) をご覧ください。.

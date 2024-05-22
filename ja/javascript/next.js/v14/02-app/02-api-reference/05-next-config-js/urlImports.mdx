@@ -1,0 +1,93 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/05-next-config-js/urlImports.mdx
+title: urlImports
+description: Configure Next.js to allow importing modules from external URLs (experimental).
+org_title: urlImports
+org_path: /docs/app/api-reference/next-config-js/urlImports
+is_empty: false
+---
+
+{/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
+
+URL インポートは、エクスペリメンタルな機能で、これにより外部 server から直接 import modules できます(ローカルディスクからではなく)。
+
+> **警告**: この機能は実験的なものです。ダウンロードして自分のマシンで実行するための domains は信頼できるものだけを使用してください。注意を払って使用してください。
+> ディスクレーションと慎重さが求められます、その機能が安定版としてフラグが付くまで。
+
+オプトインするには、`next.config.js`内に許可された URL プレフィックスを追加してください：
+
+```js:next.config.js
+module.exports = {
+  experimental: {
+    urlImports: ['https://example.com/assets/', 'https://cdn.skypack.dev'],
+  },
+}
+```
+
+その後、URL から直接 import modules を行うことができます。
+
+```js
+import { a, b, c } from "https://example.com/assets/some/module.js";
+```
+
+URL インポートは、通常のパッケージインポートが使用できるどこでも使用できます。
+
+## Security Model
+
+この機能は**セキュリティを最優先の priority**として設計されています。始めるための start は、明示的に許可する domains からの URL インポートを強制する実験フラグを追加しました。私たちは、[Edge Runtime](/ja/javascript/next.js/v14/02-app/02-api-reference/07-edge) を使用してブラウザのサンドボックスで実行するための URL インポートを制限することで、これをさらに進めることを計画しています。
+
+## Lockfile
+
+URL インポートを使用すると、 Next.js はロックファイルと取得したアセットを含む `next.lock` ディレクトリを作成します。このディレクトリは Git に**コミットする必要があります**、`.gitignore`で無視してはいけません。
+
+- `next dev`を実行するとき、Next.js は新たに発見した全ての URL インポートをロックファイルにダウンロードして追加します。
+- `next build`を実行するとき、Next.js はロックファイルのみを使用して、アプリケーションを production 用に build します。
+
+通常、ネットワークリクエストは必要なく、古いロックファイルが存在すると build が失敗します。例外は`Cache-Control: no-cache`で応答するリソースです。これらのリソースにはロックファイルに`no-cache`エントリがあり、毎回 build の際にネットワークからフェッチされます。
+
+## Examples
+
+### Skypack
+
+```js
+import confetti from "https://cdn.skypack.dev/canvas-confetti";
+import { useEffect } from "react";
+
+export default () => {
+  useEffect(() => {
+    confetti();
+  });
+  return <p>Hello</p>;
+};
+```
+
+### 静的な Image インポート
+
+```js
+import Image from "next/image";
+import logo from "https://example.com/assets/logo.png";
+
+export default () => (
+  <div>
+    <Image src={logo} placeholder="blur" />
+  </div>
+);
+```
+
+### CSS 内の URL
+
+```css
+.className {
+  background: url("https://example.com/assets/hero.jpg");
+}
+```
+
+### アセットのインポート
+
+```js
+const logo = new URL("https://example.com/assets/file.txt", import.meta.url);
+
+console.log(logo.pathname);
+
+// prints "/_next/static/media/file.a9727b5d.txt"
+```

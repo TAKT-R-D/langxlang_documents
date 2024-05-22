@@ -1,0 +1,59 @@
+---
+filePath: source/next.js/docs/02-app/02-api-reference/02-file-conventions/template.mdx
+title: template.js
+description: API Reference for the template.js file.
+org_title: template.js
+org_path: /docs/app/api-reference/file-conventions/template
+is_empty: false
+---
+
+**template** ファイルは、それぞれの子 layout やページを包み込むという点で、[layout](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#layouts)と似ています。 routes 間で維持される layout とは異なり、template は 子要素 ごとに新しいインスタンスを作成します。
+
+```tsx:app/template.tsx
+export default function Template({ children }: { children: React.ReactNode }) {
+  return <div>{children}</div>
+}
+```
+
+```jsx:app/template.jsx
+export default function Template({ children }) {
+  return <div>{children}</div>
+}
+```
+
+<Image
+  alt="template.js special file"
+  srcLight="/docs/light/template-special-file.png"
+  srcDark="/docs/dark/template-special-file.png"
+  width="1600"
+  height="444"
+/>
+
+それほど一般的ではありませんが、次の場合には layout よりも template を選ぶかもしれません：
+
+- `useEffect`（例：ページビューの記録）や`useState`（例：ページごとのフィードバックフォーム）に依存する機能。
+- Default のフレームワークの挙動を変更するため。たとえば、レイアウト内の Suspense Boundaries は、レイアウトが最初にロードされたときにのみフォールバックを表示し、ページを切り替えるときには表示しません。テンプレートの場合、ナビゲーションごとにフォールバックが表示されます。
+
+## Props
+
+### `children` (required)
+
+Template component は、`children` prop を受け入れて使用する必要があります。`template`は、[layout](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/layout)とその children の間にレンダリングされます。例えば:
+
+```jsx:Output
+<Layout>
+  {/* Note that the template is given a unique key. */}
+  <Template key={routeParam}>{children}</Template>
+</Layout>
+```
+
+> **Good to know**:
+>
+> - default 設定では、`template`は[Server Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)ですが、`"use client"`ディレクティブを通じて[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)としても使用できます。
+> - ユーザが`template`を共有する routes 間を移動すると、新しい component のインスタンスがマウントされ、DOM 要素が再作成され、状態は**保存されません**し、エフェクトが再同期されます。
+
+## Version History
+
+| Version   | Changes                     |
+| --------- | --------------------------- |
+| `v13.0.0` | `template` 導入されました。 |
