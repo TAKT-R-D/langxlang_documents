@@ -1089,7 +1089,7 @@ Echo.join(`chat.${roomId}`)
 > [!WARNING]  
 > 次の model broadcasting に関する文書を読む前に、Laravel の model broadcasting services の一般的な概念、および broadcast events の手動作成とリスニング方法について理解することをお勧めします。
 
-あなたのアプリケーションの[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)が作成、更新、または削除されたときに、 broadcast events を行うことが一般的です。もちろん、これは手動で[Eloquent model state の変更に対して custom events を定義](/docs/11.x/eloquent#events)し、それらの events を `ShouldBroadcast`インターフェースでマークすることで簡単に実現できます。
+あなたのアプリケーションの[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)が作成、更新、または削除されたときに、 broadcast events を行うことが一般的です。もちろん、これは手動で[Eloquent model state の変更に対して custom events を定義](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#events)し、それらの events を `ShouldBroadcast`インターフェースでマークすることで簡単に実現できます。
 
 しかし、これらの events を application 内で他の目的に使用していない場合、それらを broadcasting するためだけに event クラスを作成することは面倒です。これを解決するために、 Laravel では Eloquent model が自動的にその state の変化を broadcast することを指定できます。
 
@@ -1305,7 +1305,7 @@ Echo.private(`chat.${roomId}`).listenForWhisper("typing", (e) => {
 
 ## Notifications
 
-event broadcasting と[notifications](/ja/php/laravel/v11.x/05-digging-deeper/notifications)を組み合わせることで、あなたの JavaScript application はページを refresh することなく新しい notifications を受け取ることができます。開始する前に、[broadcast notification channel](/docs/11.x/notifications#broadcast-notifications)の使用に関するドキュメンテーションを読むことを忘れないでください。
+event broadcasting と[notifications](/ja/php/laravel/v11.x/05-digging-deeper/notifications)を組み合わせることで、あなたの JavaScript application はページを refresh することなく新しい notifications を受け取ることができます。開始する前に、[broadcast notification channel](/ja/php/laravel/v11.x/05-digging-deeper/notifications#broadcast-notifications)の使用に関するドキュメンテーションを読むことを忘れないでください。
 
 notification を broadcast channel で使用するように設定したら、Echo の`notification` method を使用して broadcast events を聞くことができます。channel の名前は、notifications を受け取るエンティティの class 名と match する必要があります：
 

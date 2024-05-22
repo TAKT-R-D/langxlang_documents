@@ -106,7 +106,7 @@ REVERB_APP_SECRET=my-app-secret
 
 ほとんどの場合、セキュアな webSocket の接続は、上流の webserver(Nginx、etc など)によって処理され、その後 request が Reverbserver にプロキシされます。
 
-ただし、ローカル開発中など、Reverb サーバーが直接 handle 安全な接続を処理することが有用な場合もあります。あなたが[Laravel Herd's](https://herd.laravel.com) 安全なサイト feature を使用しているか、[Laravel Valet](/ja/php/laravel/v11.x/10-packages/valet) を使用していて、あなたの application に対して[secure command](/docs/11.x/valet#securing-sites) を実行した場合、あなたのサイトのために生成された Herd / Valet の証明書を使用して Reverb 接続を保護することができます。そのためには、`REVERB_HOST` environment 変数をサイトのホスト名に設定するか、Reverb サーバーを開始する際に明示的にホスト名オプションを渡します。
+ただし、ローカル開発中など、Reverb サーバーが直接 handle 安全な接続を処理することが有用な場合もあります。あなたが[Laravel Herd's](https://herd.laravel.com) 安全なサイト feature を使用しているか、[Laravel Valet](/ja/php/laravel/v11.x/10-packages/valet) を使用していて、あなたの application に対して[secure command](/ja/php/laravel/v11.x/10-packages/valet#securing-sites) を実行した場合、あなたのサイトのために生成された Herd / Valet の証明書を使用して Reverb 接続を保護することができます。そのためには、`REVERB_HOST` environment 変数をサイトのホスト名に設定するか、Reverb サーバーを開始する際に明示的にホスト名オプションを渡します。
 
 ```sh
 php artisan reverb:start --host="0.0.0.0" --port=8080 --hostname="laravel.test"

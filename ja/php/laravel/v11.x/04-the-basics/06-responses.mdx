@@ -262,7 +262,7 @@ public function getRouteKey(): mixed
 
 ### Controller アクションへのリダイレクト
 
-You may also generate redirects to [controller actions](/docs/11.x/controllers). To do so, pass the controller and action name to the `action` method:
+You may also generate redirects to [controller actions](/ja/php/laravel/v11.x/04-the-basics/04-controllers). To do so, pass the controller and action name to the `action` method:
 
 ```php
 use App\Http\Controllers\UserController;
@@ -292,7 +292,7 @@ return redirect()->away('https://www.google.com');
 
 ### フラッシュされた Session Data を使用してリダイレクト
 
-Redirecting to a new URL and [flashing data to the session](/docs/11.x/session#flash-data) are usually done at the same time. Typically, this is done after successfully performing an action when you flash a success message to the session. For convenience, you may create a `RedirectResponse` instance and flash data to the session in a single, fluent method chain:
+Redirecting to a new URL and [flashing data to the session](/ja/php/laravel/v11.x/04-the-basics/11-session#flash-data) are usually done at the same time. Typically, this is done after successfully performing an action when you flash a success message to the session. For convenience, you may create a `RedirectResponse` instance and flash data to the session in a single, fluent method chain:
 
 ```php
 Route::post('/user/profile', function () {
@@ -302,7 +302,7 @@ Route::post('/user/profile', function () {
 });
 ```
 
-After the user is redirected, you may display the flashed message from the [session](/docs/11.x/session). For example, using [Blade syntax](/docs/11.x/blade):
+After the user is redirected, you may display the flashed message from the [session](/ja/php/laravel/v11.x/04-the-basics/11-session). For example, using [Blade syntax](/ja/php/laravel/v11.x/04-the-basics/08-blade):
 
 ```php
 @if (session('status'))

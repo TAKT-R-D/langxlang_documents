@@ -938,7 +938,7 @@ $classes = Arr::toCssStyles($array);
 */
 ```
 
-この method は Laravel の機能を通じて、[`@class`] [Blade ディレクティブ](/docs/11.x/blade#conditional-classes)だけでなく、[Blade コンポーネントの attribute バッグとクラスのマージ](/ja/php/laravel/v11.x/04-the-basics/08-blade#conditionally-merge-classes)も可能にします。
+この method は Laravel の機能を通じて、[`@class`] [Blade ディレクティブ](//ja/php/laravel/v11.x/04-the-basics/08-blade#conditional-classes)だけでなく、[Blade コンポーネントの attribute バッグとクラスのマージ](/ja/php/laravel/v11.x/04-the-basics/08-blade#conditionally-merge-classes)も可能にします。
 
 <a name="method-array-undot"></a>
 
@@ -1728,7 +1728,7 @@ $previous = url()->previous();
 
 #### `abort()`
 
-`abort` 関数は [HTTP 例外](/ja/php/laravel/v11.x/04-the-basics/13-errors#http-exceptions)をスローし、それは [例外 handler](/docs/11.x/errors#the-exception-handler)によってレンダリングされます：
+`abort` 関数は [HTTP 例外](/ja/php/laravel/v11.x/04-the-basics/13-errors#http-exceptions)をスローし、それは [例外 handler](/ja/php/laravel/v11.x/04-the-basics/13-errors#the-exception-handler)によってレンダリングされます：
 
 ```php
 abort(403);
@@ -1989,7 +1989,7 @@ dd($value1, $value2, $value3, ...);
 
 #### `dispatch()`
 
-`dispatch`関数は、指定された[job](/ja/php/laravel/v11.x/05-digging-deeper/queues#creating-jobs) を Laravel [job queue](/docs/11.x/queues)にプッシュします：
+`dispatch`関数は、指定された[job](/ja/php/laravel/v11.x/05-digging-deeper/queues#creating-jobs) を Laravel [job queue](/ja/php/laravel/v11.x/05-digging-deeper/queues)にプッシュします：
 
 ```php
 dispatch(new App\Jobs\SendEmails);
@@ -2181,7 +2181,7 @@ $now = now();
 
 #### `old()`
 
-`old` 関数は、[以前の input](/docs/11.x/requests#old-input) value を session に[取得](/ja/php/laravel/v11.x/04-the-basics/04-requests#retrieving-input)します：
+`old` 関数は、[以前の input](/ja/php/laravel/v11.x/04-the-basics/05-requests#old-input) value を session に[取得](/ja/php/laravel/v11.x/04-the-basics/04-requests#retrieving-input)します：
 
 ```php
 $value = old('value');

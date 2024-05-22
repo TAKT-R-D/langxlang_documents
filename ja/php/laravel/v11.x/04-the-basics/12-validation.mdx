@@ -279,13 +279,13 @@ Laravel に組み込まれている validation ルールはそれぞれ、あな
 
 Laravel が validation error により redirect response を生成するとき、フレームワークは自動的に[リクエストの input 全てを session にフラッシュします](/ja/php/laravel/v11.x/04-the-basics/11-session#flash-data)。これは、次の request で input に便利にアクセスして、 user が submit しようとしたフォームを再度入力するためです。
 
-To retrieve flashed input from the previous request, invoke the `old` method on an instance of `Illuminate\Http\Request`. The `old` method will pull the previously flashed input data from the [session](/docs/11.x/session):
+To retrieve flashed input from the previous request, invoke the `old` method on an instance of `Illuminate\Http\Request`. The `old` method will pull the previously flashed input data from the [session](/ja/php/laravel/v11.x/04-the-basics/11-session):
 
 ```php
 $title = $request->old('title');
 ```
 
-Laravel also provides a global `old` helper. If you are displaying old input within a [Blade template](/docs/11.x/blade), it is more convenient to use the `old` helper to repopulate the form. If no old input exists for the given field, `null` will be returned:
+Laravel also provides a global `old` helper. If you are displaying old input within a [Blade template](/ja/php/laravel/v11.x/04-the-basics/08-blade), it is more convenient to use the `old` helper to repopulate the form. If no old input exists for the given field, `null` will be returned:
 
 ```blade
 <input type="text" name="title" value="{{ old('title') }}">

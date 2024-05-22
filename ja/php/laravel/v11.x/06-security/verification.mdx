@@ -136,7 +136,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 ### Protecting Routes
 
-[ルートミドルウェア](/ja/php/laravel/v11.x/04-the-basics/02-middleware) は、特定の route にアクセスできるのは確認済みの users のみに制限するために使用できます。Laravel には、`verified` [ミドルウェア alias](/docs/11.x/middleware#middleware-alias) が含まれており、これは `Illuminate\Auth\Middleware\EnsureEmailIsVerified` ミドルウェア class の alias です。この alias はすでに Laravel によって自動的に登録されているため、必要なことは `verified` middleware を route 定義に attach することだけです。通常、この middleware は `auth` middleware とペアになっています。
+[ルートミドルウェア](/ja/php/laravel/v11.x/04-the-basics/02-middleware) は、特定の route にアクセスできるのは確認済みの users のみに制限するために使用できます。Laravel には、`verified` [ミドルウェア alias](/ja/php/laravel/v11.x/04-the-basics/02-middleware#middleware-alias) が含まれており、これは `Illuminate\Auth\Middleware\EnsureEmailIsVerified` ミドルウェア class の alias です。この alias はすでに Laravel によって自動的に登録されているため、必要なことは `verified` middleware を route 定義に attach することだけです。通常、この middleware は `auth` middleware とペアになっています。
 
 ```php
 Route::get('/profile', function () {

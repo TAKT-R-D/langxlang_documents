@@ -393,7 +393,7 @@ We can even easily determine if a user is subscribed to specific product or pric
 
 #### Building a Subscribed Middleware
 
-For convenience, you may wish to create a [middleware](/docs/11.x/middleware) which determines if the incoming request is from a subscribed user. Once this middleware has been defined, you may easily assign it to a route to prevent users that are not subscribed from accessing the route:
+For convenience, you may wish to create a [middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) which determines if the incoming request is from a subscribed user. Once this middleware has been defined, you may easily assign it to a route to prevent users that are not subscribed from accessing the route:
 
 ```php
 <?php
@@ -836,7 +836,7 @@ if ($user->subscribed('default')) {
 }
 ```
 
-The `subscribed` method also makes a great candidate for a [route middleware](/docs/11.x/middleware), allowing you to filter access to routes and controllers based on the user's subscription status:
+The `subscribed` method also makes a great candidate for a [route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware), allowing you to filter access to routes and controllers based on the user's subscription status:
 
 ```php
 <?php
@@ -1437,7 +1437,7 @@ Paddle の webhooks は webhooks の[CSRF protection](/ja/php/laravel/v11.x/04-t
 
 #### Webhooks とローカル開発
 
-Paddle がローカル開発中にあなたの application webhooks を送信できるようにするためには、[Ngrok](https://ngrok.com/) や [Expose](https://expose.dev/docs/introduction) などのサイト共有の service を介してあなたの application を公開する必要があります。もし、[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使ってローカルで application を開発しているのであれば、Sail の[サイト共有 command](/docs/11.x/sail#sharing-your-site)を使うことができます。
+Paddle がローカル開発中にあなたの application webhooks を送信できるようにするためには、[Ngrok](https://ngrok.com/) や [Expose](https://expose.dev/docs/introduction) などのサイト共有の service を介してあなたの application を公開する必要があります。もし、[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使ってローカルで application を開発しているのであれば、Sail の[サイト共有 command](/ja/php/laravel/v11.x/10-packages/sail#sharing-your-site)を使うことができます。
 
 <a name="defining-webhook-event-handlers"></a>
 

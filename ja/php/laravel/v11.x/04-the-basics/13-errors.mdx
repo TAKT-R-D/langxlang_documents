@@ -172,7 +172,7 @@ report($caught); // ignored
 
 ### 例外 Log レベル
 
-メッセージがあなたの application の[logs](/ja/php/laravel/v11.x/04-the-basics/14-logging)に書き込まれる時、メッセージは指定された[log level](/docs/11.x/logging#log-levels)で書き込まれます。これは、log に記録されるメッセージの重要度や重大性を示します。
+メッセージがあなたの application の[logs](/ja/php/laravel/v11.x/04-the-basics/14-logging)に書き込まれる時、メッセージは指定された[log level](/ja/php/laravel/v11.x/04-the-basics/14-logging#log-levels)で書き込まれます。これは、log に記録されるメッセージの重要度や重大性を示します。
 
 上記の通り、`report` method を使用して custom の例外レポートのコールバックを register しても、 Laravel は依然として、アプリケーションの default logging 設定を使用して例外を log します。しかし、 log レベルがメッセージがログに記録されるチャンネルに影響を及ぼすことがあるため、特定の exceptions が記録される log レベルを設定することを検討することを望んでいるかもしれません。
 

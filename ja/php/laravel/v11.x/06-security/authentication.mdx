@@ -36,7 +36,7 @@ org_title: "Authentication"
   - [The User Provider Contract](#the-user-provider-contract)
   - [The Authenticatable Contract](#the-authenticatable-contract)
 - [Automatic Password Rehashing](#automatic-password-rehashing)
-- [Social Authentication](/docs/11.x/socialite)
+- [Social Authentication](/ja/php/laravel/v11.x/10-packages/socialite)
 - [Events](#events)
 
 <a name="introduction"></a>
@@ -90,7 +90,7 @@ Laravel には組み込みの authentication と session services が含まれ�
 
 ** Application スターターキット**
 
-このドキュメンテーションで議論されているように、これらの authentication services と手動でやり取りして、あなたのアプリケーション自身の authentication レイヤーを build することができます。しかしながら、あなたがより早く始められるように、我々は堅牢で、モダンな全体の authentication レイヤーの足場を提供する[無料のパッケージ](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をリリースしました。これらのパッケージは、[Laravel Breeze](/docs/11.x/starter-kits#laravel-breeze)、[Laravel Jetstream](/docs/11.x/starter-kits#laravel-jetstream)、そして[Laravel Fortify](/ja/php/laravel/v11.x/10-packages/fortify)です。
+このドキュメンテーションで議論されているように、これらの authentication services と手動でやり取りして、あなたのアプリケーション自身の authentication レイヤーを build することができます。しかしながら、あなたがより早く始められるように、我々は堅牢で、モダンな全体の authentication レイヤーの足場を提供する[無料のパッケージ](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をリリースしました。これらのパッケージは、[Laravel Breeze](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#laravel-breeze)、[Laravel Jetstream](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#laravel-jetstream)、そして[Laravel Fortify](/ja/php/laravel/v11.x/10-packages/fortify)です。
 
 _**Laravel Breeze**_ は、log イン、登録、**password reset**、**mail 確認**、**password**の確認を含む、Laravel のすべての**authentication 機能**のシンプルで最小の実装です。**Laravel**Breeze の**view**層は、シンプルな [**Blade テンプレート**](/ja/php/laravel/v11.x/04-the-basics/08-blade) で構成され、[Tailwind**CSS**](https://tailwindcss.com) で style 指定されています。始めるには、Laravel の [**application** スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)に関するドキュメンテーションをご覧ください。
 
@@ -210,7 +210,7 @@ if (Auth::check()) {
 
 ### Routes の保護
 
-[Route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)は、認証された users だけが特定の route にアクセスできるようにするために使用できます。 Laravel は、`auth` middleware を提供しており、これは`Illuminate\Auth\Middleware\Authenticate` class の[middleware alias](/docs/11.x/middleware#middleware-alias)です。この middleware は、すでに Laravel 内部でエイリアスされているので、やるべきことはすべて、 middleware を route 定義に attach することだけです：
+[Route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)は、認証された users だけが特定の route にアクセスできるようにするために使用できます。 Laravel は、`auth` middleware を提供しており、これは`Illuminate\Auth\Middleware\Authenticate` class の[middleware alias](/ja/php/laravel/v11.x/04-the-basics/02-middleware#middleware-alias)です。この middleware は、すでに Laravel 内部でエイリアスされているので、やるべきことはすべて、 middleware を route 定義に attach することだけです：
 
 ```php
 Route::get('/flights', function () {
@@ -866,7 +866,7 @@ php artisan config:publish hashing
 
 ## Events
 
-Laravel は、authenticationprocess 中に様々な[events](/ja/php/laravel/v11.x/05-digging-deeper/events)を発行します。次のいずれかの events に対して [listeners を定義](/docs/11.x/events)することが可能です:
+Laravel は、authenticationprocess 中に様々な[events](/ja/php/laravel/v11.x/05-digging-deeper/events)を発行します。次のいずれかの events に対して [listeners を定義](/ja/php/laravel/v11.x/05-digging-deeper/events)することが可能です:
 
 | Event 名前                                   |
 | -------------------------------------------- |

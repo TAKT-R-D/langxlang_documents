@@ -360,7 +360,7 @@ class InvoicePaid extends Notification implements ShouldQueue
 ```
 
 > [!NOTE]  
-> To learn more about working around these issues, please review the documentation regarding [queued jobs and database transactions](/docs/11.x/queues#jobs-and-database-transactions).
+> To learn more about working around these issues, please review the documentation regarding [queued jobs and database transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions).
 
 <a name="determining-if-the-queued-notification-should-be-sent"></a>
 
@@ -637,7 +637,7 @@ public function toMail(object $notifiable): MailMessage
 ```
 
 > [!NOTE]  
-> `attach` method は、notification mail メッセージによって提供され、また[attach 可能なオブジェクト](/ja/php/laravel/v11.x/05-digging-deeper/mail#attachable-objects)も受け入れます。詳細については、詳細な[attach 可能な object ドキュメンテーション](/docs/11.x/mail#attachable-objects)をご覧ください。
+> `attach` method は、notification mail メッセージによって提供され、また[attach 可能なオブジェクト](/ja/php/laravel/v11.x/05-digging-deeper/mail#attachable-objects)も受け入れます。詳細については、詳細な[attach 可能な object ドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/mail#attachable-objects)をご覧ください。
 
 メッセージにファイルを添付する際には、表示名や MIME type を、二つ目の引数として`array`を `attach` method に渡すことで指定することもできます。
 
@@ -967,7 +967,7 @@ php artisan migrate
 ```
 
 > [!NOTE]  
-> 通知可能な models が [UUID または ULID の primary key](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#uuid-and-ulid-keys)を使用している場合、`morphs` method をは、通知テーブルの migration で[`uuidMorphs`](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuidMorphs)または[`ulidMorphs`](/docs/11.x/migrations#column-method-ulidMorphs)に置き換える必要があります。
+> 通知可能な models が [UUID または ULID の primary key](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#uuid-and-ulid-keys)を使用している場合、`morphs` method をは、通知テーブルの migration で[`uuidMorphs`](/ja/php/laravel/v11.x/07-database/04-migrations#column-method-uuidMorphs)または[`ulidMorphs`](//ja/php/laravel/v11.x/07-database/04-migrations#column-method-ulidMorphs)に置き換える必要があります。
 
 <a name="formatting-database-notifications"></a>
 
@@ -1506,7 +1506,7 @@ class User extends Authenticatable
 > [!NOTE]  
 > 外部の Slack ワークスペースに notifications を送信する前に、あなたの Slack App は[公開](#slack-app-distribution)する必要があります。
 
-もちろん、あなたはしばしばアプリケーションの users が所有する Slack ワークスペースに notifications を送りたいと思うでしょう。それを行うためには、まず user のための Slack OAuth token を取得する必要があります。ありがたいことに、[Laravel Socialite](/ja/php/laravel/v11.x/10-packages/socialite)は Slack driver を含んでおり、アプリケーションの users を Slack で簡単に認証し、[bot token を取得する](/docs/11.x/socialite#slack-bot-scopes)ことができます。
+もちろん、あなたはしばしばアプリケーションの users が所有する Slack ワークスペースに notifications を送りたいと思うでしょう。それを行うためには、まず user のための Slack OAuth token を取得する必要があります。ありがたいことに、[Laravel Socialite](/ja/php/laravel/v11.x/10-packages/socialite)は Slack driver を含んでおり、アプリケーションの users を Slack で簡単に認証し、[bot token を取得する](/ja/php/laravel/v11.x/10-packages/socialite#slack-bot-scopes)ことができます。
 
 ボットの token を入手し、それを application の database に保存したら、`SlackRoute::make` method を使用して user のワークスペースに notification を route することができます。さらに、application は、user がどの channel notifications を送信すべきかを指定するための機会を提供する必要があるでしょう。
 
@@ -1741,7 +1741,7 @@ public function handle(NotificationSending $event): void
 
 #### Notification 送信 Event
 
-「 notification が送信されると、`Illuminate\Notifications\Events\NotificationSent` [event](/ja/php/laravel/v11.x/05-digging-deeper/events)が notification システムによって発行されます。これには、"notifiable"エンティティと notification インスタンスそのものが含まれます。 application 内でこの event のための[event listeners](/docs/11.x/events)を作成することもできます：」
+「 notification が送信されると、`Illuminate\Notifications\Events\NotificationSent` [event](/ja/php/laravel/v11.x/05-digging-deeper/events)が notification システムによって発行されます。これには、"notifiable"エンティティと notification インスタンスそのものが含まれます。 application 内でこの event のための[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を作成することもできます：」
 
 ```php
 use Illuminate\Notifications\Events\NotificationSent;
