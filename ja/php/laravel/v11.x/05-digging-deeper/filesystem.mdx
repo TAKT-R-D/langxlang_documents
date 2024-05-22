@@ -882,7 +882,7 @@ Laravel の Flysystem 統合は、既定でいくつかの”"drivers"”をサ�
 composer require spatie/flysystem-dropbox
 ```
 
-次に、application の[service providers](/ja/php/laravel/v11.x/03-architecture-concepts)のうちの 1 つの `boot` method で driver を register できます。これを達成するには、`Storage` facade の `extend` method を使用するべきです。
+次に、application の[service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)のうちの 1 つの `boot` method で driver を register できます。これを達成するには、`Storage` facade の `extend` method を使用するべきです。
 
 ```php
 <?php

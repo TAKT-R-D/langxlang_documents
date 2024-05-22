@@ -410,7 +410,7 @@ return response()->file($pathToFile, $headers);
 
 ## Response Macros
 
-もし custom response を定義し、それを様々な routes やコントローラで再利用したい場合、`Response` facade 上の`macro` method を使用できます。通常、この method は`boot` method から呼び出すべきで、お使いのアプリケーションの[service providers](/ja/php/laravel/v11.x/03-architecture-concepts)の中の 1 つ、例えば`App\Providers\AppServiceProvider` service provider から呼び出すことが一般的です:
+もし custom response を定義し、それを様々な routes やコントローラで再利用したい場合、`Response` facade 上の`macro` method を使用できます。通常、この method は`boot` method から呼び出すべきで、お使いのアプリケーションの[service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の中の 1 つ、例えば`App\Providers\AppServiceProvider` service provider から呼び出すことが一般的です:
 
 ```php
 <?php

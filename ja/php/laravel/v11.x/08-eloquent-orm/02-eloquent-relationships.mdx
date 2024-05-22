@@ -1372,7 +1372,7 @@ $class = Relation::getMorphedModel($alias);
 
 `resolveRelationUsing`の””method””を使用して、Eloquent models 間の関係をランタイムで定義することができます。通常、””application””の development には推奨されませんが、””Laravel””パッケージを development する際には時折役立つ場合があります。
 
-`resolveRelationUsing` method は、第一引数として望ましいリレーションシップ名を受け入れます。第二引数として method に渡されるものは、 model インスタンスを受け入れ、有効な Eloquent リレーションシップ定義を返すクロージャであるべきです。一般的には、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)の boot method 内で動的リレーションシップを設定するべきです。
+`resolveRelationUsing` method は、第一引数として望ましいリレーションシップ名を受け入れます。第二引数として method に渡されるものは、 model インスタンスを受け入れ、有効な Eloquent リレーションシップ定義を返すクロージャであるべきです。一般的には、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の boot method 内で動的リレーションシップを設定するべきです。
 
 ```php
 use App\Models\Order;

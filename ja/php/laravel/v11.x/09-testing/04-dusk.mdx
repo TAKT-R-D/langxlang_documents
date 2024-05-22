@@ -524,7 +524,7 @@ $browser->move($x = 100, $y = 100);
 
 ### ブラウザマクロ
 
-あなたがさまざまなテストで再利用できる custom ブラウザの method を定義したい場合、`Browser` class の`macro` method を使用できます。通常、この method は[service provider's](/ja/php/laravel/v11.x/03-architecture-concepts)の`boot` method から呼び出すべきです:
+あなたがさまざまなテストで再利用できる custom ブラウザの method を定義したい場合、`Browser` class の`macro` method を使用できます。通常、この method は [service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers) の `boot` method から呼び出すべきです:
 
 ```php
 <?php
@@ -933,7 +933,7 @@ $browser->withKeyboard(function (Keyboard $keyboard) {
 
 #### Keyboard マクロ
 
-テストスイート全体で簡単に再利用できる custom keyboard のインタラクションを定義したい場合、`Keyboard` class が提供する`macro` method を使用することができます。通常、この method は[service provider's](/ja/php/laravel/v11.x/03-architecture-concepts) `boot` method から呼び出す必要があります。
+テストスイート全体で簡単に再利用できる custom keyboard のインタラクションを定義したい場合、`Keyboard` class が提供する`macro` method を使用することができます。通常、この method は [service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers) `boot` method から呼び出す必要があります。
 
 ```php
 <?php

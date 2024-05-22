@@ -55,7 +55,7 @@ HTTP カーネルは、request を application の middlewarestack を通して�
 
 ### Service Providers
 
-カーネルブートストラップ作業の中で最も重要なものの一つは、あなたの application に対する[Service providers](/ja/php/laravel/v11.x/03-architecture-concepts)のロードです。 service providers は、 database 、 queue 、 validation 、そして routing コンポーネントなど、フレームワークの様々なコンポーネントをすべてブートストラップする責任を持っています。
+カーネルブートストラップ作業の中で最も重要なものの一つは、あなたの application に対する[Service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)のロードです。 service providers は、 database 、 queue 、 validation 、そして routing コンポーネントなど、フレームワークの様々なコンポーネントをすべてブートストラップする責任を持っています。
 
 Laravel はこの providers というリストを順次走査し、それぞれのインスタンスを生成します。それぞれの providers のインスタンスが生成された後、`register`という method が全ての providers に対して呼び出されます。その後、すべての providers が登録されると、`boot`という method がそれぞれの provider に対して呼び出されます。これは、全ての service providers が、各自の`boot` method が実行される頃には、全てのコンテナバインディングが登録され利用可能であることに依存しているからです。
 

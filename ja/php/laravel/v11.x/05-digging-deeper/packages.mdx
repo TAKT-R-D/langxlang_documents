@@ -95,9 +95,9 @@ Laravel application の`bootstrap/providers.php`ファイルには、 Laravel �
 
 ## Service Providers
 
-[Service providers](/ja/php/laravel/v11.x/03-architecture-concepts)はあなたのパッケージと Laravel との間の接続ポイントです。Service providers は、Laravel の[service container ー](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)にものをバインドする責任を持ち、Laravel にパッケージの resources(views、設定、言語ファイルなど)をどこからロードするかを告げます。
+[Service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)はあなたのパッケージと Laravel との間の接続ポイントです。Service providers は、Laravel の[service container ー](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)にものをバインドする責任を持ち、Laravel にパッケージの resources(views、設定、言語ファイルなど)をどこからロードするかを告げます。
 
-' service provider は、`Illuminate\Support\ServiceProvider` class を拡張し、二つの method：`register`と`boot`、を含んでいます。基本の`ServiceProvider` class は、`illuminate/support` Composer パッケージ内に位置しており、 それを自身のパッケージの依存性に追加するべきです。 ' service providers 'の構造と目的について詳しく知るには、[そのドキュメンテーション](/ja/php/laravel/v11.x/03-architecture-concepts)を確認してください。
+' service provider は、`Illuminate\Support\ServiceProvider` class を拡張し、二つの method：`register`と`boot`、を含んでいます。基本の`ServiceProvider` class は、`illuminate/support` Composer パッケージ内に位置しており、 それを自身のパッケージの依存性に追加するべきです。 ' service providers 'の構造と目的について詳しく知るには、[そのドキュメンテーション](/ja/php/laravel/v11.x/03-architecture-concepts/01-lifecycle)を確認してください。
 
 <a name="resources"></a>
 

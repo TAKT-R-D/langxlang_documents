@@ -987,7 +987,7 @@ class RedisFeatureDriver implements Driver
 
 #### Driver の登録
 
-あなたの driver が実装されたら、 Laravel にそれを register する準備ができています。 Pennant に追加のドライバーを追加するためには、`Feature` facade が提供する `extend` method を使用することができます。あなたのアプリケーションの[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)の一つの`boot` method から `extend` method を呼び出すべきです。
+あなたの driver が実装されたら、 Laravel にそれを register する準備ができています。 Pennant に追加のドライバーを追加するためには、`Feature` facade が提供する `extend` method を使用することができます。あなたのアプリケーションの[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の一つの`boot` method から `extend` method を呼び出すべきです。
 
 ```php
 <?php

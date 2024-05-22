@@ -246,7 +246,7 @@ If your queued job accepts an Eloquent model in its constructor, only the identi
 
 `handle` method は、 job が queue によって処理されたときに呼び出されます。我々は、 job の`handle` method に対する依存関係を型ヒントとして指定することができることに注意してください。 Laravel [service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)は自動的にこれらの依存関係を注入します。
 
-コンテナが依存関係を `handle` method に注入する方法を完全に制御したい場合は、コンテナの `bindMethod` method を使用することができます。`bindMethod` method は、 job とコンテナを受け取るコールバックを受け付けます。コールバック内では、`handle` method を自由に呼び出すことができます。通常、`App\Providers\AppServiceProvider` の `boot` method からこの method を呼び出すべきです。[“ service provider](/ja/php/laravel/v11.x/03-architecture-concepts):
+コンテナが依存関係を `handle` method に注入する方法を完全に制御したい場合は、コンテナの `bindMethod` method を使用することができます。`bindMethod` method は、 job とコンテナを受け取るコールバックを受け付けます。コールバック内では、`handle` method を自由に呼び出すことができます。通常、`App\Providers\AppServiceProvider` の `boot` method からこの method を呼び出すべきです。[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers):
 
 ```php
 use App\Jobs\ProcessPodcast;
@@ -2721,7 +2721,7 @@ $job->assertFailed();
 
 ## Job Events
 
-`before`と`after`メソッドを`Queue`[facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)上で使用すると、キューの job が処理される前後に実行されるコールバックを指定することができます。これらのコールバックは、ダッシュボードのための追加の logging や increment 統計を実行する絶好の機会です。通常、これらのメソッドは、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)の`boot` method から呼び出すべきです。例えば、 Laravel に含まれる`AppServiceProvider`を使用することができます：
+`before`と`after`メソッドを`Queue`[facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)上で使用すると、キューの job が処理される前後に実行されるコールバックを指定することができます。これらのコールバックは、ダッシュボードのための追加の logging や increment 統計を実行する絶好の機会です。通常、これらのメソッドは、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の`boot` method から呼び出すべきです。例えば、 Laravel に含まれる`AppServiceProvider`を使用することができます：
 
 ```php
 <?php

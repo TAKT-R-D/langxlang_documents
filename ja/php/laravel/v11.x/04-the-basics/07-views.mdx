@@ -187,7 +187,7 @@ class AppServiceProvider extends ServiceProvider
 
 View コンポーザーは、 View がレンダリングされるときに呼び出されるコールバックや class メソッドです。もし view がレンダリングされるたびに、ある data を view にバインドしたい場合、 view composer を使用すると、そのロジックを single の場所にまとめることができます。 view コンポーザーは特に、同じ view があなたの application 内の複数の routes やコントローラーから返され、常に特定の data が必要な場合に役立つかもしれません。
 
-通常、 view コンポーザは、アプリケーションの[service providers](/ja/php/laravel/v11.x/03-architecture-concepts)のいずれかに登録されます。この例では、`App\Providers\AppServiceProvider`がこのロジックを保管すると仮定します。
+通常、 view コンポーザは、アプリケーションの[service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)のいずれかに登録されます。この例では、`App\Providers\AppServiceProvider`がこのロジックを保管すると仮定します。
 
 `View` facade の `composer` method を使用して、 view composer を register します。 Laravel は class ベースの view コンポーザー用の default ディレクトリを含んでいませんので、自由に整理することができます。例えば、application のすべての view コンポーザーを収納するための `app/View/Composers` ディレクトリを作成することができます。
 

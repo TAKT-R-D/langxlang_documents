@@ -383,7 +383,7 @@ default により、最も外側の resource collection response は、 resource
 }
 ```
 
-もし最外部の resource のラッピングを無効にしたい場合は、基本`Illuminate\Http\Resources\Json\JsonResource` class の`withoutWrapping` method を呼び出す必要があります。通常、この method はあなたの `AppServiceProvider` または[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)から呼び出すべきです。これはあなたの application へのすべての request で読み込まれます：
+もし最外部の resource のラッピングを無効にしたい場合は、基本`Illuminate\Http\Resources\Json\JsonResource` class の`withoutWrapping` method を呼び出す必要があります。通常、この method はあなたの `AppServiceProvider` または[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)から呼び出すべきです。これはあなたの application へのすべての request で読み込まれます：
 
 ```php
 <?php

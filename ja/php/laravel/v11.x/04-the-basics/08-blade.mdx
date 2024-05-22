@@ -1520,7 +1520,7 @@ Blade は「pascal-case」を使用して component の名前を自動的に検�
 
 前述の通り、匿名のコンポーネントは通常、`resources/views/components`ディレクトリ内に Blade テンプレートを配置することにより定義されます。しかし、たまに、 default path に加えて、他の匿名の component パスを Laravel に register したいこともあるかもしれません。
 
-`anonymousComponentPath` method は、その最初の引数として匿名の component の場所への "path" を受け入れ、コンポーネントが配置されるべき "namespace" を option で第二引数として受け入れます。通常、この method はあなたの application の [service providers](/ja/php/laravel/v11.x/03-architecture-concepts) の一つの `boot` method から呼び出されるべきです。
+`anonymousComponentPath` method は、その最初の引数として匿名の component の場所への "path" を受け入れ、コンポーネントが配置されるべき "namespace" を option で第二引数として受け入れます。通常、この method はあなたの application の [service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers) の一つの `boot` method から呼び出されるべきです。
 
 ```php
 /**

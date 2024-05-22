@@ -641,7 +641,7 @@ Route::post('/settings', function () {
 
 ## Adding Custom Guards
 
-`extend` method を使用して、独自の authentication ガードを定義することができます。 `Auth` facade 。 `extend` method への呼び出しは、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)内に配置する必要があります。 Laravel はすでに`AppServiceProvider`を搭載しているため、その code をその provider に配置できます。
+`extend` method を使用して、独自の authentication ガードを定義することができます。 `Auth` facade 。 `extend` method への呼び出しは、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)内に配置する必要があります。 Laravel はすでに`AppServiceProvider`を搭載しているため、その code をその provider に配置できます。
 
 ```php
 <?php

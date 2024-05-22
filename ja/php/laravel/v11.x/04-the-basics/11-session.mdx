@@ -384,7 +384,7 @@ class MongoSessionHandler implements \SessionHandlerInterface
 
 ### Registering the Driver
 
-driver が実装されたら、それを Laravel に register する準備が整いました。Laravel の session バックエンドに追加の driver を追加するためには、`Session` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades) によって提供される `extend` method を使用することができます。`extend` method は、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)の`boot` method から呼び出すべきです。既存の `App\Providers\AppServiceProvider`から行うか、全く新しい provider を作成して行うことができます：
+driver が実装されたら、それを Laravel に register する準備が整いました。Laravel の session バックエンドに追加の driver を追加するためには、`Session` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades) によって提供される `extend` method を使用することができます。`extend` method は、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の`boot` method から呼び出すべきです。既存の `App\Providers\AppServiceProvider`から行うか、全く新しい provider を作成して行うことができます：
 
 ```php
 <?php

@@ -319,7 +319,7 @@ $pdo = DB::connection()->getPdo();
 
 ### Query Events のリスニング
 
-あなたの application によって実行されたすべての SQL の query に対して呼び出されるクロージャを指定したい場合は、`DB`ファサードの`listen` method を使用することができます。この method は、 logging のクエリや debugging に便利です。あなたは自分の query リスナークロージャを、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)の`boot` method で register することができます。
+あなたの application によって実行されたすべての SQL の query に対して呼び出されるクロージャを指定したい場合は、`DB`ファサードの`listen` method を使用することができます。この method は、 logging のクエリや debugging に便利です。あなたは自分の query リスナークロージャを、[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の`boot` method で register することができます。
 
 ```php
 <?php
@@ -358,7 +358,7 @@ class AppServiceProvider extends ServiceProvider
 
 ### 累積 Query 時間の監視
 
-現代の webapplications の一般的なパフォーマンスのボトルネックは、database の query にかかる時間です。ありがたいことに、Laravel は、database への query 時間が single request の間に過ぎてしまったときに、あなたの選んだクロージャまたはコールバックを実行することができます。始めるには、query の時間閾 values(ミリ秒)とクロージャを`whenQueryingForLongerThan`method に提供します。あなたはこの method を [service provider](/ja/php/laravel/v11.x/03-architecture-concepts) の `boot` method で呼び出すことができます。
+現代の webapplications の一般的なパフォーマンスのボトルネックは、database の query にかかる時間です。ありがたいことに、Laravel は、database への query 時間が single request の間に過ぎてしまったときに、あなたの選んだクロージャまたはコールバックを実行することができます。始めるには、query の時間閾 values(ミリ秒)とクロージャを`whenQueryingForLongerThan`method に提供します。あなたはこの method を [service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers) の `boot` method で呼び出すことができます。
 
 ```php
 <?php

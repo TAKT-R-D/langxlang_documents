@@ -574,7 +574,7 @@ export default defineConfig({
 
 ### Aliases
 
-””JavaScript””アプリケーションでは、よく参照されるディレクトリに [””aliases””を作成](#aliases) することが一般的です。しかし、`Illuminate\Support\Facades\Vite` ””class””の`macro` ””method””を使用して、””Blade””で使用する””aliases””を作成することもできます。通常、"macros" は [””service provider””](/ja/php/laravel/v11.x/03-architecture-concepts) の`boot` ””method””内で定義する必要があります。
+””JavaScript””アプリケーションでは、よく参照されるディレクトリに [””aliases””を作成](#aliases) することが一般的です。しかし、`Illuminate\Support\Facades\Vite` ””class””の`macro` ””method””を使用して、””Blade””で使用する””aliases””を作成することもできます。通常、"macros" は [””service provider””](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers) の`boot` ””method””内で定義する必要があります。
 
 ```php
 /**
@@ -819,7 +819,7 @@ Vite::useIntegrityKey(false);
 
 ### 任意の Attributes
 
-スクリプトやスタイルの tags に追加の attributes 、たとえば[`data-turbo-track`](https://turbo.hotwired.dev/handbook/drive#reloading-when-assets-change) attribute を指定する必要がある場合、それらは`useScriptTagAttributes`および`useStyleTagAttributes`メソッドを経由して指定できます。通常、これらのメソッドは[service provider](/ja/php/laravel/v11.x/03-architecture-concepts)から呼び出されるべきです:
+スクリプトやスタイルの tags に追加の attributes 、たとえば[`data-turbo-track`](https://turbo.hotwired.dev/handbook/drive#reloading-when-assets-change) attribute を指定する必要がある場合、それらは`useScriptTagAttributes`および`useStyleTagAttributes`メソッドを経由して指定できます。通常、これらのメソッドは[service provider](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)から呼び出されるべきです:
 
 ```php
 use Illuminate\Support\Facades\Vite;

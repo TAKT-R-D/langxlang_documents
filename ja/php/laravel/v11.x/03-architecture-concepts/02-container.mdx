@@ -124,7 +124,7 @@ Route::get('/', function (Request $request) {
 
 #### シンプルなバインディング
 
-ほとんどすべてのあなたの service container のバインディングは[service providers](/ja/php/laravel/v11.x/03-architecture-concepts)の中で登録されるでしょう、そのため、これらの例のほとんどはその context でコンテナを使うことを示しています。
+ほとんどすべてのあなたの service container のバインディングは[service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)の中で登録されるでしょう、そのため、これらの例のほとんどはその context でコンテナを使うことを示しています。
 
 service provider 内では、常に`$this->app` プロパティを通じてコンテナにアクセスすることが可能です。我々は `bind` method を使用して、登録したい class 名やインターフェース名と、その class のインスタンスを返すクロージャを一緒に登録するバインディングを登録することができます。
 
