@@ -203,7 +203,7 @@ $request->validate([
 
 ### Validation Errors の表示
 
-それでは、着信の request フィールドが与えられた validation ルールをパスしない場合はどうなるでしょうか？以前に述べたように、 Laravel は自動的に user を前の場所に redirect します。さらに、すべての validation errors と[request input](/ja/php/laravel/v11.x/04-the-basics/04-requests#retrieving-old-input)は自動的に[session へフラッシュされます](/ja/php/laravel/v11.x/04-the-basics/11-session#flash-data)。
+それでは、着信の request フィールドが与えられた validation ルールをパスしない場合はどうなるでしょうか？以前に述べたように、 Laravel は自動的に user を前の場所に redirect します。さらに、すべての validation errors と[request input](/ja/php/laravel/v11.x/04-the-basics/05-requests#retrieving-old-input)は自動的に[session へフラッシュされます](/ja/php/laravel/v11.x/04-the-basics/11-session#flash-data)。
 
 `$errors`variable は、`Illuminate\View\Middleware\ShareErrorsFromSession` middleware によって、application のすべての views と共有されます。これは`web` middleware グループによって提供されています。この middleware が適用されると、`$errors`variable は常に views で利用可能になり、`$errors`variable が常に定義されており、安全に使用できると便利に想定することができます。`$errors`variable は`Illuminate\Support\MessageBag`のインスタンスになります。この object の操作に関する詳細情報は、[こちらのドキュメンテーションをチェックしてください](#working-with-error-messages)。
 

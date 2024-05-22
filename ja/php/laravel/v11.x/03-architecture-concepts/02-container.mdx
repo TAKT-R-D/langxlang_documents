@@ -92,7 +92,7 @@ Route::get('/', function (Service $service) {
 
 この例では、application の`/` route にアクセスすると、自動的に`Service` class が解決され、route の handler に注入されます。これはゲームチェンジングです。つまり、あなたは自身の application を development し、dependency injection を活用することができるのです。それも、設定ファイルが肥大化することを心配することなく。
 
-ありがたいことに、Laravel application を構築する際に書く多くのクラスは、[controllers](/ja/php/laravel/v11.x/04-the-basics/05-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) など、コンテナを通じて自動的に依存関係を受け取ります。さらに、[queued jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues) の`handle` method で依存関係をタイプヒントすることもできます。自動かつゼロ構成の dependency injection の力を一度味わうと、それなしで開発することが不可能に感じられるでしょう。
+ありがたいことに、Laravel application を構築する際に書く多くのクラスは、[controllers](/ja/php/laravel/v11.x/04-the-basics/04-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) など、コンテナを通じて自動的に依存関係を受け取ります。さらに、[queued jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues) の`handle` method で依存関係をタイプヒントすることもできます。自動かつゼロ構成の dependency injection の力を一度味わうと、それなしで開発することが不可能に感じられるでしょう。
 
 <a name="when-to-use-the-container"></a>
 
@@ -469,7 +469,7 @@ public function __construct(
 
 ### 自動注入
 
-あるいは、重要なことに、コンテナによって解決される class のコンストラクターで依存関係を types ヒントすることができます。これには、[コントローラー](/ja/php/laravel/v11.x/04-the-basics/05-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)などが含まれます。さらに、`handle` method で[queue に入れられた jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues)の依存関係を types ヒントすることもできます。実際には、これがコンテナによって解決されるべき objects のほとんどの方法です。
+あるいは、重要なことに、コンテナによって解決される class のコンストラクターで依存関係を types ヒントすることができます。これには、[コントローラー](/ja/php/laravel/v11.x/04-the-basics/04-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)などが含まれます。さらに、`handle` method で[queue に入れられた jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues)の依存関係を types ヒントすることもできます。実際には、これがコンテナによって解決されるべき objects のほとんどの方法です。
 
 たとえば、コントローラのコンストラクタで application によって定義されたリポジトリを型ヒントとして指定することができます。リポジトリは自動的に解決され、 class に注入されます：
 

@@ -88,7 +88,7 @@ public function getRouteKey(): mixed
 
 ## Redirecting To Controller Actions
 
-また、[controller アクション](/ja/php/laravel/v11.x/04-the-basics/05-controllers)へのリダイレクトを生成することも可能です。そのためには、 controller 及び action の名前を `action` method に渡します。
+また、[controller アクション](/ja/php/laravel/v11.x/04-the-basics/04-controllers)へのリダイレクトを生成することも可能です。そのためには、 controller 及び action の名前を `action` method に渡します。
 
 ```php
 use App\Http\Controllers\HomeController;
@@ -118,7 +118,7 @@ Route::post('/user/profile', function () {
 });
 ```
 
-`withInput`という method を用いて、`RedirectResponse` インスタンスで現在のリクエストの入力 data を redirect する前に session にフラッシュすることができます。一旦入力が session にフラッシュされたら、次の request 中に簡単に[取り出すこと](/ja/php/laravel/v11.x/04-the-basics/04-requests#retrieving-old-input)が可能になります。
+`withInput`という method を用いて、`RedirectResponse` インスタンスで現在のリクエストの入力 data を redirect する前に session にフラッシュすることができます。一旦入力が session にフラッシュされたら、次の request 中に簡単に[取り出すこと](/ja/php/laravel/v11.x/04-the-basics/05-requests#retrieving-old-input)が可能になります。
 
 ```php
 return back()->withInput();

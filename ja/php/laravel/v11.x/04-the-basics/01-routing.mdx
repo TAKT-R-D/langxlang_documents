@@ -549,7 +549,7 @@ Route::middleware(['first', 'second'])->group(function () {
 
 ### Controllers
 
-routes のグループがすべて同じ[controller](/ja/php/laravel/v11.x/04-the-basics/05-controllers)を利用する場合は、`controller` method を使用して、グループ内のすべての routes の一般的な controller を定義することができます。その後、 routes を定義するときは、それらが呼び出す controller method を提供するだけでよいです：
+routes のグループがすべて同じ[controller](/ja/php/laravel/v11.x/04-the-basics/04-controllers)を利用する場合は、`controller` method を使用して、グループ内のすべての routes の一般的な controller を定義することができます。その後、 routes を定義するときは、それらが呼び出す controller method を提供するだけでよいです：
 
 ```php
 use App\Http\Controllers\OrderController;

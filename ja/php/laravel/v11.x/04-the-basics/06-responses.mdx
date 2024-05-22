@@ -316,7 +316,7 @@ After the user is redirected, you may display the flashed message from the [sess
 
 #### Input を用いたリダイレクト
 
-`RedirectResponse` インスタンスによって提供される `withInput` method を利用して、新しい場所に user を redirect する前に、現在のリクエストの入力 data を session にフラッシュすることができます。これは一般的に、user が validationerror に遭遇した場合に行われます。入力が session にフラッシュされた後、次の request の際に簡単に[それを取り出す](/ja/php/laravel/v11.x/04-the-basics/04-requests#retrieving-old-input)ことが出来、フォームに再度読み込むことが出来ます：
+`RedirectResponse` インスタンスによって提供される `withInput` method を利用して、新しい場所に user を redirect する前に、現在のリクエストの入力 data を session にフラッシュすることができます。これは一般的に、user が validationerror に遭遇した場合に行われます。入力が session にフラッシュされた後、次の request の際に簡単に[それを取り出す](/ja/php/laravel/v11.x/04-the-basics/05-requests#retrieving-old-input)ことが出来、フォームに再度読み込むことが出来ます：
 
 ```php
 return back()->withInput();
