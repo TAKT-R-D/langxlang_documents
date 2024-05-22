@@ -71,7 +71,7 @@ Route::get('/users', function () {
 
 Facades には多くの利点があります。それらは、手短で覚えやすい syntax を提供し、Laravel の features を長い class 名を記憶したり、手動で注入したり設定したりすることなく使用することを可能にします。さらに、PHP の動的メソッドを unique に使用することで、テストが容易になります。
 
-しかし、"facades"を使用する際には一定の注意が必要です。"facades"の"primary"な危険性は、"class"の"scope creep"です。"facades"は使用が非常に容易で、注入を必要としないため、class を増やし続けたり、"single class"で多くの"facades"を使用することが容易になります。"dependency injection"を使用すると、大きなコンストラクタがあなたに"class"が大きくなりすぎていることを視覚的にフィードバックしてくれるため、この可能性は緩和されます。したがって、"facades"を使用する際には、"class"のサイズに特に注意を払い、その"scope"の範囲が狭く保たれるようにしてください。もし"class"が大きすぎると感じたら、それを複数の小さな class に分割することを検討してください。
+しかし、facades を使用する際には一定の注意が必要です。facades の primary な危険性は、class の scope creep です。facades は使用が非常に容易で、注入を必要としないため、class を増やし続けたり、single class で多くの facades を使用することが容易になります。dependency injection を使用すると、大きなコンストラクタがあなたに class が大きくなりすぎていることを視覚的にフィードバックしてくれるため、この可能性は緩和されます。したがって、facades を使用する際には、class のサイズに特に注意を払い、その scope の範囲が狭く保たれるようにしてください。もし class が大きすぎると感じたら、それを複数の小さな class に分割することを検討してください。
 
 <a name="facades-vs-dependency-injection"></a>
 

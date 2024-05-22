@@ -36,7 +36,7 @@ org_title: "Error Handling"
 
 ## Configuration
 
-The `debug` option in your `config/app.php` configuration file determines how much information about an error is actually displayed to the user. By default, this option is set to respect the value of the `APP_DEBUG` environment variable, which is stored in your `.env` file.
+あなたの `config/app.php` 設定ファイル内の `debug` オプションは、エラーに関する情報が実際にユーザーに表示される量を決定します。 デフォルトでは、このオプションは `APP_DEBUG` 環境変数の値を尊重するように設定されており、この変数はあなたの `.env` ファイルに保存されています。
 
 ローカル開発中は、`APP_DEBUG` environment 変数を `true`に設定すべきです。**あなたの production environment では、この value は常に`false`であるべきです。 value が`true`に設定されている場合、 production においては、あなたのアプリケーションの最終 users に対して機密設定の values を露出するリスクがあります。**
 

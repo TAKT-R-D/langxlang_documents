@@ -295,7 +295,7 @@ Facades\View::composer('*', function (View $view) {
 
 ### View クリエイター
 
-View "クリエーター"は、 view コンポーザーにとても似ていますが、 view の render する直前を待つのではなく、 view がインスタンス化された直後に実行されます。 view クリエーターを register するには、`creator` method を使用してください：
+View クリエーターは、 view コンポーザーにとても似ていますが、 view の render する直前を待つのではなく、 view がインスタンス化された直後に実行されます。 view クリエーターを register するには、`creator` method を使用してください：
 
 ```php
 use App\View\Creators\ProfileCreator;

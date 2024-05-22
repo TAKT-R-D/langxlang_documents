@@ -241,7 +241,7 @@ $token = $request->bearerToken();
 $ipAddress = $request->ip();
 ```
 
-もしプロキシによって転送されたすべての" client " IP アドレスを含む IP アドレスの" array "を取得したい場合、`ips` " method "を使用することができます。"original"の" client " IP アドレスは" array "の最後になります：
+もしプロキシによって転送されたすべての client IP アドレスを含む IP アドレスの array を取得したい場合、`ips` method を使用することができます。original の client IP アドレスは array の最後になります：
 
 ```php
 $ipAddresses = $request->ips();
@@ -353,7 +353,7 @@ $name = $request->input('name');
 $name = $request->input('name', 'Sally');
 ```
 
-array "入力を含むフォームで作業するときは、"dot"表記法を使用して配列にアクセスします。
+array 入力を含むフォームで作業するときは、dot 表記法を使用して配列にアクセスします。
 
 ```php
 $name = $request->input('products.0.name');
@@ -393,7 +393,7 @@ $query = $request->query();
 
 #### JSON Input Values の取得
 
-あなたの application に"JSON"request を送信する際、`Content-Type` header が適切に`application/json`に設定されていれば、`input` method を通じて JSONdata にアクセスすることができます。 "dot" "syntax"を使用して、"JSON"arrays/object 内にネストされている"values"を取得することさえできます:
+あなたの application に JSON request を送信する際、`Content-Type` header が適切に`application/json`に設定されていれば、`input` method を通じて JSON data にアクセスすることができます。 dot syntax を使用して、JSON arrays/object 内にネストされている values を取得することさえできます:
 
 ```php
 $name = $request->input('user.name');
@@ -413,7 +413,7 @@ $name = $request->string('name')->trim();
 
 #### Boolean Input Values の取得
 
-HTML elements"といったチェックボックスのようなものを扱うとき、"真実性"という"values"を string として受け取ることがあるかもしれません。例えば、"true"あるいは"on"のような。便宜上、これらの"values"をブール values として取得するために、`boolean` "method"を使用することができます。`boolean` "method"は、1、"1"、"true"、"true"、"on"、そして"yes"に対しては`true`を返します。他のすべての"values"に対しては`false`を返します。
+HTML elements"といったチェックボックスのようなものを扱うとき、"真実性"という"values"を string として受け取ることがあるかもしれません。例えば、"true"あるいは"on"のような。便宜上、これらの"values"をブール values として取得するために、`boolean` "method"を使用することができます。`boolean` "method"は、1、"1"、true、"true"、"on"、そして"yes"に対しては`true`を返します。他のすべての"values"に対しては`false`を返します。
 
 ```php
 $archived = $request->boolean('archived');
@@ -826,7 +826,7 @@ Amazon AWS や他の"クラウド"ロードバランサーの provider を使用
 
 ## Configuring Trusted Hosts
 
-By default, Laravel will respond to all requests it receives regardless of the content of the HTTP request's `Host` header. In addition, the `Host` header's value will be used when generating absolute URLs to your application during a web request.
+default では、Laravel は、`Host`header の HTTP requests の content に関係なく、受信したすべての requests に response します。さらに、`Host` header の value は、web request 中にあなたの application への絶対 URL を生成する際に使用されます。
 
 通常は、Nginx や Apache などの webserver を設定して、特定のホスト名と一致する application への requests のみを送信するようにします。しかし、直接 webserver をカスタマイズする能力がなく、`Illuminate\Http\Middleware\TrustHosts` middleware を有効にして Laravel に特定のホスト名に対してのみ response するよう指示する必要がある場合もあります。
 

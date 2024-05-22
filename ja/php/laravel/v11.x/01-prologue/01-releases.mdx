@@ -228,9 +228,9 @@ RateLimiter::for('invoices', function (Request $request) {
 
 <a name="health"></a>
 
-### 健康 Routing
+### Health Routing
 
-_健康の routing は [Taylor Otwell](https://github.com/taylorotwell) によって寄稿されました。_
+_Health routing は [Taylor Otwell](https://github.com/taylorotwell) によって寄稿されました。_
 
 新しい Laravel 11 のアプリケーションには、`health`の routing 指示が含まれており、これは Laravel に対して、第三者の application 健康監視 services や Kubernetes のようなオーケストレーションシステムから呼び出されるかもしれないシンプルなヘルスチェックエンドポイントを定義するように指示します。 default で、この route は`/up`で提供されます。
 
@@ -246,9 +246,9 @@ _健康の routing は [Taylor Otwell](https://github.com/taylorotwell) によ�
 
 <a name="encryption"></a>
 
-### 優雅な Encryption キーのローテーション
+### Graceful Encryption キーのローテーション
 
-_華麗な encryption キーのローテーションは[Taylor Otwell](https://github.com/taylorotwell)によって寄贈されました。_
+_Graceful encryption キーのローテーションは[Taylor Otwell](https://github.com/taylorotwell)によって寄贈されました。_
 
 Laravel はすべてのクッキーを暗号化するため、アプリケーションの session cookie も含めて、基本的に Laravel application へのすべての request が encryption に依存しています。ただし、この結果、アプリケーションの encryption キーをローテーションさせると、すべての users が application から log アウトすることになります。さらに、前回の encryption キーで暗号化された data を復号化することは不可能になります。
 
@@ -274,7 +274,7 @@ Laravel の default password hashing algorithm は bcrypt です。bcrypt ハッ
 
 ### Prompt Validation
 
-_ Prompt validator の統合は、[Andrea Marco Sartori](https://github.com/cerbero90)によって寄贈されました。_
+_Prompt validator の統合は、[Andrea Marco Sartori](https://github.com/cerbero90)によって寄贈されました。_
 
 [Laravel プロンプト](/ja/php/laravel/v11.x/10-packages/prompts)は、美しいユーザーフレンドリーなフォームをコマンドラインアプリケーションに追加するための PHP パッケージで、プレースホルダーテキストや validation などのブラウザライクな features が含まれています。
 

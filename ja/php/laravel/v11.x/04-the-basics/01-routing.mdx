@@ -393,7 +393,7 @@ Route::get('/category/{category}', function (string $category) {
 
 #### グローバル制約
 
-もし特定の正規表現によって常に'' route ''パラメーターを制約したい場合、`pattern` '' method ''を使用することができます。これらのパターンは、アプリケーションの`App\Providers\AppServiceProvider` '' class ''の`boot` '' method ''で定義するべきです:
+もし特定の正規表現によって常に route パラメーターを制約したい場合、`pattern` method を使用することができます。これらのパターンは、アプリケーションの`App\Providers\AppServiceProvider` class の`boot` method で定義するべきです:
 
 ```php
 use Illuminate\Support\Facades\Route;

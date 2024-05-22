@@ -66,7 +66,7 @@ Route::get('/token', function (Request $request) {
 });
 ```
 
-POST"、"PUT"、"PATCH"、または "DELETE" の " HTML " フォームを application で定義するたびに、 CSRF protection middleware が request を validate できるように、フォームに hidden CSRF `_token` フィールドを含めるべきです。便宜上、`@csrf` の Blade ディレクティブを使用して hidden token input フィールドを生成することができます。
+POST、PUT、PATCH、または DELETE の HTML フォームを application で定義するたびに、 CSRF protection middleware が request を validate できるように、フォームに hidden CSRF `_token` フィールドを含めるべきです。便宜上、`@csrf` の Blade ディレクティブを使用して hidden token input フィールドを生成することができます。
 
 ```blade
 <form method="POST" action="/profile">

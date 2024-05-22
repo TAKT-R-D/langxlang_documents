@@ -25,9 +25,9 @@ org_title: "Service Providers"
 
 Service providers は、すべての Laravel application のブートストラッピングの中心的な場所です。あなた自身の application 、そして Laravel のすべてのコア services も、 service providers を通じてブートストラップされます。
 
-しかし、「bootstrapped」とは何を意味するのでしょうか？一般的には、 service container のバインディング、 event listeners 、 middleware 、さらには routes を含むモノを**登録する**ことを意味します。 Service providers は、 application を設定するための中心的な場所です。
+しかし、"bootstrapped" とは何を意味するのでしょうか？一般的には、 service container のバインディング、 event listeners 、 middleware 、さらには routes を含むモノを**登録する**ことを意味します。 Service providers は、 application を設定するための中心的な場所です。
 
-Laravel は、" mailer "、" queue "、" cache "などのコア" services "をブートストラップするために、内部で数十の" service providers "を使用します。これらの" providers "の多くは"deferred" " providers "であり、すべての" request "でロードされるわけではなく、提供する" services "が実際に必要とされるときだけロードされます。
+Laravel は、 mailer 、 queue 、 cache などのコア services をブートストラップするために、内部で数十の service providers を使用します。これらの providers の多くは deferred providers であり、すべての request でロードされるわけではなく、提供する services が実際に必要とされるときだけロードされます。
 
 すべてのユーザー定義の service providers は`bootstrap/providers.php`ファイルに登録されています。以下のドキュメンテーションでは、独自の service providers の作成方法とそれらを Laravel application に register する方法を学びます。
 

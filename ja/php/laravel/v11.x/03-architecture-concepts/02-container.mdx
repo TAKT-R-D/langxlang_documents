@@ -69,7 +69,7 @@ class UserController extends Controller
 }
 ```
 
-この例では、`UserController`は「users」を「data」ソースから取得する必要があります。したがって、「users」を取得することが可能な「service」を**注入**します。この「context」では、おそらく私たちの`UserRepository`は「users」情報を「database」から取得するために[「Eloquent」](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)を使用しています。しかし、リポジトリが注入されているため、「別の実装」に簡単に「スワップ」できます。また、「testing」の際に`UserRepository`のダミー実装を作成する、つまり「モック」を簡単に作成することも可能です。
+この例では、`UserController`は users を data ソースから取得する必要があります。したがって、users を取得することが可能な service を**注入**します。この context では、おそらく私たちの`UserRepository`は users 情報を database から取得するために[Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)を使用しています。しかし、リポジトリが注入されているため、別の実装に簡単にスワップできます。また、testing の際に`UserRepository`のダミー実装を作成する、つまりモックを簡単に作成することも可能です。
 
 強力で大規模な application を開発するため、また Laravel のコア自体に貢献するためにも、 Laravel service container についての深い理解が不可欠です。
 
@@ -92,7 +92,7 @@ Route::get('/', function (Service $service) {
 });
 ```
 
-この例では、application の`/` route にアクセスすると、自動的に`Service` class が解決され、route の handler に注入されます。これはゲームチェンジングです。つまり、あなたは自身の application を development し、dependency injection を活用することができるのです。それも、設定ファイルが肥大化することを心配することなく。
+この例では、application の `/` route にアクセスすると、自動的に `Service` class が解決され、route の handler に注入されます。これはゲームチェンジングです。つまり、あなたは自身の application を development し、dependency injection を活用することができるのです。それも、設定ファイルが肥大化することを心配することなく。
 
 ありがたいことに、Laravel application を構築する際に書く多くのクラスは、[controllers](/ja/php/laravel/v11.x/04-the-basics/04-controllers)、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)、[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) など、コンテナを通じて自動的に依存関係を受け取ります。さらに、[queued jobs](/ja/php/laravel/v11.x/05-digging-deeper/queues) の`handle` method で依存関係をタイプヒントすることもできます。自動かつゼロ構成の dependency injection の力を一度味わうと、それなしで開発することが不可能に感じられるでしょう。
 
@@ -193,7 +193,7 @@ $this->app->singletonIf(Transistor::class, function (Application $app) {
 
 #### バインディングスコープ付きシングルトン
 
-`scoped`" method は、与えられた Laravelrequest / job のライフサイクル内で一度だけ解決されるべき class またはインターフェイスをコンテナにバインドします。この method は `singleton` method に似ていますが、`scoped` method を使用して登録されたインスタンスは、新しい "ライフサイクル"が始まるたびにフラッシュされます。例えば、[Laravel Octane](/ja/php/laravel/v11.x/10-packages/octane) ワーカーが新しい request を処理した時や、Laravel の [queue ワーカー](/ja/php/laravel/v11.x/05-digging-deeper/queues)が新しい job を処理するといった場合です。
+`scoped` method は、与えられた Laravelrequest / job のライフサイクル内で一度だけ解決されるべき class またはインターフェイスをコンテナにバインドします。この method は `singleton` method に似ていますが、`scoped` method を使用して登録されたインスタンスは、新しい "ライフサイクル"が始まるたびにフラッシュされます。例えば、[Laravel Octane](/ja/php/laravel/v11.x/10-packages/octane) ワーカーが新しい request を処理した時や、Laravel の [queue ワーカー](/ja/php/laravel/v11.x/05-digging-deeper/queues)が新しい job を処理するといった場合です。
 
 ```php
 use App\Services\Transistor;
@@ -377,7 +377,7 @@ $this->app->when(ReportAggregator::class)
 
 ### Tagging
 
-たまに、特定の "category" のバインディング全てを解決する必要があるかもしれません。例えば、あなたが様々な `Report` インターフェースの実装を含む「array」を受け取るレポート分析エンジンを作成している場合があります。 `Report` の実装を登録した後、それらに `tag` method を使用して tag を割り当てることができます:
+たまに、特定の "category" のバインディング全てを解決する必要があるかもしれません。例えば、あなたが様々な `Report` インターフェースの実装を含む "array" を受け取るレポート分析エンジンを作成している場合があります。 `Report` の実装を登録した後、それらに `tag` method を使用して tag を割り当てることができます:
 
 ```php
 $this->app->bind(CpuReport::class, function () {

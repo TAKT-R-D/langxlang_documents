@@ -182,7 +182,7 @@ $request->validate([
 
 #### ネストされた Attributes についての注意点
 
-着信する HTTP request に"ネストされた"フィールドの data が含まれている場合、これらのフィールドを"ドット" syntax を使用して、 validation ルールで指定することができます。
+着信する HTTP request にネストされたフィールドの data が含まれている場合、これらのフィールドを dot syntax を使用して、 validation ルールで指定することができます。
 
 ```php
 $request->validate([
@@ -240,7 +240,7 @@ Laravel に組み込まれている validation ルールはそれぞれ、あな
 また、このファイルを別の言語ディレクトリにコピーして、アプリケーションの言語のメッセージを翻訳することもできます。 Laravel localization について詳しく知りたい場合は、完全な[localization documentation](/ja/php/laravel/v11.x/05-digging-deeper/localization)をご覧ください。
 
 > [!WARNING]  
-> By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="quick-xhr-requests-and-validation"></a>
 
@@ -281,13 +281,13 @@ Laravel に組み込まれている validation ルールはそれぞれ、あな
 
 Laravel が validation error により redirect response を生成するとき、フレームワークは自動的に[リクエストの input 全てを session にフラッシュします](/ja/php/laravel/v11.x/04-the-basics/11-session#flash-data)。これは、次の request で input に便利にアクセスして、 user が submit しようとしたフォームを再度入力するためです。
 
-To retrieve flashed input from the previous request, invoke the `old` method on an instance of `Illuminate\Http\Request`. The `old` method will pull the previously flashed input data from the [session](/ja/php/laravel/v11.x/04-the-basics/11-session):
+以前の request からフラッシュされた input を取得するには、`Illuminate\\Http\\Request`のインスタンスで`old` method を呼び出します。`old` method は、[session](/ja/php/laravel/v11.x/04-the-basics/11-session)から以前にフラッシュされた input data を引き出します。
 
 ```php
 $title = $request->old('title');
 ```
 
-Laravel also provides a global `old` helper. If you are displaying old input within a [Blade template](/ja/php/laravel/v11.x/04-the-basics/08-blade), it is more convenient to use the `old` helper to repopulate the form. If no old input exists for the given field, `null` will be returned:
+Laravel はグローバルな`old`ヘルパーも提供しています。古い input を[Blade テンプレート](/ja/php/laravel/v11.x/04-the-basics/08-blade)で表示している場合、フォームを再入力するために`old`ヘルパーを使用する方が便利です。指定されたフィールドに対して古い input が存在しない場合、`null`が返されます：
 
 ```blade
 <input type="text" name="title" value="{{ old('title') }}">
@@ -916,7 +916,7 @@ Laravel の組み込みの validation ルールは、それぞれがあなたの
 また、このファイルを別の言語ディレクトリにコピーして、アプリケーションの言語のメッセージを翻訳することもできます。 Laravel localization について詳しく知るために、完全な[localization documentation](/ja/php/laravel/v11.x/05-digging-deeper/localization)をご覧ください。
 
 > [!WARNING]  
-> By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="custom-messages-for-specific-attributes"></a>
 
@@ -946,7 +946,7 @@ Laravel の組み込みの error メッセージの多くには、`:attribute`�
 ```
 
 > [!WARNING]  
-> By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="specifying-values-in-language-files"></a>
 
@@ -977,7 +977,7 @@ The credit card number field is required when payment type is cc.
 ```
 
 > [!WARNING]  
-> By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 この value を定義した後、 validation ルールは次の error メッセージを生成します：
 
@@ -1001,7 +1001,7 @@ The credit card number field is required when payment type is credit card.
 
 #### accepted
 
-validation""の下のフィールドは、`"yes"`、`"on"`、`1`、`"1"`、`true`、または`"true"`でなければなりません。これは、"利用規約"の承認または同様のフィールドの""検証""に役立ちます。
+validation の下のフィールドは、`"yes"`、`"on"`、`1`、`"1"`、`true`、または`"true"`でなければなりません。これは、利用規約の承認または同様のフィールドの検証に役立ちます。
 
 <a name="rule-accepted-if"></a>
 
@@ -1699,13 +1699,13 @@ input data に validation のフィールドは存在してはなりません。
 
 #### missing*if:\_anotherfield*,_value_
 
-validation のフィールドは、_anotherfield_ フィールドが任意の _ value _ と等しい場合に存在してはなりません。
+validation のフィールドは、_anotherfield_ フィールドが任意の _value_ と等しい場合に存在してはなりません。
 
 <a name="rule-missing-unless"></a>
 
 #### missing*unless:\_anotherfield*,_value_
 
-anotherfield フィールドが任意の* value *に等しい unless 場合を除き、 validation フィールドは存在してはなりません。
+anotherfield フィールドが任意の _value_ に等しい unless 場合を除き、 validation フィールドは存在してはなりません。
 
 <a name="rule-missing-with"></a>
 
@@ -1769,7 +1769,7 @@ input data に validation フィールドが存在しなければなりません
 
 #### present*if:\_anotherfield*,_value_
 
-_anotherfield_ フィールドが _ value _ のいずれかと等しい場合、 validation フィールドが存在しなければなりません。
+_anotherfield_ フィールドが _value_ のいずれかと等しい場合、 validation フィールドが存在しなければなりません。
 
 <a name="rule-present-unless"></a>
 
@@ -1793,7 +1793,7 @@ validation のフィールドは、指定された他の全てのフィールド
 
 #### prohibited
 
-「" validation "の下のフィールドは存在しないか、もしくは空でなければなりません。フィールドが"empty"であるとは、以下の基準のいずれかを満たしている場合を指します：
+validation の下のフィールドは存在しないか、もしくは空でなければなりません。フィールドが empty であるとは、以下の基準のいずれかを満たしている場合を指します：
 
 <div class="content-list" markdown="1">
 
@@ -2019,7 +2019,7 @@ validation のフィールドは、`DateTimeZone::listIdentifiers` method に従
 
 validation というフィールドは与えられた database テーブル内に存在してはなりません。
 
-** Custom テーブル / Column 名の指定:**
+**Custom テーブル / Column 名の指定:**
 
 テーブル名を直接指定する代わりに、テーブル名を決定するために使用すべき Eloquent model を指定することができます：
 
@@ -2033,7 +2033,7 @@ validation というフィールドは与えられた database テーブル内�
 'email' => 'unique:users,email_address'
 ```
 
-** Custom Database Connection の指定**
+**Custom Database Connection の指定**
 
 時折、 Validator によって行われる database のクエリに対して custom connection を設定する必要があるかもしれません。これを達成するためには、テーブル名の前に connection の名前を追加することができます：
 
@@ -2695,4 +2695,4 @@ php artisan make:rule Uppercase --implicit
 ```
 
 > [!WARNING]  
-> 「暗黙的な」ルールは、単に attribute が required であることを*示唆している*だけです。実際に欠落しているまたは空の attribute を無効にするかどうかはあなた次第です。
+> "暗黙的な" ルールは、単に attribute が required であることを*示唆している*だけです。実際に欠落しているまたは空の attribute を無効にするかどうかはあなた次第です。

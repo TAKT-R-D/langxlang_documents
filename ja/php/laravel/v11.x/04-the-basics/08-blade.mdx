@@ -588,7 +588,7 @@ Blade の `@include` ディレクティブを使用すると、他の view か�
 @includeIf('view.name', ['status' => 'complete'])
 ```
 
-指定した'' boolean ''式が`true`または`false`に評価された場合に'' view ''を`@include`したい場合は、`@includeWhen`および`@includeUnless`ディレクティブを使用できます：
+指定した boolean 式が`true`または`false`に評価された場合に view を`@include`したい場合は、`@includeWhen`および`@includeUnless`ディレクティブを使用できます：
 
 ```blade
 @includeWhen($boolean, 'view.name', ['status' => 'complete'])
@@ -870,7 +870,7 @@ public function __construct(
 
 #### 短い Attribute Syntax
 
-component に"属性"を渡すとき、"ショート属性"の"シンタックス"を使用することもできます。これはしばしば便利です。なぜなら"属性"の名前は頻繁にそれに対応する variable 名と"一致"するからです：
+component に属性を渡すとき、ショート属性のシンタックスを使用することもできます。これはしばしば便利です。なぜなら属性の名前は頻繁にそれに対応する variable 名と一致するからです：
 
 ```blade
 {{-- Short attribute syntax... --}}
@@ -1188,7 +1188,7 @@ default として、いくつかの key ワードは Blade の内部使用のた
 
 ### Slots
 
-あなたはしばしば追加の content を"slots"経由であなたの Component に渡す必要があります。 component のスロットは`$slot`変数をエコーすることでレンダリングされます。この概念を探求するために、`alert` component が次のマークアップを持っていると想像してみましょう:
+あなたはしばしば追加の content を slots 経由であなたの Component に渡す必要があります。 component のスロットは`$slot`変数をエコーすることでレンダリングされます。この概念を探求するために、`alert` component が次のマークアップを持っていると想像してみましょう:
 
 ```blade
 <!-- /resources/views/components/alert.blade.php -->
@@ -1206,7 +1206,7 @@ default として、いくつかの key ワードは Blade の内部使用のた
 </x-alert>
 ```
 
-時には「 component 」が褒められた「 render 」が、その「 component 」内の他の場所に、さまざまな手段を必要とすることがあります。私たちの「 alert component 」を、"title" スロットの挿入を可能にするように変更しましょう：
+時には component が褒められた render が、その component 内の他の場所に、さまざまな手段を必要とすることがあります。私たちの alert component を、"title" スロットの挿入を可能にするように変更しましょう：
 
 ```blade
 <!-- /resources/views/components/alert.blade.php -->
@@ -1272,7 +1272,7 @@ Vue のような JavaScript フレームワークを使用したことがあれ�
 
 #### スロット Attributes
 
-Bladecomponent と同様に、CSS class 名などのスロットに追加の[属性](#component-attributes)を割り当てることができます:
+Blade component と同様に、CSS class 名などのスロットに追加の[属性](#component-attributes)を割り当てることができます:
 
 ```xml
 <x-card class="shadow-sm">
@@ -1404,7 +1404,7 @@ public function boot(): void
 <x-nightshade::color-picker />
 ```
 
-Blade は「pascal-case」を使用して component の名前を自動的に検出し、それがこの" component "にリンクされている" class "を認識します。サブディレクトリーも"ドット"表記を使用してサポートされます。
+Blade は"pascal-case"を使用して component の名前を自動的に検出し、それがこの component にリンクされている class を認識します。サブディレクトリーも dot 表記を使用してサポートされます。
 
 <a name="anonymous-components"></a>
 
@@ -1859,7 +1859,7 @@ return Blade::render(
 
 ## Rendering Blade Fragments
 
-[Turbo](https://turbo.hotwired.dev/) や [htmx](https://htmx.org/) などのフロントエンドフレームワークを使用する際に、時々、 Blade テンプレートの一部だけを HTTP response 内で返す必要があるかもしれません。 Blade "断片"は、まさにそれを可能にします。始めるためには、`@fragment` および `@endfragment` ディレクティブ内に Blade テンプレートの一部を配置します：
+[Turbo](https://turbo.hotwired.dev/) や [htmx](https://htmx.org/) などのフロントエンドフレームワークを使用する際に、時々、 Blade テンプレートの一部だけを HTTP response 内で返す必要があるかもしれません。 Blade "Fragments"は、まさにそれを可能にします。始めるためには、`@fragment` および `@endfragment` ディレクティブ内に Blade テンプレートの一部を配置します：
 
 ```blade
 @fragment('user-list')
@@ -1948,7 +1948,7 @@ class AppServiceProvider extends ServiceProvider
 
 ### Custom エコーハンドラー
 
-echo"を使って object を Blade で表示しようと attempt すると、object の`__toString` method が呼び出されます。[`__toString`](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) method は PHP の組み込み"magic methods"のひとつです。しかしながら、時々、特定の class の`__toString` method についてコントロールができない場合があります、例えば、あなたが対話している class がサードパーティの library に属している場合などです。
+echo を使って object を Blade で表示しようと attempt すると、object の`__toString` method が呼び出されます。[`__toString`](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) method は PHP の組み込み magic methods のひとつです。しかしながら、時々、特定の class の`__toString` method についてコントロールができない場合があります、例えば、あなたが対話している class がサードパーティの library に属している場合などです。
 
 これらのケースでは、Blade では、特定の type の object のための custom なエコー handler を register することができます。これを達成するには、Blade の `stringable` method を呼び出す必要があります。`stringable` method はクロージャを受け入れます。このクロージャは、rendering を担当する object の type を type ヒントするべきです。典 type 的には、`stringable` method は、application の `AppServiceProvider` class の `boot` method の中で呼び出されるべきです：
 
@@ -1977,7 +1977,7 @@ Cost: {{ $money }}
 
 ### Custom If 文
 
-custom "ディレクティブをプログラミングすることは、単純な" custom "条件文を定義するときに必要以上に複雑になることがあります。そのため、" Blade "は`Blade::if` " method "を提供しており、これを使うとクロージャを使って" custom "条件ディレクティブを素早く定義できます。例えば、" default "" "disk"が" application "用に設定されているかどうかをチェックする" custom "条件を定義してみましょう。これは`boot` " method "である`AppServiceProvider`の中で行うことができます。
+custom ディレクティブをプログラミングすることは、単純な custom 条件文を定義するときに必要以上に複雑になることがあります。そのため、 Blade は`Blade::if` method を提供しており、これを使うとクロージャを使って custom 条件ディレクティブを素早く定義できます。例えば、 default disk が application 用に設定されているかどうかをチェックする custom 条件を定義してみましょう。これは`boot` method である`AppServiceProvider`の中で行うことができます。
 
 ```php
 use Illuminate\Support\Facades\Blade;

@@ -32,7 +32,7 @@ org_title: "Controllers"
 
 ## Introduction
 
-すべての"" request ""ハンドリングロジックを"" route ""ファイル内のクロージャとして定義する代わりに、この動作を"controller"クラスを使って整理することができます。コントローラは、関連する"" request ""ハンドリングロジックを"" single class ""にまとめることができます。たとえば、`UserController` "" class ""は、"" users ""に関連するすべての着信リクエストを"" handle ""します。これには、表示、作成、更新、および"" deleting users ""が含まれます。"" default ""では、コントローラは`app/Http/Controllers`ディレクトリに保存されます。
+すべての request ハンドリングロジックを route ファイル内のクロージャとして定義する代わりに、この動作を controller クラスを使って整理することができます。コントローラは、関連する request ハンドリングロジックを single class にまとめることができます。たとえば、`UserController` class は、 users に関連するすべての着信リクエストを handle します。これには、表示、作成、更新、および deleting users が含まれます。 default では、コントローラは`app/Http/Controllers`ディレクトリに保存されます。
 
 <a name="writing-controllers"></a>
 
@@ -189,7 +189,7 @@ public static function middleware(): array
 
 あなたがそれぞれの Eloquent model をあなたの application の" application "と考えるなら、それぞれの resource に対して同じ一連の操作を行うことが典型的です。例えば、あなたの application が`Photo`の model と`Movie`の model を含んでいると想像してみてください。それらの resources を作成したり、読んだり、 update したり、 delete したりすることが users によくあります。
 
-この一般的な使用例のために、" Laravel resource routing "は、典型的な作成、読み取り、" update "、そして" delete "("CRUD")" routes "を" controller "に" single "の" code "ラインで割り当てます。始めるために、`make:controller` " Artisan "コマンドの`--resource`オプションを使用して、これらのアクションを" handle "する" controller "をすばやく作成できます。
+この一般的な使用例のために、 Laravel resource routing は、典型的な作成、読み取り、 update 、そして delete (CRUD) routes を controller に single の code ラインで割り当てます。始めるために、`make:controller` Artisan コマンドの`--resource`オプションを使用して、これらのアクションを handle する controller をすばやく作成できます。
 
 ```shell
 php artisan make:controller PhotoController --resource
@@ -247,7 +247,7 @@ Route::resource('photos', PhotoController::class)
 
 <a name="soft-deleted-models"></a>
 
-#### ソフト削除された Models
+#### ソフトデリートされた Models
 
 通常、暗黙の model バインディングでは、 models が[ソフトデリート](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#soft-deleting)されたものは取得せず、代わりに 404 の HTTP response を返します。ただし、`withTrashed` method を呼び出して、 resource route を定義するときに、フレームワークにソフトデリートされた models を許可するよう指示することができます。
 
@@ -335,7 +335,7 @@ php artisan make:controller PhotoController --api
 
 ### ネストされた Resources
 
-時折、ネストした「" resource "」に「" routes "」を定義する必要があります。例えば、写真「" resource "」には複数の「" comments "」が添付されている場合があります。その「" resource controllers "」をネストさせるには、「" route declaration "」において"dot"表記を使用することができます。
+時折、ネストした resource に routes を定義する必要があります。例えば、写真 resource には複数の comments が添付されている場合があります。その resource controllers をネストさせるには、 route declaration において dot 表記を使用することができます。
 
 ```php
 use App\Http\Controllers\PhotoCommentController;
@@ -359,7 +359,7 @@ Laravel の[暗黙の model バインディング](/ja/php/laravel/v11.x/04-the-
 
 #### 浅いネスティング
 
-よく、親と子の ID を両方とも URI に含める必要は全くない場合があります。なぜなら、子の ID はすでに" unique "な識別子となっているからです。自動インクリメントの" primary keys "のような" unique "な識別子を使用して URI セグメントで" models "を識別する場合、"shallow nesting"を使用することを選択できます。
+よく、親と子の ID を両方とも URI に含める必要は全くない場合があります。なぜなら、子の ID はすでに unique な識別子となっているからです。自動インクリメントの primary keys のような unique な識別子を使用して URI セグメントで models を識別する場合、shallow nesting を使用することを選択できます。
 
 ```php
 use App\Http\Controllers\CommentController;
@@ -482,7 +482,7 @@ Route::resource('photos', PhotoController::class);
 
 ### Singleton Resource Controllers
 
-時々、あなたの application は single インスタンスしか持たない resources を持つことがあります。例えば、user の"profile"は編集や更新ができますが、user は"profile"を複数持つことはできません。同様に、image は"thumbnail"を single だけ持つことができます。これらの resources は"singleton resources"と呼ばれ、resource のインスタンスが一つだけ存在するという意味です。このようなシナリオでは、"singleton"の resource controller を register することができます：
+時々、あなたの application は single インスタンスしか持たない resources を持つことがあります。例えば、user の profile は編集や更新ができますが、user は profile を複数持つことはできません。同様に、image は thumbnail を single だけ持つことができます。これらの resources は singleton resources と呼ばれ、resource のインスタンスが一つだけ存在するという意味です。このようなシナリオでは、singleton の resource controller を register することができます：
 
 ```php
 use App\Http\Controllers\ProfileController;
@@ -491,7 +491,7 @@ use Illuminate\Support\Facades\Route;
 Route::singleton('profile', ProfileController::class);
 ```
 
-上記の singleton resource の定義は、以下の routes を register します。ご覧の通り、"作成"のための routes は singleton resources に対して登録されておらず、また、登録されている routes は、 resource のインスタンスが 1 つだけ存在するため、識別子を受け付けません。
+上記の singleton resource の定義は、以下の routes を register します。ご覧の通り、作成のための routes は singleton resources に対して登録されておらず、また、登録されている routes は、 resource のインスタンスが 1 つだけ存在するため、識別子を受け付けません。
 
 | 動詞      | URI             | Action   | Route 名称     |
 | --------- | --------------- | -------- | -------------- |
