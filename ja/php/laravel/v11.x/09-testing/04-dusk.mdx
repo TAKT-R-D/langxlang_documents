@@ -819,7 +819,7 @@ $browser->select('categories', ['Art', 'Music']);
 
 #### Checkboxes
 
-チェックボックスの「入力」を「チェック」するために、`check`「method」を使用することができます。他の多くの「入力」関連の method と同様に、「CSS」セレクタは「必要」ではありません。もし「CSS」セレクタの「マッチ」が見つからない場合、「Dusk」は一致する`name`「属性」をもつチェックボックスを「検索」します：
+チェックボックスの入力をチェックするために、`check`method を使用することができます。他の多くの入力関連の method と同様に、CSS セレクタは必要ではありません。もし CSS セレクタのマッチが見つからない場合、Dusk は一致する`name`属性をもつチェックボックスを検索します：
 
 ```php
 $browser->check('terms');
@@ -1161,7 +1161,7 @@ $browser->with('.table', function (Browser $table) {
 
 ### Elements を待っています
 
-JavaScript を大量に使用する applications を" testing する際、特定の" elements や" data が利用可能になるまで待つ必要がしばしば生じます。 Dusk を使うと、これが簡単になります。様々な方法を使用して、ページ上で" elements が表示されるまで待つことも、特定の" JavaScript の表現が`true`に評価されるまで待つことも可能です。
+JavaScript を大量に使用する applications を testing する際、特定の elements や data が利用可能になるまで待つ必要がしばしば生じます。 Dusk を使うと、これが簡単になります。様々な方法を使用して、ページ上で elements が表示されるまで待つことも、特定の JavaScript の表現が`true`に評価されるまで待つことも可能です。
 
 <a name="waiting"></a>
 
@@ -1346,7 +1346,7 @@ $browser->clickAndWaitForReload('.selector')
 
 <a name="waiting-on-javascript-expressions"></a>
 
-#### “ JavaScript 式を待つ
+#### JavaScript 式を待つ
 
 時々、指定の JavaScript 式が`true`に評価されるまで test の実行を一時停止したい場合があるかもしれません。`waitUntil` method を使うことでこれを簡単に実現することができます。この method に式を渡す際、`return`key ワードや終了時のセミコロンを含める必要はありません。
 
@@ -2175,7 +2175,7 @@ $browser->assertAuthenticated();
 
 #### assertGuest
 
-'' Assert ''が'' user ''が authentication されていないことを主張します：
+Assert が user が authentication されていないことを Asset します：
 
 ```php
 $browser->assertGuest();
@@ -2352,7 +2352,7 @@ $browser->visit('/dashboard')
 
 ### 短縮セレクタ
 
-ページクラス内の「`elements`」 " method "は、ページ上の任意の " CSS "セレクターに対して素早く、覚えやすいショートカットを定義することができます。例えば、アプリケーションのログインページの"email" " input "フィールドのショートカットを定義しましょう：
+ページクラス内の `elements` method は、ページ上の任意の CSS セレクターに対して素早く、覚えやすいショートカットを定義することができます。例えば、アプリケーションのログインページの email input フィールドのショートカットを定義しましょう：
 
 ```php
 /**
@@ -2450,7 +2450,7 @@ component を生成するには、`dusk:component`の Artisan command を実行�
 php artisan dusk:component DatePicker
 ```
 
-上記で示したように、「date picker」は、様々なページであなたの「 application 」に存在するかもしれない「 component 」の一例です。テストスイート全体で何十ものテストで日付を「 select 」するブラウザ自動化ロジックを手作業で書くことは煩雑になることがあります。代わりに、日付選択を表す「 Dusk component 」を定義することができ、そのロジックを「 component 」内にカプセル化することができます。
+上記で示したように、date picker は、様々なページであなたの application に存在するかもしれない component の一例です。テストスイート全体で何十ものテストで日付を select するブラウザ自動化ロジックを手作業で書くことは煩雑になることがあります。代わりに、日付選択を表す Dusk component を定義することができ、そのロジックを component 内にカプセル化することができます。
 
 ```php
 <?php

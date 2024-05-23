@@ -248,7 +248,7 @@ Todo::search('Groceries')->options([
 
 ### Model インデックスの設定
 
-それぞれの " Eloquent model " は指定された " search " "index" と同期されており、これにはその " model " の検索可能なすべてのレコードが含まれています。つまり、各インデックスを " MySQL " のテーブルのように考えることができます。 " default " では、各 " model " はモデルの典型的な "table" 名に一致するインデックスに保持されます。通常、これは " model " の名前の複数形ですが、 `searchableAs` " method " を " model " で上書きすることで、モデルのインデックスをカスタマイズすることが自由にできます。
+それぞれの Eloquent model は指定された search index と同期されており、これにはその model の検索可能なすべてのレコードが含まれています。つまり、各インデックスを MySQL のテーブルのように考えることができます。 default では、各 model はモデルの典型的な table 名に一致するインデックスに保持されます。通常、これは model の名前の複数形ですが、 `searchableAs` method を model で上書きすることで、モデルのインデックスをカスタマイズすることが自由にできます。
 
 ```php
 <?php
@@ -463,7 +463,7 @@ SCOUT_DRIVER=database
 
 #### Database 検索戦略のカスタマイズ
 
-default"では、"database"エンジンは、[検索可能に設定した](#configuring-searchable-data)全ての"model 属性"に対して"where like" "query"を実行します。しかし、場合によっては、これがパフォーマンスの低下につながることがあります。従って、"database"エンジンの"検索"戦略は、一部の指定された列がフルテキスト"検索"query を利用したり、"where like"制約を使用して string の接頭辞(`example%`)のみを"検索"したりするように設定できます。これは、"string"全体を検索する(`%example%`)のではなく、接頭辞のみを検索することを意味します。
+default では、database エンジンは、[検索可能に設定した](#configuring-searchable-data)全ての model 属性に対して where like query を実行します。しかし、場合によっては、これがパフォーマンスの低下につながることがあります。従って、database エンジンの検索戦略は、一部の指定された列がフルテキスト検索 query を利用したり、where like 制約を使用して string の接頭辞(`example%`)のみを検索したりするように設定できます。これは、string 全体を検索する(`%example%`)のではなく、接頭辞のみを検索することを意味します。
 
 この動作を定義するには、モデルの `toSearchableArray` method に PHP の attributes を割り当てることができます。追加の search 戦略行動が割り当てられていない任意の列は、 default の"where like"戦略を続けて使用します：
 
@@ -496,7 +496,7 @@ public function toSearchableArray(): array
 
 ### Collection エンジン
 
-ローカル開発中に Algolia、 Meilisearch 、または Typesense の search エンジンを自由に使用しても構いませんが、" query "エンジンを始める方が便利かもしれません。" collection "エンジンでは、"where"節と collection フィルタリングを使用して、既存の database からの結果を元に該当する search 結果を判断します。このエンジンを使用するとき、検索可能な models を"index"する必要はありません。なぜなら、それらは単にローカルの database から retrieved されるだけだからです。"
+ローカル開発中に Algolia、 Meilisearch 、または Typesense の search エンジンを自由に使用しても構いませんが、 query エンジンを始める方が便利かもしれません。 collection エンジンでは、where 節と collection フィルタリングを使用して、既存の database からの結果を元に該当する search 結果を判断します。このエンジンを使用するとき、検索可能な models を index する必要はありません。なぜなら、それらは単にローカルの database から retrieved されるだけだからです。
 
 collection エンジンを使用するには、`SCOUT_DRIVER` environment 変数の value を `collection` に設定するか、アプリケーションの `scout` 設定ファイルで `collection` driver を直接指定します。
 
@@ -594,7 +594,7 @@ $orders->searchable();
 ```
 
 > [!NOTE]  
-> `searchable` method は、「upsert」操作と見なすことができます。つまり、もし model のレコードがすでにインデックスに存在する場合、それは更新されます。もし search のインデックスに存在しない場合、それはインデックスに追加されます。
+> `searchable` method は、upsert 操作と見なすことができます。つまり、もし model のレコードがすでにインデックスに存在する場合、それは更新されます。もし search のインデックスに存在しない場合、それはインデックスに追加されます。
 
 <a name="updating-records"></a>
 
@@ -698,7 +698,7 @@ Order::withoutSyncingToSearch(function () {
 
 ### 条件付き検索可能な Model インスタンス
 
-時々、特定の条件下でのみ「model」を検索可能にしたいことがあります。たとえば、`App\Models\Post`「model」が「下書き」もしくは「公開済み」の二つの状態であることを想像してみてください。"公開済み"の「投稿」のみを検索可能にしたい場合があります。この場合、「`shouldBeSearchable`」「method」をあなたの「model」で定義することでこれを実現できます。
+時々、特定の条件下でのみ model を検索可能にしたいことがあります。たとえば、`App\Models\Post`model が下書きもしくは公開済みの二つの状態であることを想像してみてください。"公開済み"の投稿のみを検索可能にしたい場合があります。この場合、`shouldBeSearchable`method をあなたの model で定義することでこれを実現できます。
 
 ```php
 /**
@@ -713,7 +713,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` method は、`save`や`create`メソッド、query、またはリレーションシップを通じて models を操作する場合にのみ適用されます。`searchable` method を使用して直接 models や collections を検索可能にすると、`shouldBeSearchable` method の結果が上書きされます。
 
 > [!WARNING]  
-> `shouldBeSearchable` method は、Scout の"データベース"エンジンを使用する際には適用できません。なぜなら、すべての検索可能な data は常に database に保存されているからです。同様の振る舞いを"データベース"エンジンを使用して達成するためには、代わりに[where 節](#where-clauses)を使用すべきです。
+> `shouldBeSearchable` method は、Scout の Database エンジンを使用する際には適用できません。なぜなら、すべての検索可能な data は常に database に保存されているからです。同様の振る舞いを Database エンジンを使用して達成するためには、代わりに[where 節](#where-clauses)を使用すべきです。
 
 <a name="searching"></a>
 
@@ -784,7 +784,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 )->get();
 ```
 
-「 search インデックスはリレーショナル database ではないため、現在「where」句のような高度な機能はサポートされていません。」
+search インデックスはリレーショナル database ではないため、現在 where 句のような高度な機能はサポートされていません。
 
 > [!WARNING]  
 > あなたの application が Meilisearch を使用している場合、Scout の"where"節を利用する前に、アプリケーションの[フィルタリング可能な attributes](#configuring-filterable-data-for-meilisearch)を設定する必要があります。

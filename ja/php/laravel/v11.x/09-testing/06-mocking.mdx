@@ -22,7 +22,7 @@ org_title: "Mocking"
 
 ## Introduction
 
-Laravel application を「testing」する際には、特定の application の側面を「モック」にしたいと思うかもしれません。これにより、一部の testing では実際には実行されません。例えば、「event」を dispatches する「コントローラ」を「testing」する場合、testing 中に実際には実行されない「event listeners」をモックにしたいかもしれません。これにより、「event listeners」の実行を気にすることなく、コントローラの「HTTP response」のみを testing することができます。なぜなら、「event listeners」はそれ自体の testing ケースで testing することができるからです。
+Laravel application を testing する際には、特定の application の側面をモックにしたいと思うかもしれません。これにより、一部の testing では実際には実行されません。例えば、event を dispatches するコントローラを testing する場合、testing 中に実際には実行されない event listeners をモックにしたいかもしれません。これにより、event listeners の実行を気にすることなく、コントローラの HTTP response のみを testing することができます。なぜなら、event listeners はそれ自体の testing ケースで testing することができるからです。
 
 Laravel は、ボックスから events 、 jobs 、および他の facades をモックするための便利なメソッドを提供します。これらの helpers は主に、手動で複雑な Mockery の method 呼び出しを行う必要がないように、Mockery の上に便利なレイヤーを提供します。
 

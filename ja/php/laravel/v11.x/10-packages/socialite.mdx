@@ -53,7 +53,7 @@ Socialite の新しいメジャーバージョンにアップグレードする�
 
 ## Configuration
 
-Socialite"を使用する前に、application が利用する OAuth プロバイダの資格情報を追加する必要があります。通常、これらの資格情報は、authentication を行う service のダッシュボード内で"developer application"を作成することにより、取得することができます。
+Socialite を使用する前に、application が利用する OAuth プロバイダの資格情報を追加する必要があります。通常、これらの資格情報は、authentication を行う service のダッシュボード内で"developer application"を作成することにより、取得することができます。
 
 これらの認証情報は、あなたのアプリケーションの `config/services.php` 設定ファイルに配置し、キーとして `facebook`、`twitter` (OAuth 1.0)、`twitter-oauth-2` (OAuth 2.0)、`linkedin-openid`、`google`、`github`、`gitlab`、`bitbucket`、`slack`、または `slack-openid` を使用するべきです。これは、あなたの application が必要とする providers によります。
 
@@ -130,7 +130,7 @@ Route::get('/auth/callback', function () {
 
 ### アクセススコープ
 
-user をリダイレクトする前に、`scopes` method を使用して authentication request に含める "scopes" を指定できます。この method は、以前に指定したすべてのスコープを、指定したスコープと merge します。
+user をリダイレクトする前に、`scopes` method を使用して authentication request に含める scopes を指定できます。この method は、以前に指定したすべてのスコープを、指定したスコープと merge します。
 
 ```php
 use Laravel\Socialite\Facades\Socialite;

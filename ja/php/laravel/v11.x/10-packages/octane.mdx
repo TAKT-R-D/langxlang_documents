@@ -606,7 +606,7 @@ use Laravel\Octane\Facades\Octane;
 ]);
 ```
 
-Octane "によって処理される並行タスクは、Swoole の"task workers"を利用し、入力された" request "とは全く異なる" process "内で実行されます。並行タスクを" process "するためのワーカーの数は、`octane:start` " command "の`--task-workers` ディレクティブによって決定されます：
+Octane によって処理される並行タスクは、Swoole の task workers を利用し、入力された request とは全く異なる process 内で実行されます。並行タスクを process するためのワーカーの数は、`octane:start` command の`--task-workers` ディレクティブによって決定されます：
 
 ```shell
 php artisan octane:start --workers=4 --task-workers=6

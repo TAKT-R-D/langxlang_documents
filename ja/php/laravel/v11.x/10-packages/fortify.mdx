@@ -133,7 +133,7 @@ default で、Fortify は log イン画面や登録画面など、view を返す
 
 #### Views と Password Reset の無効化
 
-Fortify の views を無効にすることを選択し、application に password reset 機能を実装する場合でも、アプリケーションの「password reset」の view を表示する責任を持つ`password.reset`という名前の route を定義すべきです。これは必要なことであり、なぜなら Laravel の`Illuminate\Auth\Notifications\ResetPassword` 通知が、`password.reset`という名前の route を経由して password resetURL を生成するからです。
+Fortify の views を無効にすることを選択し、application に password reset 機能を実装する場合でも、アプリケーションの password reset の view を表示する責任を持つ`password.reset`という名前の route を定義すべきです。これは必要なことであり、なぜなら Laravel の`Illuminate\Auth\Notifications\ResetPassword` 通知が、`password.reset`という名前の route を経由して password resetURL を生成するからです。
 
 <a name="authentication"></a>
 
@@ -320,7 +320,7 @@ $request->user()->twoFactorQrCodeSvg();
 
 #### 二要素 Authentication の確認
 
-user の二段階 authentication の「authentication」QR「code」を表示するだけでなく、テキスト「input」フィールドを提供して、user が有効な「authentication code」を提供し、二段階「authentication」設定を"確認"できるようにする必要があります。この「code」は、「Laravel application」に、 「Fortify」が定義した`/user/confirmed-two-factor-authentication`エンドポイントへの POST「request」で提供する必要があります。
+user の二段階 authentication の authenticationQRcode を表示するだけでなく、テキスト input フィールドを提供して、user が有効な authentication code を提供し、二段階 authentication 設定を"確認"できるようにする必要があります。この code は、Laravel application に、 Fortify が定義した`/user/confirmed-two-factor-authentication`エンドポイントへの POSTrequest で提供する必要があります。
 
 もし request が成功した場合、 user は前の URL に redirect され、`status` session variable は `two-factor-authentication-confirmed`に設定されます。
 
@@ -420,7 +420,7 @@ request が成功しなかった場合、user は登録画面に redirect され
 
 ### 登録のカスタマイズ
 
-userauthentication や process のカスタマイズは、`App\Actions\Fortify\CreateNewUser` user validation の修正によって可能になります。この action は、 Laravel Fortify をインストールした際に生成されました。
+user authentication や process のカスタマイズは、`App\Actions\Fortify\CreateNewUser` user validation の修正によって可能になります。この action は、 Laravel Fortify をインストールした際に生成されました。
 
 <a name="password-reset"></a>
 
@@ -430,7 +430,7 @@ userauthentication や process のカスタマイズは、`App\Actions\Fortify\C
 
 ### Password Reset リンクのリクエスト
 
-私たちのアプリケーションの「" password reset "」機能を実装し始めるためには、「" Fortify "」にどのように「"forgot password"」の「" view "」を返すよう指示する必要があります。なお、「" Fortify "」はヘッドレスの「" authentication library "」です。 Laravel のすでに完成している「" authentication features "」のフロントエンド実装が欲しい場合は、[「" application "」スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用するべきです。
+私たちのアプリケーションの password reset 機能を実装し始めるためには、 Fortify にどのように forgot password の view を返すよう指示する必要があります。なお、 Fortify はヘッドレスの authentication library です。 Laravel のすでに完成している authentication features のフロントエンド実装が欲しい場合は、[ application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用するべきです。
 
 すべての Fortify の view rendering ロジックは、`Laravel\Fortify\Fortify` class 経由で利用可能な適切なメソッドを使用してカスタマイズできます。通常、この method は、application の `App\Providers\FortifyServiceProvider` class の `boot` method から呼び出すべきです：
 
@@ -452,7 +452,7 @@ public function boot(): void
 
 Fortify は、この view を返す`/forgot-password`エンドポイントの定義を行います。あなたの`forgot-password`テンプレートには、`/forgot-password`エンドポイントへの POST request を作成するフォームを含めるべきです。
 
-`/forgot-password`エンドポイントは、`email`フィールドに対して''string''を期待しています。このフィールド/''databasecolumn''の名前は、application の`fortify`設定ファイル内の`email`設定の''value''と''一致''するべきです。
+`/forgot-password`エンドポイントは、`email`フィールドに対して string を期待しています。このフィールド/databasecolumn の名前は、application の`fortify`設定ファイル内の`email`設定の value と一致するべきです。
 
 <a name="handling-the-password-reset-link-request-response"></a>
 
@@ -480,7 +480,7 @@ password resetlink の request が成功した場合、Fortify は user を`/for
 
 私たちのアプリケーションの password reset 機能の実装を完了するには、"reset password"の view を返す方法を Fortify に指示する必要があります。
 
-Fortify の全ての'' view ''レンダリングロジックは、`Laravel\Fortify\Fortify` '' class ''を通じて利用可能な適切なメソッドを使用してカスタマイズできます。通常、アプリケーションの`App\Providers\FortifyServiceProvider` '' class ''の`boot` '' method ''からこの'' method ''を呼び出すべきです:
+Fortify の全ての view レンダリングロジックは、`Laravel\Fortify\Fortify` class を通じて利用可能な適切なメソッドを使用してカスタマイズできます。通常、アプリケーションの`App\Providers\FortifyServiceProvider` class の`boot` method からこの method を呼び出すべきです:
 
 ```php
 use Laravel\Fortify\Fortify;
@@ -507,7 +507,7 @@ Fortify はこの view を表示するための route の定義を行います�
 
 #### Password Reset Response の処理
 
-password reset の request が成功した場合、Fortify は redirect して`/login`route に戻り、user が新しい password で log インできるようになります。また、log イン画面で reset の成功した status を表示できるように、`status`sessionvariable が設定されます。
+password reset の request が成功した場合、Fortify は redirect して`/login`route に戻り、user が新しい password で log インできるようになります。また、log イン画面で reset の成功した status を表示できるように、`status`session variable が設定されます。
 
 ```blade
 @if (session('status'))
@@ -591,7 +591,7 @@ Route::get('/dashboard', function () {
 
 application を構築している間、時折、その action が実行される前に、 user が自身の password を確認する必要があるアクションが存在するかもしれません。通常、これらの routes は Laravel の組み込み `password.confirm` middleware によって保護されています。
 
-password"確認機能を実装するにはまず、"Fortify"に application の"password confirmation" "view"をどのように返すべきなのかを指示する必要があります。"Fortify"は"authentication library"であり、フロントエンドの実装は含まれていません。すでに完成している Laravel の"authentication features"のフロントエンド実装が必要な場合は、["application" starter kit](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用するとよいでしょう。
+password 確認機能を実装するにはまず、Fortify に application の password confirmation view をどのように返すべきなのかを指示する必要があります。Fortify は authentication library であり、フロントエンドの実装は含まれていません。すでに完成している Laravel の authentication features のフロントエンド実装が必要な場合は、[application starter kit](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用するとよいでしょう。
 
 Fortify の全ての view レンダリングロジックは、`Laravel\Fortify\Fortify` class 経由で利用可能な適切なメソッドを使用してカスタマイズすることができます。通常、この method をアプリケーションの`App\Providers\FortifyServiceProvider` class の`boot` method から呼び出すべきです。
 

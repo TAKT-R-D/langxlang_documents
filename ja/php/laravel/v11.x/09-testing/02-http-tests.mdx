@@ -368,7 +368,7 @@ class ExampleTest extends TestCase
 
 ### 例外処理
 
-時々、あなたの" application "が特定の例外をスローしているかどうかをテストする必要があるかもしれません。これを達成するために、`Exceptions` " facade "を使って例外" handler "を"偽造"することができます。一度例外" handler "が偽造されてしまうと、`assertReported`や`assertNotReported`メソッドを使って、" request "の間にスローされた" exceptions "に対してアサーションを行うことができます。
+時々、あなたの application が特定の例外をスローしているかどうかをテストする必要があるかもしれません。これを達成するために、`Exceptions` facade を使って例外 handler を偽造することができます。一度例外 handler が偽造されてしまうと、`assertReported`や`assertNotReported`メソッドを使って、 request の間にスローされた exceptions に対してアサーションを行うことができます。
 
 ```php tab=Pest
 <?php
@@ -506,7 +506,8 @@ expect($response['created'])->toBeTrue();
 $this->assertTrue($response['created']);
 ```
 
-> [!NOTE] > `assertJson`の method は、 response を array に変換し、`PHPUnit::assertArraySubset`を利用して、指定された array が application が返す JSON response 内に存在することを確認します。そのため、 JSON response に他のプロパティがあっても、指定された fragment が存在していれば、このテストはパスします。
+> [!NOTE]
+> `assertJson`の method は、 response を array に変換し、`PHPUnit::assertArraySubset`を利用して、指定された array が application が返す JSON response 内に存在することを確認します。そのため、 JSON response に他のプロパティがあっても、指定された fragment が存在していれば、このテストはパスします。
 
 <a name="verifying-exact-match"></a>
 
@@ -558,7 +559,7 @@ class ExampleTest extends TestCase
 
 #### JSON パスについて主張する
 
-もし、指定した path で与えられた data が JSONresponse に含まれることを確認したい場合は、`assertJsonPath` method を使用するべきです：
+もし、指定した path で与えられた data が JSON response に含まれることを確認したい場合は、`assertJsonPath` method を使用するべきです：
 
 ```php tab=Pest
 <?php
@@ -605,7 +606,7 @@ $response->assertJsonPath('team.owner.name', fn (string $name) => strlen($name) 
 
 ### 流暢な JSON Testing
 
-Laravel は、application の JSON レスポンスを流暢に test する美しい方法も提供しています。始めるには、クロージャーを`assertJson` method に渡します。このクロージャーは`Illuminate\Testing\Fluent\AssertableJson`のインスタンスで呼び出され、このインスタンスは、application によって返された JSON に対してアサーションを行うために使用することができます。`where` method は、JSON の特定の属性に対してアサーションを行うために使用することができます。一方、`missing` method は、特定の属性が JSON から欠落していることを assert(主張)するために使用することができます：
+Laravel は、application の JSON レスポンスを流暢に test する美しい方法も提供しています。始めるには、クロージャーを`assertJson` method に渡します。このクロージャーは`Illuminate\Testing\Fluent\AssertableJson`のインスタンスで呼び出され、このインスタンスは、application によって返された JSON に対してアサーションを行うために使用することができます。`where` method は、JSON の特定の属性に対してアサーションを行うために使用することができます。一方、`missing` method は、特定の属性が JSON から欠落していることを assert するために使用することができます：
 
 ```php tab=Pest
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -1013,7 +1014,7 @@ $response->assertCookie($cookieName, $value = null);
 
 #### assertCookieExpired
 
-指定した'' cookie ''が'' response ''に含まれ、それが期限切れであることを'' Assert ''します：
+指定した cookie が response に含まれ、それが期限切れであることを Assert します：
 
 ```php
 $response->assertCookieExpired($cookieName);
@@ -1073,7 +1074,7 @@ $response->assertDontSeeText($value, $escaped = true);
 
 #### assertDownload
 
-response が"ダウンロード"であることを"Assert"します。通常、これは呼び出された"route"が"`Response::download` ""response""、`BinaryFileResponse`、または`Storage::download` ""response""を返したことを意味します。
+response がダウンロードであることを Assert します。通常、これは呼び出された route が`Response::download` response、`BinaryFileResponse`、または`Storage::download` response を返したことを意味します。
 
 ```php
 $response->assertDownload();
@@ -1149,7 +1150,7 @@ $response->assertHeaderMissing($headerName);
 
 #### assertInternalServerError
 
-「Assert」が「response」に"Internal Server Error"(500)「HTTP status コード」を持っていることを主張します：
+Assert が response に Internal Server Error(500) HTTP status コードを持っていることを主張します：
 
 ```php
 $response->assertInternalServerError();
@@ -1221,7 +1222,7 @@ $response->assertJsonIsObject();
 
 #### assertJsonMissing
 
-与えられた'' JSON data ''を含まないことを'' response ''が'' Assert ''していることを主張します：
+与えられた JSON data を含まないことを response が Assert していることを主張します：
 
 ```php
 $response->assertJsonMissing(array $data);
@@ -1432,7 +1433,7 @@ $response->assertContent($value);
 
 #### assertNoContent
 
-'' Assert '' は、 '' response '' が指定された '' HTTP status code '' を持ち、'' content '' がないことを主張します:
+Assert は、 response が指定された HTTP status code を持ち、 content がないことを主張します:
 
 ```php
 $response->assertNoContent($status = 204);
@@ -1602,7 +1603,7 @@ $response->assertServiceUnavailable();
 
 #### assertSessionHas
 
-'' Assert '' が '' session '' に与えられた '' data '' の一部を含んでいることを主張します:
+Assert が session に与えられた data の一部を含んでいることを主張します:
 
 ```php
 $response->assertSessionHas($key, $value = null);
@@ -1741,7 +1742,7 @@ $response->assertStatus($code);
 
 #### assertSuccessful
 
-'' Assert '' が '' response '' が成功(>= 200 且つ < 300)の'' HTTP status code ''を持つことを主張します：
+Assert が response が成功(>= 200 且つ < 300)の HTTP status code を持つことを主張します：
 
 ```php
 $response->assertSuccessful();
@@ -1761,7 +1762,7 @@ $response->assertTooManyRequests();
 
 #### assertUnauthorized
 
-''response''が未批准(401)の''HTTP status コード''であると''Assert''します：
+response が Unauthorized(401)の HTTP status コードであると Assert します：
 
 ```php
 $response->assertUnauthorized();
@@ -1824,7 +1825,7 @@ $response->assertInvalid([
 
 #### assertViewHas
 
-'' Assert ''は、'' response view ''が特定の'' data ''を含むことを主張します：
+Assert は、 response view が特定の data を含むことを主張します：
 
 ```php
 $response->assertViewHas($key, $value = null);

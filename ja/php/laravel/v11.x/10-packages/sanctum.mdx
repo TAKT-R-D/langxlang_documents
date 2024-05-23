@@ -161,7 +161,7 @@ foreach ($user->tokens as $token) {
 
 ### Token の能力
 
-Sanctum は、"abilities"を tokens に割り当てることができます。Abilities は OAuth の"scopes"と同様の目的を果たします。"abilities"の stringarray を、`createToken`の二番目の引数として渡すことができます：
+Sanctum は、abilities を tokens に割り当てることができます。Abilities は OAuth の scopes と同様の目的を果たします。abilities の stringarray を、`createToken`の二番目の引数として渡すことができます：
 
 ```php
 return $user->createToken('token-name', ['server:update'])->plainTextToken;
@@ -356,7 +356,7 @@ axios.defaults.withXSRFToken = true;
 
 #### CSRF Protection
 
-あなたの SPA を認証するには、まず SPA の "login" ページが `/sanctum/csrf-cookie` エンドポイントに " request " を行い、 " application " の " CSRF protection " を初期化する必要があります。
+あなたの SPA を認証するには、まず SPA の login ページが `/sanctum/csrf-cookie` エンドポイントに request を行い、 application の CSRF protection を初期化する必要があります。
 
 ```js
 axios.get("/sanctum/csrf-cookie").then((response) => {
@@ -449,7 +449,7 @@ window.Echo = new Echo({
 
 ### API Tokens の発行
 
-はじめに、ユーザーの" email " / " username "、" password "、デバイス名を受け付け、それらの資格情報を新しい" Sanctum token "と交換する" route "を作成します。このエンドポイントに与えられた"device name"は情報提供目的であり、あなたが望む任意の" value "で構いません。一般的に、デバイス名の" value "は、"Nuno's iPhone 12"のように" user "が認識できる名前であるべきです。
+はじめに、ユーザーの email / username 、 password 、デバイス名を受け付け、それらの資格情報を新しい Sanctum token と交換する route を作成します。このエンドポイントに与えられた device name は情報提供目的であり、あなたが望む任意の value で構いません。一般的に、デバイス名の value は、Nuno's iPhone 12 のように user が認識できる名前であるべきです。
 
 通常、モバイルアプリケーションの"login"画面から token エンドポイントに request を行います。エンドポイントは平文の API token を返し、それをモバイルデバイスに保存して追加の API リクエストを行うために使用できます。
 
@@ -499,7 +499,7 @@ Route::get('/user', function (Request $request) {
 
 ### Revoking Tokens
 
-`Laravel\Sanctum\HasApiTokens` トレイトによって提供される `tokens` 関係を通じて users の API tokens にアクセスできることを覚えておいてください。"users"が"Revoke" button をクリックしたら、"database"から"token"を"削除"できます。"アカウント設定"の部分に"Revoke"ボタンを名前とともにリスト化し、モバイルデバイスに発行された"APItoken"を"users"が取り消すことができるようにすることができます。webapplication の UI。
+`Laravel\Sanctum\HasApiTokens` トレイトによって提供される `tokens` 関係を通じて users の API tokens にアクセスできることを覚えておいてください。users が Revoke button をクリックしたら、database から token を削除できます。アカウント設定の部分に Revoke ボタンを名前とともにリスト化し、モバイルデバイスに発行された APItoken を users が取り消すことができるようにすることができます。webapplication の UI。
 
 ```php
 // Revoke all tokens...

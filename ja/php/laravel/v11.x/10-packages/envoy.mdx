@@ -313,7 +313,7 @@ php vendor/bin/envoy run deploy
 
 ### Slack
 
-Envoy は、タスクが実行されるたびに、[Slack](https://slack.com)に「通知」を送信することをサポートしています。`@slack`ディレクティブは、「Slack hook URL」と「channel」/「user」名を受け付けます。「webhook URL」は、「受信 WebHooks」の統合を作成することで「Slack」コントロールパネルから取得できます。
+Envoy は、タスクが実行されるたびに、[Slack](https://slack.com)に通知を送信することをサポートしています。`@slack`ディレクティブは、Slack hook URL と channel/user 名を受け付けます。webhook URL は、受信 WebHooks の統合を作成することで Slack コントロールパネルから取得できます。
 
 `@slack`ディレクティブに与えられる最初の引数として、 webhook URL 全体を渡すべきです。`@slack`ディレクティブに与えられる 2 つ目の引数は、 channel の名前(`#channel`)または user の名前(`@user`)であるべきです。
 
@@ -335,7 +335,7 @@ default として、Envoy 通知は実行されたタスクを説明するメッ
 
 ### Discord
 
-Envoy は、各タスクが実行された後に、[Discord](https://discord.com)に「「通知」」を送信することもサポートしています。`@discord`ディレクティブは、Discord の「「フック URL」」とメッセージを受け入れます。Server 設定で「webhook」を作成し、「「web フック」」が投稿する「「channel」」を選択することで、あなたの「「web フック URL」」を取得することができます。`@discord`ディレクティブには、全体の「「web フック URL」」を渡す必要があります。
+Envoy は、各タスクが実行された後に、[Discord](https://discord.com)に通知を送信することもサポートしています。`@discord`ディレクティブは、Discord のフック URL とメッセージを受け入れます。Server 設定で webhook を作成し、web フックが投稿する channel を選択することで、あなたの web フック URL を取得することができます。`@discord`ディレクティブには、全体の web フック URL を渡す必要があります。
 
 ```blade
 @finished
@@ -357,7 +357,7 @@ Envoy はまた、各タスクが実行された後に[Telegram](https://telegra
 
 <a name="microsoft-teams"></a>
 
-### マイクロソフト チームズ
+### Microsoft Teams
 
 Envoy は、各タスクが実行されるたびに、[Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams)に通知を送信することもサポートしています。 `@microsoftTeams` ディレクティブは、Teams の webhook(必須)、メッセージ、テーマカラー(成功、 info、警告、 error)、そして options の array を受け入れます。Teams の webhook は、新しく[webhook を受け取る](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)ことで取得できます。Teams の API には、タイトル、概要、セクションなどのメッセージボックスをカスタマイズするための他の多くの属性があります。詳細は[Microsoft Teams のドキュメンテーション](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message)で確認できます。全体の Webhook URL を `@microsoftTeams` ディレクティブに渡す必要があります。
 

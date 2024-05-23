@@ -119,7 +119,7 @@ Parallels の provider を使用するには、[Parallels Vagrant プラグイ�
 
 #### Homestead のインストール
 
-ホストマシンに"Homestead"リポジトリをクローニングして"Homestead"をインストールすることができます。"home"ディレクトリ内の`Homestead`フォルダにリポジトリをクローンすることをお勧めします。なぜなら、"Homestead"仮想マシンはすべての"Laravel"application のホストとして機能するからです。このドキュメンテーション全体で、このディレクトリを "Homestead ディレクトリ"と呼ぶことにします。
+ホストマシンに Homestead リポジトリをクローニングして Homestead をインストールすることができます。home ディレクトリ内の`Homestead`フォルダにリポジトリをクローンすることをお勧めします。なぜなら、Homestead 仮想マシンはすべての Laravelapplication のホストとして機能するからです。このドキュメンテーション全体で、このディレクトリを Homestead ディレクトリと呼ぶことにします。
 
 ```shell
 git clone https://github.com/laravel/homestead.git ~/Homestead
@@ -216,7 +216,7 @@ folders:
 
 ### Nginx サイトの設定
 
-Nginx に詳しくないですか？問題ありません。あなたの`Homestead.yaml`ファイルの`sites`プロパティは、「domain」をあなたの「 Homestead environment 」のフォルダに簡単にマッピングすることができます。サンプルのサイト設定は、`Homestead.yaml`ファイルに含まれています。また、必要なだけあなたの「 Homestead environment 」にサイトを追加することができます。「 Homestead 」は、作業中の「 Laravel application 」の便利な仮想化「 environment 」を提供できます:
+Nginx に詳しくないですか？問題ありません。あなたの`Homestead.yaml`ファイルの`sites`プロパティは、domain をあなたの Homestead environment のフォルダに簡単にマッピングすることができます。サンプルのサイト設定は、`Homestead.yaml`ファイルに含まれています。また、必要なだけあなたの Homestead environment にサイトを追加することができます。 Homestead は、作業中の Laravel application の便利な仮想化 environment を提供できます:
 
 ```yaml
 sites:
@@ -674,7 +674,7 @@ AWS_SECRET_ACCESS_KEY=secretkey
 AWS_DEFAULT_REGION=us-east-1
 ```
 
-S3"バケットを Minio でプロビジョニングするために、`Homestead.yaml`ファイルに`buckets`ディレクティブを追加してください。バケットを定義した後、ターミナルで`vagrant reload --provision` " command "を実行する必要があります。
+S3 バケットを Minio でプロビジョニングするために、`Homestead.yaml`ファイルに`buckets`ディレクティブを追加してください。バケットを定義した後、ターミナルで`vagrant reload --provision` command を実行する必要があります。
 
 ```yaml
 buckets:

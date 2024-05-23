@@ -192,13 +192,13 @@ CASHIER_CURRENCY_LOCALE=nl_BE
 ```
 
 > [!WARNING]  
-> In order to use locales other than `en`, ensure the `ext-intl` PHP extension is installed and configured on your server.
+> `en`以外のロケールを使用するためには、サーバー上に`ext-intl` PHP 拡張がインストールされ、設定されていることを確認してください。
 
 <a name="overriding-default-models"></a>
 
 ### Default Models のオーバーライド
 
-You are free to extend the models used internally by Cashier by defining your own model and extending the corresponding Cashier model:
+あなたは自分の model を定義し、対応する Cashier model を拡張することで、 Cashier が内部的に使用する models を自由に拡張することができます。
 
 ```php
 use Laravel\Paddle\Subscription as CashierSubscription;
@@ -290,7 +290,7 @@ Route::get('/cart/{cart}/checkout', function (Request $request, Cart $cart) {
 })->name('checkout');
 ```
 
-上記の例で見ることができるように、" user "が" checkout process "を開始すると、私たちはカート/注文に関連するすべての Paddle " price "識別子を`checkout` " method "に提供します。もちろん、これらのアイテムを"shopping cart"または顧客が追加する注文に関連付けるのは、あなたの" application "の責任です。また、注文の ID を Paddle " Checkout " オーバーレイに`customData` " method "経由で提供します。
+上記の例で見ることができるように、 user が checkout process を開始すると、私たちはカート/注文に関連するすべての Paddle price 識別子を`checkout` method に提供します。もちろん、これらのアイテムを shopping cart または顧客が追加する注文に関連付けるのは、あなたの application の責任です。また、注文の ID を Paddle Checkout オーバーレイに`customData` method 経由で提供します。
 
 もちろん、顧客が checkout process を完了したら、注文を"完了"とマークしたくなるでしょう。これを達成するために、Paddle によって発行され、 Cashier によって events として引き上げられる webhooks を聞くかもしれません。これにより、注文情報を database に保存することができます。
 
@@ -348,7 +348,7 @@ class CompleteOrder
 
 Cashier と Paddle の Checkout オーバーレイを使用して subscriptions を販売する方法を学ぶために、基本的な月間(`price_basic_monthly`)プランと年間(`price_basic_yearly`)プランを提供する subscription service のシンプルなシナリオを考えてみましょう。これら 2 つの価格は、Paddle ダッシュボードの"Basic"商品(`pro_basic`)の下にグループ化することができます。さらに、私たちの subscription service は、Expert プランも`pro_expert`として提供するかもしれません。
 
-まず、お客様が我々の "services" に "subscribe" する方法を見つけてみましょう。もちろん、お客様が application の料金ページで Basic プランの "subscribe" "button" をクリックする可能性があることを想像することができます。この "button" は、選択したプランのための Paddle "Checkout" オーバーレイを呼び出します。始めるためには、 `checkout` "method" により "checkout session" を開始しましょう：
+まず、お客様が我々の services に subscribe する方法を見つけてみましょう。もちろん、お客様が application の料金ページで Basic プランの subscribe button をクリックする可能性があることを想像することができます。この button は、選択したプランのための Paddle Checkout オーバーレイを呼び出します。始めるためには、 `checkout` method により checkout session を開始しましょう：
 
 ```php
 use Illuminate\Http\Request;
@@ -371,7 +371,7 @@ Route::get('/subscribe', function (Request $request) {
 
 これで、 Subscribe button がクリックされたとき、顧客は自分の支払い詳細を入力し、 subscription を開始できます。彼らの subscription が実際にいつ開始されたか(一部の支払い方法では process に数秒かかることがあるため)を知るためには、[Cashier の webhook 処理を設定](#handling-paddle-webhooks)するべきです。
 
-Now that customers can start subscriptions, we need to restrict certain portions of our application so that only subscribed users can access them. Of course, we can always determine a user's current subscription status via the `subscribed` method provided by Cashier's `Billable` trait:
+お客様が subscriptions を開始できるようになったため、 subscribed users だけがアクセスできるように、 application の一部を制限する必要があります。もちろん、Cashier の `Billable` trait が提供する method `subscribed` を使って、ユーザーの現在の subscription status を常に確認することができます：
 
 ```blade
 @if ($user->subscribed())
@@ -379,7 +379,7 @@ Now that customers can start subscriptions, we need to restrict certain portions
 @endif
 ```
 
-We can even easily determine if a user is subscribed to specific product or price:
+特定の製品や価格に user が加入しているかどうかも簡単に判断することができます：
 
 ```blade
 @if ($user->subscribedToProduct('pro_basic'))
@@ -395,7 +395,7 @@ We can even easily determine if a user is subscribed to specific product or pric
 
 #### Building a Subscribed Middleware
 
-For convenience, you may wish to create a [middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware) which determines if the incoming request is from a subscribed user. Once this middleware has been defined, you may easily assign it to a route to prevent users that are not subscribed from accessing the route:
+便宜上、入ってくる request が subscribed user からのものかどうかを判断する [middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)を作成することをお勧めします。この middleware が定義されたら、 subscribed でない users が route にアクセスするのを防ぐために簡単にそれを route に割り当てることができます：
 
 ```php
 <?php
@@ -423,7 +423,7 @@ class Subscribed
 }
 ```
 
-Once the middleware has been defined, you may assign it to a route:
+middleware が定義されたら、それを route に割り当てることができます：
 
 ```php
 use App\Http\Middleware\Subscribed;
@@ -464,13 +464,13 @@ Route::put('/subscription/cancel', function (Request $request, $price) {
 そして今、あなたの subscription は、請求期間の終わりにキャンセルされます。
 
 > [!NOTE]  
-> あなたが Cashier の「webhook」の処理を設定していれば、Cashier は自動的に Paddle から来る「webhooks」を検査することで、application の Cashier 関連の「database」テーブルを「sync」に保ちます。例えば、Paddle のダッシュボードから顧客の「subscription」を「cancel」すると、Cashier は対応する「webhook」を受け取り、application の「database」で「subscription」を"cancel"とマークします。
+> あなたが Cashier の webhook の処理を設定していれば、Cashier は自動的に Paddle から来る webhooks を検査することで、application の Cashier 関連の database テーブルを sync に保ちます。例えば、Paddle のダッシュボードから顧客の subscription を cancel すると、Cashier は対応する webhook を受け取り、application の database で subscription を"cancel"とマークします。
 
 <a name="checkout-sessions"></a>
 
 ## Checkout Sessions
 
-ほとんどの顧客請求業務は、Paddle の[" Checkout Overlay widget](https://developer.paddle.com/build/checkout/build-overlay-checkout)を使用するか、または[inline checkout](https://developer.paddle.com/build/checkout/build-branded-inline-checkout)を利用することで実行されます。
+ほとんどの顧客請求業務は、Paddle の[Checkout Overlay widget](https://developer.paddle.com/build/checkout/build-overlay-checkout)を使用するか、または[inline checkout](https://developer.paddle.com/build/checkout/build-branded-inline-checkout)を利用することで実行されます。
 
 Paddle を使用して processing checkout の支払いを処理する前に、アプリケーションの[default payment link](https://developer.paddle.com/build/transactions/default-payment-link#set-default-link)を Paddle の checkout 設定ダッシュボードで定義するべきです。
 
@@ -838,7 +838,7 @@ if ($user->subscribed('default')) {
 }
 ```
 
-The `subscribed` method also makes a great candidate for a [route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware), allowing you to filter access to routes and controllers based on the user's subscription status:
+`subscribed`の method は、ユーザーの subscription status に基づいて routes とコントローラへのアクセスをフィルタリングするための[route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)としても大いに有用です:
 
 ```php
 <?php
@@ -868,7 +868,7 @@ class EnsureUserIsSubscribed
 }
 ```
 
-If you would like to determine if a user is still within their trial period, you may use the `onTrial` method. This method can be useful for determining if you should display a warning to the user that they are still on their trial period:
+もし user がまだ試用期間内にいるかどうかを判断したい場合、`onTrial` method を使用することができます。この method は、試用期間中であることを user に警告を表示すべきかどうかを判断するのに役立つことがあります:
 
 ```php
 if ($user->subscription()->onTrial()) {
@@ -896,7 +896,7 @@ if ($user->subscription()->recurring()) {
 
 #### Canceled Subscription Status
 
-To determine if the user was once an active subscriber but has canceled their subscription, you may use the `canceled` method:
+user がかつて活動的な加入者であり、それが subscription をキャンセルしたかどうかを判断するには、`canceled` method を使用することができます：
 
 ```php
 if ($user->subscription()->canceled()) {
@@ -904,7 +904,7 @@ if ($user->subscription()->canceled()) {
 }
 ```
 
-また、" user "が" subscription "を解約したが、まだ"grace period"にあるかどうかを決定することもできます。「 subscription 」が完全に満了するまでの間です。例えば、" user "が 3 月 5 日に" subscription "をキャンセルし、それが元々 3 月 10 日に満了する予定だった場合、" user "は 3 月 10 日まで"grace period"になります。さらに、この期間中でも`subscribed` " method "は`true`を返し続けます。
+また、 user が subscription を解約したが、まだ grace period にあるかどうかを決定することもできます。 subscription が完全に満了するまでの間です。例えば、 user が 3 月 5 日に subscription をキャンセルし、それが元々 3 月 10 日に満了する予定だった場合、 user は 3 月 10 日まで grace period になります。さらに、この期間中でも`subscribed` method は`true`を返し続けます。
 
 ```php
 if ($user->subscription()->onGracePeriod()) {
@@ -947,7 +947,7 @@ public function register(): void
 
 #### Subscription Scopes
 
-Most subscription states are also available as query scopes so that you may easily query your database for subscriptions that are in a given state:
+ほとんどの subscription 状態は、指定した state にある subscriptions をあなたの database から簡単に query できるように、 query スコープとしても利用できます:
 
 ```php
 // Get all valid subscriptions...
@@ -957,7 +957,7 @@ $subscriptions = Subscription::query()->valid()->get();
 $subscriptions = $user->subscriptions()->canceled()->get();
 ```
 
-A complete list of available scopes is available below:
+利用可能なスコープの完全なリストは以下にあります：
 
 ```php
 Subscription::query()->valid();
@@ -1065,7 +1065,7 @@ Paddle の精算 policies に関する詳細については、Paddle の[精算�
 
 ### Subscription Quantity
 
-時には「"subscriptions"」は「"quantity"」に影響を受けます。例えば、「"project"」管理「"application"」は、「"project"」ごとに月額$10 を請求するかもしれません。あなたの「"subscriptions"」の「"quantity"」を簡単に「"increment"」またはデクリメントするには、 `incrementQuantity`と`decrementQuantity`の method を使用します。
+時には subscriptions は quantity に影響を受けます。例えば、project 管理 application は、project ごとに月額$10 を請求するかもしれません。あなたの subscriptions の quantity を簡単に increment またはデクリメントするには、 `incrementQuantity`と`decrementQuantity`の method を使用します。
 
 ```php
 $user = User::find(1);
@@ -1081,13 +1081,13 @@ $user->subscription()->decrementQuantity();
 $user->subscription()->decrementQuantity(5);
 ```
 
-Alternatively, you may set a specific quantity using the `updateQuantity` method:
+別の方法として、`updateQuantity` method を使用して特定の quantity を設定することもできます:
 
 ```php
 $user->subscription()->updateQuantity(10);
 ```
 
-The `noProrate` method may be used to update the subscription's quantity without prorating the charges:
+`noProrate`method は、料金の按分をせずに subscription の数量を更新するために使用できます:
 
 ```php
 $user->subscription()->noProrate()->updateQuantity(10);
@@ -1097,7 +1097,7 @@ $user->subscription()->noProrate()->updateQuantity(10);
 
 #### Quantities for Subscriptions With Multiple Products
 
-If your subscription is a [subscription with multiple products](#subscriptions-with-multiple-products), you should pass the ID of the price whose quantity you wish to increment or decrement as the second argument to the increment / decrement methods:
+あなたの subscription が[複数の製品の subscription](#subscriptions-with-multiple-products)である場合、increment または decrement したい price の ID を increment/ decrement methods の第二引数として渡すべきです:
 
 ```php
 $user->subscription()->incrementQuantity(1, 'price_chat');
@@ -1107,7 +1107,7 @@ $user->subscription()->incrementQuantity(1, 'price_chat');
 
 ### Subscriptions With Multiple Products
 
-[Subscription with multiple products](https://developer.paddle.com/build/subscriptions/add-remove-products-prices-addons) は、複数の課金製品を"単一の Subscription"に割り当てることができます。たとえば、月額 10 ドルの基本"Subscription 価格"を設定し、さらに毎月 15 ドルのライブチャットの追加製品を提供する顧客 service"ヘルプデスク"application を構築することを想像してみてください。
+[Subscription with multiple products](https://developer.paddle.com/build/subscriptions/add-remove-products-prices-addons) は、複数の課金製品を単一の Subscription に割り当てることができます。たとえば、月額 10 ドルの基本 Subscription 価格を設定し、さらに毎月 15 ドルのライブチャットの追加製品を提供する顧客 service ヘルプデスク application を構築することを想像してみてください。
 
 `subscribe`method の第一引数として array の価格を渡すことにより、特定の subscription に対して複数の製品を指定することができます：
 
@@ -1153,7 +1153,7 @@ $user->subscription()->swap(['price_original' => 2]);
 ```
 
 > [!WARNING]  
-> You may not remove the last price on a subscription. Instead, you should simply cancel the subscription.
+> subscription の最後の price を削除することはできません。代わりに、単に subscription を cancel すべきです。
 
 <a name="multiple-subscriptions"></a>
 
@@ -1173,7 +1173,7 @@ Route::post('/swimming/subscribe', function (Request $request) {
 });
 ```
 
-In this example, we initiated a monthly swimming subscription for the customer. However, they may want to swap to a yearly subscription at a later time. When adjusting the customer's subscription, we can simply swap the price on the `swimming` subscription:
+この例では、顧客に対して月額の subscription を開始しました。しかし、彼らは後で年間の subscription に swap することを希望するかもしれません。顧客の subscription を調整する際には、単に`swimming`の subscription の price を swap するだけで済みます。
 
 ```php
 $user->subscription('swimming')->swap($swimmingYearly = 'pri_456');
@@ -1215,7 +1215,7 @@ $user->subscription()->pauseUntil(now()->addMonth());
 $user->subscription()->pauseNowUntil(now()->addMonth());
 ```
 
-`onPausedGracePeriod`" method を使用して、" user "が" subscription "を一時停止し、しかしまだ"猶予期間"中であるかどうかを判断することができます。
+`onPausedGracePeriod` method を使用して、 user が subscription を一時停止し、しかしまだ猶予期間中であるかどうかを判断することができます。
 
 ```php
 if ($user->subscription()->onPausedGracePeriod()) {
@@ -1234,9 +1234,9 @@ $user->subscription()->resume();
 
 <a name="canceling-subscriptions"></a>
 
-### '' Subscriptions ''のキャンセル
+### Subscriptions のキャンセル
 
-To cancel a subscription, call the `cancel` method on the user's subscription:
+ユーザーの subscription に対して`cancel` method を呼び出して、 subscription を cancel します。
 
 ```php
 $user->subscription()->cancel();
@@ -1244,7 +1244,7 @@ $user->subscription()->cancel();
 
 subscription がキャンセルされると、 Cashier は自動的にあなたの database の `ends_at` column を設定します。この column は、`subscribed` method が`false`を返すべきタイミングを決定するために使用されます。例えば、3 月 1 日に顧客が subscription をキャンセルしたが、その subscription が 3 月 5 日まで終了しない予定だった場合、`subscribed` method は 3 月 5 日まで続けて`true`を返します。これは、 user が通常、課金サイクルの終わりまで application を続けて使用できるからです。
 
-You may determine if a user has canceled their subscription but are still on their "grace period" using the `onGracePeriod` method:
+`onGracePeriod` method を使用して、 user が subscription を cancel したが、まだ "grace period" にいるかどうかを判断することができます。
 
 ```php
 if ($user->subscription()->onGracePeriod()) {
@@ -1291,7 +1291,7 @@ Route::get('/user/subscribe', function (Request $request) {
 あなたの application が `subscription_created` event を受信したときに、 Cashier はお使いのアプリケーションの database の subscription レコード上の試用期間終了日を設定します。また、この日付まで顧客に請求を始めないように Paddle に指示します。
 
 > [!WARNING]  
-> If the customer's subscription is not canceled before the trial ending date they will be charged as soon as the trial expires, so you should be sure to notify your users of their trial ending date.
+> お客様が subscription を試用期間終了日前にキャンセルしない場合、試用期間が終了するとすぐに課金されます。そのため、 users に試用期間終了日を通知するようにしましょう。
 
 user がトライアル期間内かどうかを判断するには、user インスタンスの`onTrial` method または subscription インスタンスの`onTrial` method のいずれかを使用できます。以下の二つの例は同等です：
 
@@ -1305,7 +1305,7 @@ if ($user->subscription()->onTrial()) {
 }
 ```
 
-To determine if an existing trial has expired, you may use the `hasExpiredTrial` methods:
+既存の試用期間が終了したかどうかを判断するためには、`hasExpiredTrial`メソッドを使用することができます:
 
 ```php
 if ($user->hasExpiredTrial()) {
@@ -1347,7 +1347,7 @@ $user->createAsCustomer([
 ]);
 ```
 
-Cashier は、既存の"subscription"に関連付けられていないため、「一般的な試用期間」と呼んでいます。`User`インスタンス上の`onTrial` "method"は、現在の日付が`trial_ends_at`の"value"を過ぎていない場合、`true`を返します。
+Cashier は、既存の subscription に関連付けられていないため、一般的な試用期間と呼んでいます。`User`インスタンス上の`onTrial` method は、現在の日付が`trial_ends_at`の value を過ぎていない場合、`true`を返します。
 
 ```php
 if ($user->onTrial()) {
@@ -1368,7 +1368,7 @@ Route::get('/user/subscribe', function (Request $request) {
 });
 ```
 
-To retrieve the user's trial ending date, you may use the `trialEndsAt` method. This method will return a Carbon date instance if a user is on a trial or `null` if they aren't. You may also pass an optional subscription type parameter if you would like to get the trial ending date for a specific subscription other than the default one:
+ユーザーの試用期間終了日を取得するには、`trialEndsAt` method を使用できます。この method は、 user が試用期間中である場合は Carbon 日付インスタンスを返し、そうでない場合は`null`を返します。また、特定の subscription の試用期間終了日を取得したい場合は、オプションで subscription type パラメータを指定することもできます。これは default のもの以外である場合に便利です：
 
 ```php
 if ($user->onTrial('default')) {

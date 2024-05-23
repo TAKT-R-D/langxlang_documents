@@ -66,7 +66,7 @@ org_title: "Laravel Passport"
 
 <a name="passport-or-sanctum"></a>
 
-### パスポートかサンクトゥムか？
+### Passport か Sanctum か？
 
 始める前に、あなたの application が Laravel Passport よりも[Laravel Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)によってより良くサポートされるかどうかを判断したいかもしれません。あなたの application が絶対に OAuth2 をサポートする必要があるなら、 Laravel Passport を使用すべきです。
 
@@ -298,7 +298,7 @@ Route::group([
 php artisan passport:client
 ```
 
-** Redirect URLs**
+**Redirect URLs**
 
 あなたが自身の client に対して複数の redirect URL を許可したい場合、`passport:client` の command で URL を求められたときに、それらをカンマ区切りのリストで指定することができます。カンマを含むすべての URL は URL エンコードする必要があります。
 
@@ -596,7 +596,7 @@ Schedule::command('passport:purge')->hourly();
 
 ## Authorization Code Grant With PKCE
 
-authorization code"許可と"Proof Key for Code Exchange"(PKCE)は、"single"ページ applications やネイティブ applications があなたの"API"にアクセスするための安全な方法です。この許可は、"client secret"が秘密に保管されることが保証できない場合、または攻撃者に"authorization code"を傍受されるという脅威を軽減するために使用することが推奨されます。"client secret"の代わりに"authorization code"をアクセス"token"と交換する際には、"Code verifier"と"Code challenge"の組み合わせが使用されます。
+authorization code 許可と Proof Key for Code Exchange(PKCE)は、single page applications やネイティブ applications があなたの API にアクセスするための安全な方法です。この許可は、client secret が秘密に保管されることが保証できない場合、または攻撃者に authorization code を傍受されるという脅威を軽減するために使用することが推奨されます。client secret の代わりに authorization code をアクセス token と交換する際には、Code verifier と Code challenge の組み合わせが使用されます。
 
 <a name="creating-a-auth-pkce-grant-client"></a>
 
@@ -618,7 +618,7 @@ php artisan passport:client --public
 
 この authorization の付与は client secret を提供しないため、開発者は token を request するための code verifier と code challenge の組み合わせを生成する必要があります。
 
-コード"検証器は、43 から 128 文字の間の"ランダムな string"であり、文字、数字、`"-"`、 `"."`、`"_"`、`"~"`といった文字が含まれているべきです。これは[RFC 7636 specification](https://tools.ietf.org/html/rfc7636)で定義されています。
+コード検証器は、43 から 128 文字の間のランダムな string であり、文字、数字、`"-"`、 `"."`、`"_"`、`"~"`といった文字が含まれているべきです。これは[RFC 7636 specification](https://tools.ietf.org/html/rfc7636)で定義されています。
 
 code の課題は、 URL やファイル名に安全な文字である Base64 エンコードされた string でなければなりません。末尾の`'='`文字は削除され、改行、空白、または他の追加文字は存在してはなりません。
 
@@ -782,7 +782,7 @@ application が複数の [authentication user provider](/ja/php/laravel/v11.x/06
 
 ### Username フィールドのカスタマイズ
 
-password"補助を使用して authentication するとき、Passport はあなたの"authenticatable model"の`email` ""属性""を"user ネーム"として使用します。しかし、"`findForPassport`" ""method""をあなたの""model""に定義することで、この振る舞いをカスタマイズすることができます：
+password 補助を使用して authentication するとき、Passport はあなたの authenticatable model の`email` 属性を user ネームとして使用します。しかし、`findForPassport` method をあなたの model に定義することで、この振る舞いをカスタマイズすることができます：
 
 ```php
 <?php

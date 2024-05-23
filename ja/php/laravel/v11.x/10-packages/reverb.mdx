@@ -43,7 +43,7 @@ org_title: "Laravel Reverb"
 
 `install:broadcasting` Artisan command を使用して Reverb をインストールすることができます。
 
-```
+```sh
 php artisan install:broadcasting
 ```
 
@@ -57,7 +57,7 @@ php artisan install:broadcasting
 
 ### Application 資格情報
 
-Reverb への「" connection "」を確立するためには、Reverb "application"の認証情報のセットが「" client "」とサーバー間で交換される必要があります。これらの認証情報はサーバー上で設定され、「" client "」からの「" request "」を検証するために使用されます。以下の「" environment "」変数を使用してこれらの認証情報を定義することができます：
+Reverb への connection を確立するためには、Reverb application の認証情報のセットが client とサーバー間で交換される必要があります。これらの認証情報はサーバー上で設定され、 client からの request を検証するために使用されます。以下の environment 変数を使用してこれらの認証情報を定義することができます：
 
 ```ini
 REVERB_APP_ID=my-app-id

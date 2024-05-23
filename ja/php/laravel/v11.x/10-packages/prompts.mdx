@@ -282,7 +282,7 @@ $password = password(
 
 ### Confirm
 
-もし user に"はい か いいえ"の確認を求める必要がありましたら、`confirm`関数を使用することができます。 Users は、矢印の keys を使用するか、「`y`」または「`n`」を press して、自分の response を select することができます。 この関数は`true`または`false`を返します。
+もし user に"Yes" か "No" の確認を求める必要がありましたら、`confirm`関数を使用することができます。 Users は、矢印の keys を使用するか、`y`または`n`を press して、自分の response を select することができます。 この関数は`true`または`false`を返します。
 
 ```php
 use function Laravel\Prompts\confirm;
@@ -290,7 +290,7 @@ use function Laravel\Prompts\confirm;
 $confirmed = confirm('Do you accept the terms?');
 ```
 
-また、"default values"、 "Yes"と"No"のラベルのためのカスタマイズされた文言、および情報提供のヒントも含めることができます：
+また、default values、 "Yes"と"No"のラベルのためのカスタマイズされた文言、および情報提供のヒントも含めることができます：
 
 ```php
 $confirmed = confirm(
@@ -304,7 +304,7 @@ $confirmed = confirm(
 
 <a name="confirm-required"></a>
 
-"#### 「Yes」が必要"
+#### Yes が必要
 
 必要に応じて、`required`引数を渡すことで、 users に select "Yes"を要求することができます。
 
@@ -401,7 +401,7 @@ $role = select(
 
 ### Multi-select
 
-もし、'' user ''に複数の'' options ''を'' select ''する権限を与えたい場合は、`multiselect`関数を使用することができます：
+もし、 user に複数の options を select する権限を与えたい場合は、`multiselect`関数を使用することができます：
 
 ```php
 use function Laravel\Prompts\multiselect;
@@ -427,7 +427,7 @@ $permissions = multiselect(
 
 また、選択したオプションの keys をその values の代わりに返すために、連想 array を `options` 引数に渡すこともできます:
 
-```
+```php
 $permissions = multiselect(
     label: 'What permissions should be assigned?',
     options: [
@@ -480,7 +480,7 @@ $categories = multiselect(
 
 選択肢を提示しつつ、選択できないようにするために、`validate`引数にクロージャを渡すことができます：
 
-```
+```php
 $permissions = multiselect(
     label: 'What permissions should the user have?',
     options: [
@@ -923,7 +923,7 @@ $progress->finish();
 
 #### ターミナルの幅
 
-ラベル、オプション、または「" validation "」メッセージの「" length "」がユーザーの端末の「columns」数を超えると、自動的に収まるように短縮されます。「" users "」がより狭い端末を使用する可能性がある場合、これらの文字列の「" length "」を最小限に抑えることを検討してください。安全と考えられる最大の「" length "」は、80 文字の端末をサポートするための 74 文字です。
+ラベル、オプション、または validation メッセージの length がユーザーの端末の columns 数を超えると、自動的に収まるように短縮されます。 users がより狭い端末を使用する可能性がある場合、これらの文字列の length を最小限に抑えることを検討してください。安全と考えられる最大の length は、80 文字の端末をサポートするための 74 文字です。
 
 <a name="terminal-height"></a>
 

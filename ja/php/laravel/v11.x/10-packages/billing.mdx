@@ -337,7 +337,7 @@ Route::get('/cart/{cart}/checkout', function (Request $request, Cart $cart) {
 })->name('checkout');
 ```
 
-上記の例で見ることができるように、「user」が「Checkoutprocess」を開始すると、私たちはカート/注文の関連する Stripe「価格」識別子をすべて `checkout` 「method」に提供します。もちろん、お客様が商品を追加する際、これらのアイテムを「ショッピングカート」または注文に関連付けるのは、「application」の責任です。また、注文の ID を Stripe「Checkoutsession」に `metadata` 「array」経由で提供します。最後に、 `CHECKOUT_SESSION_ID` テンプレート variable を「Checkout」成功「route」に追加しました。Stripe が顧客をあなたの「application」に redirects すると、このテンプレート variable は自動的に「Checkoutsession」ID で埋められます。
+上記の例で見ることができるように、user が Checkoutprocess を開始すると、私たちはカート/注文の関連する Stripe 価格識別子をすべて `checkout` method に提供します。もちろん、お客様が商品を追加する際、これらのアイテムをショッピングカートまたは注文に関連付けるのは、application の責任です。また、注文の ID を StripeCheckoutsession に `metadata` array 経由で提供します。最後に、 `CHECKOUT_SESSION_ID` テンプレート variable を Checkout 成功 route に追加しました。Stripe が顧客をあなたの application に redirects すると、このテンプレート variable は自動的に CheckoutsessionID で埋められます。
 
 次に、 Checkout 成功の route を build してみましょう。これは、Stripe Checkout を介して購入が完了した後に users がリダイレクトされる route です。この route 内で、提供された meta data にアクセスし、顧客の注文を適切に update するために、Stripe Checkout session ID と関連する Stripe Checkout インスタンスを取得することができます。
 
@@ -548,7 +548,7 @@ $stripeCustomer = $user->updateStripeCustomer($options);
 
 ### Balances
 
-Stripe では、顧客の「balance」に対してクレジットまたはデビットを許可します。後で、この「balance」は新しい請求書に対してクレジットまたはデビットされます。顧客の総「balance」をチェックするためには、`balance` 「method」を使用することができます。これはあなたの「billable model」上で利用可能です。`balance` 「method」は、顧客の通貨での「balance」の整形された「string」表現を返します：
+Stripe では、顧客の balance に対してクレジットまたはデビットを許可します。後で、この balance は新しい請求書に対してクレジットまたはデビットされます。顧客の総 balance をチェックするためには、`balance` method を使用することができます。これはあなたの billable model 上で利用可能です。`balance` method は、顧客の通貨での balance の整形された string 表現を返します：
 
 ```php
 $balance = $user->balance();
@@ -690,13 +690,13 @@ $url = $request->user()->billingPortalUrl(route('billing'));
 
 ### 支払方法の保存
 
-Stripe で「 subscriptions 」を作成したり、"one-off"の課金を行うためには、支払い「 method 」を保存し、その識別子を Stripe から取得する必要があります。これを実現するためのアプローチは、支払い「 method 」を「 subscriptions 」用に使用するか、「 single 」の課金用に使用するかにより異なりますので、以下で両方について調査します。
+Stripe で subscriptions を作成したり、"one-off"の課金を行うためには、支払い method を保存し、その識別子を Stripe から取得する必要があります。これを実現するためのアプローチは、支払い method を subscriptions 用に使用するか、 single の課金用に使用するかにより異なりますので、以下で両方について調査します。
 
 <a name="payment-methods-for-subscriptions"></a>
 
 #### Subscriptions の支払い方法
 
-顧客のクレジットカード情報を「"" subscription ""」による将来の使用のために保存する場合、Stripe の「Setup Intents」"" API ""を使用して、顧客の支払い"" method ""の詳細を安全に収集する必要があります。「Setup Intent」は、Stripe に対して、顧客の支払い"" method ""に対する請求の意図を示します。Cashier の`Billable`特性には`createSetupIntent` "" method ""が含まれており、新しい Setup Intent を簡単に作成することができます。この"" method ""を、顧客の支払い"" method ""の詳細を収集するフォームを"" render ""する"" route ""または"" controller ""から呼び出すべきです:
+顧客のクレジットカード情報を subscription による将来の使用のために保存する場合、Stripe の Setup Intents API を使用して、顧客の支払い method の詳細を安全に収集する必要があります。Setup Intent は、Stripe に対して、顧客の支払い method に対する請求の意図を示します。Cashier の`Billable`特性には`createSetupIntent` method が含まれており、新しい Setup Intent を簡単に作成することができます。この method を、顧客の支払い method の詳細を収集するフォームを render する route または controller から呼び出すべきです:
 
 ```php
 return view('update-payment-method', [
@@ -704,7 +704,7 @@ return view('update-payment-method', [
 ]);
 ```
 
-Setup Intent を作成し、それを" view "に渡した後、その" secret "を決済" method "を集める要素に" attach "する必要があります。例えば、この「支払い方法を更新」のフォームを考えてみてください：
+Setup Intent を作成し、それを view に渡した後、その secret を決済 method を集める要素に attach する必要があります。例えば、この支払い方法を更新のフォームを考えてみてください：
 
 ```html
 <input id="card-holder-name" type="text" />
@@ -881,7 +881,7 @@ if ($user->hasPaymentMethod('sepa_debit')) {
 $user->updateDefaultPaymentMethod($paymentMethod);
 ```
 
-Stripe のお客様の'' default ''支払い'' method ''情報とあなたの'' default ''支払い'' method ''情報を'' sync ''するために、`updateDefaultPaymentMethodFromStripe` '' method ''を使用することができます。
+Stripe のお客様の default 支払い method 情報とあなたの default 支払い method 情報を sync するために、`updateDefaultPaymentMethodFromStripe` method を使用することができます。
 
 ```php
 $user->updateDefaultPaymentMethodFromStripe();
@@ -1165,7 +1165,7 @@ if ($user->subscribedToProduct('prod_premium', 'default')) {
 }
 ```
 
-`subscribedToProduct`"の "method"に"array"を渡すことで、user の`default` "subscription"が application の"basic"または"premium"プロダクトに積極的に"サブスクライブ"しているかどうかを判断することができます。
+`subscribedToProduct`の method に array を渡すことで、user の`default` subscription が application の basic または premium プロダクトに積極的にサブスクライブしているかどうかを判断することができます。
 
 ```php
 if ($user->subscribedToProduct(['prod_basic', 'prod_premium'], 'default')) {
@@ -1204,7 +1204,7 @@ if ($user->subscription('default')->canceled()) {
 }
 ```
 
-あなたはまた、" user "が" subscription "をキャンセルしたがまだ"grace period"中であるかどうかを判断することもできます。これは" subscription "が完全に期限切れになるまでのことです。例えば、" user "が 3 月 5 日に" subscription "をキャンセルし、元々は 3 月 10 日に期限切れ予定だった場合、" user "は 3 月 10 日まで"grace period"中になります。この期間中でも、`subscribed` " method "は依然として`true`を返すことに注意してください。
+あなたはまた、 user が subscription をキャンセルしたがまだ grace period 中であるかどうかを判断することもできます。これは subscription が完全に期限切れになるまでのことです。例えば、 user が 3 月 5 日に subscription をキャンセルし、元々は 3 月 10 日に期限切れ予定だった場合、 user は 3 月 10 日まで grace period 中になります。この期間中でも、`subscribed` method は依然として`true`を返すことに注意してください。
 
 ```php
 if ($user->subscription('default')->onGracePeriod()) {
@@ -1212,7 +1212,7 @@ if ($user->subscription('default')->onGracePeriod()) {
 }
 ```
 
-「 user 」が「 subscription 」を cancel し、"猶予期間"を過ぎているかどうかを判断するには、`ended`「 method 」を使用できます:
+user が subscription を cancel し、"猶予期間"を過ぎているかどうかを判断するには、`ended` method を使用できます:
 
 ```php
 if ($user->subscription('default')->ended()) {
@@ -1308,7 +1308,7 @@ $user = App\Models\User::find(1);
 $user->subscription('default')->swap('price_yearly');
 ```
 
-お客様が試用期間中である場合、その試用期間は維持されます。さらに、" subscription "に"量"が存在する場合、その" quantity "も維持されます。
+お客様が試用期間中である場合、その試用期間は維持されます。さらに、 subscription に量が存在する場合、その quantity も維持されます。
 
 顧客が現在利用中のトライアル期間を cancel し、 swap の価格を希望する場合は、`skipTrial` method を呼び出すことができます：
 
@@ -1345,7 +1345,7 @@ $user->subscription('default')->noProrate()->swap('price_yearly');
 
 ### Subscription Quantity
 
-時折、" subscriptions "は"quantity"に影響を受けます。例えば、" project "管理" application "は、" project "ごとに月 10 ドルを請求するかもしれません。 `incrementQuantity`と`decrementQuantity`メソッドを使用すると、" subscription quantity "を簡単に" increment "またはデクリメントできます。
+時折、 subscriptions は quantity に影響を受けます。例えば、 project 管理 application は、 project ごとに月 10 ドルを請求するかもしれません。 `incrementQuantity`と`decrementQuantity`メソッドを使用すると、 subscription quantity を簡単に increment またはデクリメントできます。
 
 ```php
 use App\Models\User;
@@ -1391,7 +1391,7 @@ $user->subscription('default')->incrementQuantity(1, 'price_chat');
 
 ### 複数の製品を含む Subscriptions
 
-[複数の商品を含む Subscription](https://stripe.com/docs/billing/subscriptions/multiple-products)では、複数の請求商品を「単一の subscriptions」に割り当てることができます。例えば、顧客「service」の"helpdesk"「application」を構築していて、月額 10 ドルの基本「subscriptions 価格」があるが、追加で月額 15 ドルのライブチャットアドオン商品を提供していると想像してください。複数の製品を含む「subscriptions」の情報は、Cashier's `subscription_items`「database」テーブルに保存されます。
+[複数の商品を含む Subscription](https://stripe.com/docs/billing/subscriptions/multiple-products)では、複数の請求商品を単一の subscriptions に割り当てることができます。例えば、顧客 service の"helpdesk"application を構築していて、月額 10 ドルの基本 subscriptions 価格があるが、追加で月額 15 ドルのライブチャットアドオン商品を提供していると想像してください。複数の製品を含む subscriptions の情報は、Cashier's `subscription_items`database テーブルに保存されます。
 
 特定の subscription に対して複数の製品を指定できます。そのためには、`newSubscription` method の第二引数として価格の array を渡します。
 
@@ -1618,7 +1618,7 @@ $user = User::find(1);
 $user->subscription('default')->reportUsage();
 ```
 
-default "として、請求期間に対して「使用量」1 が追加されます。または、請求期間の顧客の使用量に追加する特定の「使用量」を指定することもできます：
+default として、請求期間に対して使用量 1 が追加されます。または、請求期間の顧客の使用量に追加する特定の使用量を指定することもできます：
 
 ```php
 $user = User::find(1);
@@ -1771,7 +1771,7 @@ Route::post('/user/subscribe', function (Request $request) {
 
 <a name="cancelling-subscriptions"></a>
 
-### ` Subscriptions ''のキャンセル
+### Subscriptions のキャンセル
 
 ユーザーの subscription に対して`cancel` method を呼び出して、 subscription を cancel します。
 
@@ -1823,7 +1823,7 @@ $user->delete();
 
 ### Subscriptions の再開
 
-もし顧客が" subscription "をキャンセルした場合で、それを再開したいと思っていなら、" subscription "の`resume` " method "を呼び出すことができます。顧客は"grace period"中である必要があります、その条件下でのみ" subscription "を再開することが可能です。
+もし顧客が subscription をキャンセルした場合で、それを再開したいと思っていなら、 subscription の`resume` method を呼び出すことができます。顧客は grace period 中である必要があります、その条件下でのみ subscription を再開することが可能です。
 
 ```php
 $user->subscription('default')->resume();
@@ -1922,7 +1922,7 @@ $user = User::create([
 > [!WARNING]  
 > 必ず、`trial_ends_at` attribute を billable モデルの class 定義内で [日付キャスト](/ja/php/laravel/v11.x/08-eloquent-orm/04-eloquent-mutators#date-casting) に追加してください。
 
-Cashier は、既存の" subscription "に関連付けられていないため、この" type "の試用期間を「一般的な試用期間」と呼びます。" billable model "インスタンスの`onTrial`" method "は、現在の日付が`trial_ends_at`の" value "を過ぎていない場合、`true`を返します。
+Cashier は、既存の subscription に関連付けられていないため、この type の試用期間を一般的な試用期間と呼びます。 billable model インスタンスの`onTrial` method は、現在の日付が`trial_ends_at`の value を過ぎていない場合、`true`を返します。
 
 ```php
 if ($user->onTrial()) {
@@ -1946,7 +1946,7 @@ if ($user->onTrial()) {
 }
 ```
 
-具体的に「 user 」が"generic"の試用期間中で、まだ実際の「 subscription 」を作成していないことを知りたい場合は、`onGenericTrial` 「 method 」も使用できます。
+具体的に user が "generic" の試用期間中で、まだ実際の subscription を作成していないことを知りたい場合は、`onGenericTrial` method も使用できます。
 
 ```php
 if ($user->onGenericTrial()) {
@@ -2160,7 +2160,7 @@ $user->tabPrice('price_mug', 2);
 $user->invoice();
 ```
 
-あるいは、お客様の「 default 」の支払い「 method 」に対して「一回限り」の請求を行うために、`invoiceFor` " method "を使用することもできます。
+あるいは、お客様の default の支払い method に対して一回限りの請求を行うために、`invoiceFor` " method "を使用することもできます。
 
 ```php
 $user->invoiceFor('One Time Fee', 500);
@@ -2709,7 +2709,7 @@ CASHIER_PAYMENT_NOTIFICATION=Laravel\Cashier\Notifications\ConfirmPayment
 session 外の支払い確認 notifications が配信されることを確認するには、[Stripe の webhooks が設定されている](#handling-stripe-webhooks)ことをあなたの application で確認し、`invoice.payment_action_required` webhook が Stripe ダッシュボードで有効になっていることを確認してください。また、あなたの`Billable` model は、Laravel の`Illuminate\Notifications\Notifiable`トレイトも使用するようにすべきです。
 
 > [!WARNING]  
-> 「 Notifications 」は、追加の確認が必要な支払いを顧客が手動で行っている場合でも送信されます。残念ながら、Stripe が支払いが手動で行われたのか"オフセッション"で行われたのかを知る方法はありません。しかし、顧客が支払いを既に確認した後に支払いページを訪れると、「Payment Successful」のメッセージが表示されます。顧客が同じ支払いを誤って二重に確認し、誤って二回めの請求を発生させることはありません。
+>  Notifications は、追加の確認が必要な支払いを顧客が手動で行っている場合でも送信されます。残念ながら、Stripe が支払いが手動で行われたのか"オフセッション"で行われたのかを知る方法はありません。しかし、顧客が支払いを既に確認した後に支払いページを訪れると、Payment Successful のメッセージが表示されます。顧客が同じ支払いを誤って二重に確認し、誤って二回めの請求を発生させることはありません。
 
 <a name="stripe-sdk"></a>
 

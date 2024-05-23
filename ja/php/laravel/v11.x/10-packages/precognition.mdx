@@ -31,7 +31,7 @@ org_title: "Precognition"
 
 Laravel Precognition は、将来の HTTP request の結果を予測することができます。Precognition の主な使用例の一つは、application のバックエンドの validation ルールを複製することなく、フロントエンドの JavaScript application に"生"の validation を提供する能力です。Precognition は、Laravel の Inertia ベースの[スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)と特によくマッチします。
 
-Laravel "が"予知リクエスト"を受け取ると、ルートの" middleware "をすべて実行し、" controller "の依存関係を解決し、[form requests](/ja/php/laravel/v11.x/04-the-basics/12-validation#form-request-validation)の" validating "を含む - しかし、実際にはルートの" controller method "を実行しません。
+Laravel が予知リクエストを受け取ると、ルートの middleware をすべて実行し、 controller の依存関係を解決し、[form requests](/ja/php/laravel/v11.x/04-the-basics/12-validation#form-request-validation)の validating を含む - しかし、実際にはルートの controller method を実行しません。
 
 <a name="live-validation"></a>
 
@@ -100,7 +100,7 @@ const submit = () => form.submit();
 </template>
 ```
 
-さて、フォームが" user "によって埋められると、Precognition は routes の" form request "内の" validation "ルールによって動かされるリアルタイムの" validation output "を提供します。フォームの入力が変更されると、デバウンスされた"precognitive" " validation request "があなたの" Laravel application "に送信されます。フォームの`setValidationTimeout`関数を呼び出すことでデバウンスの" timeout "を設定することができます。
+さて、フォームが user によって埋められると、Precognition は routes の form request 内の validation ルールによって動かされるリアルタイムの validation output を提供します。フォームの入力が変更されると、デバウンスされた precognitive validation request があなたの Laravel application に送信されます。フォームの`setValidationTimeout`関数を呼び出すことでデバウンスの timeout を設定することができます。
 
 ```js
 form.setValidationTimeout(3000);
@@ -275,7 +275,7 @@ export default function Form() {
 }
 ```
 
-現在、フォームが " user "によって記入されると、Precognition はルートの" form request "の" validation "ルールに基づいてリアルタイムの" validation output "を提供します。フォームの入力が変更されると、"precognitive"の" validation request "がデバウンスされてあなたの" Laravel application "に送信されます。デバウンスの" timeout "を設定するには、フォームの `setValidationTimeout`関数を呼び出すことができます：
+現在、フォームが user によって記入されると、Precognition はルートの form request の validation ルールに基づいてリアルタイムの validation output を提供します。フォームの入力が変更されると、 precognitive の validation request がデバウンスされてあなたの Laravel application に送信されます。デバウンスの timeout を設定するには、フォームの `setValidationTimeout`関数を呼び出すことができます：
 
 ```js
 form.setValidationTimeout(3000);
@@ -467,7 +467,7 @@ Laravel Precognition パッケージをインストールし、登録したら�
 </form>
 ```
 
-現在、フォームが" user "が記入すると、Precognition はルートの" form request "内の" validation "ルールによって動作するリアルタイムの" validation output "を提供します。フォームの入力が変更されると、デバウンスされた "precognitive" " validation request "があなたの" Laravel application "に送信されます。デバウンスの" timeout "を設定するには、フォームの `setValidationTimeout` 関数を呼び出すことができます。
+現在、フォームが user が記入すると、Precognition はルートの form request 内の validation ルールによって動作するリアルタイムの validation output を提供します。フォームの入力が変更されると、デバウンスされた precognitive validation request があなたの Laravel application に送信されます。デバウンスの timeout を設定するには、フォームの `setValidationTimeout` 関数を呼び出すことができます。
 
 ```js
 form.setValidationTimeout(3000);
@@ -522,7 +522,7 @@ validation request が進行中のとき、フォームの`validating`プロパ�
 
 #### 古いフォーム Data の再作成
 
-上記で説明した" user "作成の例では、Precognition を使用してリアルタイム validation を実行していますが、従来の servers サイドのフォーム送信を" submit "のために実行しています。したがって、フォームには、servers サイドのフォーム送信から返された"old"の" input "と" validation errors "が表示されるべきです。
+上記で説明した user 作成の例では、Precognition を使用してリアルタイム validation を実行していますが、従来の servers サイドのフォーム送信を submit のために実行しています。したがって、フォームには、servers サイドのフォーム送信から返された old の input と validation errors が表示されるべきです。
 
 ```html
 <form
@@ -593,7 +593,7 @@ client.use(window.axios);
 
 `isPrecognitive` method を使って、事前認知の request の際に実行される validation ルールをカスタマイズすることが可能です。
 
-例えば、「" user "」作成フォームで、最終的なフォームの提出だけで「" password "」が"uncompromised"であることを「" validate "」したい場合があります。予知的な「" validation "」リクエストに対しては、単に「" password "」が「" required "」であり、最低 8 文字あることを「" validate "」します。`isPrecognitive` 「" method "」を使用することで、「" form request "」で定義したルールをカスタマイズすることができます。
+例えば、 user 作成フォームで、最終的なフォームの提出だけで password が uncompromised であることを validate したい場合があります。予知的な validation リクエストに対しては、単に password が required であり、最低 8 文字あることを validate します。`isPrecognitive` method を使用することで、 form request で定義したルールをカスタマイズすることができます。
 
 ```php
 <?php

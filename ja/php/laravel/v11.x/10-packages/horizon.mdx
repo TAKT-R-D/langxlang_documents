@@ -461,7 +461,7 @@ public function boot(): void
 
 ## Metrics
 
-Artisan command は、メトリックスダッシュボードを含み、これによりご自身の job と queue の待ち時間とスループットに関する情報が提供されます。このダッシュボードを充実させるためには、application の`routes/console.php`ファイルで、Horizon の`snapshot` Artisan command “を５分ごとに実行するよう設定する必要があります。
+Artisan command は、メトリックスダッシュボードを含み、これによりご自身の job と queue の待ち時間とスループットに関する情報が提供されます。このダッシュボードを充実させるためには、application の`routes/console.php`ファイルで、Horizon の`snapshot` Artisan command を５分ごとに実行するよう設定する必要があります。
 
 ```php
 use Illuminate\Support\Facades\Schedule;

@@ -307,7 +307,7 @@ php artisan pulse:restart
 
 オプションで、[サンプルレート](#sampling)と無視するキーパターンを調整することができます。
 
-また、類似の「" keys "」が「" single "」エントリとしてグループ化されるように、キーのグループ化を設定することもできます。例えば、同じ「" type "」の情報をキャッシュする「" keys "」から「" unique "」な ID を削除することができます。グループは、キーの一部を"find and replace"するための正規表現を使用して設定されます。設定ファイルには例が含まれています:
+また、類似の keys が single エントリとしてグループ化されるように、キーのグループ化を設定することもできます。例えば、同じ type の情報をキャッシュする keys から unique な ID を削除することができます。グループは、キーの一部を find and replace するための正規表現を使用して設定されます。設定ファイルには例が含まれています:
 
 ```php
 Recorders\CacheInteractions::class => [
@@ -352,7 +352,7 @@ Recorders\CacheInteractions::class => [
 
 あなたは、オプションで遅い送信の request の閾値、[sample rate](#sampling)、そして無視される URL のパターンを調整することができます。
 
-また、同様の URL が single エントリとしてグループ化されるように URL グループ化を設定することもできます。例えば、 URL パスから" unique " ID を削除したり、 domain のみでグループ化したりすることができます。グループは、"find and replace"部分の正規表現を使用して設定されます。具体的な例は、設定ファイルに含まれています。
+また、同様の URL が single エントリとしてグループ化されるように URL グループ化を設定することもできます。例えば、 URL パスから unique ID を削除したり、 domain のみでグループ化したりすることができます。グループは、find and replace 部分の正規表現を使用して設定されます。具体的な例は、設定ファイルに含まれています。
 
 ```php
 Recorders\OutgoingRequests::class => [
@@ -465,13 +465,13 @@ PULSE_DB_CONNECTION=pulse
 
 default として、Pulse は、HTTP response が client に送信された後、または job が処理された後に、エントリを直接[設定された database 接続](#using-a-different-database)に保存します。しかし、Pulse の Redis インジェスト driver を使用して、エントリを代わりに Redis ストリームに送信することもできます。これは、 `PULSE_INGEST_DRIVER` environment variables を設定することで有効にすることができます：
 
-```
+```env
 PULSE_INGEST_DRIVER=redis
 ```
 
 Pulse は default であなたの default [Redis connection](/ja/php/laravel/v11.x/07-database/06-redis#configuration)を使用しますが、`PULSE_REDIS_CONNECTION` environment 変数を通じてこれをカスタマイズすることができます。
 
-```
+```env
 PULSE_REDIS_CONNECTION=pulse
 ```
 
@@ -574,7 +574,7 @@ Livewire の[lazy loading](https://livewire.laravel.com/docs/lazy) 機能を使�
 </x-pulse::card>
 ```
 
-`$cols`、`$rows`、`$class`、`$expand`変数は、それぞれの" Blade "コンポーネントに渡されるべきであり、その際、カードの" layout "がダッシュボードの" view "からカスタマイズ可能になります。また、カードを自動的に" update "させるためには、`wire:poll.5s=""` attribute "をあなたの" view "に含めることも希望するかもしれません。
+`$cols`、`$rows`、`$class`、`$expand`変数は、それぞれの Blade コンポーネントに渡されるべきであり、その際、カードの layout がダッシュボードの view からカスタマイズ可能になります。また、カードを自動的に update させるためには、`wire:poll.5s=  ` attribute をあなたの view に含めることも希望するかもしれません。
 
 Livewire の component やテンプレートを定義したら、[ダッシュボードの view](#dashboard-customization)にカードを含めることができます。
 

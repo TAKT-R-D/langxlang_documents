@@ -62,7 +62,7 @@ org_title: "Laravel Telescope"
 composer require laravel/telescope
 ```
 
-Telescope をインストールした後、publish そのアセットと migrations を `telescope:install` の Artisan command を使用して行います。'Telescope'をインストールした後、Telescope の data を保存するために必要なテーブルを作成するために、`migrate` の command も実行する必要があります。
+Telescope をインストールした後、publish そのアセットと migrations を `telescope:install` の Artisan command を使用して行います。Telescope をインストールした後、Telescope の data を保存するために必要なテーブルを作成するために、`migrate` の command も実行する必要があります。
 
 ```shell
 php artisan telescope:install
@@ -76,7 +76,7 @@ php artisan migrate
 
 ### ローカルのみのインストール
 
-もし、ローカル開発をアシストするために '' Telescope '' のみを使用する予定であれば、 `--dev` フラグを使用して '' Telescope '' をインストールすることができます：
+もし、ローカル開発をアシストするために Telescope のみを使用する予定であれば、 `--dev` フラグを使用して Telescope をインストールすることができます：
 
 ```shell
 composer require laravel/telescope --dev
@@ -269,7 +269,7 @@ public function register(): void
 
 ## Tagging
 
-Telescope"は、"tags"によるエントリーの"search"を可能にします。通常、"tags"は"Eloquent model class"の名前や authentication された"user"の ID であり、"Telescope"はこれらを自動的にエントリーに追加します。稀に、自分自身の"custom tags"をエントリーに"attach"したい場合があります。これを達成するためには、`Telescope::tag` "method"を使用することができます。`tag` "method"はクロージャを受け入れ、そのクロージャは"tags"の"array"を返すべきです。クロージャによって返された"tags"は、"Telescope"が自動的にエントリーに"attach"する任意の"tags"と merge されます。典 types 的には、`tag` "method"をあなたの`App\Providers\TelescopeServiceProvider` "class"の`register` "method"内で呼び出すべきです。
+Telescope は、tags によるエントリーの search を可能にします。通常、tags は Eloquent model class の名前や authentication された user の ID であり、Telescope はこれらを自動的にエントリーに追加します。稀に、自分自身の custom tags をエントリーに attach したい場合があります。これを達成するためには、`Telescope::tag` method を使用することができます。`tag` method はクロージャを受け入れ、そのクロージャは tags の array を返すべきです。クロージャによって返された tags は、Telescope が自動的にエントリーに attach する任意の tags と merge されます。典 types 的には、`tag` method をあなたの`App\Providers\TelescopeServiceProvider` class の`register` method 内で呼び出すべきです。
 
 ```php
 use Laravel\Telescope\IncomingEntry;
@@ -294,7 +294,7 @@ public function register(): void
 
 ## Available Watchers
 
-Telescope の"観測者"は、"request"または"console command"が実行されると"applicationdata"を収集します。`config/telescope.php`設定ファイルの中で有効にしたい観測者のリストをカスタマイズすることができます。
+Telescope の観測者は、request または console command が実行されると applicationdata を収集します。`config/telescope.php`設定ファイルの中で有効にしたい観測者のリストをカスタマイズすることができます。
 
 ```php
 'watchers' => [

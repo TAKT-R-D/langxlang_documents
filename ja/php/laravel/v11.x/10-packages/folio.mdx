@@ -63,9 +63,9 @@ php artisan folio:install
 
 default では、Folio はあなたの application の `resources/views/pages` ディレクトリからページを提供しますが、Folio の service プロバイダの `boot` method で、これらのディレクトリをカスタマイズすることができます。
 
-例えば、時には同じ「 Laravel application 」で複数の Folio パスを指定すると便利なことがあります。あなたのアプリケーションの "admin" エリアには別の Folio ページのディレクトリを使用したい場合や、アプリケーションの残りのページには別のディレクトリを使用したい場合などです。
+例えば、時には同じ Laravel application で複数の Folio パスを指定すると便利なことがあります。あなたのアプリケーションの "admin" エリアには別の Folio ページのディレクトリを使用したい場合や、アプリケーションの残りのページには別のディレクトリを使用したい場合などです。
 
-この作業は、`Folio::path`および`Folio::uri`メソッドを使用して達成することができます。`path` method は、routing HTTP requests の際に Folio がページをスキャンするディレクトリを登録し、`uri` method はそのページディレクトリの「ベース URI」を指定します：
+この作業は、`Folio::path`および`Folio::uri`メソッドを使用して達成することができます。`path` method は、routing HTTP requests の際に Folio がページをスキャンするディレクトリを登録し、`uri` method はそのページディレクトリのベース URI を指定します：
 
 ```php
 use Laravel\Folio\Folio;

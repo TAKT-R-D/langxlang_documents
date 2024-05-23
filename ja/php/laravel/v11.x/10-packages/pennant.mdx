@@ -83,7 +83,7 @@ Pennant は、解決された feature フラグの values を、`array` の driv
 
 `Feature`という facade が提供する`define`という method を使用して、feature を定義することができます。feature の名前を提供する必要があります。また、feature の初期 value を解決するために呼び出されるクロージャも提供する必要があります。
 
-通常、`Feature` facade を使用して、service provider で"features"が定義されます。クロージャは、"feature"のチェックのための"scope"を受け取ります。最も一般的には、"scope"は現在 authentication されている"user"です。この例では、新しい"API"を application の"users"に段階的に展開するための"feature"を定義します。
+通常、`Feature` facade を使用して、service provider で features が定義されます。クロージャは、feature のチェックのための scope を受け取ります。最も一般的には、scope は現在 authentication されている user です。この例では、新しい API を application の users に段階的に展開するための feature を定義します。
 
 ```php
 <?php
@@ -460,7 +460,7 @@ return Feature::for($user)->active('new-api')
         : $this->resolveLegacyApiResponse($request);
 ```
 
-もちろん、"feature"の範囲は"users"に限定されません。新しい請求体験を作成し、個々の"users"ではなくチーム全体に展開していると想像してみてください。もしかしたら、古いチームより新しいチームへのロールアウトを遅らせたいかもしれません。あなたの"feature"の解決策は次のようになるかもしれません：
+もちろん、feature の範囲は users に限定されません。新しい請求体験を作成し、個々の users ではなくチーム全体に展開していると想像してみてください。もしかしたら、古いチームより新しいチームへのロールアウトを遅らせたいかもしれません。あなたの feature の解決策は次のようになるかもしれません：
 
 ```php
 use App\Models\Team;
@@ -538,7 +538,7 @@ Feature::for($user->team)->active('billing-v2');
 
 したがって、フィーチャーに渡す scope が `null` になる可能性がある場合、そのフィーチャーの定義でそれを考慮する必要があります。`null` の scope が発生するのは、Artisan command、キューに入れられた job、または未認証の route でフィーチャーをチェックする場合です。これらのコンテキストでは通常、認証された user が存在しないため、default scope は `null` になります。
 
-常に [explicitly specify your feature scope](#specifying-the-scope) しない場合は、スコープの type が「nullable」であることを確認し、フィーチャーの定義ロジック内で `null` の scope value を handle する必要があります:
+常に [explicitly specify your feature scope](#specifying-the-scope) しない場合は、スコープの type が nullable であることを確認し、フィーチャーの定義ロジック内で `null` の scope value を handle する必要があります:
 
 ```php
 use App\Models\User;
@@ -562,7 +562,7 @@ Pennant の組み込みの `array` および `database` storage ドライバは�
 
 これを受けて、Pennant では、Pennant の scope として使用される application の objects に`FeatureScopeable`契約を実装することで、scopevalues を storage 用にフォーマットすることができます。
 
-例えば、あなたが「シングル application」で 2 つの異なる「フィーチャ」driver を使用していると想像してみてください：組み込みの`database`「driver」とサードパーティの"Flag Rocket"「driver」です。"Flag Rocket"「driver」は、「Eloquent model」を適切に格納する方法を知りません。代わりに、`FlagRocketUser`インスタンスが必要です。`FeatureScopeable`契約で定義された`toFeatureIdentifier`を実装することで、私たちの「application」で使用される各「driver」に提供される格納可能な「scopevalue」をカスタマイズすることができます：
+例えば、あなたがシングル application で 2 つの異なるフィーチャ driver を使用していると想像してみてください：組み込みの`database`driver とサードパーティの Flag Rocket driver です。 Flag Rocket driver は、Eloquent model を適切に格納する方法を知りません。代わりに、`FlagRocketUser`インスタンスが必要です。`FeatureScopeable`契約で定義された`toFeatureIdentifier`を実装することで、私たちの application で使用される各 driver に提供される格納可能な scopevalue をカスタマイズすることができます：
 
 ```php
 <?php
@@ -612,7 +612,7 @@ Feature::useMorphMap();
 
 ## Rich Feature Values
 
-これまでに、主に「特性」を「二進状態」、つまり「アクティブ」または「非アクティブ」であると示してきましたが、Pennant もまた、豊かな「values」を保存することを可能にします。
+これまでに、主に特性を二進状態、つまりアクティブまたは非アクティブであると示してきましたが、Pennant もまた、豊かな values を保存することを可能にします。
 
 例えば、あなたが testing というあなたの application の"Buy now" button について 3 つの新しい色を想像してみてください。 feature の定義から`true`または`false`を返すのではなく、代わりに string を返すことができます。
 
@@ -645,7 +645,8 @@ $color = Feature::value('purchase-button');
 @endfeature
 ```
 
-> [!NOTE] values を使用する際、ある " feature " が`false`以外のあらゆる value を持っている場合に "アクティブ"と見なされることを理解することが重要です。
+> [!NOTE]
+> values を使用する際、ある feature が`false`以外のあらゆる value を持っている場合に アクティブと見なされることを理解することが重要です。
 
 [条件 `when`](#conditional-execution) method を呼び出すとき、その機能の豊かな value が最初のクロージャに提供されます：
 
