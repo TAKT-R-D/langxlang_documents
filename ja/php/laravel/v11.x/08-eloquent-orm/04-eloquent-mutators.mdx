@@ -1,0 +1,949 @@
+---
+filePath: "source/laravel/eloquent-mutators.md"
+title: "Eloquent: Mutators & Casting"
+description: "Eloquent: Mutators & Casting"
+org_path: "/docs/11.x/eloquent-mutators"
+is_empty: false
+nav_title: "Mutators / Casts"
+org_title: "Eloquent: Mutators & Casting"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Accessors and Mutators](#accessors-and-mutators)
+  - [Defining an Accessor](#defining-an-accessor)
+  - [Defining a Mutator](#defining-a-mutator)
+- [Attribute Casting](#attribute-casting)
+  - [Array and JSON Casting](#array-and-json-casting)
+  - [Date Casting](#date-casting)
+  - [Enum Casting](#enum-casting)
+  - [Encrypted Casting](#encrypted-casting)
+  - [Query Time Casting](#query-time-casting)
+- [Custom Casts](#custom-casts)
+  - [Value Object Casting](#value-object-casting)
+  - [Array / JSON Serialization](#array-json-serialization)
+  - [Inbound Casting](#inbound-casting)
+  - [Cast Parameters](#cast-parameters)
+  - [Castables](#castables)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Accessors, mutators, そして attribute キャスティングは、model インスタンス上でそれらを取得または設定するときに Eloquent attribute values を transform することを可能にします。例えば、[Laravel エンクリプタ](/ja/php/laravel/v11.x/06-security/encryption)を使用して database 内に保存されている value を暗号化し、その attribute を Eloquent model 上でアクセスするときに自動的に復号化することができます。また、database に保存されている JSON string を Eloquent model 経由でアクセスされたときに array に変換するという場合もあります。
+
+<a name="accessors-and-mutators"></a>
+
+## Accessors and Mutators
+
+<a name="defining-an-accessor"></a>
+
+### アクセサの定義
+
+アクセサーは、アクセスされた際に Eloquent attribute value を変換します。アクセサーを定義するには、 model 上にアクセス可能な attribute を表す protected method を作成します。この method の名前は、該当する場合は、camel case 表現の true の基本的な model attribute / database column に対応しているべきです。
+
+この例では、 `first_name` 属性のアクセサを定義します。 このアクセサは、 `first_name` 属性の value を取得しようとするときに、自動的に Eloquent によって呼び出されます。 すべての属性アクセサ/ミューテータ methods は、返り値の types ヒントを`Illuminate\Database\Eloquent\Casts\Attribute`として宣言する必要があります。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Get the user's first name.
+     */
+    protected function firstName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucfirst($value),
+        );
+    }
+}
+```
+
+すべてのアクセッサ methods は、属性がどのようにアクセスされ、option で変異するかを定義する`Attribute`インスタンスを返します。この例では、属性がどのようにアクセスされるかだけを定義しています。これを行うために、`get`引数を`Attribute`class のコンストラクターに供給します。
+
+ご覧の通り、元の value は column からアクセサに渡され、あなたがその value を操作し、返すことを可能にします。アクセサの value にアクセスするには、単に`first_name` attribute を model インスタンスでアクセスするだけです。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$firstName = $user->first_name;
+```
+
+> <LaravelNote type="note" />
+> これらの計算された values をあなたの model の array / JSON 表現に追加したい場合は、[それらを
+> append する必要があります](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#appending-values-to-json)。
+
+<a name="building-value-objects-from-multiple-attributes"></a>
+
+#### 複数の Attributes から Value オブジェクトを作成する
+
+時には、あなたのアクセサが複数の model attributes を一つの"value object"に変換する必要があるかもしれません。それを行うために、あなたの`get`クロージャは第二引数として`$attributes`を受け入れることができます。これは自動的にクロージャに供給され、model の現在のすべての attributes の array を含んでいるでしょう。
+
+```php
+use App\Support\Address;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
+/**
+ * Interact with the user's address.
+ */
+protected function address(): Attribute
+{
+    return Attribute::make(
+        get: fn (mixed $value, array $attributes) => new Address(
+            $attributes['address_line_one'],
+            $attributes['address_line_two'],
+        ),
+    );
+}
+```
+
+<a name="accessor-caching"></a>
+
+#### アクセサキャッシング
+
+アクセサから value オブジェクトを返すとき、 value object への変更は自動的に model に同期され、その後で model が保存されます。これは Eloquent がアクセサから返されたインスタンスを保持しているため、アクセサが呼び出されるたびに同じインスタンスを返すことができるからです。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->address->lineOne = 'Updated Address Line 1 Value';
+$user->address->lineTwo = 'Updated Address Line 2 Value';
+
+$user->save();
+```
+
+しかし、時には文字列やブール型のようなプリミティブな values に対するキャッシュを有効にしたいこともあるでしょう。特にそれらが計算処理を多く必要とする場合には特にそうです。これを実現するためには、アクセサを定義する時に`shouldCache` method を呼び出すことができます。
+
+```php
+protected function hash(): Attribute
+{
+    return Attribute::make(
+        get: fn (string $value) => bcrypt(gzuncompress($value)),
+    )->shouldCache();
+}
+```
+
+もし attributes の object キャッシングの振る舞いを無効にしたいなら、 attribute を定義するときに`withoutObjectCaching` method を呼び出すことができます：
+
+```php
+/**
+ * Interact with the user's address.
+ */
+protected function address(): Attribute
+{
+    return Attribute::make(
+        get: fn (mixed $value, array $attributes) => new Address(
+            $attributes['address_line_one'],
+            $attributes['address_line_two'],
+        ),
+    )->withoutObjectCaching();
+}
+```
+
+<a name="defining-a-mutator"></a>
+
+### ミューテーターの定義
+
+ミューテータは、設定時に Eloquent attribute value を変換します。ミューテータを定義するには、 attribute を定義する際に`set`引数を提供できます。`first_name` attribute のミューテータを定義しましょう。このミューテータは、`first_name`の attribute の value を model に設定しようと attempt すると自動的に呼び出されます：
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Interact with the user's first name.
+     */
+    protected function firstName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucfirst($value),
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+}
+```
+
+ミューテータクロージャーは、 attribute の設定中に value を受け取り、その value を操作して操作した value を返すことができます。ミューテータを使用するためには、 Eloquent model の`first_name` attribute を設定するだけです。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->first_name = 'Sally';
+```
+
+この例では、`set`コールバックは value `Sally`で呼び出されます。その後、ミューテータは`strtolower`関数を名前に適用し、その結果の value をモデルの内部`$attributes` array に設定します。
+
+<a name="mutating-multiple-attributes"></a>
+
+#### 複数の Attributes を変化させる
+
+時々、あなたのミューテータは、基になる model に複数の attributes を設定する必要があるかもしれません。そのためには、`set`クロージャから array を返すことができます。 array の各キーは、 model に関連付けられた attribute / database column に対応するべきです：
+
+```php
+use App\Support\Address;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
+/**
+ * Interact with the user's address.
+ */
+protected function address(): Attribute
+{
+    return Attribute::make(
+        get: fn (mixed $value, array $attributes) => new Address(
+            $attributes['address_line_one'],
+            $attributes['address_line_two'],
+        ),
+        set: fn (Address $value) => [
+            'address_line_one' => $value->lineOne,
+            'address_line_two' => $value->lineTwo,
+        ],
+    );
+}
+```
+
+<a name="attribute-casting"></a>
+
+## Attribute Casting
+
+Attribute キャスティングは、追加のメソッドを attributes に定義する必要なく、アクセサやミューテータと同様の機能を提供します。代わりに、 model の`casts` method は、属性を一般的な data types に変換する便利な方法を提供します。
+
+`casts` method は、キャストされる attribute の名前が key で、value はキャストしたい type、column へのキャストを希望する型が値である array を返す必要があります。サポートされているキャストの type は以下の通りです:
+
+<div class="content-list" markdown="1">
+
+- `array`
+- `AsStringable::class`
+- `boolean`
+- `collection`
+- `date`
+- `datetime`
+- `immutable_date`
+- `immutable_datetime`
+- <code>decimal:&lt;precision&gt;</code>
+- `double`
+- `encrypted`
+- `encrypted:array`
+- `encrypted:collection`
+- `encrypted:object`
+- `float`
+- `hashed`
+- `integer`
+- `object`
+- `real`
+- `string`
+- `timestamp`
+
+</div>
+
+attribute キャスティングを示すために、私たちの database に integer (`0`または`1`)として保存されている`is_admin` attribute を boolean value にキャストしてみましょう。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_admin' => 'boolean',
+        ];
+    }
+}
+```
+
+キャストを定義した後、`is_admin` 属性は、それが database に整数として保存されている場合であっても、それにアクセスするときは常にブールにキャストされます。
+
+```php
+$user = App\Models\User::find(1);
+
+if ($user->is_admin) {
+    // ...
+}
+```
+
+もし新しく、一時的なキャストを runtime で追加する必要がある場合、`mergeCasts` method を使うことができます。これらのキャスト定義は既に model 上で定義されているキャストのいずれかに追加されます。
+
+```php
+$user->mergeCasts([
+    'is_admin' => 'integer',
+    'options' => 'object',
+]);
+```
+
+> <LaravelNote type="warning" />
+> `null`の属性はキャストされません。さらに、関係性と同じ名前のキャスト(または属性)を定義したり、model
+> の primarykey にキャストを割り当てることは決してありません。
+
+<a name="stringable-casting"></a>
+
+#### Stringable キャスティング
+
+`Illuminate\Database\Eloquent\Casts\AsStringable`キャスト class を使用して、 model attribute を[フルエントな `Illuminate\Support\Stringable` object](/ja/php/laravel/v11.x/05-digging-deeper/strings#fluent-strings-method-list)にキャストすることができます。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Casts\AsStringable;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'directory' => AsStringable::class,
+        ];
+    }
+}
+```
+
+<a name="array-and-json-casting"></a>
+
+### Array と JSON のキャスティング
+
+`array`キャストは、シリアル化された JSON として保存されている columns を操作する際に特に便利です。例えば、あなたの database に`JSON`や`TEXT`フィールドの type があり、それがシリアル化された JSON を含んでいる場合、その属性に`array`キャストを追加すると、その属性にアクセスする際に PHP の array へ自動的にデシリアライズします。Eloquent model 上でそれをアクセスするときに：
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'options' => 'array',
+        ];
+    }
+}
+```
+
+キャストが定義されると、`options`の attribute にアクセスでき、自動的に JSON から PHP の array にデシリアライズされます。`options`の attribute の value を設定すると、指定された array は自動的に JSON にシリアライズされて storage に戻ります。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$options = $user->options;
+
+$options['key'] = 'value';
+
+$user->options = $options;
+
+$user->save();
+```
+
+より簡潔な syntax で JSON attribute の single フィールドを update するためには、[attribute を一括割り当て可能にする](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment-json-columns)ことができ、`update` method を呼び出す際に`->`オペレータを使用します：
+
+```php
+$user = User::find(1);
+
+$user->update(['options->key' => 'value']);
+```
+
+<a name="array-object-and-collection-casting"></a>
+
+#### Array Object と Collection のキャスティング
+
+標準の `array` キャストは多くのアプリケーションにとって十分ですが、いくつかの欠点があります。 `array` キャストがプリミティブな type を返すため、その array のオフセットを直接変更することはできません。 例えば、次の code は PHP の error を引き起こします：
+
+```php
+$user = User::find(1);
+
+$user->options['key'] = $value;
+```
+
+これを解決するために、Laravel は、`AsArrayObject`キャストを提供しており、これにより JSON 属性を[Arrayobject](https://www.php.net/manual/en/class.arrayobject.php) class に変換します。この機能は、Laravel の[custom キャスト](#custom-casts)実装を使用して実装されており、Laravel は、個々のオフセットが PHP error をトリガーすることなく変更できるように、変更された object をインテリジェントに cache および変換します。 `AsArrayObject`キャストを使用するためには、それを属性に割り当てるだけです：
+
+```php
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'options' => AsArrayObject::class,
+    ];
+}
+```
+
+同様に、 Laravel は、あなたの JSON attribute を Laravel の[Collection](/ja/php/laravel/v11.x/05-digging-deeper/collections)インスタンスに変換する`AsCollection`キャストを提供します：
+
+```php
+use Illuminate\Database\Eloquent\Casts\AsCollection;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'options' => AsCollection::class,
+    ];
+}
+```
+
+`AsCollection`キャストが Laravel の基本の collection class の代わりに custom collection class をインスタンス化することを希望する場合、キャストの引数として collection class の名前を提供できます：
+
+```php
+use App\Collections\OptionCollection;
+use Illuminate\Database\Eloquent\Casts\AsCollection;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'options' => AsCollection::using(OptionCollection::class),
+    ];
+}
+```
+
+<a name="date-casting"></a>
+
+### 日付のキャスティング
+
+default では、 Eloquent は `created_at` および `updated_at` の columns を、PHP の`DateTime` class を拡張し、さまざまな便利な attributes を提供する[Carbon](https://github.com/briannesbitt/Carbon)のインスタンスにキャストします。model の `casts` method 内で追加の日付キャストを定義することで、追加の日付 属性をキャストすることができます。通常、日付は `datetime` または `immutable_datetime` キャスト types を使用してキャストする必要があります。
+
+`date`や`datetime`のキャストを定義するときに、日付の形式を指定することもできます。この形式は、[model が array または JSON にシリアライズされるとき](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization)に使用されます。
+
+```php
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'created_at' => 'datetime:Y-m-d',
+    ];
+}
+```
+
+column が日付としてキャストされた場合、対応する model attribute value を UNIX の timestamp 、日付 string (`Y-m-d`)、日時 string 、もしくは`DateTime` / `Carbon`インスタンスに設定することができます。日付の value は正しく変換され、あなたの database に格納されます。
+
+ご自身の model の全ての日付の default シリアライズ形式をカスタマイズすることが可能です。そのためには、model 上に`serializeDate` method を定義してください。この method は、database 内での storage のために日付がどのように整形されるかには影響を与えません：
+
+```php
+/**
+ * Prepare a date for array / JSON serialization.
+ */
+protected function serializeDate(DateTimeInterface $date): string
+{
+    return $date->format('Y-m-d');
+}
+```
+
+モデルの日付を実際に database に保存する際に使用すべき形式を指定するには、 model 上で`$dateFormat`プロパティを定義する必要があります：
+
+```php
+/**
+ * The storage format of the model's date columns.
+ *
+ * @var string
+ */
+protected $dateFormat = 'U';
+```
+
+<a name="date-casting-and-timezones"></a>
+
+#### 日付のキャスト、直列化、およびタイムゾーン
+
+default では、`date`と`datetime`のキャストは、アプリケーションの`timezone`設定オプションで指定された timezone に関係なく、日付を UTC ISO-8601 日付 string（`YYYY-MM-DDTHH:MM:SS.uuuuuuZ`）にシリアライズします。このシリアライズ形式を常に使用すること、およびアプリケーションの日付を default の`UTC` value から変更せずに UTC timezone で保存することが強く推奨されます。UTC timezone を application 全体で一貫して使用することで、PHP および JavaScript で書かれた他の日付操作ライブラリとの最大限の互換性が得られます。
+
+`date`や`datetime`キャストに custom フォーマットが適用される場合、例えば`datetime:Y-m-d H:i:s`のような場合、 Carbon インスタンスの内部 timezone が日付のシリアル化の際に使用されます。通常、これはアプリケーションの`timezone`設定オプションで指定した timezone になります。
+
+<a name="enum-casting"></a>
+
+### Enum キャスティング
+
+Eloquent はまた、あなたの attribute values を PHP [enums](https://www.php.net/manual/en/language.enumerations.backed.php)にキャストすることもできます。これを達成するために、model の `casts` method でキャストしたい attribute と enum を指定することができます:
+
+```php
+use App\Enums\ServerStatus;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'status' => ServerStatus::class,
+    ];
+}
+```
+
+model にキャストを定義すると、指定した attribute は、attribute とやり取りするときに自動的に enum にキャストされ、enum からキャストされます。
+
+```php
+if ($server->status == ServerStatus::Provisioned) {
+    $server->status = ServerStatus::Ready;
+
+    $server->save();
+}
+```
+
+<a name="casting-arrays-of-enums"></a>
+
+#### Enum の配列のキャスト
+
+時折、あなたの model が single column 内に enum values の array を格納する必要があるかもしれません。これを実現するためには、 Laravel が提供する`AsEnumArrayObject`または`AsEnumCollection`キャストを利用することができます。
+
+```php
+use App\Enums\ServerStatus;
+use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'statuses' => AsEnumCollection::of(ServerStatus::class),
+    ];
+}
+```
+
+<a name="encrypted-casting"></a>
+
+`encrypted`キャストは、Laravel の組み込みの[encryption](/ja/php/laravel/v11.x/06-security/encryption) 機能を使用して、model の属性値を暗号化します。さらに、`encrypted:array`、`encrypted:collection`、`encrypted:object`、`AsEncryptedArrayObject`、および`AsEncryptedCollection`キャストは、暗号化されていない対応するキャストと同じように動作します。しかし、おそらく思いもよらないでしょうが、基礎となる value は、database に格納されるときに暗号化されます。
+
+暗号化されたテキストの最終的な length は予測できず、その平文の対応物よりも長いため、関連する database column が`TEXT`の type またはそれ以上の大きさであることを確認してください。さらに、 values は database で暗号化されているため、暗号化された attribute values を query または search することはできません。
+
+<a name="key-rotation"></a>
+
+#### キーのローテーション
+
+ご存知の通り、 Laravel は、アプリケーションの`app`設定ファイルで指定された`key`設定の value を使用して文字列を暗号化します。通常、この value は`APP_KEY`の environment 変数の value に対応します。アプリケーションの encryption キーをローテートする必要がある場合は、新しいキーを使用して暗号化された attributes を手動で再暗号化する必要があります。
+
+<a name="query-time-casting"></a>
+
+### Query タイムキャスティング
+
+時折、テーブルからの生の value を選択する場合など、 query を実行する際にキャストを適用する必要があるかもしれません。例えば、次の query を考えてみてください：
+
+```php
+use App\Models\Post;
+use App\Models\User;
+
+$users = User::select([
+    'users.*',
+    'last_posted_at' => Post::selectRaw('MAX(created_at)')
+            ->whereColumn('user_id', 'users.id')
+])->get();
+```
+
+この query の結果にある`last_posted_at` 属性はシンプルな string になるでしょう。この属性に`datetime`キャストを適用できたら素晴らしくなります。ありがたいことに、これは`withCasts` method を使用して達成できます。
+
+```php
+$users = User::select([
+    'users.*',
+    'last_posted_at' => Post::selectRaw('MAX(created_at)')
+            ->whereColumn('user_id', 'users.id')
+])->withCasts([
+    'last_posted_at' => 'datetime'
+])->get();
+```
+
+<a name="custom-casts"></a>
+
+## Custom Casts
+
+Laravel には、さまざまな組み込みの便利なキャスト types があります。しかし、時折、独自のキャスト types を定義する必要があるかもしれません。キャストを作成するには、`make:cast`の Artisan command を実行します。新しいキャストの class はあなたの`app/Casts`ディレクトリに配置されます。
+
+```shell
+php artisan make:cast Json
+```
+
+すべての custom キャストクラスは、`CastsAttributes`インターフェースを実装しています。 このインターフェースを実装するクラスは、`get`と`set`の method を定義する必要があります。 `get` の method は、 database からの生の value をキャストした value に変換する役割を担い、一方、`set`の method はキャストされた value を database に格納できる生の value に transform するべきです。例として、組み込みの`json`キャストの type を、 custom キャストの type として再実装します：
+
+```php
+<?php
+
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
+
+class Json implements CastsAttributes
+{
+    /**
+     * Cast the given value.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    public function get(Model $model, string $key, mixed $value, array $attributes): array
+    {
+        return json_decode($value, true);
+    }
+
+    /**
+     * Prepare the given value for storage.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return json_encode($value);
+    }
+}
+```
+
+あなたが custom キャスト type を定義したら、その class 名を使用してそれを model attribute に attach することができます。
+
+```php
+<?php
+
+namespace App\Models;
+
+use App\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'options' => Json::class,
+        ];
+    }
+}
+```
+
+<a name="value-object-casting"></a>
+
+### Value Object キャスティング
+
+あなたは、values をプリミティブ types にキャストすることに限定されません。values を objects にキャストすることもできます。values を objects にキャストする custom キャストの定義は、プリミティブ types にキャストするのと非常に似ていますが、`set`method は、model 上で生の、保存可能な values を設定するために使用される key/value のペアの array を返すべきです。
+
+例として、複数の model values を single の`Address` value object にキャストする custom キャスト class を定義します。`Address` value には二つの public プロパティ：`lineOne`と`lineTwo`があると仮定します：
+
+```php
+<?php
+
+namespace App\Casts;
+
+use App\ValueObjects\Address as AddressValueObject;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
+
+class Address implements CastsAttributes
+{
+    /**
+     * Cast the given value.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function get(Model $model, string $key, mixed $value, array $attributes): AddressValueObject
+    {
+        return new AddressValueObject(
+            $attributes['address_line_one'],
+            $attributes['address_line_two']
+        );
+    }
+
+    /**
+     * Prepare the given value for storage.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, string>
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): array
+    {
+        if (! $value instanceof AddressValueObject) {
+            throw new InvalidArgumentException('The given value is not an Address instance.');
+        }
+
+        return [
+            'address_line_one' => $value->lineOne,
+            'address_line_two' => $value->lineTwo,
+        ];
+    }
+}
+```
+
+value オブジェクトにキャストする際、 value object に対して行ったすべての変更は、 model が保存される前に自動的に model に同期されます：
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->address->lineOne = 'Updated Address Value';
+
+$user->save();
+```
+
+> <LaravelNote type="note" />
+> あなたが Eloquent models に含まれる value オブジェクトを JSON や配列にシリアライズする予定の場合、
+> value object に`Illuminate\Contracts\Support\Arrayable`と`JsonSerializable`インタフェースを実装するべきです。
+
+<a name="value-object-caching"></a>
+
+#### Value Object キャッシング
+
+属性が valueobject にキャストされ解決されるとき、それらは Eloquent によって cache されます。したがって、属性が再びアクセスされた場合、同じ object インスタンスが返されます。
+
+custom キャストクラスの object キャッシング動作を無効にしたい場合は、 custom キャスト class 上で public `withoutObjectCaching` プロパティを宣言することができます:
+
+```php
+class Address implements CastsAttributes
+{
+    public bool $withoutObjectCaching = true;
+
+    // ...
+}
+```
+
+<a name="array-json-serialization"></a>
+
+### Array / JSON シリアライゼーション
+
+Eloquent model が `toArray` や `toJson` メソッドを使って array や JSON に変換されるとき、通常、 custom キャストの value オブジェクトもシリアライズされます。これらのオブジェクトは、`Illuminate\Contracts\Support\Arrayable` および `JsonSerializable` インターフェースを実装している限りです。しかし、サードパーティのライブラリから提供される value オブジェクトを使用していると、これらのインターフェースを object に追加する能力がないかもしれません。
+
+したがって、あなたの custom キャスト class が value object のシリアライズを担当するように指定することができます。そのためには、あなたの custom キャスト class は`Illuminate\Contracts\Database\Eloquent\SerializesCastableAttributes`インターフェースを実装するべきです。このインターフェースは、あなたの class は`serialize` method を含むべきであり、これはあなたの value object のシリアライズされた形式を返すべきであると述べています:
+
+```php
+/**
+ * Get the serialized representation of the value.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+public function serialize(Model $model, string $key, mixed $value, array $attributes): string
+{
+    return (string) $value;
+}
+```
+
+<a name="inbound-casting"></a>
+
+たまに、 model に設定されている values だけを変換し、 model から attributes を retrieved するときには何も操作を行わない、 custom なキャスト class を書く必要があるかもしれません。
+
+インバウンド専用の custom casts は、`set` method のみを定義することを求める`CastsInboundAttributes`インターフェースを実装する必要があります。 `make:cast` Artisan command は、インバウンド専用の cast class を生成するために、`--inbound`オプションを付けて呼び出すことができます：
+
+```shell
+php artisan make:cast Hash --inbound
+```
+
+受信専用キャストの古典的な例はハッシングキャストです。例えば、与えられた algorithm を通じて受信 values をハッシュするキャストを定義するかもしれません。
+
+```php
+<?php
+
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsInboundAttributes;
+use Illuminate\Database\Eloquent\Model;
+
+class Hash implements CastsInboundAttributes
+{
+    /**
+     * Create a new cast class instance.
+     */
+    public function __construct(
+        protected string|null $algorithm = null,
+    ) {}
+
+    /**
+     * Prepare the given value for storage.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return is_null($this->algorithm)
+                    ? bcrypt($value)
+                    : hash($this->algorithm, $value);
+    }
+}
+```
+
+<a name="cast-parameters"></a>
+
+### キャストパラメータ
+
+model に custom キャストをアタッチするとき、キャストパラメータは、 class 名から`:`文字を使用して区切り、複数のパラメータをコンマで区切ることにより指定することができます。これらのパラメータはキャスト class のコンストラクタに渡されます：
+
+```php
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'secret' => Hash::class.':sha256',
+    ];
+}
+```
+
+<a name="castables"></a>
+
+### Castables
+
+あなたは、アプリケーションの value オブジェクトが自分自身の custom キャストクラスを定義することを許可したいかもしれません。 custom キャスト class をあなたの model に添付する代わりに、あなたは代わりに`Illuminate\Contracts\Database\Eloquent\Castable` インターフェースを実装する value object class を attach するかもしれません。
+
+```php
+use App\ValueObjects\Address;
+
+protected function casts(): array
+{
+    return [
+        'address' => Address::class,
+    ];
+}
+```
+
+`Castable`インターフェースを実装する Objects は、`Castable` class へのキャストとその逆のキャストを担当する custom キャスターの class 名を返す`castUsing` method を定義する必要があります。
+
+```php
+<?php
+
+namespace App\ValueObjects;
+
+use Illuminate\Contracts\Database\Eloquent\Castable;
+use App\Casts\Address as AddressCast;
+
+class Address implements Castable
+{
+    /**
+     * Get the name of the caster class to use when casting from / to this cast target.
+     *
+     * @param  array<string, mixed>  $arguments
+     */
+    public static function castUsing(array $arguments): string
+    {
+        return AddressCast::class;
+    }
+}
+```
+
+`Castable`class を使用する際でも、`casts` method の定義に引数を提供することができます。引数は`castUsing` method に渡されます：
+
+```php
+use App\ValueObjects\Address;
+
+protected function casts(): array
+{
+    return [
+        'address' => Address::class.':argument',
+    ];
+}
+```
+
+<a name="anonymous-cast-classes"></a>
+
+#### キャスタブル ＆ 無名キャストクラス
+
+castables"を PHP の[匿名クラス](https://www.php.net/manual/en/language.oop5.anonymous.php)と組み合わせることで、" value object "とそのキャストロジックを" single "キャスト可能な" object "として定義することができます。これを達成するために、" value "オブジェクトの`castUsing` " method "から匿名" class "を返します。匿名" class "は、`CastsAttributes`インターフェースを実装する必要があります：
+
+```php
+<?php
+
+namespace App\ValueObjects;
+
+use Illuminate\Contracts\Database\Eloquent\Castable;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+
+class Address implements Castable
+{
+    // ...
+
+    /**
+     * Get the caster class to use when casting from / to this cast target.
+     *
+     * @param  array<string, mixed>  $arguments
+     */
+    public static function castUsing(array $arguments): CastsAttributes
+    {
+        return new class implements CastsAttributes
+        {
+            public function get(Model $model, string $key, mixed $value, array $attributes): Address
+            {
+                return new Address(
+                    $attributes['address_line_one'],
+                    $attributes['address_line_two']
+                );
+            }
+
+            public function set(Model $model, string $key, mixed $value, array $attributes): array
+            {
+                return [
+                    'address_line_one' => $value->lineOne,
+                    'address_line_two' => $value->lineTwo,
+                ];
+            }
+        };
+    }
+}
+
+```

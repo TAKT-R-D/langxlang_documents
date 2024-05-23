@@ -1,0 +1,643 @@
+---
+filePath: "source/laravel/logging.md"
+title: "Logging"
+description: "Logging"
+org_path: "/docs/11.x/logging"
+is_empty: false
+nav_title: "Logging"
+org_title: "Logging"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Configuration](#configuration)
+  - [Available Channel Drivers](#available-channel-drivers)
+  - [Channel Prerequisites](#channel-prerequisites)
+  - [Logging Deprecation Warnings](#logging-deprecation-warnings)
+- [Building Log Stacks](#building-log-stacks)
+- [Writing Log Messages](#writing-log-messages)
+  - [Contextual Information](#contextual-information)
+  - [Writing to Specific Channels](#writing-to-specific-channels)
+- [Monolog Channel Customization](#monolog-channel-customization)
+  - [Customizing Monolog for Channels](#customizing-monolog-for-channels)
+  - [Creating Monolog Handler Channels](#creating-monolog-handler-channels)
+  - [Creating Custom Channels via Factories](#creating-custom-channels-via-factories)
+- [Tailing Log Messages Using Pail](#tailing-log-messages-using-pail)
+  - [Installation](#pail-installation)
+  - [Usage](#pail-usage)
+  - [Filtering Logs](#pail-filtering-logs)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+あなたが application 内で何が起こっているかをより詳しく理解するために、 Laravel は強力な logging services を提供しており、これにより、メッセージをファイルに log したり、システム error log に記録したり、さらには Slack に通知してチーム全体に知らせることも可能です。
+
+Laravel logging は"channels"に基づいています。各 channel は、log 情報を書き込む特定の方法を表しています。例えば、`single` channel は log ファイルを"single log"ファイルに書き込みますが、`slack` channel は log メッセージを Slack に送信します。log メッセージは、その重要度に基づいて複数の channel に書き込むことができます。
+
+ホードの下で、 Laravel は[Monolog](https://github.com/Seldaek/monolog) library を利用しており、これにより様々な強力な log ハンドラのサポートが提供されます。 Laravel によってこれらのハンドラの設定が簡単になり、あなたの application の log ハンドリングをカスタマイズするために混ぜたり、 match させたりすることができます。
+
+<a name="configuration"></a>
+
+## Configuration
+
+すべての設定 options は、アプリケーションの logging の振る舞いを制御し、`config/logging.php` 設定ファイルに収容されています。このファイルにより、アプリケーションの log チャンネルを設定できますので、利用可能な各チャンネルとその options を確認してください。以下でいくつかの一般的な options をご説明します。
+
+Laravel は logging メッセージをデフォルトで`stack` channel を使用します。`stack` channel は、複数の log チャンネルを 1 つの channel に集約するために使用されます。スタックの構築に関する詳細については、[以下のドキュメント](#building-log-stacks)を参照してください。
+
+<a name="available-channel-drivers"></a>
+
+### 利用可能な Channel ドライバー
+
+各々の log channel は"driver"によって動作しています。driver は log メッセージが実際にどのように、どこに recorded されるかを決定します。以下の log channeldriver は全ての Laravel application で利用可能です。これらの driver のほとんどは、すでにあなたの application の`config/logging.php`設定ファイルにエントリが存在していますので、その内容に精通するために必ずこのファイルを見直してください。
+
+<div class="overflow-auto">
+
+| 名前         | 説明                                                                   |
+| ------------ | ---------------------------------------------------------------------- |
+| `custom`     | 指定された factory を呼び出して channel を作成する driver              |
+| `daily`      | 日々ローテーションする Monolog driver である`RotatingFileHandler`      |
+| `errorlog`   | `ErrorLogHandler`ベースの Monolog driver                               |
+| `monolog`    | どのサポートされた Monolog handler も使用可能な Monolog factory driver |
+| `papertrail` | Monolog driver を基盤とした `SyslogUdpHandler`                         |
+| `single`     | single ファイルまたは path ベースのロガー channel (`StreamHandler`)    |
+| `slack`      | Monolog driver をベースにした `SlackWebhookHandler`                    |
+| `stack`      | 複数チャネルを作成しやすくするためのラッパー                           |
+| `syslog`     | `SyslogHandler`をベースとした Monolog driver                           |
+
+</div>
+
+> <LaravelNote type="note" />
+> 詳細は、[高度な channel のカスタマイズ](#monolog-channel-customization)のドキュメンテーションをご覧ください。これにより、`monolog`と`custom`ドライバについての詳細を理解することができます。
+
+<a name="configuring-the-channel-name"></a>
+
+#### Channel 名の設定
+
+default では、Monolog は現在の環境に一致する channel 名でインスタンス化されます。たとえば、`production`や`local`などです。この value を変更するには、channel の設定に`name` option を追加することができます：
+
+```php
+'stack' => [
+    'driver' => 'stack',
+    'name' => 'channel-name',
+    'channels' => ['single', 'slack'],
+],
+```
+
+<a name="channel-prerequisites"></a>
+
+### Channel の前提条件
+
+<a name="configuring-the-single-and-daily-channels"></a>
+
+#### Single と Daily チャンネルの設定
+
+`single` と `daily` チャンネルには、3 つのオプション設定 options があります： `bubble`、`permission`、そして `locking`。
+
+<div class="overflow-auto">
+
+| 名前         | 説明                                                                             | Default |
+| ------------ | -------------------------------------------------------------------------------- | ------- |
+| `bubble`     | メッセージが処理された後に他のチャンネルにバブルアップするべきかどうかを示します | `true`  |
+| `locking`    | Attempt log ファイルを書き込む前にロックする                                     | `false` |
+| `permission` | log ファイルの権限                                                               | `0644`  |
+
+</div>
+
+さらに、`daily` channel のリテンション policy は、`LOG_DAILY_DAYS` environment variable を通じて、または`days`設定 option を設定することで設定することができます。
+
+<div class="overflow-auto">
+
+| 名前   | 説明                                    | Default |
+| ------ | --------------------------------------- | ------- |
+| `days` | 日々の log ファイルが保持されるべき日数 | `7`     |
+
+</div>
+
+<a name="configuring-the-papertrail-channel"></a>
+
+#### Papertrail Channel の設定
+
+`papertrail` channel は、`host` および `port` 構成 options を必要とします。これらは `PAPERTRAIL_URL` と `PAPERTRAIL_PORT` environment 変数で定義できます。これらの values は [Papertrail](https://help.papertrailapp.com/kb/configuration/configuring-centralized-logging-from-php-apps/#send-events-from-php-app) から取得できます。
+
+<a name="configuring-the-slack-channel"></a>
+
+#### Slack Channel の設定
+
+`slack`の channel は `url` の設定 option が必要です。この value は、 `LOG_SLACK_WEBHOOK_URL` の environment variables を介して定義できます。URL は、あなたが自分の Slack チーム用に設定した[webhook への入力](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks)の URL と一致すべきです。
+
+default として、 Slack は `critical` レベル以上の logs のみを受け取ります。ただし、 `LOG_LEVEL` environment variables を使用したり、 Slack log channel の設定 array 内の `level` 設定 option を変更することで、これを調整できます。
+
+<a name="logging-deprecation-warnings"></a>
+
+### Logging 非推奨警告
+
+PHP、Laravel、および他の libraries は、一部の機能が廃止予定であり、将来の version で削除されることを、しばしばその users に通知します。これらの廃止警告を log に記録したい場合は、 `deprecations` ログ channel を指定するために、`LOG_DEPRECATIONS_CHANNEL` 環境 variables を使用するか、application の `config/logging.php` 設定ファイル内で指定することができます。
+
+```php
+'deprecations' => [
+    'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
+    'trace' => env('LOG_DEPRECATIONS_TRACE', false),
+],
+
+'channels' => [
+    // ...
+]
+```
+
+または、`deprecations`という名前の logchannel を定義することもできます。この名前の logchannel が存在する場合、常に非推奨の log に使用されます:
+
+```php
+'channels' => [
+    'deprecations' => [
+        'driver' => 'single',
+        'path' => storage_path('logs/php-deprecation-warnings.log'),
+    ],
+],
+```
+
+<a name="building-log-stacks"></a>
+
+## Building Log Stacks
+
+前述の通り、`stack` driver を使用すると、複数の channels を単一のログ channels に結合することができ、便利です。 log stack の使用方法を示すために、production application で見かけるかもしれない設定例を見てみましょう：
+
+```php
+'channels' => [
+    'stack' => [
+        'driver' => 'stack',
+        'channels' => ['syslog', 'slack'], // [tl! add]
+        'ignore_exceptions' => false,
+    ],
+
+    'syslog' => [
+        'driver' => 'syslog',
+        'level' => env('LOG_LEVEL', 'debug'),
+        'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
+        'replace_placeholders' => true,
+    ],
+
+    'slack' => [
+        'driver' => 'slack',
+        'url' => env('LOG_SLACK_WEBHOOK_URL'),
+        'username' => env('LOG_SLACK_USERNAME', 'Laravel Log'),
+        'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
+        'level' => env('LOG_LEVEL', 'critical'),
+        'replace_placeholders' => true,
+    ],
+],
+```
+
+この設定を解析してみましょう。まず、`stack` channel が、`channels`option を通じて他の 2 つのチャンネル、`syslog`と`slack`を組み込んでいることに注目してください。したがって、 logging メッセージを出力する際には、これらの両方のチャンネルがメッセージを log に出力する機会を持つことになります。しかし、この後で説明するように、これらのチャンネルが実際にメッセージを log に出力するかどうかは、メッセージの重大度 / "レベル"によって決まるかもしれません。
+
+<a name="log-levels"></a>
+
+#### Log レベル
+
+`syslog` および `slack` channel 構成に存在する `level` 構成オプションに注意してください。このオプションは、メッセージが channel によって記録されるために必要な最小の「レベル」を決定します。Laravel の logging services を動かす Monolog は、[RFC 5424 規格](EXL0006) で定義されたすべての log レベルを提供します。重大度が高い順に、これらの log レベルは次のとおりです: **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, および **debug**。
+
+それでは、`debug` method を使ってメッセージを log に記録することを想像してみてください：
+
+```php
+Log::debug('An informational message.');
+```
+
+私たちの設定を考えると、`syslog` channel はメッセージをシステムログに書き込みますが、 error メッセージは `critical` 以上ではないため、 Slack には送信されません。しかし、もしこれを log として `emergency` メッセージを記録した場合、`emergency` レベルは両方のチャンネルに対する最小レベル閾 values を上回っているため、システムの log と Slack の双方に送信されます：
+
+```php
+Log::emergency('The system is down!');
+```
+
+<a name="writing-log-messages"></a>
+
+## Writing Log Messages
+
+`Log` [facade](/ja/php/laravel/v11.x/03-architecture-concepts/04-facades)を使用して、Logs に情報を書き込むことができます。前述の通り、ロガーは[RFC 5424 の仕様](https://tools.ietf.org/html/rfc5424)で定義された 8 つの logging レベルを提供します： **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, **debug**：
+
+```php
+use Illuminate\Support\Facades\Log;
+
+Log::emergency($message);
+Log::alert($message);
+Log::critical($message);
+Log::error($message);
+Log::warning($message);
+Log::notice($message);
+Log::info($message);
+Log::debug($message);
+```
+
+これらのメソッドのいずれかを使用して、対応するレベルのメッセージを log に記録することができます。 default では、メッセージは `logging` 設定ファイルで設定された default log channel に書き込まれます。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
+
+class UserController extends Controller
+{
+    /**
+     * Show the profile for the given user.
+     */
+    public function show(string $id): View
+    {
+        Log::info('Showing the user profile for user: {id}', ['id' => $id]);
+
+        return view('user.profile', [
+            'user' => User::findOrFail($id)
+        ]);
+    }
+}
+```
+
+<a name="contextual-information"></a>
+
+### 文脈情報
+
+log メソッドには、コンテキスト data の array が渡されることがあります。このコンテキスト data はフォーマットされ、 log メッセージと一緒に表示されます:
+
+```php
+use Illuminate\Support\Facades\Log;
+
+Log::info('User {id} failed to login.', ['id' => $user->id]);
+```
+
+たまに、特定の channel のすべての後続の log エントリーに含まれるべき文脈情報を指定したいと思うかもしれません。例えば、あなたの application に対する各入力 request に関連付けられた request ID を log したいと思うかもしれません。これを実現するには、`Log` ファサードの `withContext` method を呼び出すことができます：
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+
+class AssignRequestId
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $requestId = (string) Str::uuid();
+
+        Log::withContext([
+            'request-id' => $requestId
+        ]);
+
+        $response = $next($request);
+
+        $response->headers->set('Request-Id', $requestId);
+
+        return $response;
+    }
+}
+```
+
+あなたが*contextual*情報を*すべての* logging チャネル間で共有したい場合は、`Log::shareContext()` method を呼び出すことができます。この method は、すべての作成されたチャネルと、その後作成されたチャネルにコンテクスト情報を提供します。
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+
+class AssignRequestId
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $requestId = (string) Str::uuid();
+
+        Log::shareContext([
+            'request-id' => $requestId
+        ]);
+
+        // ...
+    }
+}
+```
+
+> <LaravelNote type="note" />
+> キュー化された jobs の processing 中に log context を共有する必要がある場合、あなたは[job
+> middleware](/ja/php/laravel/v11.x/05-digging-deeper/queues#job-middleware)を利用することができます。
+
+<a name="writing-to-specific-channels"></a>
+
+### 特定のチャンネルへの書き込み
+
+時々、アプリケーションの default channel 以外の channel にメッセージを log したい場合があるかもしれません。 `Log` facade 上の `channel` method を使用して、設定ファイルで定義された任意の channel に log を取得および記録することができます。
+
+```php
+use Illuminate\Support\Facades\Log;
+
+Log::channel('slack')->info('Something happened!');
+```
+
+もし複数のチャネルで構成されるオンデマンドの logging stack を作成したい場合は、`stack` method を使用することができます：
+
+```php
+Log::stack(['single', 'slack'])->info('Something happened!');
+```
+
+<a name="on-demand-channels"></a>
+
+#### オンデマンドチャンネル
+
+また、アプリケーションの`logging`設定ファイルにその設定が存在しなくても、 runtime で設定を提供することでオンデマンドの channel を作成することも可能です。これを達成するために、設定の array を`Log`ファサードの`build` method に渡すことができます：
+
+```php
+use Illuminate\Support\Facades\Log;
+
+Log::build([
+  'driver' => 'single',
+  'path' => storage_path('logs/custom.log'),
+])->info('Something happened!');
+```
+
+また、オンデマンドの channel をオンデマンドの logging stack に含めたい場合があります。これは、オンデマンドの channel インスタンスを`stack` method に渡される array に含めることで実現できます。
+
+```php
+use Illuminate\Support\Facades\Log;
+
+$channel = Log::build([
+  'driver' => 'single',
+  'path' => storage_path('logs/custom.log'),
+]);
+
+Log::stack(['slack', $channel])->info('Something happened!');
+```
+
+<a name="monolog-channel-customization"></a>
+
+## Monolog Channel Customization
+
+<a name="customizing-monolog-for-channels"></a>
+
+### チャンネル用の Monolog のカスタマイズ
+
+時折、既存の channel に対して Monolog が設定される方法を完全に制御する必要があるかもしれません。例えば、Laravel の組み込み `single` channel 用に custom Monolog の `FormatterInterface` 実装を設定したいかもしれません。
+
+始めるには、チャンネルの構成に `tap` array を定義します。`tap` array には、Monolog インスタンスが作成された後にカスタマイズ（または "tap"）する機会を持つクラスのリストを含める必要があります。これらのクラスを配置するための通常の場所はないため、これらのクラスを含むディレクトリを application 内に自由に作成できます。
+
+```php
+'single' => [
+    'driver' => 'single',
+    'tap' => [App\Logging\CustomizeFormatter::class],
+    'path' => storage_path('logs/laravel.log'),
+    'level' => env('LOG_LEVEL', 'debug'),
+    'replace_placeholders' => true,
+],
+```
+
+`tap`オプションをご自身の channel に設定したら、 Monolog インスタンスをカスタマイズする class を定義する準備が整います。この class は single method のみ必要であり、それは `__invoke` で、これは `Illuminate\Log\Logger` インスタンスを受け取ります。`Illuminate\Log\Logger` インスタンスは、全ての method 呼び出しを基礎となる Monolog インスタンスにプロキシします。
+
+```php
+<?php
+
+namespace App\Logging;
+
+use Illuminate\Log\Logger;
+use Monolog\Formatter\LineFormatter;
+
+class CustomizeFormatter
+{
+    /**
+     * Customize the given logger instance.
+     */
+    public function __invoke(Logger $logger): void
+    {
+        foreach ($logger->getHandlers() as $handler) {
+            $handler->setFormatter(new LineFormatter(
+                '[%datetime%] %channel%.%level_name%: %message% %context% %extra%'
+            ));
+        }
+    }
+}
+```
+
+> <LaravelNote type="note" />
+> あなたの全ての"tap"クラスは[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって解決されているので、必要なコンストラクタの依存関係は自動的に注入されます。
+
+<a name="creating-monolog-handler-channels"></a>
+
+### Monolog Handler チャネルの作成
+
+Monolog は、さまざまな[利用可能なハンドラー](https://github.com/Seldaek/monolog/tree/main/src/Monolog/Handler)を持っており、Laravel はそれぞれに対応する組み込みの channel を持っていません。場合によっては、特定の Monolog ハンドラーの単なるインスタンスである custom チャンネルを作成したいと思うかもしれません。これらのチャンネルは、`monolog` driver を使用して簡単に作成できます。
+
+`monolog`の driver を使用する際、`handler`設定 option を用いて実体化されるハンドラーを指定します。option として、`with`設定 option を用いて、ハンドラーが必要とする任意のコンストラクタパラメータを指定することもできます：
+
+```php
+'logentries' => [
+    'driver'  => 'monolog',
+    'handler' => Monolog\Handler\SyslogUdpHandler::class,
+    'with' => [
+        'host' => 'my.logentries.internal.datahubhost.company.com',
+        'port' => '10000',
+    ],
+],
+```
+
+<a name="monolog-formatters"></a>
+
+#### Monolog フォーマッター
+
+`monolog` driver を使用する場合、Monolog の `LineFormatter` が default フォーマッタとして使用されます。ただし、`formatter` および `formatter_with` 構成 options を使用して、ハンドラに渡されるフォーマッタの type をカスタマイズできます。
+
+```php
+'browser' => [
+    'driver' => 'monolog',
+    'handler' => Monolog\Handler\BrowserConsoleHandler::class,
+    'formatter' => Monolog\Formatter\HtmlFormatter::class,
+    'formatter_with' => [
+        'dateFormat' => 'Y-m-d',
+    ],
+],
+```
+
+あなたが自身のフォーマッターを提供できる Monolog handler を使用している場合、`formatter`設定 option の value を`default`に設定することができます。
+
+```php
+'newrelic' => [
+    'driver' => 'monolog',
+    'handler' => Monolog\Handler\NewRelicHandler::class,
+    'formatter' => 'default',
+],
+```
+
+<a name="monolog-processors"></a>
+
+#### Monolog プロセッサ
+
+Monolog は、 logging する前にメッセージを process することもできます。あなた自身のプロセッサを作成することも、[Monolog が提供する既存のプロセッサ](https://github.com/Seldaek/monolog/tree/main/src/Monolog/Processor)を使用することもできます。
+
+`monolog`の driver のプロセッサをカスタマイズしたい場合は、channel の設定に`processors`の設定 value を追加してください：
+
+```php
+ 'memory' => [
+     'driver' => 'monolog',
+     'handler' => Monolog\Handler\StreamHandler::class,
+     'with' => [
+         'stream' => 'php://stderr',
+     ],
+     'processors' => [
+         // Simple syntax...
+         Monolog\Processor\MemoryUsageProcessor::class,
+
+         // With options...
+         [
+            'processor' => Monolog\Processor\PsrLogMessageProcessor::class,
+            'with' => ['removeUsedContextFields' => true],
+        ],
+     ],
+ ],
+```
+
+<a name="creating-custom-channels-via-factories"></a>
+
+### ファクトリーを介した Custom チャンネルの作成
+
+もし Monolog のインスタンス化と設定に完全にコントロールを持つ、全く新たな custom channel を定義したいと思われるなら、`config/logging.php` 設定ファイルで `custom` driver type を指定することができます。設定には、Monolog インスタンスを生成するために呼び出される factory class の名称を含む `via` option を含むべきです。
+
+```php
+'channels' => [
+    'example-custom-channel' => [
+        'driver' => 'custom',
+        'via' => App\Logging\CreateCustomLogger::class,
+    ],
+],
+```
+
+`custom` driverchannels を設定したら、Monolog インスタンスを生成する class を定義する準備が整いました。この class には、Monolog ロガーインスタンスを返すべき `__invoke` method が単一であれば十分です。この method は、唯一の引数として channels 設定の array を受け取ります：
+
+```php
+<?php
+
+namespace App\Logging;
+
+use Monolog\Logger;
+
+class CreateCustomLogger
+{
+    /**
+     * Create a custom Monolog instance.
+     */
+    public function __invoke(array $config): Logger
+    {
+        return new Logger(/* ... */);
+    }
+}
+```
+
+<a name="tailing-log-messages-using-pail"></a>
+
+## Tailing Log Messages Using Pail
+
+多くの場合、あなたのアプリケーションのログをリアルタイムで追う必要があるかもしれません。たとえば、 debugging の問題を解決したり、アプリケーションのログで特定の種類の errors を監視する際などです。
+
+Laravel Pail は、 command ラインから直接 Laravel application の log ファイルに簡単にアクセスできるようにするパッケージです。標準の`tail` command とは異なり、Pail は Sentry や Flare を含む任意の log driver と連携して動作するように設計されています。さらに、Pail はあなたが探しているものをすばやく見つけるのに役立つ一連の便利なフィルターを提供します。
+
+{/* <img src="/images/php/laravel/v11.x/img/docs/pail-example.png" /> */}
+
+<a name="pail-installation"></a>
+
+### Installation
+
+> <LaravelNote type="warning" />
+> Laravel Pail は[PHP 8.2+](https://php.net/releases/)と[PCNTL](https://www.php.net/manual/en/book.pcntl.php)拡張機能が必要です。
+
+はじめに、パッケージマネージャーの Composer を使用して、あなたの project に Pail をインストールします：
+
+```bash
+composer require laravel/pail
+```
+
+<a name="pail-usage"></a>
+
+### Usage
+
+ログの追跡を開始するには、`pail` command を実行します：
+
+```bash
+php artisan pail
+```
+
+output の詳細度を増やし、切り捨て(…)を避けるために、`-v` オプションを使用します：
+
+```bash
+php artisan pail -v
+```
+
+最大の詳細性を得るため、そして例外の stack トレースを表示するために、`-vv` オプションを使用します:
+
+```bash
+php artisan pail -vv
+```
+
+ログの追跡を停止するには、いつでも`Ctrl+C`を press こと。
+
+<a name="pail-filtering-logs"></a>
+
+### ログのフィルタリング
+
+<a name="pail-filtering-logs-filter-option"></a>
+
+#### `--filter`
+
+あなたは`--filter`オプションを使用して、その type 、ファイル、メッセージ、そして stack トレースの content によってログをフィルタリングすることが可能です:
+
+```bash
+php artisan pail --filter="QueryException"
+```
+
+<a name="pail-filtering-logs-message-option"></a>
+
+#### `--message`
+
+メッセージのみでログをフィルタリングするには、`--message` オプションを使用できます:
+
+```bash
+php artisan pail --message="User created"
+```
+
+<a name="pail-filtering-logs-level-option"></a>
+
+#### `--level`
+
+`--level`オプションは、それらの[log level](#log-levels)によってログをフィルタリングするために使用することができます：
+
+```bash
+php artisan pail --level=error
+```
+
+<a name="pail-filtering-logs-user-option"></a>
+
+#### `--user`
+
+特定の user が認証されている間に書かれたログのみを表示するには、ユーザーの ID を`--user`オプションに提供することができます：
+
+```bash
+php artisan pail --user=1
+```

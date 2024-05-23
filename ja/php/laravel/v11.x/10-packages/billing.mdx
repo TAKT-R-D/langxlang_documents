@@ -1,0 +1,2802 @@
+---
+filePath: "source/laravel/billing.md"
+title: "Laravel Cashier (Stripe)"
+description: "Laravel Cashier (Stripe)"
+org_path: "/docs/11.x/billing"
+is_empty: false
+nav_title: "Cachier (Stripe)"
+org_title: "Laravel Cashier (Stripe)"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Upgrading Cashier](#upgrading-cashier)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Billable Model](#billable-model)
+  - [API Keys](#api-keys)
+  - [Currency Configuration](#currency-configuration)
+  - [Tax Configuration](#tax-configuration)
+  - [Logging](#logging)
+  - [Using Custom Models](#using-custom-models)
+- [Quickstart](#quickstart)
+  - [Selling Products](#quickstart-selling-products)
+  - [Selling Subscriptions](#quickstart-selling-subscriptions)
+- [Customers](#customers)
+  - [Retrieving Customers](#retrieving-customers)
+  - [Creating Customers](#creating-customers)
+  - [Updating Customers](#updating-customers)
+  - [Balances](#balances)
+  - [Tax IDs](#tax-ids)
+  - [Syncing Customer Data With Stripe](#syncing-customer-data-with-stripe)
+  - [Billing Portal](#billing-portal)
+- [Payment Methods](#payment-methods)
+  - [Storing Payment Methods](#storing-payment-methods)
+  - [Retrieving Payment Methods](#retrieving-payment-methods)
+  - [Payment Method Presence](#payment-method-presence)
+  - [Updating the Default Payment Method](#updating-the-default-payment-method)
+  - [Adding Payment Methods](#adding-payment-methods)
+  - [Deleting Payment Methods](#deleting-payment-methods)
+- [Subscriptions](#subscriptions)
+  - [Creating Subscriptions](#creating-subscriptions)
+  - [Checking Subscription Status](#checking-subscription-status)
+  - [Changing Prices](#changing-prices)
+  - [Subscription Quantity](#subscription-quantity)
+  - [Subscriptions With Multiple Products](#subscriptions-with-multiple-products)
+  - [Multiple Subscriptions](#multiple-subscriptions)
+  - [Metered Billing](#metered-billing)
+  - [Subscription Taxes](#subscription-taxes)
+  - [Subscription Anchor Date](#subscription-anchor-date)
+  - [Canceling Subscriptions](#cancelling-subscriptions)
+  - [Resuming Subscriptions](#resuming-subscriptions)
+- [Subscription Trials](#subscription-trials)
+  - [With Payment Method Up Front](#with-payment-method-up-front)
+  - [Without Payment Method Up Front](#without-payment-method-up-front)
+  - [Extending Trials](#extending-trials)
+- [Handling Stripe Webhooks](#handling-stripe-webhooks)
+  - [Defining Webhook Event Handlers](#defining-webhook-event-handlers)
+  - [Verifying Webhook Signatures](#verifying-webhook-signatures)
+- [Single Charges](#single-charges)
+  - [Simple Charge](#simple-charge)
+  - [Charge With Invoice](#charge-with-invoice)
+  - [Creating Payment Intents](#creating-payment-intents)
+  - [Refunding Charges](#refunding-charges)
+- [Checkout](#checkout)
+  - [Product Checkouts](#product-checkouts)
+  - [Single Charge Checkouts](#single-charge-checkouts)
+  - [Subscription Checkouts](#subscription-checkouts)
+  - [Collecting Tax IDs](#collecting-tax-ids)
+  - [Guest Checkouts](#guest-checkouts)
+- [Invoices](#invoices)
+  - [Retrieving Invoices](#retrieving-invoices)
+  - [Upcoming Invoices](#upcoming-invoices)
+  - [Previewing Subscription Invoices](#previewing-subscription-invoices)
+  - [Generating Invoice PDFs](#generating-invoice-pdfs)
+- [Handling Failed Payments](#handling-failed-payments)
+  - [Confirming Payments](#confirming-payments)
+- [Strong Customer Authentication (SCA)](#strong-customer-authentication)
+  - [Payments Requiring Additional Confirmation](#payments-requiring-additional-confirmation)
+  - [Off-session Payment Notifications](#off-session-payment-notifications)
+- [Stripe SDK](#stripe-sdk)
+- [Testing](#testing)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+[Laravel Cashier Stripe](https://github.com/laravel/cashier-stripe)は、[Stripe's](https://stripe.com) subscription 課金 services に対して表現力豊かで流暢なインターフェイスを提供します。これにより、あなたが書くのを恐れているほとんどの定型的な subscription 課金 code を処理します。基本的な subscription 管理に加えて、 Cashier はクーポンの handle 、 subscription の切り替え、 subscription "quantities"、キャンセル猶予期間、さらには請求書の PDF を生成することさえできます。
+
+<a name="upgrading-cashier"></a>
+
+## Upgrading Cashier
+
+新バージョンの Cashier にアップグレードする際は、[アップグレードガイド](https://github.com/laravel/cashier-stripe/blob/master/UPGRADE.md)を慎重に確認することが重要です。
+
+> <LaravelNote type="warning" />
+> ブレーキングチェンジを防ぐために、 Cashier は固定の Stripe API バージョンを使用します。
+> Cashier 15 は Stripe API バージョン `2023-10-16`を使用します。Stripe API バージョンは、新しい
+> Stripe features や改善を利用するために、マイナーリリースで更新されます。
+
+<a name="installation"></a>
+
+## Installation
+
+まず、 Composer パッケージマネージャを使用して、Stripe 用の Cashier パッケージをインストールします：
+
+```shell
+composer require laravel/cashier
+```
+
+パッケージをインストールした後、`vendor:publish` Artisan command を使用して Cashier の migrations を publish します。
+
+```shell
+php artisan vendor:publish --tag="cashier-migrations"
+```
+
+次に、 migrate を使用して database を移行します：
+
+```shell
+php artisan migrate
+```
+
+キャッシャーの migrations は、あなたの`users`テーブルにいくつかの列を追加します。また、お客様の subscriptions を全て保持する新たな`subscriptions`テーブルを作成し、複数の価格を持つ subscriptions のための`subscription_items`テーブルも作成します。
+
+ご希望であれば、`vendor:publish`の Artisan command を使用して Cashier の設定ファイルを publish することもできます：
+
+```shell
+php artisan vendor:publish --tag="cashier-config"
+```
+
+最後に、Cashier が全ての Stripe の events を適切に処理するためには、[Cashier の webhook の取り扱いを設定](#handling-stripe-webhooks)することを忘れないでください。
+
+> <LaravelNote type="warning" />
+> Stripe は、Stripe の識別子を保存するために使用される column は大文字と小文字を区別するようにすることを推奨しています。したがって、`stripe_id`
+> column の照合順序は、MySQL を使用する場合には`utf8_bin`に設定する必要があります。これに関する詳細は、[Stripe
+> documentation](https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible)で見つけることができます。
+
+<a name="configuration"></a>
+
+## Configuration
+
+<a name="billable-model"></a>
+
+### Billable Model
+
+Cashier を使用する前に、`Billable`トレイトを billable model の定義に追加してください。通常、これは`App\Models\User` model になります。このトレイトは、 subscriptions の作成、クーポンの適用、支払い method 情報の更新など、一般的な請求タスクを実行するための各種メソッドを提供します。
+
+```php
+use Laravel\Cashier\Billable;
+
+class User extends Authenticatable
+{
+    use Billable;
+}
+```
+
+Cashier は、あなたの billable model が Laravel に付属する`App\Models\User`の class であると想定しています。これを変更したい場合は、`useCustomerModel`の method を使用して別の model を指定することができます。この method は通常、あなたの`AppServiceProvider`の class の`boot` method で呼び出されるべきです。
+
+```php
+use App\Models\Cashier\User;
+use Laravel\Cashier\Cashier;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Cashier::useCustomerModel(User::class);
+}
+```
+
+> <LaravelNote type="warning" />
+> Laravel が提供する`App\Models\User` model 以外の model を使用している場合、代替モデルのテーブル名に
+> match するように、提供されている[Cashier migrations](#installation)を publish して変更する必要があります。
+
+<a name="api-keys"></a>
+
+### API Keys
+
+次に、アプリケーションの`.env`ファイルで Stripe の API keys を設定する必要があります。Stripe の API keys は Stripe コントロールパネルから取得できます：
+
+```ini
+STRIPE_KEY=your-stripe-key
+STRIPE_SECRET=your-stripe-secret
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+```
+
+> <LaravelNote type="warning" />
+> あなたは、`STRIPE_WEBHOOK_SECRET` environment 変数がアプリケーションの`.env`ファイルで定義されていることを確認すべきです。なぜなら、この変数は、入ってくる
+> webhooks が実際に Stripe からのものであることを確認するために使用されるからです。
+
+<a name="currency-configuration"></a>
+
+### 通貨設定
+
+default Cashier の Cashier 通貨は、米国ドル(USD)です。application の`.env`ファイル内の`CASHIER_CURRENCY` environment variables を設定することで、 default の通貨を変更できます。
+
+```ini
+CASHIER_CURRENCY=eur
+```
+
+Cashier の通貨設定に加えて、請求書の表示用に金額の values をフォーマットする際に使用する locale も指定することができます。内部では、Cashier は[PHP の `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php)を使用して通貨の locale を設定しています。
+
+```ini
+CASHIER_CURRENCY_LOCALE=nl_BE
+```
+
+> <LaravelNote type="warning" />
+> `en`以外のロケールを使用するためには、サーバー上に`ext-intl` PHP 拡張がインストールされ、設定されていることを確認してください。
+
+<a name="tax-configuration"></a>
+
+### 税設定
+
+[Stripe Tax](https://stripe.com/tax)のおかげで、Stripe が生成するすべての請求書の税金を自動的に計算することが可能です。 `calculateTaxes` method を application の `App\Providers\AppServiceProvider` class の `boot` method で呼び出すことにより、自動税計算を有効にすることができます：
+
+```php
+use Laravel\Cashier\Cashier;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Cashier::calculateTaxes();
+}
+```
+
+税金計算が有効になると、新たな subscriptions や生成されたワンタイムの請求書は自動的に税金計算を受けることになります。
+
+この feature が正しく機能するためには、顧客の氏名、住所、税 ID などの請求詳細を Stripe に同期させる必要があります。これを達成するためには、 Cashier が提供する[顧客 data 同期化](#syncing-customer-data-with-stripe)方法と[Tax ID](#tax-ids)方法を使用することができます。
+
+> <LaravelNote type="warning" />
+> [単一の請求](#single-charges)や[単一の checkout](#single-charge-checkouts)には税金は計算されません。
+
+<a name="logging"></a>
+
+### Logging
+
+Cashier は、重大な Stripe の errors を log に記録する際に使用する logchannel を指定することができます。logchannel を指定するためには、application の `.env` ファイル内で `CASHIER_LOGGER` environment variables を定義してください。
+
+```ini
+CASHIER_LOGGER=stack
+```
+
+Exceptions が Stripe の API の呼び出しによって生成された場合、それはあなたのアプリケーションの default log channel を通じてログに記録されます。
+
+<a name="using-custom-models"></a>
+
+### Custom Models の使用
+
+あなたは自分の model を定義し、対応する Cashier model を拡張することで、 Cashier が内部的に使用する models を自由に拡張することができます。
+
+```php
+use Laravel\Cashier\Subscription as CashierSubscription;
+
+class Subscription extends CashierSubscription
+{
+    // ...
+}
+```
+
+model を定義した後、`Laravel\Cashier\Cashier` class を通じて custom model を Cashier に使用させるよう指示することができます。通常、アプリケーションの`App\Providers\AppServiceProvider` class の`boot` method 内で Cashier に custom models について通知するべきです：
+
+```php
+use App\Models\Cashier\Subscription;
+use App\Models\Cashier\SubscriptionItem;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Cashier::useSubscriptionModel(Subscription::class);
+    Cashier::useSubscriptionItemModel(SubscriptionItem::class);
+}
+```
+
+<a name="quickstart"></a>
+
+## Quickstart
+
+<a name="quickstart-selling-products"></a>
+
+### 商品の販売
+
+> <LaravelNote type="note" />
+> Stripe の Checkout を利用する前に、Stripe ダッシュボードで固定価格の製品を定義する必要があります。さらに、[Cashier
+> の webhook ハンドリングを設定](#handling-stripe-webhooks)する必要があります。
+
+あなたの application を通じて商品と subscription の課金を提供することは、気後れするかもしれません。しかし、 Cashier と[Stripe Checkout](https://stripe.com/payments/checkout)のおかげで、現代的で堅牢な支払い統合を簡単に build することができます。
+
+非定期的な、一度限りの請求商品について、お客様に請求するために、 Cashier を活用し、お客様を Stripe の Checkout へ誘導します。そこで彼らは支払い詳細を提供し、購入を確認します。支払いが Checkout を通じて行われると、お客様はあなたが選んだ成功の URL に、あなたの application 内でリダイレクトされます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/checkout', function (Request $request) {
+    $stripePriceId = 'price_deluxe_album';
+
+    $quantity = 1;
+
+    return $request->user()->checkout([$stripePriceId => $quantity], [
+        'success_url' => route('checkout-success'),
+        'cancel_url' => route('checkout-cancel'),
+    ]);
+})->name('checkout');
+
+Route::view('checkout.success')->name('checkout-success');
+Route::view('checkout.cancel')->name('checkout-cancel');
+```
+
+上記の例で見ることができるように、我々は Cashier が提供する`checkout` method を利用して、与えられた"price identifier"に対して顧客を Stripe の Checkout へ redirect します。Stripe を使用するとき、"prices"は[特定の製品のための定義された価格](https://stripe.com/docs/products-prices/how-products-and-prices-work)を指すことを意味します。
+
+必要に応じて、`checkout` method は自動的に Stripe で顧客を作成し、その Stripe の顧客記録をアプリケーションの database 内の対応する user に接続します。 checkout session を完了した後、顧客は専用の成功またはキャンセルページにリダイレクトされ、そこで顧客に情報メッセージを表示することができます。
+
+<a name="providing-meta-data-to-stripe-checkout"></a>
+
+#### Stripe Checkout に対する Meta Data の提供
+
+製品を販売する際、一般的には`Cart`や`Order`の models を使用して注文完了と購入済みの製品を追跡します。これらの models はあなたの application で定義されます。 Stripe の Checkout に顧客を redirect して購入を完了させる際には、既存の注文識別子を提供する必要があるかもしれません。これにより、顧客があなたの application に redirect されたときに、完了した購入を対応する注文と関連付けることができます。
+
+これを達成するために、`checkout`の method に`metadata`の array を提供することができます。 user が checkout process を開始したときに、保留中の`Order`が私たちの application 内で作成されると想像してみましょう。この例の`Cart`および`Order`の models は、説明的なものであり、 Cashier によって提供されているわけではありません。これらのコンセプトを自分自身の application のニーズに基づいて実装する自由があります。
+
+```php
+use App\Models\Cart;
+use App\Models\Order;
+use Illuminate\Http\Request;
+
+Route::get('/cart/{cart}/checkout', function (Request $request, Cart $cart) {
+    $order = Order::create([
+        'cart_id' => $cart->id,
+        'price_ids' => $cart->price_ids,
+        'status' => 'incomplete',
+    ]);
+
+    return $request->user()->checkout($order->price_ids, [
+        'success_url' => route('checkout-success').'?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => route('checkout-cancel'),
+        'metadata' => ['order_id' => $order->id],
+    ]);
+})->name('checkout');
+```
+
+上記の例で見ることができるように、user が Checkoutprocess を開始すると、私たちはカート/注文の関連する Stripe 価格識別子をすべて `checkout` method に提供します。もちろん、お客様が商品を追加する際、これらのアイテムをショッピングカートまたは注文に関連付けるのは、application の責任です。また、注文の ID を StripeCheckoutsession に `metadata` array 経由で提供します。最後に、 `CHECKOUT_SESSION_ID` テンプレート variable を Checkout 成功 route に追加しました。Stripe が顧客をあなたの application に redirects すると、このテンプレート variable は自動的に CheckoutsessionID で埋められます。
+
+次に、 Checkout 成功の route を build してみましょう。これは、Stripe Checkout を介して購入が完了した後に users がリダイレクトされる route です。この route 内で、提供された meta data にアクセスし、顧客の注文を適切に update するために、Stripe Checkout session ID と関連する Stripe Checkout インスタンスを取得することができます。
+
+```php
+use App\Models\Order;
+use Illuminate\Http\Request;
+use Laravel\Cashier\Cashier;
+
+Route::get('/checkout/success', function (Request $request) {
+    $sessionId = $request->get('session_id');
+
+    if ($sessionId === null) {
+        return;
+    }
+
+    $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
+
+    if ($session->payment_status !== 'paid') {
+        return;
+    }
+
+    $orderId = $session['metadata']['order_id'] ?? null;
+
+    $order = Order::findOrFail($orderId);
+
+    $order->update(['status' => 'completed']);
+
+    return view('checkout-success', ['order' => $order]);
+})->name('checkout-success');
+```
+
+詳細については、Stripe のドキュメンテーションを参照してください。[Checkout session object](https://stripe.com/docs/api/checkout/sessions/object)に含まれる data について説明されています。
+
+<a name="quickstart-selling-subscriptions"></a>
+
+### Subscriptions の販売
+
+> <LaravelNote type="note" />
+> Stripe の Checkout を利用する前に、Stripe ダッシュボードで固定価格の製品を定義する必要があります。また、[Cashier
+> の webhook ハンドリングを設定](#handling-stripe-webhooks)するべきです。
+
+あなたの application を通して製品と subscription 課金を提供することは、 intimidating です。しかし、 Cashier および [Stripe Checkout](https://stripe.com/payments/checkout) のおかげで、現代的で堅牢な決済統合を簡単に build することが可能になります。
+
+Cashier と Stripe の Checkout を使用して subscriptions の販売方法を学ぶために、基本的な月額(`price_basic_monthly`)プランと年間(`price_basic_yearly`)プランを含む subscription service のシンプルなシナリオを考慮しましょう。これら 2 つの価格は、Stripe のダッシュボード内の"Basic"商品(`pro_basic`)の下にグループ化することができます。さらに、私たちの subscription service は、エキスパートプランを`pro_expert`として提供することもあります。
+
+まず、顧客が我々の services に subscribe できる方法を見つけてみましょう。もちろん、顧客が application の価格表にある基本プランの"subscribe" button をクリックするかもしれません。この button または link は、user を選択したプランの Stripe Checkout session を作成する Laravel route に誘導するべきです：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/subscription-checkout', function (Request $request) {
+    return $request->user()
+        ->newSubscription('default', 'price_basic_monthly')
+        ->trialDays(5)
+        ->allowPromotionCodes()
+        ->checkout([
+            'success_url' => route('your-success-route'),
+            'cancel_url' => route('your-cancel-route'),
+        ]);
+});
+```
+
+上の例で見られるように、私たちは顧客を Stripe の Checkout session に redirect し、彼らが私たちの基本プランに subscribe できるようにします。 checkout が成功した後、またはキャンセルされた場合、顧客は私たちが`checkout` method に提供した URL に戻されます。 彼らの subscription が実際に開始されたとき(一部の支払い方法では process するのに数秒かかるため)、私たちも[webhook 処理の Cashier を設定する](#handling-stripe-webhooks)必要があります。
+
+お客様が subscriptions を開始できるようになったため、 subscribed users だけがアクセスできるように、 application の一部を制限する必要があります。もちろん、Cashier の `Billable` trait が提供する method `subscribed` を使って、ユーザーの現在の subscription status を常に確認することができます：
+
+```blade
+@if ($user->subscribed())
+    <p>You are subscribed.</p>
+@endif
+```
+
+特定の製品や価格に user が加入しているかどうかも簡単に判断することができます：
+
+```blade
+@if ($user->subscribedToProduct('pro_basic'))
+    <p>You are subscribed to our Basic product.</p>
+@endif
+
+@if ($user->subscribedToPrice('price_basic_monthly'))
+    <p>You are subscribed to our monthly Basic plan.</p>
+@endif
+```
+
+<a name="quickstart-building-a-subscribed-middleware"></a>
+
+#### Subscribed Middleware の作成
+
+便宜上、入ってくる request が subscribed user からのものかどうかを判断する[middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)を作成することをお勧めします。この middleware が定義されたら、 subscribed でない users が route にアクセスするのを防ぐために簡単にそれを route に割り当てることができます：
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class Subscribed
+{
+    /**
+     * Handle an incoming request.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (! $request->user()?->subscribed()) {
+            // Redirect user to billing page and ask them to subscribe...
+            return redirect('/billing');
+        }
+
+        return $next($request);
+    }
+}
+```
+
+middleware が定義されたら、それを route に割り当てることができます：
+
+```php
+use App\Http\Middleware\Subscribed;
+
+Route::get('/dashboard', function () {
+    // ...
+})->middleware([Subscribed::class]);
+```
+
+<a name="quickstart-allowing-customers-to-manage-their-billing-plan"></a>
+
+#### お客様が自身の請求プランを管理できるようにする
+
+もちろん、お客様は subscription プランを他の商品や"tier"に変更したいと思うかもしれません。これを可能にする最も簡単な方法は、お客様を Stripe の[Customer Billing Portal](https://stripe.com/docs/no-code/customer-portal)に誘導することです。この場所は、お客様が download の請求書や update の支払い method を更新し、 subscription プランを変更することができるホストされた user インターフェースを提供しています。
+
+まず、あなたの application 内に users を Laravel route に誘導するリンクまたは button を定義します。このルートは、Billing Portal session の開始に利用します。
+
+```blade
+<a href="{{ route('billing') }}">
+    Billing
+</a>
+```
+
+次に、Stripe Customer Billing Portal の session を開始し、 user を Portal にリダイレクトする route を定義しましょう。`redirectToBillingPortal` の method は、 users が Portal を終了する際に戻るべき URL を受け入れます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/billing', function (Request $request) {
+    return $request->user()->redirectToBillingPortal(route('dashboard'));
+})->middleware(['auth'])->name('billing');
+```
+
+> <LaravelNote type="note" />
+> Cashier の webhook の処理が設定されている限り、Cashier は Stripe からの受信した
+> webhooks を検査することで、application の Cashier 関連の database テーブルを自動的に
+> sync させます。ですから例えば、user が Stripe の Customer Billing Portal を通じて
+> subscription を cancels すると、Cashier は対応する webhook を受け取り、application
+> の database で subscription を"cancels"とマークします。
+
+<a name="customers"></a>
+
+## Customers
+
+<a name="retrieving-customers"></a>
+
+### 顧客の取得
+
+client は、`Cashier::findBillable` method を使用して、Stripe ID で顧客を取得できます。この method は、 billable model のインスタンスを返します。
+
+```php
+use Laravel\Cashier\Cashier;
+
+$user = Cashier::findBillable($stripeId);
+```
+
+<a name="creating-customers"></a>
+
+### 顧客の作成
+
+たまに、 subscription を開始せずに Stripe の顧客を作成したい場合があります。これは`createAsStripeCustomer` method を使用して実現できます：
+
+```php
+$stripeCustomer = $user->createAsStripeCustomer();
+```
+
+Stripe で顧客が作成されたら、後日 subscription を開始することができます。また、任意で`$options` array を提供し、Stripe API がサポートする追加の[顧客作成パラメータ(https://stripe.com/docs/api/customers/create)](https://stripe.com/docs/api/customers/create)を渡すことができます。
+
+```php
+$stripeCustomer = $user->createAsStripeCustomer($options);
+```
+
+`asStripeCustomer` method を使用することで、 billable model の Stripe customer object を返すことができます。
+
+```php
+$stripeCustomer = $user->asStripeCustomer();
+```
+
+`createOrGetStripeCustomer` method は、特定のビル可能 model の Stripe 顧客 object を取得したいが、そのビル可能 model がすでに Stripe 内の顧客であるかどうか確認できない場合に使用できます。この method は、まだ存在していない場合、Stripe 内に新しい顧客を作成します：
+
+```php
+$stripeCustomer = $user->createOrGetStripeCustomer();
+```
+
+<a name="updating-customers"></a>
+
+### 顧客情報の更新
+
+たまに、追加情報を用いて Stripe の顧客を直接 update したいと考えるかもしれません。これは`updateStripeCustomer` ( method )を使用して達成できます。この method は、[Stripe の API がサポートする顧客の update options](https://stripe.com/docs/api/customers/update)の array を受け入れます。
+
+```php
+$stripeCustomer = $user->updateStripeCustomer($options);
+```
+
+<a name="balances"></a>
+
+### Balances
+
+Stripe では、顧客の balance に対してクレジットまたはデビットを許可します。後で、この balance は新しい請求書に対してクレジットまたはデビットされます。顧客の総 balance をチェックするためには、`balance` method を使用することができます。これはあなたの billable model 上で利用可能です。`balance` method は、顧客の通貨での balance の整形された string 表現を返します：
+
+```php
+$balance = $user->balance();
+```
+
+顧客の balance にクレジットを付与するには、`creditBalance` method に value を提供することができます。必要に応じて、説明も提供することができます：
+
+```php
+$user->creditBalance(500, 'Premium customer top-up.');
+```
+
+`debitBalance` method に value を提供すると、顧客の balance がデビットされます:
+
+```php
+$user->debitBalance(300, 'Bad usage penalty.');
+```
+
+`applyBalance`method は、顧客の新しいバランスの取引を作成します。これらの取引の記録は、`balanceTransactions`method を使用して取得できます。これは、顧客がクレジットとデビットの log を見直すために有用かもしれません。
+
+```php
+// Retrieve all transactions...
+$transactions = $user->balanceTransactions();
+
+foreach ($transactions as $transaction) {
+    // Transaction amount...
+    $amount = $transaction->amount(); // $2.31
+
+    // Retrieve the related invoice when available...
+    $invoice = $transaction->invoice();
+}
+```
+
+<a name="tax-ids"></a>
+
+### 納税者番号
+
+Cashier は、顧客の税 ID を管理する簡単な方法を提供します。例えば、`taxIds` method を使って、顧客に割り当てられているすべての[税 ID](https://stripe.com/docs/api/customer_tax_ids/object)を collection として取得することができます。
+
+```php
+$taxIds = $user->taxIds();
+```
+
+また、識別子によって特定の顧客の税 ID を取得することもできます：
+
+```php
+$taxId = $user->findTaxId('txi_belgium');
+```
+
+有効な[type](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-type)と value を `createTaxId` method に提供することで、新しい税 ID を作成することができます。
+
+```php
+$taxId = $user->createTaxId('eu_vat', 'BE0123456789');
+```
+
+`createTaxId` method は、顧客のアカウントに直ちに VAT ID を追加します。[VAT ID の検証も Stripe によって行われます](https://stripe.com/docs/invoicing/customer/tax-ids#validation)。しかし、これは非同期の process です。`customer.tax_id.updated`の web フック event を購読することで、検証の更新を通知できます[VAT ID の`verification`パラメータを調査します](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)。 web フックの取り扱いについて詳しくは、[webhook ハンドラ定義のドキュメンテーション](#handling-stripe-webhooks)をご覧ください。
+
+あなたは`deleteTaxId`の method を使って税 ID を delete することができます。
+
+```php
+$user->deleteTaxId('txi_belgium');
+```
+
+<a name="syncing-customer-data-with-stripe"></a>
+
+### Stripe との顧客 Data の同期
+
+通常、あなたのアプリケーションの users update が名前、 email アドレス、または Stripe にも保存されている他の情報を更新したとき、Stripe に更新を通知する必要があります。そうすることで、Stripe の情報のコピーはあなたのアプリケーションと sync されることになります。
+
+これを自動化するには、モデルの`updated` event に反応する billable model 上の event listener を定義することができます。そして、 event listener 内で、`syncStripeCustomerDetails` method を model 上で呼び出すことができます:
+
+```php
+use App\Models\User;
+use function Illuminate\Events\queueable;
+
+/**
+ * The "booted" method of the model.
+ */
+protected static function booted(): void
+{
+    static::updated(queueable(function (User $customer) {
+        if ($customer->hasStripeId()) {
+            $customer->syncStripeCustomerDetails();
+        }
+    }));
+}
+```
+
+これからは、お客様の model が更新されるたびに、その情報は Stripe と同期されます。便宜上、 Cashier はお客様の情報を初めて作成した際に Stripe と自動的に sync します。
+
+Stripe への顧客情報の同期に使用する列を、" Cashier "が提供するさまざまなメソッドをオーバーライドすることでカスタマイズできます。例えば、`stripeName` " method "をオーバーライドして、" Cashier "が Stripe に顧客情報を同期する際に顧客の"name"とみなすべき" attribute "をカスタマイズできます。
+
+```php
+/**
+ * Get the customer name that should be synced to Stripe.
+ */
+public function stripeName(): string|null
+{
+    return $this->company_name;
+}
+```
+
+同様に、`stripeEmail`、`stripePhone`、`stripeAddress`、および`stripePreferredLocales`メソッドをオーバーライドすることができます。これらのメソッドは、[Stripe の顧客 object を更新する](https://stripe.com/docs/api/customers/update)ときに、それぞれの顧客パラメータに情報を同期します。もし顧客情報の同期 process を完全にコントロールしたい場合は、`syncStripeCustomerDetails`の method をオーバーライドすることができます。
+
+<a name="billing-portal"></a>
+
+### 請求ポータル
+
+Stripe は、お客様が自分の subscription、支払い方法、そして view 請求履歴を管理できるように[請求ポータルを設定する簡単な方法](https://stripe.com/docs/billing/subscriptions/customer-portal)を提供しています。 あなたは、controller や route から billable model に method の`redirectToBillingPortal`を呼び出すことで、お客様を請求ポータルに redirect できます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/billing-portal', function (Request $request) {
+    return $request->user()->redirectToBillingPortal();
+});
+```
+
+default では、 user が subscription の管理を終えたら、Stripe の請求ポータル内の link を介してあなたの application の`home` route に戻ることができます。`redirectToBillingPortal` method の引数として custom URL を渡すことで、 user が戻るべき custom URL を提供することができます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/billing-portal', function (Request $request) {
+    return $request->user()->redirectToBillingPortal(route('billing'));
+});
+```
+
+HTTPredirectresponse を生成せずに請求ポータルへの URL を生成したい場合は、`billingPortalUrl`の method を呼び出すことができます:
+
+```php
+$url = $request->user()->billingPortalUrl(route('billing'));
+```
+
+<a name="payment-methods"></a>
+
+## Payment Methods
+
+<a name="storing-payment-methods"></a>
+
+### 支払方法の保存
+
+Stripe で subscriptions を作成したり、"one-off"の課金を行うためには、支払い method を保存し、その識別子を Stripe から取得する必要があります。これを実現するためのアプローチは、支払い method を subscriptions 用に使用するか、 single の課金用に使用するかにより異なりますので、以下で両方について調査します。
+
+<a name="payment-methods-for-subscriptions"></a>
+
+#### Subscriptions の支払い方法
+
+顧客のクレジットカード情報を subscription による将来の使用のために保存する場合、Stripe の Setup Intents API を使用して、顧客の支払い method の詳細を安全に収集する必要があります。Setup Intent は、Stripe に対して、顧客の支払い method に対する請求の意図を示します。Cashier の`Billable`特性には`createSetupIntent` method が含まれており、新しい Setup Intent を簡単に作成することができます。この method を、顧客の支払い method の詳細を収集するフォームを render する route または controller から呼び出すべきです:
+
+```php
+return view('update-payment-method', [
+    'intent' => $user->createSetupIntent()
+]);
+```
+
+Setup Intent を作成し、それを view に渡した後、その secret を決済 method を集める要素に attach する必要があります。例えば、この支払い方法を更新のフォームを考えてみてください：
+
+```html
+<input id="card-holder-name" type="text" />
+
+<!-- Stripe Elements Placeholder -->
+<div id="card-element"></div>
+
+<button id="card-button" data-secret="{{ $intent->client_secret }}">
+  Update Payment Method
+</button>
+```
+
+次に、Stripe.js の library は、フォームに[Stripe Element](https://stripe.com/docs/stripe-js)を attach し、安全に顧客の支払い詳細を収集するために使用することができます：
+
+```html
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+  const stripe = Stripe("stripe-public-key");
+
+  const elements = stripe.elements();
+  const cardElement = elements.create("card");
+
+  cardElement.mount("#card-element");
+</script>
+```
+
+次に、カードを確認し、セキュアな "payment method identifier"を Stripe から[Stripe の `confirmCardSetup` method](https://stripe.com/docs/js/setup_intents/confirm_card_setup): で retrieved できます。
+
+```js
+const cardHolderName = document.getElementById("card-holder-name");
+const cardButton = document.getElementById("card-button");
+const clientSecret = cardButton.dataset.secret;
+
+cardButton.addEventListener("click", async (e) => {
+  const { setupIntent, error } = await stripe.confirmCardSetup(clientSecret, {
+    payment_method: {
+      card: cardElement,
+      billing_details: { name: cardHolderName.value },
+    },
+  });
+
+  if (error) {
+    // Display "error.message" to the user...
+  } else {
+    // The card has been verified successfully...
+  }
+});
+```
+
+Stripe によってカードが authentication された後、結果の `setupIntent.payment_method` 識別子を Laravel application に渡すことができ、それを顧客に関連付けることができます。 支払い 方法は、[新しい支払い 方法として追加する](#adding-payment-methods)か、[default の支払い 方法を 更新する](#updating-the-default-payment-method)ために使用することができます。また、支払い 方法の識別子を直ちに使用して、[新しい subscription を作成する](#creating-subscriptions)こともできます。
+
+> <LaravelNote type="note" />
+> セットアップインテントや顧客の支払い詳細の収集に関する詳細情報が必要な場合は、Stripe
+> が提供する[この概要をご覧ください](https://stripe.com/docs/payments/save-and-reuse#php)。
+
+<a name="payment-methods-for-single-charges"></a>
+
+#### Single 料金の支払方法
+
+もちろん、顧客の支払い method に対して single チャージを行う場合、支払い method 識別子を一度だけ使用するだけで済みます。Stripe の制限により、顧客の保存された default の支払い method を single チャージに使用することはできません。顧客には、Stripe.js library を使用して支払い method の詳細を入力させる必要があります。例えば、次のようなフォームを考えてみてください：
+
+```html
+<input id="card-holder-name" type="text" />
+
+<!-- Stripe Elements Placeholder -->
+<div id="card-element"></div>
+
+<button id="card-button">Process Payment</button>
+```
+
+そのようなフォームを定義した後、Stripe.js の library を使用して[Stripe Element](https://stripe.com/docs/stripe-js)をフォームに attach し、顧客の支払い詳細を安全に集めることができます：
+
+```html
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+  const stripe = Stripe("stripe-public-key");
+
+  const elements = stripe.elements();
+  const cardElement = elements.create("card");
+
+  cardElement.mount("#card-element");
+</script>
+```
+
+次に、カードを検証し、安全な"payment method identifier"を Stripe から retrieved できます。これは、[Stripe の`createPaymentMethod` method](https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method)を使用して行います：
+
+```js
+const cardHolderName = document.getElementById("card-holder-name");
+const cardButton = document.getElementById("card-button");
+
+cardButton.addEventListener("click", async (e) => {
+  const { paymentMethod, error } = await stripe.createPaymentMethod(
+    "card",
+    cardElement,
+    {
+      billing_details: { name: cardHolderName.value },
+    }
+  );
+
+  if (error) {
+    // Display "error.message" to the user...
+  } else {
+    // The card has been verified successfully...
+  }
+});
+```
+
+カードが正常に認証された場合、`paymentMethod.id`をあなたの Laravel application に渡し、[single charge](#simple-charge)を process することができます。
+
+<a name="retrieving-payment-methods"></a>
+
+### 支払い方法の取得
+
+`paymentMethods` method は billable model のインスタンスで、`Laravel\Cashier\PaymentMethod`のインスタンスの collection を返します:
+
+```php
+$paymentMethods = $user->paymentMethods();
+```
+
+default として、この method はすべての type の支払い方法を返します。特定の type の支払い方法を取得するには、`type` を method に引数として渡すことができます。
+
+```php
+$paymentMethods = $user->paymentMethods('sepa_debit');
+```
+
+顧客の default 支払い method を取得するには、`defaultPaymentMethod` method を使用することができます：
+
+```php
+$paymentMethod = $user->defaultPaymentMethod();
+```
+
+`findPaymentMethod` という method を使用して、請求可能 model に紐づけられている特定の支払い方法を取得することができます。
+
+```php
+$paymentMethod = $user->findPaymentMethod($paymentMethodId);
+```
+
+<a name="payment-method-presence"></a>
+
+### 支払い Method の存在
+
+billable model がアカウントに default の支払い method を持っているかどうかを判断するには、`hasDefaultPaymentMethod` method を呼び出します。
+
+```php
+if ($user->hasDefaultPaymentMethod()) {
+    // ...
+}
+```
+
+`hasPaymentMethod`という method を使用して、請求可能 model がアカウントに少なくとも 1 つの支払い method を持っているかどうかを判断できます：
+
+```php
+if ($user->hasPaymentMethod()) {
+    // ...
+}
+```
+
+この method は、 billable model が何らかの支払い method を有しているかどうかを判断します。特定の type の支払い method が model に存在するかどうかを判断するために、`type`を引数として method に渡すことができます。
+
+```php
+if ($user->hasPaymentMethod('sepa_debit')) {
+    // ...
+}
+```
+
+<a name="updating-the-default-payment-method"></a>
+
+### Default 支払い Method の更新
+
+`updateDefaultPaymentMethod` method は、顧客の default の支払い method 情報を update するために使われるかもしれません。この method は、Stripe の支払い method 識別子を受け入れ、新しい支払い method を default の請求支払い method として割り当てます。
+
+```php
+$user->updateDefaultPaymentMethod($paymentMethod);
+```
+
+Stripe のお客様の default 支払い method 情報とあなたの default 支払い method 情報を sync するために、`updateDefaultPaymentMethodFromStripe` method を使用することができます。
+
+```php
+$user->updateDefaultPaymentMethodFromStripe();
+```
+
+> <LaravelNote type="warning" />
+> 顧客に対する default の支払い method は、請求書の作成や新しい subscriptions の作成にのみ使用できます。Stripe
+> が課す制限により、 single の請求には使用できません。
+
+<a name="adding-payment-methods"></a>
+
+### お支払い方法の追加
+
+新しい支払い method を追加するには、支払い method 識別子を渡して `addPaymentMethod` method を billable model 上で呼び出すことができます。
+
+```php
+$user->addPaymentMethod($paymentMethod);
+```
+
+> <LaravelNote type="note" />
+> 支払い method イデンティファイアの取得方法を学ぶには、[支払い method storage のドキュメンテーション](#storing-payment-methods)をご覧ください。
+
+<a name="deleting-payment-methods"></a>
+
+### 削除 支払い方法
+
+支払い方法を削除するには、あなたが削除したい `Laravel\Cashier\PaymentMethod` インスタンスで `delete` 方法を呼び出すことができます:
+
+```php
+$paymentMethod->delete();
+```
+
+`deletePaymentMethod` method は特定の支払い method を請求可能 model から削除します：
+
+```php
+$user->deletePaymentMethod('pm_visa');
+```
+
+`deletePaymentMethods` method は、請求可能 model のすべての支払い method 情報を削除します：
+
+```php
+$user->deletePaymentMethods();
+```
+
+default として、この method は、全ての type の支払い方法を削除します。特定の type の支払い方法を削除するには、`type`を method の引数として渡すことができます。
+
+```php
+$user->deletePaymentMethods('sepa_debit');
+```
+
+> <LaravelNote type="warning" />
+> user がアクティブな subscription を持っている場合、あなたの application は彼らが
+> default の支払い method を delete することを許可すべきではありません。
+
+<a name="subscriptions"></a>
+
+## Subscriptions
+
+Subscriptions は、顧客向けの定期的な支払いを設定する方法を提供します。Strip の subscriptions は、 Cashier によって管理され、複数の subscription 価格、 subscription 数量、トライアルなどをサポートします。
+
+<a name="creating-subscriptions"></a>
+
+### Subscriptions の作成
+
+subscription を作成するには、まず billable model のインスタンスを取得します。通常、これは`App\Models\User`のインスタンスになります。model インスタンスを retrieved したら、`newSubscription`method を使用して、model の subscription`を作成することができます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/user/subscribe', function (Request $request) {
+    $request->user()->newSubscription(
+        'default', 'price_monthly'
+    )->create($request->paymentMethodId);
+
+    // ...
+});
+```
+
+`newSubscription`の method へ渡される最初の引数は、subscription の type すなわち内部での分類 type でなければなりません。あなたの application が single subscription、つまりひとつの subscription だけを提供している場合、これを `default` あるいは `primary` と呼びます。この subscription type は、内部の application 用途のみに使用され、決して users に表示すべきではありません。さらに、スペースを含まず、subscription を作成した後に変更すべきではありません。二つ目の引数は、user がサブ scripts を購読する特定の price です。この value は Stripe 内の price の識別子と対応するべきです。
+
+`create`method は、[Stripe の支払い方法識別子](#storing-payment-methods)または Stripe の`PaymentMethod`object を受け取り、subscription を開始すると同時に、請求可能 model の Stripe 顧客 ID やその他の関連する請求情報を database に更新します。
+
+> <LaravelNote type="warning" />
+> 支払い method 識別子を直接`create` subscription method に渡すと、それは自動的にユーザーの保存された支払い方法に追加されます。
+
+<a name="collecting-recurring-payments-via-invoice-emails"></a>
+
+#### 請求書メールによる定期的な支払いの回収
+
+顧客の定期的な支払いを自動で収集する代わりに、Stripe に対して定期的な支払いのたびに顧客に email という請求書を送るよう指示することができます。その後、顧客は請求書を受け取ったら手動で支払うことができます。顧客は、請求書を介して定期的な支払いを収集する際に、最初に支払い method を提供する必要はありません。
+
+```php
+$user->newSubscription('default', 'price_monthly')->createAndSendInvoice();
+```
+
+顧客が subscription がキャンセルされる前に請求書を支払うまでの時間は、`days_until_due`オプションによって決定されます。 default では、これは 30 日ですが、希望する場合はこのオプションに特定の value を提供することもできます。
+
+```php
+$user->newSubscription('default', 'price_monthly')->createAndSendInvoice([], [
+    'days_until_due' => 30
+]);
+```
+
+<a name="subscription-quantities"></a>
+
+#### Quantities
+
+もし特定の[quantity](https://stripe.com/docs/billing/subscriptions/quantities)を price に設定して、 subscription を作成したい場合は、`quantity`の method を subscription ビルダーに呼び出してから、 subscription を作成すべきです：
+
+```php
+$user->newSubscription('default', 'price_monthly')
+     ->quantity(5)
+     ->create($paymentMethod);
+```
+
+<a name="additional-details"></a>
+
+#### 追加の詳細
+
+Stripe がサポートする追加の[顧客](https://stripe.com/docs/api/customers/create)や[subscription](https://stripe.com/docs/api/subscriptions/create) options を指定したい場合は、それらを`create` method の二つ目と三つ目の引数として渡すことで行うことができます。
+
+```php
+$user->newSubscription('default', 'price_monthly')->create($paymentMethod, [
+    'email' => $email,
+], [
+    'metadata' => ['note' => 'Some extra information.'],
+]);
+```
+
+<a name="coupons"></a>
+
+#### Coupons
+
+subscription を作成する際にクーポンを適用したい場合は、`withCoupon` method を使用することができます。
+
+```php
+$user->newSubscription('default', 'price_monthly')
+     ->withCoupon('code')
+     ->create($paymentMethod);
+```
+
+または、[Stripe プロモーション code](https://stripe.com/docs/billing/subscriptions/discounts/codes)を適用したい場合は、`withPromotionCode` method を使用することができます。
+
+```php
+$user->newSubscription('default', 'price_monthly')
+     ->withPromotionCode('promo_code_id')
+     ->create($paymentMethod);
+```
+
+与えられたプロモーションの code ID は、顧客向けのプロモーション code ではなく、プロモーション code に割り当てられた Stripe の API ID であるべきです。顧客向けのプロモーション code に基づいてプロモーション code ID を見つける必要がある場合は、`findPromotionCode` method を使用することができます：
+
+```php
+// Find a promotion code ID by its customer facing code...
+$promotionCode = $user->findPromotionCode('SUMMERSALE');
+
+// Find an active promotion code ID by its customer facing code...
+$promotionCode = $user->findActivePromotionCode('SUMMERSALE');
+```
+
+上記の例では、返される `$promotionCode` object は `Laravel\Cashier\PromotionCode` のインスタンスです。この class は基礎となる `Stripe\PromotionCode` object をデコレートします。 `coupon` method を呼び出すことで、プロモーションの code に関連するクーポンを取得することができます：
+
+```php
+$coupon = $user->findPromotionCode('SUMMERSALE')->coupon();
+```
+
+クーポンインスタンスは、割引額とクーポンが定額割引かパーセンテージ割引かを判断することを可能にします：
+
+```php
+if ($coupon->isPercentage()) {
+    return $coupon->percentOff().'%'; // 21.5%
+} else {
+    return $coupon->amountOff(); // $5.99
+}
+```
+
+あなたはまた、現在顧客や subscription に適用されているディスカウントを取得することもできます：
+
+```php
+$discount = $billable->discount();
+
+$discount = $subscription->discount();
+```
+
+返される `Laravel\Cashier\Discount` インスタンスは、基礎となる `Stripe\Discount` object インスタンスを装飾します。このディスカウントに関連するクーポンを取得するには、`coupon` method を呼び出します。
+
+```php
+$coupon = $subscription->discount()->coupon();
+```
+
+新しいクーポンまたはプロモーション code を顧客または subscription に適用したい場合、`applyCoupon`または`applyPromotionCode`method を通じて行うことができます:
+
+```php
+$billable->applyCoupon('coupon_id');
+$billable->applyPromotionCode('promotion_code_id');
+
+$subscription->applyCoupon('coupon_id');
+$subscription->applyPromotionCode('promotion_code_id');
+```
+
+覚えておいてください、プロモーション code に割り当てられた Stripe の API ID を使用するべきで、顧客が直接見るプロモーションの code ではありません。1 つのクーポンまたはプロモーション code は、特定の時点で顧客または subscription に対して適用できるものは 1 つだけです。
+
+この主題に関する詳しい info は、[クーポン](https://stripe.com/docs/billing/subscriptions/coupons)と[プロモーションコード](https://stripe.com/docs/billing/subscriptions/coupons/codes)に関する Stripe のドキュメンテーションをご覧ください。
+
+<a name="adding-subscriptions"></a>
+
+#### Subscriptions を追加する
+
+すでに default の支払い method を持っている顧客に subscription を追加したい場合、`add` method を subscription ビルダーに呼び出すことができます：
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->newSubscription('default', 'price_monthly')->add();
+```
+
+<a name="creating-subscriptions-from-the-stripe-dashboard"></a>
+
+#### Stripe ダッシュボードから Subscriptions を作成する
+
+あなたはまた、Stripe ダッシュボード自体から subscriptions を作成することもできます。その際、 Cashier は新たに追加した subscriptions を sync し、それらに`default`の type を割り当てます。ダッシュボードで作成された subscriptions に割り当てる subscription type をカスタマイズするには、[webhook event ハンドラーを定義します](#defining-webhook-event-handlers)。
+
+また、Stripe ダッシュボードを通じて作成できる subscription の type は 1 つだけです。もし、あなたの application が異なる type を使用する複数の subscriptions を提供している場合でも、Stripe ダッシュボードを通じて追加できる subscription の type は 1 つだけです。
+
+最後に、常にお客様の application が提供する subscription の type ごとに 1 つだけアクティブな subscription を追加するように注意してください。お客様が 2 つの`default`subscription を持っていても、Cashier は最も最近追加された subscription のみを使用し、どちらの subscription もお客様の application の database と同期化されます。
+
+<a name="checking-subscription-status"></a>
+
+### Subscription Status の確認
+
+お客様があなたの application に subscribed していれば、様々な便利な方法を使ってその subscription status を簡単に確認できます。まず、`subscribed` method は、お客様が有効な subscription を持っている場合、たとえその subscription が現在試用期間内であるとしても`true`を返します。`subscribed` method は、その第一引数として subscription の type を受け付けます：
+
+```php
+if ($user->subscribed('default')) {
+    // ...
+}
+```
+
+`subscribed`の method は、ユーザーの subscription status に基づいて routes とコントローラへのアクセスをフィルタリングするための[route middleware](/ja/php/laravel/v11.x/04-the-basics/02-middleware)としても大いに有用です。
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class EnsureUserIsSubscribed
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        if ($request->user() && ! $request->user()->subscribed('default')) {
+            // This user is not a paying customer...
+            return redirect('billing');
+        }
+
+        return $next($request);
+    }
+}
+```
+
+もし user がまだ試用期間内にいるかどうかを判断したい場合、`onTrial` method を使用することができます。この method は、試用期間中であることを user に警告を表示すべきかどうかを判断するのに役立つことがあります:
+
+```php
+if ($user->subscription('default')->onTrial()) {
+    // ...
+}
+```
+
+`subscribedToProduct`method は、指定された Stripe の製品識別子に基づいて、user が特定の製品に購読しているかどうかを判断するために使用することができます。Stripe では、製品は価格の collections です。この例では、ユーザーの`default`の subscription が application の"プレミアム"製品に積極的に購読しているかどうかを判断します。与えられた Stripe の製品識別子は、Stripe ダッシュボード内のあなたの製品の識別子の一つに対応しているべきです。
+
+```php
+if ($user->subscribedToProduct('prod_premium', 'default')) {
+    // ...
+}
+```
+
+`subscribedToProduct`の method に array を渡すことで、user の`default` subscription が application の basic または premium プロダクトに積極的にサブスクライブしているかどうかを判断することができます。
+
+```php
+if ($user->subscribedToProduct(['prod_basic', 'prod_premium'], 'default')) {
+    // ...
+}
+```
+
+`subscribedToPrice` method は、顧客の subscription が特定の price ID と一致するかどうかを判断するために使用できます：
+
+```php
+if ($user->subscribedToPrice('price_basic_monthly', 'default')) {
+    // ...
+}
+```
+
+`recurring` method は、 user が現在 subscribed されていて、試用期間が終了したかどうかを判断するために使用できます：
+
+```php
+if ($user->subscription('default')->recurring()) {
+    // ...
+}
+```
+
+> <LaravelNote type="warning" />
+> もし user が同じ type を持つ 2 つの subscriptions を持っていた場合、最新の subscription
+> が常に`subscription` method によって返されます。例えば、user は`default`の type
+> を持つ 2 つの subscription レコードを持っているかもしれませんが、そのうちの一つが古く、有効期限が切れた
+> subscription であり、もう一つが現在の有効な subscription かもしれません。常に最新の
+> subscription が返され、古い subscriptions は歴史的なレ view のために database に保持されます。
+
+<a name="cancelled-subscription-status"></a>
+
+#### キャンセルされた Subscription Status
+
+user がかつて活動的な加入者であり、それが subscription をキャンセルしたかどうかを判断するには、`canceled` method を使用することができます：
+
+```php
+if ($user->subscription('default')->canceled()) {
+    // ...
+}
+```
+
+あなたはまた、 user が subscription をキャンセルしたがまだ grace period 中であるかどうかを判断することもできます。これは subscription が完全に期限切れになるまでのことです。例えば、 user が 3 月 5 日に subscription をキャンセルし、元々は 3 月 10 日に期限切れ予定だった場合、 user は 3 月 10 日まで grace period 中になります。この期間中でも、`subscribed` method は依然として`true`を返すことに注意してください。
+
+```php
+if ($user->subscription('default')->onGracePeriod()) {
+    // ...
+}
+```
+
+user が subscription を cancel し、"猶予期間"を過ぎているかどうかを判断するには、`ended` method を使用できます:
+
+```php
+if ($user->subscription('default')->ended()) {
+    // ...
+}
+```
+
+<a name="incomplete-and-past-due-status"></a>
+
+#### 未完了および期限超過の Status
+
+もし Subscription が作成の後、二次的な支払い action を要求する場合、その subscription は `incomplete` としてマークされます。 subscription のステータスは Cashier の `subscriptions` database テーブルの `stripe_status` column に保存されます。
+
+同様に、価格を交換する際に二次的な支払い action が required となる場合、 subscription は、`past_due`と印付けされます。お客様が支払いを確認するまで、 subscription はこれらの状態のいずれかにある場合はアクティブになりません。 subscription が未完成の支払いを持っているかどうかを判断するためには、`hasIncompletePayment` method を billable model または subscription インスタンスに使用することができます：
+
+```php
+if ($user->hasIncompletePayment('default')) {
+    // ...
+}
+
+if ($user->subscription('default')->hasIncompletePayment()) {
+    // ...
+}
+```
+
+subscription が未完全な支払いを持っている場合、`latestPayment`識別子を渡して、 user を Cashier の支払い確認ページに誘導するべきです。この識別子を取得するために、 subscription インスタンスで利用可能な`latestPayment` method を使用することができます：
+
+```html
+<a href="{{ route('cashier.payment', $subscription->latestPayment()->id) }}">
+  Please confirm your payment.
+</a>
+```
+
+`past_due`または`incomplete`の state であっても、 subscription がアクティブと見なされるようにしたい場合は、`keepPastDueSubscriptionsActive`および`keepIncompleteSubscriptionsActive`メソッドを使用できます。これらのメソッドは通常、`App\Providers\AppServiceProvider`の`register` method で呼び出すべきです。これらは Cashier が提供するものです。
+
+```php
+use Laravel\Cashier\Cashier;
+
+/**
+ * Register any application services.
+ */
+public function register(): void
+{
+    Cashier::keepPastDueSubscriptionsActive();
+    Cashier::keepIncompleteSubscriptionsActive();
+}
+```
+
+> <LaravelNote type="warning" />
+> subscription が`incomplete`の state にあるときは、支払いが確認されるまで変更することはできません。したがって、`swap`および`updateQuantity`メソッドは、
+> subscription が`incomplete`の state にあるときに例外を throw します。
+
+<a name="subscription-scopes"></a>
+
+#### Subscription スコープ
+
+ほとんどの subscription 状態は、指定した state にある subscriptions をあなたの database から簡単に query できるように、 query スコープとしても利用できます:
+
+```php
+// Get all active subscriptions...
+$subscriptions = Subscription::query()->active()->get();
+
+// Get all of the canceled subscriptions for a user...
+$subscriptions = $user->subscriptions()->canceled()->get();
+```
+
+利用可能なスコープの完全なリストは以下にあります：
+
+```php
+Subscription::query()->active();
+Subscription::query()->canceled();
+Subscription::query()->ended();
+Subscription::query()->incomplete();
+Subscription::query()->notCanceled();
+Subscription::query()->notOnGracePeriod();
+Subscription::query()->notOnTrial();
+Subscription::query()->onGracePeriod();
+Subscription::query()->onTrial();
+Subscription::query()->pastDue();
+Subscription::query()->recurring();
+```
+
+<a name="changing-prices"></a>
+
+### 価格変更
+
+お客様があなたの application に subscribed すると、新しい subscription price に変更したいと思うことがたまにあります。swap という customer を新しい price に swap するためには、Stripe の price 識別子を`swap`method を渡します。price を swap するときには、user が自分の subscription を再度有効化したいと思っていると仮定されます。与えられた price 識別子は、Stripe ダッシュボードで利用可能な Stripe の price 識別子と一致するべきです。
+
+```php
+use App\Models\User;
+
+$user = App\Models\User::find(1);
+
+$user->subscription('default')->swap('price_yearly');
+```
+
+お客様が試用期間中である場合、その試用期間は維持されます。さらに、 subscription に量が存在する場合、その quantity も維持されます。
+
+顧客が現在利用中のトライアル期間を cancel し、 swap の価格を希望する場合は、`skipTrial` method を呼び出すことができます：
+
+```php
+$user->subscription('default')
+        ->skipTrial()
+        ->swap('price_yearly');
+```
+
+次の請求サイクルを待つ代わりに、お客様にすぐに請求をしたくて価格を swap したい場合は、`swapAndInvoice` method を使用することができます：
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->swapAndInvoice('price_yearly');
+```
+
+<a name="prorations"></a>
+
+#### Prorations
+
+default では、Stripe は価格間での変更時に課金を比例配分します。`noProrate` method は、課金を比例配分せずに subscription の価格を更新するために使用することができます：
+
+```php
+$user->subscription('default')->noProrate()->swap('price_yearly');
+```
+
+詳細な情報については、 subscription の精算について、[Stripe のドキュメンテーション](https://stripe.com/docs/billing/subscriptions/prorations)をご覧ください。
+
+> <LaravelNote type="warning" />
+> `noProrate` method を`swapAndInvoice` method の前に実行しても、按分計算には影響を及ぼしません。常に請求書は発行されます。
+
+<a name="subscription-quantity"></a>
+
+### Subscription Quantity
+
+時折、 subscriptions は quantity に影響を受けます。例えば、 project 管理 application は、 project ごとに月 10 ドルを請求するかもしれません。 `incrementQuantity`と`decrementQuantity`メソッドを使用すると、 subscription quantity を簡単に increment またはデクリメントできます。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->subscription('default')->incrementQuantity();
+
+// Add five to the subscription's current quantity...
+$user->subscription('default')->incrementQuantity(5);
+
+$user->subscription('default')->decrementQuantity();
+
+// Subtract five from the subscription's current quantity...
+$user->subscription('default')->decrementQuantity(5);
+```
+
+別の方法として、`updateQuantity` method を使用して特定の quantity を設定することもできます:
+
+```php
+$user->subscription('default')->updateQuantity(10);
+```
+
+`noProrate`method は、料金の按分をせずに subscription の数量を更新するために使用できます：
+
+```php
+$user->subscription('default')->noProrate()->updateQuantity(10);
+```
+
+詳しい情報については、 subscription の数量について、[Stripe documentation](https://stripe.com/docs/subscriptions/quantities) をご覧ください。
+
+<a name="quantities-for-subscription-with-multiple-products"></a>
+
+#### 複数の製品を含む Subscriptions の数量
+
+あなたの subscription が[複数の製品の subscription](#subscriptions-with-multiple-products)である場合、increment または decrement したい price の ID を increment/ decrementmethod の第二引数として渡すべきです:
+
+```php
+$user->subscription('default')->incrementQuantity(1, 'price_chat');
+```
+
+<a name="subscriptions-with-multiple-products"></a>
+
+### 複数の製品を含む Subscriptions
+
+[複数の商品を含む Subscription](https://stripe.com/docs/billing/subscriptions/multiple-products)では、複数の請求商品を単一の subscriptions に割り当てることができます。例えば、顧客 service の"helpdesk"application を構築していて、月額 10 ドルの基本 subscriptions 価格があるが、追加で月額 15 ドルのライブチャットアドオン商品を提供していると想像してください。複数の製品を含む subscriptions の情報は、Cashier's `subscription_items`database テーブルに保存されます。
+
+特定の subscription に対して複数の製品を指定できます。そのためには、`newSubscription` method の第二引数として価格の array を渡します。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/user/subscribe', function (Request $request) {
+    $request->user()->newSubscription('default', [
+        'price_monthly',
+        'price_chat',
+    ])->create($request->paymentMethodId);
+
+    // ...
+});
+```
+
+上記の例では、顧客はそれぞれの`default` subscription に 2 つの価格が付随します。それぞれの価格は、それぞれの請求間隔で請求されます。必要であれば、`quantity` method を使用して、それぞれの price に対する特定の quantity を示すことができます。
+
+```php
+$user = User::find(1);
+
+$user->newSubscription('default', ['price_monthly', 'price_chat'])
+    ->quantity(5, 'price_chat')
+    ->create($paymentMethod);
+```
+
+既存の subscription に別の price を追加したい場合は、subscription の `addPrice` method を呼び出すことができます:
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->addPrice('price_chat');
+```
+
+上記の例では、新しい price が追加され、顧客は次の課金サイクルでそれに対して請求されます。顧客にすぐに請求したい場合は、`addPriceAndInvoice` method を使用することができます：
+
+```php
+$user->subscription('default')->addPriceAndInvoice('price_chat');
+```
+
+特定の quantity で price を追加したい場合、`addPrice`または`addPriceAndInvoice`メソッドの第二引数として quantity を渡すことができます：
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->addPrice('price_chat', 5);
+```
+
+`removePrice`の method を使って、 subscriptions から価格を削除することができます：
+
+```php
+$user->subscription('default')->removePrice('price_chat');
+```
+
+> <LaravelNote type="warning" />
+> subscription の最後の price を削除することはできません。代わりに、単に subscription
+> を cancel すべきです。
+
+<a name="swapping-prices"></a>
+
+#### 価格の交換
+
+また、複数の製品が付随する subscription に対する価格を変更することもできます。例えば、顧客が`price_basic`の subscription を持ち、`price_chat`のアドオン製品があり、その顧客を`price_basic`から`price_pro`の price にアップグレードしたいとします。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->subscription('default')->swap(['price_pro', 'price_chat']);
+```
+
+上記の例を実行すると、基礎となる subscription アイテムである`price_basic`は削除され、`price_chat`が保存されます。さらに、新たな subscription アイテムとして`price_pro`が作成されます。
+
+また、key/ value ペアの array を`swap` method に渡すことで、 subscription アイテムの options を指定することもできます。例えば、 subscription price の量を指定する必要があるかもしれません。
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->swap([
+    'price_pro' => ['quantity' => 5],
+    'price_chat'
+]);
+```
+
+subscription の単一価格をスワップしたい場合、subscription アイテム自体にある`swap` method を使用して行うことができます。このアプローチは、subscription の他の価格に関連するすべての既存の metadata を維持したい場合に特に役立ちます。
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')
+        ->findItemOrFail('price_basic')
+        ->swap('price_pro');
+```
+
+<a name="proration"></a>
+
+#### Proration
+
+default では、Stripe は複数の製品が含まれる subscription から価格を追加または削除する際に料金を按分します。按分なしで価格調整を行いたい場合は、`noProrate` method を価格操作に連結すべきです：
+
+```php
+$user->subscription('default')->noProrate()->removePrice('price_chat');
+```
+
+<a name="swapping-quantities"></a>
+
+#### Quantities
+
+個々の subscription 価格の update 数量を変更したい場合は、[既存の quantity メソッド](#subscription-quantity)を使用して、 price の ID を追加の引数として method に渡すことで可能です。
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->incrementQuantity(5, 'price_chat');
+
+$user->subscription('default')->decrementQuantity(3, 'price_chat');
+
+$user->subscription('default')->updateQuantity(10, 'price_chat');
+```
+
+> <LaravelNote type="warning" />
+> subscription が複数の価格を持つ場合、`Subscription` model の`stripe_price`と`quantity`
+> attributes は`null`になります。個々の price attributes にアクセスするには、`Subscription`
+> model で利用可能な`items`の関係を使用する必要があります。
+
+<a name="subscription-items"></a>
+
+#### Subscription アイテム
+
+subscription が複数の価格を持つ場合、それは複数の subscription "items" がデータベースの `subscription_items` テーブルに格納されます。これらには、 subscription の `items` 関連付けを通じてアクセスすることができます：
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$subscriptionItem = $user->subscription('default')->items->first();
+
+// Retrieve the Stripe price and quantity for a specific item...
+$stripePrice = $subscriptionItem->stripe_price;
+$quantity = $subscriptionItem->quantity;
+```
+
+あなたはまた、`findItemOrFail` method を使用して特定の price を取得することもできます。
+
+```php
+$user = User::find(1);
+
+$subscriptionItem = $user->subscription('default')->findItemOrFail('price_chat');
+```
+
+<a name="multiple-subscriptions"></a>
+
+### 複数の Subscriptions
+
+Stripe は、お客様が同時に複数の subscriptions を持つことを可能にします。たとえば、スイミングの subscription とウェイトリフティングの subscription を提供するジムを運営している場合、各 subscription は異なる価格設定になるかもしれません。もちろん、お客様はどちらかまたは両方のプランに subscribe することができるべきです。
+
+あなたの application が subscriptions を生成するとき、あなたは`newSubscription` method に subscription の type を提供することができます。その type は、 user が開始する subscription の type を表す任意の string であってもよいです:
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/swimming/subscribe', function (Request $request) {
+    $request->user()->newSubscription('swimming')
+        ->price('price_swimming_monthly')
+        ->create($request->paymentMethodId);
+
+    // ...
+});
+```
+
+この例では、顧客に対して月額の subscription を開始しました。しかし、彼らは後で年間の subscription に swap することを希望するかもしれません。顧客の subscription を調整する際には、単に`swimming`の subscription の price を swap するだけで済みます。
+
+```php
+$user->subscription('swimming')->swap('price_swimming_yearly');
+```
+
+もちろん、完全に subscription を cancel することも可能です：
+
+```php
+$user->subscription('swimming')->cancel();
+```
+
+<a name="metered-billing"></a>
+
+### メーター課金
+
+[Metered billing](https://stripe.com/docs/billing/subscriptions/metered-billing)は、請求期間中の製品の使用量に基づいて顧客から料金を請求することができます。例えば、顧客が 1 ヶ月に送信するテキストメッセージやメールの数に基づいて料金を請求することができます。
+
+請求方法をメーター課金に変更するには、まず Stripe のダッシュボードで新しい商品を作成し price をメーター尺度に設定する必要があります。その後、`meteredPrice` を使用して顧客の subscription にメーター price ID を追加します。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/user/subscribe', function (Request $request) {
+    $request->user()->newSubscription('default')
+        ->meteredPrice('price_metered')
+        ->create($request->paymentMethodId);
+
+    // ...
+});
+```
+
+あなたはまた、[Stripe Checkout](#checkout) を通じてメーター制の subscription を開始することもできます：
+
+```php
+$checkout = Auth::user()
+        ->newSubscription('default', [])
+        ->meteredPrice('price_metered')
+        ->checkout();
+
+return view('your-checkout-view', [
+    'checkout' => $checkout,
+]);
+```
+
+<a name="reporting-usage"></a>
+
+#### 利用状況の報告
+
+あなたのお客様があなたの application を利用する際、それらを Stripe に報告し、正確に請求できるようにします。量制限のある subscription の使用量を increment するためには、`reportUsage` method を使用することができます。
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->reportUsage();
+```
+
+default として、請求期間に対して使用量 1 が追加されます。または、請求期間の顧客の使用量に追加する特定の使用量を指定することもできます：
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->reportUsage(15);
+```
+
+あなたの application が single subscription で複数の価格を提供する場合、使用したいメーター課金の price を指定するために`reportUsageFor` method を使用する必要があります：
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->reportUsageFor('price_metered', 15);
+```
+
+時には、以前に報告した update の使用法を更新する必要があるかもしれません。これを達成するためには、`reportUsage`への第二引数として timestamp または`DateTimeInterface`のインスタンスを渡すことができます。これを行うと、Stripe はその指定された時間で報告された使用法を update します。現在の課金期間内であれば、以前の使用記録を update し続けることができます。
+
+```php
+$user = User::find(1);
+
+$user->subscription('default')->reportUsage(5, $timestamp);
+```
+
+<a name="retrieving-usage-records"></a>
+
+#### 利用記録の取得
+
+顧客の過去の使用状況を取得するには、 subscription インスタンスの`usageRecords` method を使用することができます：
+
+```php
+$user = User::find(1);
+
+$usageRecords = $user->subscription('default')->usageRecords();
+```
+
+あなたの application が single subscription で複数の価格を提供している場合、`usageRecordsFor` method を使用して、使用記録を取得したいメーター制 price を指定することができます。
+
+```php
+$user = User::find(1);
+
+$usageRecords = $user->subscription('default')->usageRecordsFor('price_metered');
+```
+
+`usageRecords` および `usageRecordsFor` メソッドは、使用記録の連想 array を含む Collection インスタンスを返します。この array を反復して顧客のトータル使用量を表示できます：
+
+```php
+@foreach ($usageRecords as $usageRecord)
+    - Period Starting: {{ $usageRecord['period']['start'] }}
+    - Period Ending: {{ $usageRecord['period']['end'] }}
+    - Total Usage: {{ $usageRecord['total_usage'] }}
+@endforeach
+```
+
+全ての使用される data と Stripe の cursor ベースの pagination の使い方の完全なリファレンスについては、[公式 Stripe の API ドキュメンテーション](https://stripe.com/docs/api/usage_records/subscription_item_summary_list)をご参照ください。
+
+<a name="subscription-taxes"></a>
+
+### Subscription 税金
+
+> <LaravelNote type="warning" />
+> 税率を手動で計算する代わりに、[Stripe Tax を使用して自動的に税金を計算](#tax-configuration)することができます
+
+user が subscription で支払う税率を指定するには、`taxRates` method を billable model に実装し、Stripe の税率 ID を含む array を返す必要があります。これらの税率は、[あなたの Stripe ダッシュボード](https://dashboard.stripe.com/test/tax-rates)で定義できます。
+
+```php
+/**
+ * The tax rates that should apply to the customer's subscriptions.
+ *
+ * @return array<int, string>
+ */
+public function taxRates(): array
+{
+    return ['txr_id'];
+}
+```
+
+`taxRates` method は、顧客ごとに税率を適用することが可能で、これは複数の国や税率を持つ user ベースにとって役立つかもしれません。
+
+複数の製品で subscriptions を提供している場合は、`priceTaxRates` method をあなたの billable model に実装することで、それぞれの price に対して異なる税率を定義することができます：
+
+```php
+/**
+ * The tax rates that should apply to the customer's subscriptions.
+ *
+ * @return array<string, array<int, string>>
+ */
+public function priceTaxRates(): array
+{
+    return [
+        'price_monthly' => ['txr_id'],
+    ];
+}
+```
+
+> <LaravelNote type="warning" />
+> `taxRates`の method は、 subscription 料金にのみ適用されます。"一度きり"の料金を
+> Cashier を使用して作成する場合、その時点で税率を手動で指定する必要があります。
+
+<a name="syncing-tax-rates"></a>
+
+#### 税率の同期
+
+`taxRates` method が返すハードコーディングされた税率 ID を変更しても、既存の user の subscriptions の税設定は同じままです。 既存の subscriptions の税 values を新しい`taxRates`の values に更新したい場合は、ユーザーの subscriptions インスタンスで`syncTaxRates` method を呼び出すべきです：
+
+```php
+$user->subscription('default')->syncTaxRates();
+```
+
+これにより、 subscription に含まれる複数の製品に対するアイテム税率も sync します。もし application が複数の製品を含む subscriptions を提供している場合は、 billable model が`priceTaxRates` method [上記で議論](#subscription-taxes) を実装していることを確認してください。
+
+<a name="tax-exemption"></a>
+
+#### 免税
+
+Cashier は、顧客が免税対象であるかどうかを判断するための`isNotTaxExempt`、`isTaxExempt`、そして`reverseChargeApplies`メソッドも提供します。これらのメソッドは、顧客の免税対象の status を判断するために Stripe API を呼び出します:
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+$user->isTaxExempt();
+$user->isNotTaxExempt();
+$user->reverseChargeApplies();
+```
+
+> <LaravelNote type="warning" />
+> これらの methods は、`Laravel\Cashier\Invoice` object にも使用できます。ただし、`Invoice`
+> object で呼び出された場合、methods は請求書が作成された時点の免責 status を決定します。
+
+<a name="subscription-anchor-date"></a>
+
+### Subscription のアンカー日
+
+default では、請求サイクルのアンカーは subscription が作成された日付、または試用期間が使用される場合は試用期間が終了する日付です。請求のアンカー日付を変更したい場合は、`anchorBillingCycleOn` method を使用することができます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/user/subscribe', function (Request $request) {
+    $anchor = Carbon::parse('first day of next month');
+
+    $request->user()->newSubscription('default', 'price_monthly')
+                ->anchorBillingCycleOn($anchor->startOfDay())
+                ->create($request->paymentMethodId);
+
+    // ...
+});
+```
+
+詳細な情報については、 subscription の課金サイクルの管理をご覧ください、[Stripe 課金サイクルのドキュメンテーション](https://stripe.com/docs/billing/subscriptions/billing-cycle)をご覧ください。
+
+<a name="cancelling-subscriptions"></a>
+
+### Subscriptions のキャンセル
+
+ユーザーの subscription に対して`cancel` method を呼び出して、 subscription を cancel します。
+
+```php
+$user->subscription('default')->cancel();
+```
+
+subscription がキャンセルされると、 Cashier は自動的に`ends_at` column をあなたの`subscriptions`の database テーブルに設定します。この column は、`subscribed` method が`false`を返し始めるタイミングを知るために使用されます。
+
+たとえば、顧客が 3 月 1 日に subscription を cancels した場合でも、 subscription の終了予定が 3 月 5 日であった場合、`subscribed` method は 3 月 5 日まで`true`を返し続けます。これは、 user が通常、課金サイクルの終了まで application を続けて使用できるためです。
+
+`onGracePeriod` method を使用して、 user が subscription を cancel したが、まだ"grace period"にいるかどうかを判断することができます。
+
+```php
+if ($user->subscription('default')->onGracePeriod()) {
+    // ...
+}
+```
+
+もし user の subscription をすぐに cancel したい場合は、user の subscription 上で `cancelNow` method を呼び出してください:
+
+```php
+$user->subscription('default')->cancelNow();
+```
+
+もしすぐに subscription を cancel し、まだ請求されていない従量課金の使用量や新規/保留中の按分請求項目を請求したい場合は、ユーザーの subscription で `cancelNowAndInvoice` method を呼び出してください:
+
+```php
+$user->subscription('default')->cancelNowAndInvoice();
+```
+
+特定の時点で subscription を cancel することも選択できます：
+
+```php
+$user->subscription('default')->cancelAt(
+    now()->addDays(10)
+);
+```
+
+最後に、関連する user model を deleting する前に、常に cancel user subscriptions を行うべきです。
+
+```php
+$user->subscription('default')->cancelNow();
+
+$user->delete();
+```
+
+<a name="resuming-subscriptions"></a>
+
+### Subscriptions の再開
+
+もし顧客が subscription をキャンセルした場合で、それを再開したいと思っていなら、 subscription の`resume` method を呼び出すことができます。顧客は grace period 中である必要があります、その条件下でのみ subscription を再開することが可能です。
+
+```php
+$user->subscription('default')->resume();
+```
+
+もし顧客が subscription を cancels し、その subscription が完全に期限切れになる前に再開した場合、すぐに請求されることはありません。代わりに、その subscription は再度有効化され、元の請求サイクルで請求されます。
+
+<a name="subscription-trials"></a>
+
+## Subscription Trials
+
+<a name="with-payment-method-up-front"></a>
+
+### 支払い Method を前提に
+
+あなたがお客様に試用期間を提供しながらも、事前に method 情報の収集を続けたい場合は、 subscriptions を作成する際に`trialDays` method を使用するべきです。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/user/subscribe', function (Request $request) {
+    $request->user()->newSubscription('default', 'price_monthly')
+                ->trialDays(10)
+                ->create($request->paymentMethodId);
+
+    // ...
+});
+```
+
+この method は、 database 内の subscription レコードにトライアル期間の終了日を設定し、その日まで顧客に対しての請求を Stripe が開始しないように指示します。`trialDays` method を使用すると、 Cashier は Stripe の price に設定された default のトライアル期間を上書きします。
+
+> <LaravelNote type="warning" />
+> お客様が subscription を試用期間終了日前にキャンセルしない場合、試用期間が終了するとすぐに課金されます。そのため、
+> users に試用期間終了日を通知するようにしましょう。
+
+`trialUntil` method は、トライアル期間が終了する日時を指定する`DateTime`インスタンスを提供することを可能にします：
+
+```php
+use Carbon\Carbon;
+
+$user->newSubscription('default', 'price_monthly')
+            ->trialUntil(Carbon::now()->addDays(10))
+            ->create($paymentMethod);
+```
+
+user インスタンスの `onTrial` method または subscription インスタンスの`onTrial` method のいずれかを使用して、user がトライアル期間内にあるかどうかを判断できます。以下の 2 つの例は同等です：
+
+```php
+if ($user->onTrial('default')) {
+    // ...
+}
+
+if ($user->subscription('default')->onTrial()) {
+    // ...
+}
+```
+
+あなたは、`endTrial` method を使用して、すぐに subscription のトライアルを終了することができます：
+
+```php
+$user->subscription('default')->endTrial();
+```
+
+既存の試用期間が終了したかどうかを判断するためには、`hasExpiredTrial`メソッドを使用することができます:
+
+```php
+if ($user->hasExpiredTrial('default')) {
+    // ...
+}
+
+if ($user->subscription('default')->hasExpiredTrial()) {
+    // ...
+}
+```
+
+<a name="defining-trial-days-in-stripe-cashier"></a>
+
+#### Stripe で試用期間を定義する / Cashier
+
+あなたは Stripe ダッシュボードで価格のトライアル日数を定義するか、または常に Cashier を使用して明示的にそれらを渡すことを選択することができます。 Stripe で価格のトライアル日数を定義することを選択した場合、過去に subscription を持っていた顧客の新しい subscriptions を含む新しい subscriptions は、明示的に`skipTrial()` method を呼び出さない限り、常にトライアル期間を受け取ることに注意すべきです。
+
+<a name="without-payment-method-up-front"></a>
+
+### 支払い無しで Method を先に行う
+
+もし user の支払い method 情報を最初に収集せずに試用期間を提供したい場合は、`trial_ends_at` column をあなたが望む試用期間の終了日に設定することができます。これは通常、 user の登録中に行われます：
+
+```php
+use App\Models\User;
+
+$user = User::create([
+    // ...
+    'trial_ends_at' => now()->addDays(10),
+]);
+```
+
+> <LaravelNote type="warning" />
+> 必ず、`trial_ends_at` attribute を billable モデルの class 定義内で [日付キャスト](/ja/php/laravel/v11.x/08-eloquent-orm/04-eloquent-mutators#date-casting)
+> に追加してください。
+
+Cashier は、既存の subscription に関連付けられていないため、この type の試用期間を一般的な試用期間と呼びます。 billable model インスタンスの`onTrial` method は、現在の日付が`trial_ends_at`の value を過ぎていない場合、`true`を返します。
+
+```php
+if ($user->onTrial()) {
+    // User is within their trial period...
+}
+```
+
+実際の subscription を user のために作成する準備ができたら、いつも通り`newSubscription` method を使用してください。
+
+```php
+$user = User::find(1);
+
+$user->newSubscription('default', 'price_monthly')->create($paymentMethod);
+```
+
+ユーザーの試用期間終了日を取得するには、`trialEndsAt` method を使用できます。この method は、 user が試用期間中である場合は Carbon 日付インスタンスを返し、そうでない場合は`null`を返します。また、特定の subscription の試用期間終了日を取得したい場合は、オプションで subscription type パラメータを指定することもできます。これは default のもの以外である場合に便利です：
+
+```php
+if ($user->onTrial()) {
+    $trialEndsAt = $user->trialEndsAt('main');
+}
+```
+
+具体的に user が "generic" の試用期間中で、まだ実際の subscription を作成していないことを知りたい場合は、`onGenericTrial` method も使用できます。
+
+```php
+if ($user->onGenericTrial()) {
+    // User is within their "generic" trial period...
+}
+```
+
+<a name="extending-trials"></a>
+
+### トライアルの延長
+
+`extendTrial`method は、subscription が作成された後に、その試用期間を延長することを可能にします。試用期間がすでに終了し、顧客がすでに subscription の請求を受けている場合でも、彼らに延長した試用期間を提供することができます。試用期間中に過ごした時間は、顧客の次の請求から差し引かれます：
+
+```php
+use App\Models\User;
+
+$subscription = User::find(1)->subscription('default');
+
+// End the trial 7 days from now...
+$subscription->extendTrial(
+    now()->addDays(7)
+);
+
+// Add an additional 5 days to the trial...
+$subscription->extendTrial(
+    $subscription->trial_ends_at->addDays(5)
+);
+```
+
+<a name="handling-stripe-webhooks"></a>
+
+## Handling Stripe Webhooks
+
+> <LaravelNote type="note" />
+> ローカル開発中に webhooks をテストするのに役立つ[the Stripe CLI](https://stripe.com/docs/stripe-cli)を使用してもよいです。
+
+Stripe は、 webhooks を介して様々な events をあなたの application に通知できます。 default では、Cashier の webhook controller に向けた route が Cashier service provider によって自動的に登録されます。この controller はすべての webhook リクエストを handle します。
+
+default で、 Cashier webhook controller は自動的に handle 、ストライプの設定により多くの失敗した請求がある subscriptions のキャンセル、顧客の更新、顧客の削除、 subscription の更新、および method の変更を処理します。ただし、まもなくわかるように、この controller を拡張して、好きな Stripe webhook event を handle することができます。
+
+あなたの application が Stripe の webhooks を handle できるようにするためには、Stripe のコントロールパネルで webhook URL を設定してください。 default では、Cashier の webhook controller は`/stripe/webhook`の URL path に応答します。Stripe のコントロールパネルで有効にするべき全ての webhooks のリストは以下の通りです：
+
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
+- `customer.updated`
+- `customer.deleted`
+- `payment_method.automatically_updated`
+- `invoice.payment_action_required`
+- `invoice.payment_succeeded`
+
+便宜上、 Cashier は`cashier:webhook` Artisan command を含んでいます。この command は、Stripe で webhook を作成し、 Cashier が必要とするすべての events required をリッスンします：
+
+```shell
+php artisan cashier:webhook
+```
+
+default により、作成された webhook は、`APP_URL` environment variables と`cashier.webhook` route (これは Cashier に含まれています)によって定義された URL を指します。異なる URL を使用したい場合は、 command を呼び出す際に`--url`option を提供することができます。
+
+```shell
+php artisan cashier:webhook --url "https://example.com/stripe/webhook"
+```
+
+作成される webhook は、あなたの Cashier のバージョンと互換性のある Stripe の API バージョンを使用します。もし異なる Stripe のバージョンを使用したい場合は、`--api-version`オプションを指定することができます：
+
+```shell
+php artisan cashier:webhook --api-version="2019-12-03"
+```
+
+作成後、 webhook はすぐにアクティブになります。 webhook を作成して無効にしておき、準備ができたら使用したい場合は、 command を呼び出すときに`--disabled`オプションを指定することができます。
+
+```shell
+php artisan cashier:webhook --disabled
+```
+
+> <LaravelNote type="warning" />
+> Cashier が含む[webhook signature 検証](#verifying-webhook-signatures) middleware
+> を使用して、Stripe の webhook リクエストの保護を確認してください。
+
+<a name="webhooks-csrf-protection"></a>
+
+#### Webhooks と CSRF Protection
+
+Stripe の webhooks は Laravel の[CSRF protection](/ja/php/laravel/v11.x/04-the-basics/03-csrf)をバイ path する必要がありますので、 Laravel が、Stripe webhooks の受信の際に CSRF token の validate を attempt しないようにする必要があります。これを達成するために、お手持ちの application の`bootstrap/app.php` ファイル内で `stripe/*` を CSRF protection から除外するべきです。
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->validateCsrfTokens(except: [
+        'stripe/*',
+    ]);
+})
+```
+
+<a name="defining-webhook-event-handlers"></a>
+
+### Webhook Event ハンドラの定義
+
+Cashier は、課金失敗やその他の一般的な Stripe の webhook events に対する subscription のキャンセルを自動的に処理します。ただし、追加の webhook events を handle したい場合は、 Cashier がディスパッチする以下の events をリッスンすることで対応できます。
+
+- `Laravel\Cashier\Events\WebhookReceived`
+- `Laravel\Cashier\Events\WebhookHandled`
+
+両方の events は Stripe の web フックの全ペイロードを含んでいます。例えば、あなたが`invoice.payment_succeeded`の web フックを対処したい場合、その events を取り扱うための[listener](/ja/php/laravel/v11.x/05-digging-deeper/events#defining-listeners)を登録することができます。
+
+```php
+<?php
+
+namespace App\Listeners;
+
+use Laravel\Cashier\Events\WebhookReceived;
+
+class StripeEventListener
+{
+    /**
+     * Handle received Stripe webhooks.
+     */
+    public function handle(WebhookReceived $event): void
+    {
+        if ($event->payload['type'] === 'invoice.payment_succeeded') {
+            // Handle the incoming event...
+        }
+    }
+}
+```
+
+<a name="verifying-webhook-signatures"></a>
+
+### Webhook シグネチャの確認
+
+あなたの webhooks を保護するために、[Stripe の webhook シグネチャ](https://stripe.com/docs/webhooks/signatures)を使用することができます。便宜上、 Cashier は自動的に、受信した Stripe の webhook request が有効であることを検証する middleware を含んでいます。
+
+webhook の検証を有効にするには、`STRIPE_WEBHOOK_SECRET` environment 変数がアプリケーションの `.env` ファイルに設定されていることを確認してください。 webhook の `secret` は Stripe アカウントのダッシュボードから retrieved できます。
+
+<a name="single-charges"></a>
+
+## Single Charges
+
+<a name="simple-charge"></a>
+
+### シンプルなチャージ
+
+もし顧客に対して一回限りの請求を行いたい場合は、`charge` method を billable model インスタンス上で使用することができます。`charge` method への第二引数として[支払い method 識別子](#payment-methods-for-single-charges)を提供する必要があります。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/purchase', function (Request $request) {
+    $stripeCharge = $request->user()->charge(
+        100, $request->paymentMethodId
+    );
+
+    // ...
+});
+```
+
+`charge` method は、その第三引数として array を受け入れ、あなたが Stripe の請求作成に関して望む任意の options を渡すことができます。請求を作成する際に利用可能な options に関する詳細は、[Stripe documentation](https://stripe.com/docs/api/charges/create)で見つけることができます：
+
+```php
+$user->charge(100, $paymentMethod, [
+    'custom_option' => $value,
+]);
+```
+
+また、基礎となる顧客や user がいなくても`charge` method を使用することもできます。これを成し遂げるためには、アプリケーションの billable model の新しいインスタンス上で`charge` method を呼び出します。
+
+```php
+use App\Models\User;
+
+$stripeCharge = (new User)->charge(100, $paymentMethod);
+```
+
+`charge`の method は、請求が失敗すると例外を throw します。請求が成功した場合、`Laravel\Cashier\Payment`のインスタンスが method から返されます。
+
+```php
+try {
+    $payment = $user->charge(100, $paymentMethod);
+} catch (Exception $e) {
+    // ...
+}
+```
+
+> <LaravelNote type="warning" />
+> `charge` method は、お客様の application で使用されている通貨の最小単位での支払い額を受け入れます。例えば、顧客がアメリカドルで支払う場合、金額はペニーで指定する必要があります。
+
+<a name="charge-with-invoice"></a>
+
+### 請求書での請求
+
+時々、一回限りの請求を行い、お客様に PDF の請求書を提供する必要があるかもしれません。`invoicePrice` method を使用すると、まさにそれが可能です。例えば、新しいシャツ 5 枚分の請求を顧客に行うとしましょう：
+
+```php
+$user->invoicePrice('price_tshirt', 5);
+```
+
+請求書は、user の default 決済 method に対して即座に請求されます。`invoicePrice` method は第三引数として array も受け付けます。この array には、請求書アイテムの請求 options が含まれています。 method が受け入れる第四引数も array で、これには請求書自体の請求 options を含めるべきです:
+
+```php
+$user->invoicePrice('price_tshirt', 5, [
+    'discounts' => [
+        ['coupon' => 'SUMMER21SALE']
+    ],
+], [
+    'default_tax_rates' => ['txr_id'],
+]);
+```
+
+`invoicePrice`と同様に、`tabPrice` method を使用して、複数のアイテム(1 つの請求書あたり最大 250 項目)に対する一回限りの料金を作成することができます。これは、顧客の"タブ"にそれらを追加し、その後顧客に請求することによって行います。例えば、5 枚のシャツと 2 つのマグカップを顧客に請求することがあります。
+
+```php
+$user->tabPrice('price_tshirt', 5);
+$user->tabPrice('price_mug', 2);
+$user->invoice();
+```
+
+あるいは、お客様の default の支払い method に対して一回限りの請求を行うために、`invoiceFor` " method "を使用することもできます。
+
+```php
+$user->invoiceFor('One Time Fee', 500);
+```
+
+`invoiceFor`の method は使用可能ですが、事前に設定された価格を用いた`invoicePrice`と`tabPrice`のメソッドの使用が推奨されます。それにより、製品ごとの販売に関する Stripe ダッシュボード内のより良い分析と data にアクセスすることができます。
+
+> <LaravelNote type="warning" />
+> `invoice`、`invoicePrice`、および `invoiceFor` methods は、失敗した課金の試行を再試行する
+> Stripe の請求書を作成します。請求が失敗した課金を再試行しないようにしたい場合は、最初の失敗した課金の後に
+> Stripe の API を使用してそれらを閉じる必要があります。
+
+<a name="creating-payment-intents"></a>
+
+### 支払いの意図を作成する
+
+`pay` メソッドを請求可能 model インスタンスで呼び出すことで、新しい Stripe の支払いインテントを作成することができます。 この method を呼び出すと、`Laravel\Cashier\Payment` インスタンスでラップされた支払いインテントが作成されます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/pay', function (Request $request) {
+    $payment = $request->user()->pay(
+        $request->get('amount')
+    );
+
+    return $payment->client_secret;
+});
+```
+
+支払いの意図を作成した後、 client secret をアプリケーションのフロントエンドに返すことで、 user がブラウザで支払いを完了することができます。Stripe の支払いの意図を使用して支払いフロー全体を構築する方法について詳しくは、[Stripe のドキュメンテーション](https://stripe.com/docs/payments/accept-a-payment?platform=web)をご参照ください。
+
+`pay` method を使用すると、Stripe ダッシュボード内で有効になっている default の支払い方法が、顧客に利用可能となります。 あるいは、特定の支払い方法のみを許可したい場合は、`payWith` method を使用することができます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/pay', function (Request $request) {
+    $payment = $request->user()->payWith(
+        $request->get('amount'), ['card', 'bancontact']
+    );
+
+    return $payment->client_secret;
+});
+```
+
+> <LaravelNote type="warning" />
+> `pay`および`payWith`メソッドは、ご利用の application で使用される通貨の最小単位での支払い金額を受け入れます。たとえば、お客様がアメリカドルで支払う場合、金額はペニーで指定する必要があります。
+
+<a name="refunding-charges"></a>
+
+### 払い戻し料金
+
+Stripe の請求を払い戻す必要がある場合は、`refund` method を使用することができます。この method は、最初の引数として Stripe [payment intent ID](#payment-methods-for-single-charges)を受け取ります。
+
+```php
+$payment = $user->charge(100, $paymentMethodId);
+
+$user->refund($payment->id);
+```
+
+<a name="invoices"></a>
+
+## Invoices
+
+<a name="retrieving-invoices"></a>
+
+### 請求書の取得
+
+`invoices`の method を使用して、 billable モデルの array の請求書を簡単に取得できます。`invoices`の method は、`Laravel\Cashier\Invoice`インスタンスの collection を返します：
+
+```php
+$invoices = $user->invoices();
+```
+
+結果に保留中の請求書を含めたい場合は、`invoicesIncludingPending` method を使用することができます：
+
+```php
+$invoices = $user->invoicesIncludingPending();
+```
+
+ID を指定して特定の請求書を取得するために`findInvoice` method を使用することができます:
+
+```php
+$invoice = $user->findInvoice($invoiceId);
+```
+
+<a name="displaying-invoice-information"></a>
+
+#### 請求書情報の表示
+
+顧客の請求書をリストアップするとき、請求書のメソッドを使用して関連する請求書情報を表示できます。たとえば、すべての請求書をテーブルにリストすることで、 user がどれでも簡単に download できるようにすることも可能です：
+
+```php
+<table>
+    @foreach ($invoices as $invoice)
+        <tr>
+            <td>{{ $invoice->date()->toFormattedDateString() }}</td>
+            <td>{{ $invoice->total() }}</td>
+            <td><a href="/user/invoice/{{ $invoice->id }}">Download</a></td>
+        </tr>
+    @endforeach
+</table>
+```
+
+<a name="upcoming-invoices"></a>
+
+### 今後の請求書
+
+顧客の次回の請求書を取得するには、`upcomingInvoice` method を使用することができます：
+
+```php
+$invoice = $user->upcomingInvoice();
+```
+
+同様に、顧客が複数の subscriptions を持っている場合、特定の subscription の今後の請求書も取得できます：
+
+```php
+$invoice = $user->subscription('default')->upcomingInvoice();
+```
+
+<a name="previewing-subscription-invoices"></a>
+
+### Subscription 請求書のプレビュー
+
+`previewInvoice`の method を使うと、 price の変更を行う前に請求書をプレビューすることができます。これにより、特定の price の変更が行われた際に、顧客の請求書がどのように見えるかを判断することができます。
+
+```php
+$invoice = $user->subscription('default')->previewInvoice('price_yearly');
+```
+
+新しい複数の価格で請求書をプレビューするために、価格の array を`previewInvoice` method に渡すことができます：
+
+```php
+$invoice = $user->subscription('default')->previewInvoice(['price_yearly', 'price_metered']);
+```
+
+<a name="generating-invoice-pdfs"></a>
+
+### 請求書 PDF の生成
+
+請求書の PDF を生成する前に、 Cashier の default の請求書レンダラーである Dompdf の library をインストールするために Composer を使用する必要があります：
+
+```php
+composer require dompdf/dompdf
+```
+
+route または controller の内部から、指定した請求書の PDF`downloadInvoice`method を生成するために使用できます。この method は自動的に請求書を download するために必要な HTTP response`を生成します。
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/user/invoice/{invoice}', function (Request $request, string $invoiceId) {
+    return $request->user()->downloadInvoice($invoiceId);
+});
+```
+
+default として、請求書のすべての data は、Stripe に保存されている顧客や請求書の data から取得されます。ファイル名は、あなたの`app.name` 設定 values に基づいています。しかし、`downloadInvoice` method の第 2 引数として array を指定することで、一部のこの data をカスタマイズすることができます。この array は、あなたの会社や商品の詳細といった情報をカスタマイズすることを可能にします。
+
+```php
+return $request->user()->downloadInvoice($invoiceId, [
+    'vendor' => 'Your Company',
+    'product' => 'Your Product',
+    'street' => 'Main Str. 1',
+    'location' => '2000 Antwerp, Belgium',
+    'phone' => '+32 499 00 00 00',
+    'email' => 'info@example.com',
+    'url' => 'https://example.com',
+    'vendorVat' => 'BE123456789',
+]);
+```
+
+`downloadInvoice` method は、第三引数を通じて custom ファイル名も許可します。このファイル名には自動的に`.pdf`が後ろに付けられます：
+
+```php
+return $request->user()->downloadInvoice($invoiceId, [], 'my-invoice');
+```
+
+<a name="custom-invoice-render"></a>
+
+#### Custom 請求書レンダラー
+
+Cashier は、custom 請求書レンダラーを使用することも可能にします。 default では、Cashier は`DompdfInvoiceRenderer`実装を使用し、[dompdf](https://github.com/dompdf/dompdf) PHP の library を利用して Cashier の請求書を生成します。しかし、`Laravel\Cashier\Contracts\InvoiceRenderer`インターフェースを実装することで、任意のレンダラーを使用することができます。例えば、サードパーティの PDFrenderingservice に対して API コールを使用して請求書の PDF をレンダーすることを希望するかもしれません。
+
+```php
+use Illuminate\Support\Facades\Http;
+use Laravel\Cashier\Contracts\InvoiceRenderer;
+use Laravel\Cashier\Invoice;
+
+class ApiInvoiceRenderer implements InvoiceRenderer
+{
+    /**
+     * Render the given invoice and return the raw PDF bytes.
+     */
+    public function render(Invoice $invoice, array $data = [], array $options = []): string
+    {
+        $html = $invoice->view($data)->render();
+
+        return Http::get('https://example.com/html-to-pdf', ['html' => $html])->get()->body();
+    }
+}
+```
+
+請求書レンダラー契約を実装したら、アプリケーションの`config/cashier.php`設定ファイル内の`cashier.invoices.renderer`設定の value を update すべきです。この設定の value は、あなたの custom レンダラー実装の class 名に設定する必要があります。
+
+<a name="checkout"></a>
+
+## Checkout
+
+Cashier Stripe は、[Stripe Checkout](https://stripe.com/payments/checkout)のサポートも提供しています。Stripe Checkout は、事前に構築されたホストされた支払いページを提供することで、 custom ページを実装して支払いを受け付ける際の悩みを解消します。
+
+次のドキュメンテーションは、Stripe Checkout を Cashier と共に使用する方法に関する情報を含んでいます。Stripe Checkout について詳しく知りたい方は、[Stripe 자체의 Checkout に関するドキュメンテーション](https://stripe.com/docs/payments/checkout)もレビューすることを検討してみてください。
+
+<a name="product-checkouts"></a>
+
+### 製品のチェックアウト
+
+あなたは `checkout` method を使って、Stripe ダッシュボード内で作成された既存の製品に対して checkout を実行することができます。 `checkout` method は新しい Stripe checkout セッションを開始します。default では、Stripe Price ID を path することが必要です。
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/product-checkout', function (Request $request) {
+    return $request->user()->checkout('price_tshirt');
+});
+```
+
+必要に応じて、商品の quantity も指定することができます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/product-checkout', function (Request $request) {
+    return $request->user()->checkout(['price_tshirt' => 15]);
+});
+```
+
+顧客がこの route を訪れると、Stripe の Checkout ページにリダイレクトされます。 default としては、 user が購入を成功させた場合やキャンセルした場合に、あなたの`home` route の位置にリダイレクトされますが、`success_url`と`cancel_url` options を使って custom のコールバック URL を指定することも可能です：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/product-checkout', function (Request $request) {
+    return $request->user()->checkout(['price_tshirt' => 1], [
+        'success_url' => route('your-success-route'),
+        'cancel_url' => route('your-cancel-route'),
+    ]);
+});
+```
+
+あなたの `success_url` checkout オプションを定義するとき、Stripe に checkout session ID を URL の呼び出し時に query string パラメータとして追加するよう指示することができます。そのためには、あなたの `success_url` query string に `{CHECKOUT_SESSION_ID}`というリテラルの string を追加してください。Stripe はこのプレースホルダーを実際の checkout session ID に置き換えます。
+
+```php
+use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
+use Stripe\Customer;
+
+Route::get('/product-checkout', function (Request $request) {
+    return $request->user()->checkout(['price_tshirt' => 1], [
+        'success_url' => route('checkout-success').'?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => route('checkout-cancel'),
+    ]);
+});
+
+Route::get('/checkout-success', function (Request $request) {
+    $checkoutSession = $request->user()->stripe()->checkout->sessions->retrieve($request->get('session_id'));
+
+    return view('checkout.success', ['checkoutSession' => $checkoutSession]);
+})->name('checkout-success');
+```
+
+<a name="checkout-promotion-codes"></a>
+
+#### プロモーションコード
+
+default では、Stripe Checkout は[user リディーム可能なプロモーションコード](https://stripe.com/docs/billing/subscriptions/discounts/codes)を許可しません。幸いなことに、これらを Checkout ページで有効にする簡単な方法があります。それを行うには、`allowPromotionCodes` method を呼び出すことができます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/product-checkout', function (Request $request) {
+    return $request->user()
+        ->allowPromotionCodes()
+        ->checkout('price_tshirt');
+});
+```
+
+<a name="single-charge-checkouts"></a>
+
+### Single チャージチェックアウト
+
+あなたはまた、Stripe ダッシュボードで作成されていない特別な製品に対して単純なチャージを実行することもできます。そのためには、`checkoutCharge` method を課金可能 model に使用し、それに課金可能な金額、製品名、および option の数量を渡すことができます。顧客がこの route を訪れると、Stripe の Checkout ページに redirect されます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/charge-checkout', function (Request $request) {
+    return $request->user()->checkoutCharge(1200, 'T-Shirt', 5);
+});
+```
+
+> <LaravelNote type="warning" />
+> `checkoutCharge`の method を使用すると、Stripe は常に新しい製品と価格をあなたの
+> Stripe ダッシュボードに作成します。したがって、Stripe ダッシュボードで商品を事前に作成し、代わりに`checkout`の
+> method を使用することをお勧めします。
+
+<a name="subscription-checkouts"></a>
+
+### Subscription チェックアウト
+
+> <LaravelNote type="warning" />
+> Stripe の Checkout を subscriptions に使用するには、Stripe ダッシュボードで`customer.subscription.created`
+> webhook を有効にする必要があります。この webhook は、 database に subscription
+> レコードを作成し、関連するすべての subscription アイテムを保存します。
+
+また、Stripe の Checkout を使用して subscriptions を開始することも可能です。Cashier の subscription ビルダーメソッドで subscription を定義した後、`checkout`メソッドを呼び出すことができます。顧客がこの route を訪れると、Stripe の Checkout ページにリダイレクトされます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/subscription-checkout', function (Request $request) {
+    return $request->user()
+        ->newSubscription('default', 'price_monthly')
+        ->checkout();
+});
+```
+
+製品のチェックアウトと同様に、成功 URL とキャンセル URL をカスタマイズすることができます：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/subscription-checkout', function (Request $request) {
+    return $request->user()
+        ->newSubscription('default', 'price_monthly')
+        ->checkout([
+            'success_url' => route('your-success-route'),
+            'cancel_url' => route('your-cancel-route'),
+        ]);
+});
+```
+
+もちろん、 subscription チェックアウトに対してプロモーションコードを有効にすることも可能です：
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/subscription-checkout', function (Request $request) {
+    return $request->user()
+        ->newSubscription('default', 'price_monthly')
+        ->allowPromotionCodes()
+        ->checkout();
+});
+```
+
+> <LaravelNote type="warning" />
+> 残念ながら、Stripe の Checkout は、 subscriptions を開始するときにすべての subscription
+> 請求 options をサポートしていません。`anchorBillingCycleOn` method を subscription
+> ビルダーに設定する、精算動作を設定する、または支払い動作を設定することは、Stripe
+> の Checkout セッション中には一切影響を及ぼしません。利用可能なパラメータを確認するために、[Stripe
+> の Checkout Session API ドキュメンテーション](https://stripe.com/docs/api/checkout/sessions/create)をご覧ください。
+
+<a name="stripe-checkout-trial-periods"></a>
+
+#### Stripe Checkout と試用期間
+
+もちろん、Stripe の Checkout を使用して完了する subscription を構築する際に、試用期間を定義することができます。
+
+```php
+$checkout = Auth::user()->newSubscription('default', 'price_monthly')
+    ->trialDays(3)
+    ->checkout();
+```
+
+ただし、トライアル期間は少なくとも 48 時間でなければなりません。これは Stripe Checkout がサポートする試用時間の最小時間です。
+
+<a name="stripe-checkout-subscriptions-and-webhooks"></a>
+
+#### Subscriptions と Webhooks
+
+覚えておいてください、Stripe と Cashier update subscription は webhooks 経由で statuses を更新しますので、顧客が支払い情報を入力した後に application に戻ったときには、 subscription がまだアクティブでない場合があります。このシナリオを handle するためには、支払いまたは subscription が保留中であることを user に通知するメッセージを表示することをお勧めします。
+
+<a name="collecting-tax-ids"></a>
+
+### 納税者番号の収集
+
+Checkout は、顧客の税番号を収集することもサポートしています。これを checkout session で有効にするには、 session を作成する際に`collectTaxIds` method を呼び出します：
+
+```php
+$checkout = $user->collectTaxIds()->checkout('price_tshirt');
+```
+
+この method が呼び出されると、顧客は自分が会社として購入しているかどうかを示すことができる新しいチェックボックスが利用可能になります。そうであれば、彼らは自分の税 ID 番号を提供する機会を得ることができます。
+
+> <LaravelNote type="warning" />
+> すでにアプリケーションの service provider で[automatic tax collection](#tax-configuration)を設定している場合、この
+> feature は自動的に有効になり、`collectTaxIds` method を呼び出す必要はありません。
+
+<a name="guest-checkouts"></a>
+
+### ゲストチェックアウト
+
+`Checkout::guest` method を使用すると、"アカウント"を持っていない application のゲストのための checkout sessions を開始できます。
+
+```php
+use Illuminate\Http\Request;
+use Laravel\Cashier\Checkout;
+
+Route::get('/product-checkout', function (Request $request) {
+    return Checkout::guest()->create('price_tshirt', [
+        'success_url' => route('your-success-route'),
+        'cancel_url' => route('your-cancel-route'),
+    ]);
+});
+```
+
+既存の users のための checkout セッションを作成するときと同様に、ゲストの checkout session をカスタマイズするために、`Laravel\Cashier\CheckoutBuilder`インスタンスで利用可能な追加のメソッドを利用することができます：
+
+```php
+use Illuminate\Http\Request;
+use Laravel\Cashier\Checkout;
+
+Route::get('/product-checkout', function (Request $request) {
+    return Checkout::guest()
+        ->withPromotionCode('promo-code')
+        ->create('price_tshirt', [
+            'success_url' => route('your-success-route'),
+            'cancel_url' => route('your-cancel-route'),
+        ]);
+});
+```
+
+ゲストの checkout が完了した後、Stripe は`checkout.session.completed`の webhook event を dispatch することができるので、実際にこの event をあなたの application に送信するためにあなたの Stripe webhook を[設定してください](https://dashboard.stripe.com/webhooks)。Stripe ダッシュボード内で webhook が有効になると、Cashier を使って webhook を[処理できます](#handling-stripe-webhooks)。webhook のペイロードに含まれる object は、お客様の注文を達成するために調査できる[`checkout` object](https://stripe.com/docs/api/checkout/sessions/object)になります。
+
+<a name="handling-failed-payments"></a>
+
+## Handling Failed Payments
+
+時々、 subscriptions や single の課金に失敗することがあります。その場合、 Cashier は `Laravel\Cashier\Exceptions\IncompletePayment` という例外を throw し、これが発生したことを伝えます。この例外をキャッチした後、進める方法については options が二つ存在します。
+
+まず、お客様を Cashier に含まれている専用の支払い確認ページに redirect することができます。このページには既に、Cashier の service provider 経由で登録された名前の route が関連付けられています。したがって、`IncompletePayment`例外をキャッチして、user を支払い確認ページに redirect することが可能です:
+
+```php
+use Laravel\Cashier\Exceptions\IncompletePayment;
+
+try {
+    $subscription = $user->newSubscription('default', 'price_monthly')
+                            ->create($paymentMethod);
+} catch (IncompletePayment $exception) {
+    return redirect()->route(
+        'cashier.payment',
+        [$exception->payment->id, 'redirect' => route('home')]
+    );
+}
+```
+
+支払い確認ページでは、顧客に対して再度クレジットカード情報を入力し、Stripe が必要とする追加の actions を行うよう求められます、例えば "3D Secure" の確認です。支払いを確認した後、 user は、上記で指定された `redirect` パラメータによって提供された URL に `redirect` されます。redirect 後、 `message` (string) と `success` (integer) の query string variables が URL に追加されます。現在の支払いページは、以下の支払い method types をサポートしています:
+
+<div class="content-list" markdown="1">
+
+- クレジットカード
+- Alipay
+- Bancontact
+- BECS ダイレクトデビット
+- EPS
+- Giropay
+- iDEAL
+- SEPA ダイレクトデビット
+
+</div>
+
+あるいは、Stripe に handle の支払い確認を任せることもできます。この場合、支払い確認ページにリダイレクトする代わりに、Stripe のダッシュボードで[Stripe の自動請求メールの設定](https://dashboard.stripe.com/account/billing/automatic)をすることができます。ただし、`IncompletePayment`例外が捕捉された場合は、 user に対して、さらなる支払い確認指示を含む email が送られることを伝えるべきです。
+
+次のメソッドで exceptions が発生する場合があります：`charge`、`invoiceFor`、及び`Billable` トレイトを使用する models 上の`invoice`。 subscriptions とやり取りする場合、`SubscriptionBuilder` 上の `create` method 、及び`Subscription` 、`SubscriptionItem` models 上の `incrementAndInvoice` と `swapAndInvoice` メソッドは、支払いが不完全な exceptions を throw する可能性があります。
+
+既存の subscription が未完了の支払いを持っているかどうかは、 billable model または subscription のインスタンス上で`hasIncompletePayment` method を使用することで確認することができます：
+
+```php
+if ($user->hasIncompletePayment('default')) {
+    // ...
+}
+
+if ($user->subscription('default')->hasIncompletePayment()) {
+    // ...
+}
+```
+
+例外インスタンスの`payment`プロパティを調べることで、不完全な支払いの特定の status を導き出すことができます。
+
+```php
+use Laravel\Cashier\Exceptions\IncompletePayment;
+
+try {
+    $user->charge(1000, 'pm_card_threeDSecure2Required');
+} catch (IncompletePayment $exception) {
+    // Get the payment intent status...
+    $exception->payment->status;
+
+    // Check specific conditions...
+    if ($exception->payment->requiresPaymentMethod()) {
+        // ...
+    } elseif ($exception->payment->requiresConfirmation()) {
+        // ...
+    }
+}
+```
+
+<a name="confirming-payments"></a>
+
+### 支払いの確認
+
+一部の支払い方法では、支払いの確認に追加の data が必要です。たとえば、SEPA の支払い方法では、支払いの process 中に追加の"mandate" data が必要です。この data は、`withPaymentConfirmationOptions` method を使用して Cashier に提供できます。
+
+```php
+$subscription->withPaymentConfirmationOptions([
+    'mandate_data' => '...',
+])->swap('price_xxx');
+```
+
+支払いの確認時に受け付けられるすべての options を見直すために、[Stripe API ドキュメンテーション](https://stripe.com/docs/api/payment_intents/confirm)を参照していただくことができます。
+
+<a name="strong-customer-authentication"></a>
+
+## Strong Customer Authentication
+
+あなたのビジネス、またはあなたの顧客の一部がヨーロッパに拠点を置いている場合、EU の Authentication (SCA)規制を遵守する必要があります。これらの規制は、支払い詐欺を防止するために、ヨーロッパの Union によって 2019 年 9 月に導入されました。幸いなことに、Stripe と Cashier は SCA 準拠のアプリケーションを構築するための準備が整っています。
+
+> <LaravelNote type="warning" />
+> 開始する前に、[Stripe の PSD2 および SCA に関するガイド](https://stripe.com/guides/strong-customer-authentication)と、新しい[SCA
+> API に関するドキュメンテーション](https://stripe.com/docs/strong-customer-authentication)を確認してください。
+
+<a name="payments-requiring-additional-confirmation"></a>
+
+### 追加確認が必要な支払い
+
+SCA 規制では、支払いを確認し処理するために、追加の確認が必要とされることがよくあります。このような場合、Cashier は`Laravel\Cashier\Exceptions\IncompletePayment`例外を throw し、追加の authentication が必要であることを知らせます。これらの例外をどのように処理するかについての詳細は、[支払い処理の失敗の取扱い](#handling-failed-payments)に記載の文書で確認することができます。
+
+Stripe または Cashier によって表示される支払い確認画面は、特定の銀行またはカード発行者の支払いフローに合わせて調整され、追加のカード確認、一時的な小額請求、別のデバイスの authentication 、または他の検証形式を含むことができます。
+
+<a name="incomplete-and-past-due-state"></a>
+
+#### 未完了および期限超過の State
+
+支払いが追加の確認を必要とする場合、subscription は、それが`stripe_status` database column で示されるように、`incomplete`または`past_due` state のままになります。Cashier は、支払い確認が完了し、Stripe から webhook によりその完了が通知されるとすぐに、顧客の subscription を自動的に有効化します。
+
+`incomplete`および`past_due`ステータスの詳細については、[これらのステータスに関する追加ドキュメント](#incomplete-and-past-due-status)を参照してください。
+
+<a name="off-session-payment-notifications"></a>
+
+### オフセッション支払い Notifications
+
+SCA 規制では、顧客が subscription がアクティブな状態であっても時々支払い詳細を確認することが求められるため、オフ session の支払い確認が required であるときに、Cashier が顧客に notification を送信することができます。たとえば、これは subscription が更新されるときに起こる可能性があります。Cashier の支払い notification は、`CASHIER_PAYMENT_NOTIFICATION` environmentvariable を notification class に設定することで有効にすることができます。default では、この notification は無効になっています。もちろん、Cashier にはこの目的に使用できる notification class が含まれていますが、必要に応じて独自の notification class を提供することも自由です。
+
+```ini
+CASHIER_PAYMENT_NOTIFICATION=Laravel\Cashier\Notifications\ConfirmPayment
+```
+
+session 外の支払い確認 notifications が配信されることを確認するには、[Stripe の webhooks が設定されている](#handling-stripe-webhooks)ことをあなたの application で確認し、`invoice.payment_action_required` webhook が Stripe ダッシュボードで有効になっていることを確認してください。また、あなたの`Billable` model は、Laravel の`Illuminate\Notifications\Notifiable`トレイトも使用するようにすべきです。
+
+> <LaravelNote type="warning" />
+> Notifications は、追加の確認が必要な支払いを顧客が手動で行っている場合でも送信されます。残念ながら、Stripe
+> が支払いが手動で行われたのか"オフセッション"で行われたのかを知る方法はありません。しかし、顧客が支払いを既に確認した後に支払いページを訪れると、Payment
+> Successful のメッセージが表示されます。顧客が同じ支払いを誤って二重に確認し、誤って二回めの請求を発生させることはありません。
+
+<a name="stripe-sdk"></a>
+
+## Stripe SDK
+
+Cashier の多くのオブジェクトは、Stripe SDK オブジェクトをラップしたものです。Stripe のオブジェクトを直接操作したい場合、`asStripe` method を使用して便利に取得できます。
+
+```php
+$stripeSubscription = $subscription->asStripeSubscription();
+
+$stripeSubscription->application_fee_percent = 5;
+
+$stripeSubscription->save();
+```
+
+また、Stripe の subscription を直接 update するために、`updateStripeSubscription`という method を使用することもできます：
+
+```php
+$subscription->updateStripeSubscription(['application_fee_percent' => 5]);
+```
+
+`Stripe\StripeClient` client を直接使用したい場合は、`Cashier` class の`stripe` method を呼び出すことができます。たとえば、この method を使用して`StripeClient`インスタンスにアクセスし、Stripe アカウントから価格リストを取得することができます：
+
+```php
+use Laravel\Cashier\Cashier;
+
+$prices = Cashier::stripe()->prices->all();
+```
+
+<a name="testing"></a>
+
+## Testing
+
+Cashier を使用した application を testing するとき、Stripe API への実際の HTTP requests をモックすることができます; しかし、これには Cashier の動作を部分的に再実装する必要があります。ですので、実際の Stripe API を testing でヒットさせることをお勧めします。これは遅いですが、あなたの application が期待通りに動作していることにより自信を持つことができ、遅い testing はそれ自体の Pest / PHPUnit testing グループ内に配置することができます。
+
+testing を行う際、すでに Cashier 自体が充実したテストスイートを持っていることを覚えておいてください。そのため、自分の application の subscription および支払いフローの testing にだけ焦点を当て、すべての下位 Cashier の振る舞いをテストする必要はありません。
+
+始めるには、Stripe の secret バージョンの**testing**をあなたの `phpunit.xml` ファイルに追加してください：
+
+```php
+<env name="STRIPE_SECRET" value="sk_test_<your-key>"/>
+```
+
+これからは、 testing 中に Cashier と交流するたびに、実際の API リクエストを Stripe の testing environment に送信します。便利さを考慮して、 testing の際に使用するかもしれない subscriptions / 価格を Stripe の testing アカウントに事前に入力しておくべきです。
+
+> <LaravelNote type="note" />
+> クレジットカードの拒否や失敗など、さまざまな請求シナリオを testing するために、Stripe
+> が提供する[testing カード番号と tokens](https://stripe.com/docs/testing)の広範な範囲をご利用いただけます。

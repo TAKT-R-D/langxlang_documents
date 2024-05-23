@@ -1,0 +1,564 @@
+---
+filePath: "source/laravel/cache.md"
+title: "Cache"
+description: "Cache"
+org_path: "/docs/11.x/cache"
+is_empty: false
+nav_title: "Cache"
+org_title: "Cache"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Configuration](#configuration)
+  - [Driver Prerequisites](#driver-prerequisites)
+- [Cache Usage](#cache-usage)
+  - [Obtaining a Cache Instance](#obtaining-a-cache-instance)
+  - [Retrieving Items From the Cache](#retrieving-items-from-the-cache)
+  - [Storing Items in the Cache](#storing-items-in-the-cache)
+  - [Removing Items From the Cache](#removing-items-from-the-cache)
+  - [The Cache Helper](#the-cache-helper)
+- [Atomic Locks](#atomic-locks)
+  - [Managing Locks](#managing-locks)
+  - [Managing Locks Across Processes](#managing-locks-across-processes)
+- [Adding Custom Cache Drivers](#adding-custom-cache-drivers)
+  - [Writing the Driver](#writing-the-driver)
+  - [Registering the Driver](#registering-the-driver)
+- [Events](#events)
+
+</InPageIndex>
+<a name="introduction"></a>
+
+## Introduction
+
+あなたの application が実行する一部の data の取得や processing のタスクは、CPU を多大に負荷したり、完了までに数秒を要することがあります。このような場合、同じ data を後で素早く取得できるように、一時的に retrieved data を retrieved することが一般的です。 cache された data は、通常、[Memcached](https://memcached.org) や [Redis](https://redis.io)のような非常に高速な data ストアに格納されます。
+
+ありがたいことに、 Laravel は、さまざまな cache バックエンドに対する表現豊かで統一された API を提供しており、それらの驚くほど高速な data 取得を活用し、あなたの web application のスピードをアップさせることができます。
+
+<a name="configuration"></a>
+
+## Configuration
+
+あなたのアプリケーションの cache 設定ファイルは`config/cache.php`に位置しています。このファイルで、あなたの application 全体で default で使用したい" cache ストアを指定することができます。 Laravel は、[Memcached](https://memcached.org)や[Redis](https://redis.io)、[DynamoDB](https://aws.amazon.com/dynamodb)、そしてリレーショナルデータベースといった一般的なキャッシュバックエンドをサポートしています。さらに、ファイルベースの" cache driver "が利用可能であり、`array`および"null"の cache ドライバーは、あなたの自動テストのための便利な cache バックエンドを提供します。
+
+cache 設定ファイルには、ご確認いただける様々な他の options が含まれています。 default では、 Laravel は`database` cache driver を使用するように設定されており、これはアプリケーションの database `にシリアライズされたキャッシュされたオブジェクトを保存します。
+
+<a name="driver-prerequisites"></a>
+
+### Driver の前提条件
+
+<a name="prerequisites-database"></a>
+
+#### Database
+
+`database`の cache driver を使用する場合、cache data を含む database テーブルが必要になります。通常、これは Laravel の default `0001_01_01_000001_create_cache_table.php` [database migration](/ja/php/laravel/v11.x/07-database/04-migrations)に含まれていますが、もし application にこのマイグレーションが含まれていない場合、 `make:cache-table`の Artisan command を使用して作成することができます：
+
+```shell
+php artisan make:cache-table
+
+php artisan migrate
+```
+
+<a name="memcached"></a>
+
+#### Memcached
+
+Memcached driver の使用には、[Memcached PECL パッケージ](https://pecl.php.net/package/memcached)のインストールが必要です。 `config/cache.php`の設定ファイルに、あなたのすべての Memcached サーバーをリストアップすることができます。このファイルには、すでに`memcached.servers`エントリが含まれており、これで始めることができます:
+
+```php
+'memcached' => [
+    // ...
+
+    'servers' => [
+        [
+            'host' => env('MEMCACHED_HOST', '127.0.0.1'),
+            'port' => env('MEMCACHED_PORT', 11211),
+            'weight' => 100,
+        ],
+    ],
+],
+```
+
+必要であれば、`host`オプションを UNIX ソケットの path に設定することができます。これを行う場合、`port`オプションは`0`に設定するべきです：
+
+```php
+'memcached' => [
+    // ...
+
+    'servers' => [
+        [
+            'host' => '/var/run/memcached/memcached.sock',
+            'port' => 0,
+            'weight' => 100
+        ],
+    ],
+],
+```
+
+<a name="redis"></a>
+
+#### Redis
+
+Redis cache を Laravel で使用する前に、PECL 経由で PhpRedis PHP 拡張をインストールするか、 Composer 経由で `predis/predis` パッケージ(〜2.0)をインストールする必要があります。[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)はすでにこの拡張を含んでいます。また、[Laravel Forge](https://forge.laravel.com)や [Laravel Vapor](https://vapor.laravel.com)などの公式 Laravel deployment プラットフォームには default で PhpRedis 拡張がインストールされています。
+
+Redis の設定についての詳しい情報は、その[Laravel ドキュメンテーションページ](/ja/php/laravel/v11.x/07-database/06-redis#configuration)を参照してください。
+
+<a name="dynamodb"></a>
+
+#### DynamoDB
+
+[DynamoDB](https://aws.amazon.com/dynamodb) cache driver を使用する前に、cache した data をすべて保存するための DynamoDB テーブルを作成する必要があります。通常、このテーブルの名前は `cache` とすべきです。ただし、テーブルの名前は、 `cache` 設定ファイル内の `stores.dynamodb.table` 設定の value に基づいて名付けるべきです。また、テーブル名は `DYNAMODB_CACHE_TABLE` environment variables を通じて設定することも可能です。
+
+このテーブルには、アプリケーションの `cache` 設定ファイル内の `stores.dynamodb.attributes.key` 設定項目の value に対応する名前を持つ string パーティションキーも含まれているべきです。 default によると、パーティションキーは `key` という名前であるべきです。
+
+次に、あなたの Laravel application が DynamoDB と通信できるように、AWS SDK をインストールします:
+
+```shell
+composer require aws/aws-sdk-php
+```
+
+また、 DynamoDB cache ストア設定 options に values が提供されていることを確認する必要があります。通常、これらの options は、`AWS_ACCESS_KEY_ID`および`AWS_SECRET_ACCESS_KEY`などとして、アプリケーションの`.env`設定ファイルで定義する必要があります。
+
+```php
+'dynamodb' => [
+    'driver' => 'dynamodb',
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
+    'endpoint' => env('DYNAMODB_ENDPOINT'),
+],
+```
+
+<a name="cache-usage"></a>
+
+## Cache Usage
+
+<a name="obtaining-a-cache-instance"></a>
+
+### Cache インスタンスの取得
+
+cache ストアインスタンスを取得するために、`Cache` facade を使用することができます。これは、このドキュメント全体で使用するものです。`Cache` facade は、Laravel cache contracts の基本実装に対して便利で簡潔なアクセスを提供します：
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Cache;
+
+class UserController extends Controller
+{
+    /**
+     * Show a list of all users of the application.
+     */
+    public function index(): array
+    {
+        $value = Cache::get('key');
+
+        return [
+            // ...
+        ];
+    }
+}
+```
+
+<a name="accessing-multiple-cache-stores"></a>
+
+#### 複数の Cache ストアへのアクセス
+
+`Cache`の facade を使用すると、`store`の method を介してさまざまな cache ストアにアクセスできます。`store` method に渡すキーは、`cache`設定ファイル内の`stores`設定の array に記載されているストアのいずれかに対応する必要があります。
+
+```php
+$value = Cache::store('file')->get('foo');
+
+Cache::store('redis')->put('bar', 'baz', 600); // 10 Minutes
+```
+
+<a name="retrieving-items-from-the-cache"></a>
+
+### Cache からアイテムを取り出す
+
+`Cache` facade の `get` method は、 cache からアイテムを取得するために使用されます。アイテムが cache 内に存在しない場合、`null` が返されます。 もし望むなら、`get` method に 2 つ目の引数を渡して、アイテムが存在しない場合に返されるべき default value を指定することができます：
+
+```php
+$value = Cache::get('key');
+
+$value = Cache::get('key', 'default');
+```
+
+あなたはクロージャを default value として渡すことさえできます。指定されたアイテムが cache に存在しない場合、クロージャの結果が返されます。クロージャを渡すことで、 database や他の外部 service からの default values の取得を遅らせることができます。
+
+```php
+$value = Cache::get('key', function () {
+    return DB::table(/* ... */)->get();
+});
+```
+
+<a name="determining-item-existence"></a>
+
+#### アイテムの存在を確認する
+
+`has` method は、アイテムが cache 内に存在するかどうかを判断するために使用できます。この method は、アイテムが存在するがその value が`null`の場合も`false`を返します：
+
+```php
+if (Cache::has('key')) {
+    // ...
+}
+```
+
+<a name="incrementing-decrementing-values"></a>
+
+#### Values の増分/減分
+
+`increment`および`decrement`methods は、 cache 内の integer 項目の value を調整するために使用できます。これらの両方の methods は、項目の value を increment またはデクリメントする金額を示す option の 2 つ目の引数を受け入れます。
+
+```php
+// Initialize the value if it does not exist...
+Cache::add('key', 0, now()->addHours(4));
+
+// Increment or decrement the value...
+Cache::increment('key');
+Cache::increment('key', $amount);
+Cache::decrement('key');
+Cache::decrement('key', $amount);
+```
+
+<a name="retrieve-store"></a>
+
+#### 取得と保存
+
+時々、 cache からアイテムを取得したいと思うかもしれませんが、要求されたアイテムが存在しない場合には default value を保存したいと思うかもしれません。例えば、 cache から全ての users を取得したいと思うかもしれませんし、それらが存在しない場合には database からそれらを取得し、それらを cache に追加することもあります。これは`Cache::remember` method を使用して行うことができます：
+
+```php
+$value = Cache::remember('users', $seconds, function () {
+    return DB::table('users')->get();
+});
+```
+
+もしアイテムが cache に存在しない場合、`remember` に渡されたクロージャは実行され、その結果は cache に配置されます。
+
+`rememberForever` method を使用して、 cache からアイテムを取得したり、存在しない場合は永久に保存したりすることができます：
+
+```php
+$value = Cache::rememberForever('users', function () {
+    return DB::table('users')->get();
+});
+```
+
+<a name="retrieve-delete"></a>
+
+#### 取得し、 Delete
+
+cache からアイテムを取り出し、そのアイテムを削除する必要がある場合は、`pull` method を使用することができます。`get` method のように、アイテムが cache に存在しない場合は`null`が返されます。
+
+```php
+$value = Cache::pull('key');
+```
+
+<a name="storing-items-in-the-cache"></a>
+
+### 項目を Cache に保存する
+
+`put` method を使用して、`Cache` facade に cache にアイテムを保存することができます：
+
+```php
+Cache::put('key', 'value', $seconds = 10);
+```
+
+もし`put` method に storage 時間が渡されない場合、アイテムは無期限に保存されます：
+
+```php
+Cache::put('key', 'value');
+```
+
+秒数を integer として渡す代わりに、キャッシュされたアイテムの期限切れ予定時間を表す`DateTime`インスタンスを渡すこともできます。
+
+```php
+Cache::put('key', 'value', now()->addMinutes(10));
+```
+
+<a name="store-if-not-present"></a>
+
+#### 存在しない場合は保存
+
+`add` method は、アイテムが既に cache ストアに存在しない場合にのみ、アイテムを cache に追加します。 method は、アイテムが実際に cache に追加された場合は`true`を返します。それ以外の場合、 method は`false`を返します。`add` method はアトミック操作です：
+
+```php
+Cache::add('key', 'value', $seconds);
+```
+
+<a name="storing-items-forever"></a>
+
+#### アイテムを永遠に保存する
+
+`forever` method は、アイテムを cache に永久に保存するために使用できます。これらのアイテムは期限切れにならないため、`forget` method を使用して手動で cache から削除する必要があります。
+
+```php
+Cache::forever('key', 'value');
+```
+
+> <LaravelNote type="note" />
+> Memcached driver を使用している場合、"永久に"保存されるアイテムは、 cache がそのサイズ制限に達したときに削除される可能性があります。
+
+<a name="removing-items-from-the-cache"></a>
+
+### Cache からアイテムを削除する
+
+`forget`の method を使って cache からアイテムを削除することができます。
+
+```php
+Cache::forget('key');
+```
+
+有効期限の秒数をゼロまたは負の数値で提供することにより、アイテムを削除することも可能です：
+
+```php
+Cache::put('key', 'value', 0);
+
+Cache::put('key', 'value', -5);
+```
+
+`flush` method を使用して、 cache をすべてクリアすることができます:
+
+```php
+Cache::flush();
+```
+
+> <LaravelNote type="warning" />
+> cache のフラッシュは、設定した cache の"prefix"を尊重せず、 cache からすべてのエントリを削除します。他のアプリケーションと共有している
+> cache をクリアする際には、これを慎重に考慮してください。
+
+<a name="the-cache-helper"></a>
+
+### Cache ヘルパー
+
+`Cache` facade を使用することに加えて、グローバルな`cache`関数を使用して、 cache 経由で data を取得および保存することもできます。 `cache`関数が single 、 string 引数で呼び出されると、指定された key の value を返します：
+
+```php
+$value = cache('key');
+```
+
+もしあなたがキー/ value のペアの array と有効期限を関数に提供すると、それは指定された期間の間、 values を cache に保存します：
+
+```php
+cache(['key' => 'value'], $seconds);
+
+cache(['key' => 'value'], now()->addMinutes(10));
+```
+
+`cache`関数が引数なしで呼び出されると、他のキャッシュメソッドを呼び出すことができる`Illuminate\Contracts\Cache\Factory`の実装のインスタンスが返されます。
+
+```php
+cache()->remember('users', $seconds, function () {
+    return DB::table('users')->get();
+});
+```
+
+> <LaravelNote type="note" />
+> testing 中にグローバルな `cache` 関数を呼び出すと、[facade の testing](/ja/php/laravel/v11.x/09-testing/06-mocking#mocking-facades)を行うかのように
+> `Cache::shouldReceive` method を使用することができます。
+
+<a name="atomic-locks"></a>
+
+## Atomic Locks
+
+> <LaravelNote type="warning" />
+> この feature を利用するために、あなたの application は、`memcached`、`redis`、`dynamodb`、`database`、`file`、または`array`の
+> cache driver を、あなたのアプリケーションの default cache driver として使用する必要があります。さらに、すべてのサーバーは同じ中央の
+> cache サーバーと通信している必要があります。
+
+<a name="managing-locks"></a>
+
+### ロックの管理
+
+アトミックロックにより、レース条件を気にせずに分散ロックを操作することができます。例えば、[Laravel Forge](https://forge.laravel.com)はアトミックロックを使用して、一度に一つのリモートタスクのみがサーバー上で実行されることを保証します。`Cache::lock` method を使用して、ロックを作成および管理できます。
+
+```php
+use Illuminate\Support\Facades\Cache;
+
+$lock = Cache::lock('foo', 10);
+
+if ($lock->get()) {
+    // Lock acquired for 10 seconds...
+
+    $lock->release();
+}
+```
+
+`get` method はクロージャも受け入れます。クロージャが実行された後、Laravel は自動的にロックを解除します：
+
+```php
+Cache::lock('foo', 10)->get(function () {
+    // Lock acquired for 10 seconds and automatically released...
+});
+```
+
+ロックが現時点で利用できない場合、 request を行う際に、 Laravel に指定した秒数を待つよう指示することができます。もし指定した時間内にロックが取得できない場合、`Illuminate\Contracts\Cache\LockTimeoutException`がスローされます：
+
+```php
+use Illuminate\Contracts\Cache\LockTimeoutException;
+
+$lock = Cache::lock('foo', 10);
+
+try {
+    $lock->block(5);
+
+    // Lock acquired after waiting a maximum of 5 seconds...
+} catch (LockTimeoutException $e) {
+    // Unable to acquire lock...
+} finally {
+    $lock?->release();
+}
+```
+
+上記の例は、クロージャを `block` method に渡すことで単純化できます。クロージャがこの method に渡されると、 Laravel は指定された秒数だけロックの取得を attempt し、クロージャが実行されると自動的にロックを release します。
+
+```php
+Cache::lock('foo', 10)->block(5, function () {
+    // Lock acquired after waiting a maximum of 5 seconds...
+});
+```
+
+<a name="managing-locks-across-processes"></a>
+
+### プロセス間でのロックの管理
+
+時々、一つの process でロックを取得し、別の process でそれを release したい場合があるでしょう。例えば、web request の間にロックを取得し、その request によってトリガーされる queue に入った job の終了時にロックを release したいと思うかもしれません。このシナリオでは、ロックの範囲に"owner token"を queue に入れた job に渡すべきで、そのために job は与えられた token を使ってロックを再インスタンス化できます。
+
+以下の例では、ロックが正常に取得された場合、キューに入れられた job を dispatch します。さらに、ロックの `owner` method を介してキューに入れられた job にロックの所有者の token を渡します。
+
+```php
+$podcast = Podcast::find($id);
+
+$lock = Cache::lock('processing', 120);
+
+if ($lock->get()) {
+    ProcessPodcast::dispatch($podcast, $lock->owner());
+}
+```
+
+私たちの application の`ProcessPodcast` job の中で、所有者の token を使ってロックを復元及び解放することができます。
+
+```php
+Cache::restoreLock('processing', $this->owner)->release();
+```
+
+現在の所有者を尊重せずに release したい場合は、`forceRelease` method を使用できます：
+
+```php
+Cache::lock('processing')->forceRelease();
+```
+
+<a name="adding-custom-cache-drivers"></a>
+
+## Adding Custom Cache Drivers
+
+<a name="writing-the-driver"></a>
+
+### Driver の作成
+
+私たちの custom cache driver を作成するためには、まず `Illuminate\Contracts\Cache\Store` [contract](/ja/php/laravel/v11.x/05-digging-deeper/contracts)を実装する必要があります。そのため、MongoDB の cache 実装は次のようになるかもしれません：
+
+```php
+<?php
+
+namespace App\Extensions;
+
+use Illuminate\Contracts\Cache\Store;
+
+class MongoStore implements Store
+{
+    public function get($key) {}
+    public function many(array $keys) {}
+    public function put($key, $value, $seconds) {}
+    public function putMany(array $values, $seconds) {}
+    public function increment($key, $value = 1) {}
+    public function decrement($key, $value = 1) {}
+    public function forever($key, $value) {}
+    public function forget($key) {}
+    public function flush() {}
+    public function getPrefix() {}
+}
+```
+
+これらの method を MongoDB の connection を使って実装する必要があります。これらの method をどのように実装するかの例については、[Laravel framework source code](https://github.com/laravel/framework) の `Illuminate\Cache\MemcachedStore` を参照してください。実装が完了したら、`Cache` facade の `extend` method を呼び出して custom driver の登録を完了できます。
+
+```php
+Cache::extend('mongo', function (Application $app) {
+    return Cache::repository(new MongoStore);
+});
+```
+
+> <LaravelNote type="note" />
+> もし custom cache driver code をどこに配置すればいいか疑問に思っているなら、`app`ディレクトリ内に`Extensions`という名前空間を作成することができます。ただし、
+> Laravel は厳密な application の構造を持っていないことと、あなたが自由に自分の application
+> を整理することができるということを覚えておいてください。
+
+<a name="registering-the-driver"></a>
+
+### Driver の登録
+
+Laravel で custom cache driver を register するために、`Cache` facade の`extend` method を使用します。他の service providers が`boot` method 内でキャッシュされた values を attempt する可能性があるため、`booting`コールバック内で custom driver を register します。`booting`コールバックを使用することで、アプリケーションの service providers の`boot` method が呼び出される直前に custom driver が登録され、すべての service providers の`register` method が呼び出された後になることを保証できます。`booting`コールバックは、アプリケーションの`App\Providers\AppServiceProvider` class の`register` method 内で register します：
+
+```php
+<?php
+
+namespace App\Providers;
+
+use App\Extensions\MongoStore;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        $this->app->booting(function () {
+             Cache::extend('mongo', function (Application $app) {
+                 return Cache::repository(new MongoStore);
+             });
+         });
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // ...
+    }
+}
+```
+
+`extend` method に渡される最初の引数は、 driver の名前です。これは`config/cache.php`設定ファイル内の`driver`option に対応します。二番目の引数は、`Illuminate\Cache\Repository`インスタンスを返すべきクロージャーです。クロージャーには、[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)のインスタンスである`$app`インスタンスが渡されます。
+
+あなたの拡張機能が登録されたら、`CACHE_STORE` 環境 variable を更新するか、application の`config/cache.php`設定ファイル内の`default`option を、あなたの拡張機能の名前に変更してください。
+
+<a name="events"></a>
+
+## Events
+
+cache の各操作で code を実行するには、 cache から発行されるさまざまな [events](/ja/php/laravel/v11.x/05-digging-deeper/events) をリッスンすることができます。
+
+| Event Name                             |
+| -------------------------------------- |
+| `Illuminate\Cache\Events\CacheHit`     |
+| `Illuminate\Cache\Events\CacheMissed`  |
+| `Illuminate\Cache\Events\KeyForgotten` |
+| `Illuminate\Cache\Events\KeyWritten`   |
+
+パフォーマンスを向上させるために、`events`設定オプションをアプリケーションの`config/cache.php`設定ファイル内の特定の cache ストアで`false`に設定することにより、 cache events を無効にすることができます。
+
+```php
+'database' => [
+    'driver' => 'database',
+    // ...
+    'events' => false,
+],
+```

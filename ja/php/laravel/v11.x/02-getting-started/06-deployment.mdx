@@ -1,0 +1,237 @@
+---
+filePath: "source/laravel/deployment.md"
+title: "Deployment"
+description: "Deployment"
+org_path: "/docs/11.x/deployment"
+is_empty: false
+nav_title: "Deployment"
+org_title: "Deployment"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Server Requirements](#server-requirements)
+- [Server Configuration](#server-configuration)
+  - [Nginx](#nginx)
+  - [FrankenPHP](#frankenphp)
+- [Optimization](#optimization)
+  - [Caching Configuration](#optimizing-configuration-loading)
+  - [Caching Events](#caching-events)
+  - [Caching Routes](#optimizing-route-loading)
+  - [Caching Views](#optimizing-view-loading)
+- [Debug Mode](#debug-mode)
+- [The Health Route](#the-health-route)
+- [Easy Deployment With Forge / Vapor](#deploying-with-forge-or-vapor)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+あなたが Laravel application を production にデプロイする準備ができたとき、 application ができる限り効率的に動作するようにするためにできる重要なことがいくつかあります。このドキュメントでは、 Laravel application が適切にデプロイされることを確認するための素晴らしいスタートポイントをいくつか紹介します。
+
+<a name="server-requirements"></a>
+
+## Server Requirements
+
+Laravel フレームワークにはいくつかの system requirements があります。あなたの web サーバーが以下の最低の PHP バージョンと extensions を持っていることを確認する必要があります:
+
+<div class="content-list" markdown="1">
+
+- PHP >= 8.2
+- Ctype PHP エクステンション
+- cURL PHP 拡張機能
+- DOM PHP 拡張機能
+- Fileinfo PHP 拡張機能
+- フィルタ PHP エクステンション
+- Hash PHP エクステンション
+- Mbstring PHP エクステンション
+- OpenSSL PHP 拡張機能
+- PCRE PHP エクステンション
+- PDO PHP エクステンション
+- Session PHP エクステンション
+- Tokenizer PHP エクステンション
+- XML PHP 拡張機能
+
+</div>
+
+<a name="server-configuration"></a>
+
+## Server Configuration
+
+<a name="nginx"></a>
+
+### Nginx
+
+あなたが Nginx を実行するサーバーに application をデプロイする場合、次の設定ファイルを web サーバーの設定の出発点として使用することができます。おそらく、このファイルはサーバーの設定に応じてカスタマイズする必要があるでしょう。 **サーバーの管理において支援が必要な場合、[Laravel Forge](https://forge.laravel.com)のような第一級の Laravel サーバー管理および deployment service の使用を検討してみてください。**
+
+以下のような設定になっていることを確認してください。あなたの web サーバは、すべてのリクエストをあなたのアプリケーションの`public/index.php`ファイルに向けるようにしてください。あなたは、`index.php`ファイルをあなたのプロジェクトの root に移動することを attempt べきではありません。なぜなら、 application を project root から提供すると、多くの機密設定ファイルが public インターネットに晒されるからです。
+
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    root /srv/example.com/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+<a name="frankenphp"></a>
+
+### FrankenPHP
+
+[FrankenPHP](https://frankenphp.dev/)は、あなたの Laravel アプリケーションの提供にも使用できます。FrankenPHP は Go で記述された現代的な PHP の application server です。FrankenPHP を用いて Laravel PHP の application を提供するためには、その`php-server` command を単純に呼び出すだけです。
+
+```shell
+frankenphp php-server -r public/
+```
+
+FrankenPHP がサポートする、より強力な features 、例えば[Laravel Octane](/ja/php/laravel/v11.x/10-packages/octane)の統合や、HTTP/3、現代的な圧縮、または Laravel アプリケーションをスタンドアローンのバイナリとしてパッケージ化する能力を最大限に活用するには、FrankenPHP の[Laravel documentation](https://frankenphp.dev/docs/laravel/)を参照してください。
+
+<a name="optimization"></a>
+
+## Optimization
+
+あなたの application を production にデプロイする際、cache すべきさまざまなファイルがあります。それには、設定、events、routes、および views が含まれます。 Laravel はこれらすべてのファイルを cache するための便利な `optimize` Artisan command を提供しています。この command は通常、あなたの application の deployment process の一部として呼び出されるべきです。
+
+```shell
+php artisan optimize
+```
+
+`optimize:clear`の method を使用すると、`optimize`の command で生成されたすべての cache ファイルを削除できます。
+
+```shell
+php artisan optimize:clear
+```
+
+次の文書では、`optimize` command によって実行される粒状最適化コマンドのそれぞれについて説明します。
+
+<a name="optimizing-configuration-loading"></a>
+
+### キャッシュ設定
+
+あなたの application を production にデプロイする際は、`config:cache` Artisan command を deployment process 中に実行することを確認してください。
+
+```shell
+php artisan config:cache
+```
+
+この command は、Laravel のすべての設定ファイルを single 、キャッシュされたファイルにまとめ、フレームワークが設定 values をロードする際のファイルシステムへのアクセス回数を大幅に削減します。
+
+> <LaravelNote type="warning" />
+> あなたが`config:cache`の command を deployment process の間に実行する場合、設定ファイルからだけ`env`関数を呼び出していることを確認してください。設定が
+> cache された後、`.env` ファイルはロードされず、`.env`variables の`env`関数へのすべての呼び出しは`null`を返します。
+
+<a name="caching-events"></a>
+
+### キャッシュ Events
+
+あなたは、デプロイメント process の間に、application の自動検出された event から listener マッピングまでを cache する必要があります。これは、デプロイメント中に`event:cache` Artisan command を呼び出すことで達成できます。
+
+```shell
+php artisan event:cache
+```
+
+<a name="optimizing-route-loading"></a>
+
+### キャッシング Routes
+
+あなたが多くの routes を持つ大規模な application を構築している場合、`route:cache`の Artisan command があなたの deployment process 中に実行されていることを確認するべきです:
+
+```shell
+php artisan route:cache
+```
+
+この command は、すべての route 登録をキャッシュされたファイル内の single method 呼び出しに減らすことで、数百の routes を登録する際の route 登録のパフォーマンスを向上させます。
+
+<a name="optimizing-view-loading"></a>
+
+### Views のキャッシング
+
+あなたの application を production にデプロイする際には、`view:cache`の Artisan command を deployment process の間に実行することを確認してください。
+
+```shell
+php artisan view:cache
+```
+
+この command はすべての Blade views を事前にコンパイルするため、要求時にコンパイルされることはありません。これにより、 view を返す各 request のパフォーマンスが向上します。
+
+<a name="debug-mode"></a>
+
+## Debug Mode
+
+`config/app.php`設定ファイルの debug option は、 error に関する情報のうち、実際に user に表示される情報の量を決定します。 default では、この option は`APP_DEBUG` environment variables の value を尊重するように設定されており、これはあなたの application の`.env`ファイルに保存されています。
+
+> <LaravelNote type="warning" />
+> **ご自身の production environment において、この value は常に`false`であるべきです。
+> `APP_DEBUG`変数が production で`true`に設定されていると、あなたのアプリケーションの最終
+> users に対して敏感な設定の values を晒すリスクがあります。**
+
+<a name="the-health-route"></a>
+
+## The Health Route
+
+Laravel は、ビルトインのヘルスチェックの route を持っており、これを使って application の status を監視することができます。 production では、この route は、アップタイムモニター、ロードバランサー、または Kubernetes のようなオーケストレーションシステムに対して、 application の status を報告するために使用することができます。
+
+default では、ヘルスチェックの route は `/up` で提供され、 exceptions が例外なしに起動した場合は 200 の HTTP response を返します。それ以外の場合は、500 の HTTP response が返されます。この route の URI は、`bootstrap/app` ファイル内の application で設定することができます。
+
+```php
+->withRouting(
+    web: __DIR__.'/../routes/web.php',
+    commands: __DIR__.'/../routes/console.php',
+    health: '/up', // [tl! remove]
+    health: '/status', // [tl! add]
+)
+```
+
+HTTP requests がこの route に対して行われると、 Laravel は`Illuminate\Foundation\Events\DiagnosingHealth` event も dispatch します。これにより、あなたの application に関連する追加の健康チェックを行うことができます。この event の[listener](/ja/php/laravel/v11.x/05-digging-deeper/events)内で、アプリケーションの database や cache status をチェックすることができます。 application に問題を検出した場合は、リスナーから単純に throw することで例外を投げることができます。
+
+<a name="deploying-with-forge-or-vapor"></a>
+
+## Easy Deployment With Forge / Vapor
+
+<a name="laravel-forge"></a>
+
+#### Laravel Forge
+
+まだ自分自身でサーバー設定を管理する準備が整っていなかったり、堅牢な Laravel application を運用するために必要な様々な services の設定に慣れていない場合、[Laravel Forge](https://forge.laravel.com)は素晴らしい代替手段です。
+
+Laravel Forge は、DigitalOcean、Linode、AWS などのさまざまなインフラストラクチャ providers で servers を作成することができます。さらに、Forge は Nginx、 MySQL 、 Redis 、 Memcached 、Beanstalk など、堅牢な Laravel application を build するために必要なすべてのツールをインストールおよび管理します。
+
+> <LaravelNote type="note" />
+> Laravel Forge を使用したデプロイの完全なガイドが欲しいですか？ [Laravel Bootcamp](https://bootcamp.laravel.com/deploying)と、Laracasts
+> で利用可能な Forge の[ビデオシリーズ](https://laracasts.com/series/learn-laravel-forge-2022-edition)をご覧ください。
+
+<a name="laravel-vapor"></a>
+
+#### Laravel Vapor
+
+もし完全に servers レスで、自動スケーリングされた deployment プラットフォームを希望し、それが Laravel に最適化されている場合は、[Laravel Vapor](https://vapor.laravel.com)をご覧ください。 Laravel Vapor は、AWS によって支えられている Laravel のための servers レスな deployment プラットフォームです。Vapor 上で Laravel のインフラを立ち上げ、servers レスのスケーラブルなシンプルさに惹かれてみてください。Laravel Vapor は、あなたが慣れている通りに Laravelapplications を書き続けることができるよう、Laravel のクリエイターによってフレームワークとシームレスに連携するように微調整されています。

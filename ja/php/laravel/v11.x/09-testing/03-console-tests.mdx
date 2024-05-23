@@ -1,0 +1,213 @@
+---
+filePath: "source/laravel/console-tests.md"
+title: "Console Tests"
+description: "Console Tests"
+org_path: "/docs/11.x/console-tests"
+is_empty: false
+nav_title: "Console Tests"
+org_title: "Console Tests"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Success / Failure Expectations](#success-failure-expectations)
+- [Input / Output Expectations](#input-output-expectations)
+- [Console Events](#console-events)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+HTTPtesting を簡素化するだけでなく、Laravel はあなたの application の[customconsolecommand](/ja/php/laravel/v11.x/05-digging-deeper/artisan)の testing に対するシンプルな API を提供します。
+
+<a name="success-failure-expectations"></a>
+
+## Success / Failure Expectations
+
+始めるために、 Artisan コマンドの終了 code についての主張をする方法を探しましょう。これを達成するために、私たちはテストから Artisan command を呼び出すために`artisan` method を使用します。その後、`assertExitCode` method を使用して、 command が特定の終了 code で完了したことを assert します。
+
+```php tab=Pest
+test('console command', function () {
+    $this->artisan('inspire')->assertExitCode(0);
+});
+```
+
+```php tab=PHPUnit
+/**
+ * Test a console command.
+ */
+public function test_console_command(): void
+{
+    $this->artisan('inspire')->assertExitCode(0);
+}
+```
+
+特定の終了 code で終了しなかったことを`assertNotExitCode` method で assert するために使用できます。 command :
+
+```php
+$this->artisan('inspire')->assertNotExitCode(1);
+```
+
+もちろん、全てのターミナルコマンドは通常、成功した場合には status code が`0`、失敗した場合には非ゼロの終了 code とともに終了します。したがって、便宜上、`assertSuccessful`と`assertFailed`のアサーションを使用して、特定の command が成功した終了 code で終了したのかどうかを assert することができます：
+
+```php
+$this->artisan('inspire')->assertSuccessful();
+
+$this->artisan('inspire')->assertFailed();
+```
+
+<a name="input-output-expectations"></a>
+
+## Input / Output Expectations
+
+Laravel は、`expectsQuestion` method を使用して consolecommands の user 入力を簡単に"mock"することができます。さらに、`assertExitCode`および`expectsOutput`メソッドを使用して、console command によって出力されると予想される終了コードとテキストを指定することもできます。例えば、以下の console command を考えてみてください：
+
+```php
+Artisan::command('question', function () {
+    $name = $this->ask('What is your name?');
+
+    $language = $this->choice('Which language do you prefer?', [
+        'PHP',
+        'Ruby',
+        'Python',
+    ]);
+
+    $this->line('Your name is '.$name.' and you prefer '.$language.'.');
+});
+```
+
+次のテストを使用して、この command をテストすることができます：
+
+```php tab=Pest
+test('console command', function () {
+    $this->artisan('question')
+         ->expectsQuestion('What is your name?', 'Taylor Otwell')
+         ->expectsQuestion('Which language do you prefer?', 'PHP')
+         ->expectsOutput('Your name is Taylor Otwell and you prefer PHP.')
+         ->doesntExpectOutput('Your name is Taylor Otwell and you prefer Ruby.')
+         ->assertExitCode(0);
+});
+```
+
+```php tab=PHPUnit
+/**
+ * Test a console command.
+ */
+public function test_console_command(): void
+{
+    $this->artisan('question')
+         ->expectsQuestion('What is your name?', 'Taylor Otwell')
+         ->expectsQuestion('Which language do you prefer?', 'PHP')
+         ->expectsOutput('Your name is Taylor Otwell and you prefer PHP.')
+         ->doesntExpectOutput('Your name is Taylor Otwell and you prefer Ruby.')
+         ->assertExitCode(0);
+}
+```
+
+また、`doesntExpectOutput` method を使用して、console command が何も出力を生成しないことを主張することもできます：
+
+```php tab=Pest
+test('console command', function () {
+    $this->artisan('example')
+         ->doesntExpectOutput()
+         ->assertExitCode(0);
+});
+```
+
+```php tab=PHPUnit
+/**
+ * Test a console command.
+ */
+public function test_console_command(): void
+{
+    $this->artisan('example')
+            ->doesntExpectOutput()
+            ->assertExitCode(0);
+}
+```
+
+`expectsOutputToContain`と`doesntExpectOutputToContain`メソッドは、 output の一部に対するアサーションを行うために使用することができます。
+
+```php tab=Pest
+test('console command', function () {
+    $this->artisan('example')
+         ->expectsOutputToContain('Taylor')
+         ->assertExitCode(0);
+});
+```
+
+```php tab=PHPUnit
+/**
+ * Test a console command.
+ */
+public function test_console_command(): void
+{
+    $this->artisan('example')
+            ->expectsOutputToContain('Taylor')
+            ->assertExitCode(0);
+}
+```
+
+<a name="confirmation-expectations"></a>
+
+#### 確認の期待
+
+"yes" または "no" の答えの形で確認を待つ command を書くとき、`expectsConfirmation` method を活用することができます。
+
+```php
+$this->artisan('module:import')
+    ->expectsConfirmation('Do you really wish to run this command?', 'no')
+    ->assertExitCode(1);
+```
+
+<a name="table-expectations"></a>
+
+#### テーブルの期待値
+
+あなたの command が Artisan の`table` method を使って情報のテーブルを表示する場合、テーブル全体の output の期待値を書くのは面倒です。代わりに、`expectsTable` method を使うことができます。この method は、最初の引数としてテーブルの headers を受け取り、2 番目の引数としてテーブルの data を受け取ります：
+
+```php
+$this->artisan('users:all')
+    ->expectsTable([
+        'ID',
+        'Email',
+    ], [
+        [1, 'taylor@example.com'],
+        [2, 'abigail@example.com'],
+    ]);
+```
+
+<a name="console-events"></a>
+
+## Console Events
+
+default では、`Illuminate\Console\Events\CommandStarting`と`Illuminate\Console\Events\CommandFinished`の events は、application の test を実行する間は dispatch されません。 ただし、これらの events を特定の test class に対して有効にすることができます。その方法は、`Illuminate\Foundation\Testing\WithConsoleEvents`トレイトをその class に追加することです：
+
+```php tab=Pest
+<?php
+
+use Illuminate\Foundation\Testing\WithConsoleEvents;
+
+uses(WithConsoleEvents::class);
+
+// ...
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\WithConsoleEvents;
+use Tests\TestCase;
+
+class ConsoleEventTest extends TestCase
+{
+    use WithConsoleEvents;
+
+    // ...
+}
+```

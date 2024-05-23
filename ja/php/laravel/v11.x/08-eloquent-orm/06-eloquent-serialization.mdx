@@ -1,0 +1,271 @@
+---
+filePath: "source/laravel/eloquent-serialization.md"
+title: "Eloquent: Serialization"
+description: "Eloquent: Serialization"
+org_path: "/docs/11.x/eloquent-serialization"
+is_empty: false
+nav_title: "Serialization"
+org_title: "Eloquent: Serialization"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Serializing Models and Collections](#serializing-models-and-collections)
+  - [Serializing to Arrays](#serializing-to-arrays)
+  - [Serializing to JSON](#serializing-to-json)
+- [Hiding Attributes From JSON](#hiding-attributes-from-json)
+- [Appending Values to JSON](#appending-values-to-json)
+- [Date Serialization](#date-serialization)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel を使用して API を構築する際、しばしば models や関連付けを配列や JSON に変換する必要があります。 Eloquent には、これらの変換を行うための便利な方法が含まれており、 models のシリアル化された表現に含まれる attributes を制御することも可能です。
+
+> <LaravelNote type="note" />
+> さらに強力な方法で Eloquent model と collection JSON のシリアライズを処理するには、[Eloquent
+> API resources](/ja/php/laravel/v11.x/08-eloquent-orm/05-eloquent-resources)のドキュメンテーションをご覧ください。
+
+<a name="serializing-models-and-collections"></a>
+
+## Serializing Models and Collections
+
+<a name="serializing-to-arrays"></a>
+
+### 配列へのシリアライズ
+
+model とその読み込まれた[relationships](/ja/php/laravel/v11.x/08-eloquent-orm/02-eloquent-relationships)を attributes に変換するには、`toArray` method を使用する必要があります。この method は再帰的で、すべての属性とすべての関係(関係の関係を含む)が array に変換されます。
+
+```php
+use App\Models\User;
+
+$user = User::with('roles')->first();
+
+return $user->toArray();
+```
+
+`attributesToArray` method は model の attributes を array に変換するために使用できますが、その関連性は変換できません：
+
+```php
+$user = User::first();
+
+return $user->attributesToArray();
+```
+
+あなたはまた、`toArray` method を collection のインスタンスに適用することで、全体の[collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections)を models の arrays に変換することもできます：
+
+```php
+$users = User::all();
+
+return $users->toArray();
+```
+
+<a name="serializing-to-json"></a>
+
+### JSON へのシリアライズ
+
+model を JSON に変換するには、`toJson` method を使用すべきです。`toArray`のように、`toJson` method は再帰的であるため、すべての attributes と関連性が JSON に変換されます。また、[PHP でサポートされている](https://secure.php.net/manual/en/function.json-encode.php) JSON のエンコーディング options も指定することができます。
+
+```php
+use App\Models\User;
+
+$user = User::find(1);
+
+return $user->toJson();
+
+return $user->toJson(JSON_PRETTY_PRINT);
+```
+
+あるいは、 model または collection を string にキャストすることもできます。これにより、`toJson` method が model または collection 上で自動的に呼び出されます。
+
+```php
+return (string) User::find(1);
+```
+
+models や collections は string にキャストされるときに JSON に変換されるため、 Eloquent のオブジェクトをアプリケーションの routes やコントローラから直接返すことができます。 Laravel は、 routes やコントローラから返された Eloquent models や collections が JSON に自動的にシリアライズされます。
+
+```php
+Route::get('users', function () {
+    return User::all();
+});
+```
+
+<a name="relationships"></a>
+
+#### Relationships
+
+Eloquent model が JSON に変換されると、ロードされた関連性が自動的に JSONobject の属性に含まれます。また、Eloquent のリレーションシップ方法は camel case の method 名を使用して定義されますが、リレーションシップの JSON 属性は"snake case"になります。
+
+<a name="hiding-attributes-from-json"></a>
+
+## Hiding Attributes From JSON
+
+場合によっては、モデルの array または JSON 表現に含まれる Attributes (例えば passwords )を制限したいと思うかもしれません。そのためには、あなたの model に `$hidden` プロパティを追加してください。 attributes は `$hidden` プロパティの array にリストされ、あなたの model のシリアライズされた表現には含まれません。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = ['password'];
+}
+```
+
+> <LaravelNote type="note" />
+> 関係を非表示にするには、関係の method 名を Eloquent モデルの`$hidden`プロパティに追加してください。
+
+あるいは、`visible`プロパティを使用して、モデルの array や JSON 表現に含めるべき attributes の"許可リスト"を定義することもできます。`$visible` array に存在しないすべての attributes は、 model が array や JSON に変換されるときに hidden になります。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * The attributes that should be visible in arrays.
+     *
+     * @var array
+     */
+    protected $visible = ['first_name', 'last_name'];
+}
+```
+
+<a name="temporarily-modifying-attribute-visibility"></a>
+
+#### 一時的に Attribute の可視性を変更する
+
+もし特定の model インスタンス上で通常 hidden attributes とされるいくつかの属性を表示したい場合は、`makeVisible` method を使用できます。`makeVisible` method は model インスタンスを返します：
+
+```php
+return $user->makeVisible('attribute')->toArray();
+```
+
+同様に、通常は見える 属性 の一部を隠したい場合は、`makeHidden` method を使用することができます。
+
+```php
+return $user->makeHidden('attribute')->toArray();
+```
+
+すべての表示属性または hidden attributes を一時的に上書きしたい場合は、それぞれ`setVisible`メソッドと`setHidden`メソッドを使用することができます：
+
+```php
+return $user->setVisible(['id', 'name'])->toArray();
+
+return $user->setHidden(['email', 'password', 'remember_token'])->toArray();
+```
+
+<a name="appending-values-to-json"></a>
+
+## Appending Values to JSON
+
+時折、 models を配列や JSON に変換する際に、 database の対応する column がない attributes を追加したいと思うことがあるかもしれません。それを行うには、まず value のための[アクセサ](/ja/php/laravel/v11.x/08-eloquent-orm/04-eloquent-mutators)を定義します。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * Determine if the user is an administrator.
+     */
+    protected function isAdmin(): Attribute
+    {
+        return new Attribute(
+            get: fn () => 'yes',
+        );
+    }
+}
+```
+
+あなたが model の array や JSON 表現に常にアクセサーを付加したい場合は、model の`appends`プロパティに attribute の名前を追加できます。attribute の名前は、通常、"snake case"のシリアライズされた表現を使って参照されます。これは、アクセサーの PHP の method が"camel case"で定義されているにも関わらずです。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['is_admin'];
+}
+```
+
+`appends`リストに attribute が追加されると、model の array と JSON の表現の両方に含まれます。`appends`array の Attributes は、model の設定で設定された`visible`と`hidden`を尊重します。
+
+<a name="appending-at-run-time"></a>
+
+#### 実行時に追加する
+
+runtime の際、 model インスタンスに`append` method を使用して追加の attributes を append するよう指示することができます。 または、特定の model インスタンスの追加されたプロパティの全体の array を上書きするために、`setAppends` method を使用することもできます。
+
+```php
+return $user->append('is_admin')->toArray();
+
+return $user->setAppends(['is_admin'])->toArray();
+```
+
+<a name="date-serialization"></a>
+
+## Date Serialization
+
+<a name="customizing-the-default-date-format"></a>
+
+#### Default 日付形式のカスタマイズ
+
+default のシリアライゼーション形式は、`serializeDate`method を上書きすることでカスタマイズできます。この method は、database に格納するための日付の形式には影響しません。
+
+```php
+/**
+ * Prepare a date for array / JSON serialization.
+ */
+protected function serializeDate(DateTimeInterface $date): string
+{
+    return $date->format('Y-m-d');
+}
+```
+
+<a name="customizing-the-date-format-per-attribute"></a>
+
+#### Attribute ごとの日付形式のカスタマイズ
+
+モデルの[キャスト宣言](/ja/php/laravel/v11.x/08-eloquent-orm/04-eloquent-mutators#attribute-casting)で日付フォーマットを指定することにより、個々の Eloquent 日付 attributes のシリアライズ形式をカスタマイズすることができます：
+
+```php
+protected function casts(): array
+{
+    return [
+        'birthday' => 'date:Y-m-d',
+        'joined_at' => 'datetime:Y-m-d H:00',
+    ];
+}
+
+```

@@ -1,0 +1,503 @@
+---
+filePath: "source/laravel/horizon.md"
+title: "Laravel Horizon"
+description: "Laravel Horizon"
+org_path: "/docs/11.x/horizon"
+is_empty: false
+nav_title: "Horizon"
+org_title: "Laravel Horizon"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Balancing Strategies](#balancing-strategies)
+  - [Dashboard Authorization](#dashboard-authorization)
+  - [Silenced Jobs](#silenced-jobs)
+- [Upgrading Horizon](#upgrading-horizon)
+- [Running Horizon](#running-horizon)
+  - [Deploying Horizon](#deploying-horizon)
+- [Tags](#tags)
+- [Notifications](#notifications)
+- [Metrics](#metrics)
+- [Deleting Failed Jobs](#deleting-failed-jobs)
+- [Clearing Jobs From Queues](#clearing-jobs-from-queues)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+> <LaravelNote type="note" />
+> Laravel Horizon について詳しく調べる前に、まずは Laravel の基本的な[queueservice](/ja/php/laravel/v11.x/05-digging-deeper/queues)に慣れておくべきです。Horizon
+> は Laravel の queue に追加の機能を追加しますが、それらの機能は、すでに Laravel
+> が提供する基本的な queue 機能に精通していないと理解するのが難しいかもしれません。
+
+[Laravel Horizon](https://github.com/laravel/horizon)は、あなたの Laravel で動力を供給される[Redis queues](/ja/php/laravel/v11.x/05-digging-deeper/queues)のための美しいダッシュボードとコード駆動の設定を提供します。 Horizon を使用することで、 queue システムの主要な指標、例えば job のスループット、 runtime 、そして job の失敗を簡単にモニタリングすることができます。
+
+Horizon を使用すると、すべての queue ワーカーの設定が single 、シンプルな設定ファイルに保存されます。アプリケーションのワーカー設定をバージョン管理されたファイルで定義することにより、アプリケーションの queue ワーカーを application の配布時に簡単にスケールまたは変更することが可能になります。
+
+{/* <img src="/images/php/laravel/v11.x/img/docs/horizon-example.png" /> */}
+
+<a name="installation"></a>
+
+## Installation
+
+> <LaravelNote type="warning" />
+> Laravel Horizon は、あなたの queue connection を供給するために[Redis](https://redis.io)を使用することを必要とします。したがって、application
+> の`config/queue.php`設定ファイルで queue 接続が`redis`に設定されていることを確認する必要があります。
+
+あなたはパッケージマネージャーの Composer を使って、あなたの project に Horizon をインストールすることができます:
+
+```shell
+composer require laravel/horizon
+```
+
+Horizon をインストールした後、`horizon:install`の Artisan command を使用して、そのアセットを publish してください。
+
+```shell
+php artisan horizon:install
+```
+
+<a name="configuration"></a>
+
+### Configuration
+
+Horizon の資産を公開した後、その primary 設定ファイルは `config/horizon.php` に位置することになります。この設定ファイルでは application のための queue worker options を設定することが可能です。各設定オプションにはその目的の説明が含まれていますので、このファイルを十分に探索することを確認してください。
+
+> <LaravelNote type="warning" />
+> Horizon は内部で`horizon`という名前の Redis connection を使用します。この Redis
+> connection の名前は予約されており、`database.php`の設定ファイルや `horizon.php`の設定ファイル内の`use`オプションの
+> value として他の Redis connection に割り当てるべきではありません。
+
+<a name="environments"></a>
+
+#### Environments
+
+インストール後、まず詳しくなるべき primary Horizon 設定 option は、`environments`設定 option です。この設定 option はあなたの application が稼働する環境の array であり、各環境の労働者 processoption を定義します。default では、このエントリには`production`と`local`環境が含まれています。しかし、必要に応じてさらに環境を追加することができます：
+
+```php
+'environments' => [
+    'production' => [
+        'supervisor-1' => [
+            'maxProcesses' => 10,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
+        ],
+    ],
+
+    'local' => [
+        'supervisor-1' => [
+            'maxProcesses' => 3,
+        ],
+    ],
+],
+```
+
+Horizon を開始すると、稼働中の application の environment に対する process の設定 options を使用します。通常、environment は `APP_ENV` [environment variable](/ja/php/laravel/v11.x/02-getting-started/02-configuration#determining-the-current-environment)の value によって決定されます。例えば、default の`local` Horizon environment は、3 つのワーカー process を起動し、各 queue に割り当てられたワーカー process の数を自動的に balance します。default の`production` environment は最大 10 のワーカー process を開始し、各 queue に割り当てられたワーカー process の数を自動的に balance するように設定されています。
+
+> <LaravelNote type="warning" />
+> `horizon`設定ファイルの`environments`部分には、 Horizon を実行する予定の各[environment](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)のエントリが含まれていることを確認する必要があります。
+
+<a name="supervisors"></a>
+
+#### Supervisors
+
+Horizon の default 設定ファイルに記載されているように、各 environment は 1 つまたは複数の"supervisors"を含むことができます。 default で、この管理者は`supervisor-1`と定義されていますが、管理者の名前は自由に設定できます。各監督者は基本的に、ワーカープロセスのグループの"監視"を担当し、ワーカープロセスを queues 間でバランスをとる役割を果たしています。
+
+あなたは新たな一群のワーカー process を定義し、その process が特定の environment で動作するようにしたい場合、追加の監視員を追加することができます。 異なるバランシング戦略を定義したり、あなたの application が使用する特定の queue に対してワーカー process の数を定義したい場合、これを行うことを選択するかもしれません。
+
+<a name="maintenance-mode"></a>
+
+#### メンテナンスモード
+
+あなたの application が[メンテナンスモード](/ja/php/laravel/v11.x/02-getting-started/02-configuration#maintenance-mode)にある間、queue に入っている jobs は、 Horizon unless が監督者の `force` option が `true` と定義されている場合を除き、 Horizon の設定ファイル内で処理されません：
+
+```php
+'environments' => [
+    'production' => [
+        'supervisor-1' => [
+            // ...
+            'force' => true,
+        ],
+    ],
+],
+```
+
+<a name="default-values"></a>
+
+#### Default Values
+
+Horizon の default 設定ファイルの中では、 `defaults`設定 option に気づくでしょう。この設定 option は、application の[スーパーバイザー](#supervisors)の defaultvalues を指定します。default の values は、各環境のスーパーバイザー設定に merge され、スーパーバイザーを定義する際の不要な反復を避けます。
+
+<a name="balancing-strategies"></a>
+
+### バランシング戦略
+
+Laravel の default queue システムとは異なり、 Horizon では、`simple`、`auto`、`false`の 3 つのワーカーバランシング戦略から選択できます。`simple`戦略は、受信した jobs をワーカープロセス間で均等に分割します：
+
+```php
+'balance' => 'simple',
+```
+
+`auto`戦略は、設定ファイルの default で、 queue ごとのワーカープロセスの数をその queue の現在のワークロードに基づいて調整します。たとえば、あなたの`notifications` queue が 1,000 の未処理の jobs を抱えている一方で、あなたの`render` queue が空である場合、 Horizon は`notifications` queue により多くのワーカーを割り当てることで、 queue が空になるまで処理を行います。
+
+`auto`戦略を使用する場合、`minProcesses`と`maxProcesses`の設定 options を定義して、 Horizon がスケールアップおよびダウンするための最小および最大のワーカープロセス数を制御できます。
+
+```php
+'environments' => [
+    'production' => [
+        'supervisor-1' => [
+            'connection' => 'redis',
+            'queue' => ['default'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'minProcesses' => 1,
+            'maxProcesses' => 10,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
+            'tries' => 3,
+        ],
+    ],
+],
+```
+
+`autoScalingStrategy`設定の value は、Horizon が合計の時間に基づいて queues により多くのワーカー processes を割り当てるか(`time`ストラテジー)、または queue 上の jobs の合計数に基づいて割り当てるか(`size`ストラテジー)を決定します。
+
+`balanceMaxShift`と`balanceCooldown`の設定 values は、 Horizon が労働者の需要にどれだけ早く対応するかを決定します。上記の例では、新しい process は最大で 3 秒ごとに 1 つ作成または破棄されます。これらの values は、application のニーズに基づいて必要に応じて調整することができます。
+
+`balance`option が`false`に設定されている場合、default の Laravel の動作が使用され、queues が処理される順序は、あなたの設定でリストされている順序になります。
+
+<a name="dashboard-authorization"></a>
+
+### ダッシュボード Authorization
+
+Horizon ダッシュボードは、`/horizon` route 経由でアクセス可能です。 default では、このダッシュボードは`local` environment でのみアクセス可能です。ただし、あなたの`app/Providers/HorizonServiceProvider.php`ファイル内には、[authorization gate](/ja/php/laravel/v11.x/06-security/authorization#gates)の定義があります。この authorization gate は、**非ローカル** environments での Horizon へのアクセスを制御します。このゲートは必要に応じて修正し、 Horizon インストールへのアクセスを制限することができます。
+
+```php
+/**
+ * Register the Horizon gate.
+ *
+ * This gate determines who can access Horizon in non-local environments.
+ */
+protected function gate(): void
+{
+    Gate::define('viewHorizon', function (User $user) {
+        return in_array($user->email, [
+            'taylor@laravel.com',
+        ]);
+    });
+}
+```
+
+<a name="alternative-authentication-strategies"></a>
+
+#### 代替の Authentication ストラテジー
+
+Laravel は認証された user をゲートクロージャに自動的に注入することを忘れないでください。もしアプリケーションが IP 制限などの別の method によって Horizon のセキュリティを提供している場合、 Horizon users は "login" する必要がないかもしれません。したがって、 `function (User $user)` クロージャの signature を `function (User $user = null)` に変更して、 Laravel が authentication を要求しないようにする必要があります。
+
+<a name="silenced-jobs"></a>
+
+### 沈黙した Jobs
+
+時折、あなたは自分の application やサードパーティのパッケージが送り出す特定の jobs を見たくない場合があるかもしれません。これらの jobs が"Completed jobs"リストのスペースを占めるのを防ぐ代わりに、これらをミュートにすることができます。始めるには、job の class 名を application の`horizon`設定ファイルの`silenced`設定 option に追加してください:
+
+```php
+'silenced' => [
+    App\Jobs\ProcessPodcast::class,
+],
+```
+
+あるいは、消音したい job は、`Laravel\Horizon\Contracts\Silenced`インターフェースを実装することができます。もし job がこのインターフェースを実装している場合、それが`silenced`設定 array に存在しなくても自動的に消音されます。
+
+```php
+use Laravel\Horizon\Contracts\Silenced;
+
+class ProcessPodcast implements ShouldQueue, Silenced
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    // ...
+}
+```
+
+<a name="upgrading-horizon"></a>
+
+## Upgrading Horizon
+
+新しいメジャーバージョンの Horizon へアップグレードする際には、[アップグレードガイド](https://github.com/laravel/horizon/blob/master/UPGRADE.md)を慎重に確認することが重要です。
+
+<a name="running-horizon"></a>
+
+## Running Horizon
+
+アプリケーションの`config/horizon.php`設定ファイルでスーパーバイザーとワーカーを設定したら、`horizon` Artisan command を使って Horizon を開始できます。この single command で現在の environment に設定されているすべてのワーカープロセスが開始されます：
+
+```shell
+php artisan horizon
+```
+
+あなたは Horizon process を一時停止させ、`horizon:pause`や`horizon:continue` Artisan コマンドを使ってそれに processing jobs の続行を指示することができます。
+
+```shell
+php artisan horizon:pause
+
+php artisan horizon:continue
+```
+
+あなたはまた、特定の Horizon [supervisors](#supervisors) を `horizon:pause-supervisor` と `horizon:continue-supervisor` Artisan コマンドを使って一時停止し、続けることもできます：
+
+```shell
+php artisan horizon:pause-supervisor supervisor-1
+
+php artisan horizon:continue-supervisor supervisor-1
+```
+
+`horizon:status`の Artisan command を使用して、 Horizon process の現在の status を確認することができます:
+
+```shell
+php artisan horizon:status
+```
+
+あなたは `horizon:terminate`の Artisan command を使用して、Horizonprocess を風格良く終了することができます。現在処理中のすべての jobs は完了し、その後 Horizon は実行を停止します。
+
+```shell
+php artisan horizon:terminate
+```
+
+<a name="deploying-horizon"></a>
+
+### Horizon のデプロイ
+
+あなたが実際のアプリケーションサーバーに Horizon をデプロイする準備ができたら、`php artisan horizon` command を監視し、予期せずに終了した場合に再起動する process モニターを設定する必要があります。心配しないで、下で process モニターのインストール方法を説明します。
+
+アプリケーションの deployment process の間には、あなたは Horizon process に対して terminate を指示するべきで、それによってあなたの process モニターによって再起動され、あなたの code の変更を受け取るでしょう。
+
+```shell
+php artisan horizon:terminate
+```
+
+<a name="installing-supervisor"></a>
+
+#### Supervisor のインストール
+
+Supervisor は Linux オペレーティングシステムの process モニターで、`horizon` process の実行が停止した場合に自動的に再起動します。Ubuntu に Supervisor をインストールするには、次の command を使用することができます。Ubuntu を使用していない場合でも、おそらくオペレーティングシステムのパッケージマネージャーを使用して Supervisor をインストールすることができます。
+
+```shell
+sudo apt-get install supervisor
+```
+
+> <LaravelNote type="note" />
+> Supervisor の設定が大変そうなら、[Laravel Forge](https://forge.laravel.com) の利用を検討してみてください。これにより、
+> Laravel プロジェクトの Supervisor のインストールと設定が自動的に行われます。
+
+<a name="supervisor-configuration"></a>
+
+#### スーパーバイザー設定
+
+スーパーバイザーの設定ファイルは通常、あなたのサーバーの`/etc/supervisor/conf.d`ディレクトリ内に保存されます。このディレクトリ内で、どのようにプロセスを監視するかを指示する設定ファイルをいくつでも作成することができます。例えば、`horizon` process を開始し、監視する`horizon.conf`ファイルを作成しましょう。
+
+```ini
+[program:horizon]
+process_name=%(program_name)s
+command=php /home/forge/example.com/artisan horizon
+autostart=true
+autorestart=true
+user=forge
+redirect_stderr=true
+stdout_logfile=/home/forge/example.com/horizon.log
+stopwaitsecs=3600
+```
+
+Supervisor の設定を定義する際、あなたは`stopwaitsecs`の value が最も長く実行されていた job によって消費される秒数よりも多くなるように確認すべきです。そうでないと、Supervisor は job が処理を終える前に終了するかもしれません。
+
+> <LaravelNote type="warning" />
+> 上記の例は Ubuntu ベースのサーバーに有効ですが、Supervisor の設定ファイルの場所やファイル拡張子は他のサーバーのオペレーティングシステム間で異なる場合があります。詳細については、サーバーのドキュメンテーションを参照してください。
+
+<a name="starting-supervisor"></a>
+
+#### スーパーバイザーの起動
+
+設定ファイルが作成されたら、次のコマンドを使用して Supervisor の設定を update し、監視されるプロセスを開始できます：
+
+```shell
+sudo supervisorctl reread
+
+sudo supervisorctl update
+
+sudo supervisorctl start horizon
+```
+
+> <LaravelNote type="note" />
+> Supervisor の実行に関する詳細な情報は、[Supervisor documentation](http://supervisord.org/index.html)をご覧ください。
+
+<a name="tags"></a>
+
+## Tags
+
+Horizon は、mailables、 broadcast events 、 notifications 、そしてキューに入った event listeners を含む jobs に tags を割り当てることができます。実際、 Horizon は、 job に添付されている Eloquent models に依存して、ほとんどの jobs を賢く自動的にタグ付けします。例えば、以下の job を見てください：
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Video;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
+class RenderVideo implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(
+        public Video $video,
+    ) {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        // ...
+    }
+}
+```
+
+もし`App\Models\Video`のインスタンスを持つこの search が、`id` の attribute が `1`で queue に入れられた場合、自動的に tag`App\Models\Video:1`が付けられます。これは、 Horizon が job のプロパティを Eloquent models を探すからです。もし Eloquent models が見つかった場合、 Horizon は、models の class 名と primary key を使用して、 job に賢く tag を付けます。
+
+```php
+use App\Jobs\RenderVideo;
+use App\Models\Video;
+
+$video = Video::find(1);
+
+RenderVideo::dispatch($video);
+```
+
+<a name="manually-tagging-jobs"></a>
+
+#### 手動でタグ付け Jobs
+
+もしあなたが、キューイング可能なオブジェクトの一つに手動で tags を定義したいと思うなら、 `tags` method を class 上に定義することができます。
+
+```php
+class RenderVideo implements ShouldQueue
+{
+    /**
+     * Get the tags that should be assigned to the job.
+     *
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return ['render', 'video:'.$this->video->id];
+    }
+}
+```
+
+<a name="manually-tagging-event-listeners"></a>
+
+#### 手動でタグ付け Event Listeners
+
+キューに入れられた event リスナーの tags を取得する際、 Horizon は自動的に event インスタンスを `tags` method に渡し、あなたが event data を tags に追加できるようにします：
+
+```php
+class SendRenderNotifications implements ShouldQueue
+{
+    /**
+     * Get the tags that should be assigned to the listener.
+     *
+     * @return array<int, string>
+     */
+    public function tags(VideoRendered $event): array
+    {
+        return ['video:'.$event->video->id];
+    }
+}
+```
+
+<a name="notifications"></a>
+
+## Notifications
+
+> <LaravelNote type="warning" />
+> Horizon を設定して Slack や SMS の notifications を送信する際、関連する notification
+> channel の[前提条件](/ja/php/laravel/v11.x/05-digging-deeper/notifications)を確認する必要があります。
+
+あなたの queues が長い待ち時間を持つ時に通知を受け取りたい場合は、`Horizon::routeMailNotificationsTo`、`Horizon::routeSlackNotificationsTo`、そして`Horizon::routeSmsNotificationsTo` メソッドを使うことができます。これらのメソッドは、あなたのアプリケーションの `App\Providers\HorizonServiceProvider` の `boot` method から呼び出すことができます。
+
+```php
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    parent::boot();
+
+    Horizon::routeSmsNotificationsTo('15556667777');
+    Horizon::routeMailNotificationsTo('example@example.com');
+    Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
+}
+```
+
+<a name="configuring-notification-wait-time-thresholds"></a>
+
+#### Notification 待機時間閾値の設定
+
+アプリケーションの`config/horizon.php`設定ファイル内で、何秒が"長い待ち時間"とみなされるかを設定することができます。このファイル内の`waits`設定オプションにより、それぞれの connection / queue の組み合わせごとに長待ち時間の閾値を制御できます。未定義の connection / queue の組み合わせは、長い待ち時間の閾値が 60 秒に default 設定されます:
+
+```php
+'waits' => [
+    'redis:critical' => 30,
+    'redis:default' => 60,
+    'redis:batch' => 120,
+],
+```
+
+<a name="metrics"></a>
+
+## Metrics
+
+Artisan command は、メトリックスダッシュボードを含み、これによりご自身の job と queue の待ち時間とスループットに関する情報が提供されます。このダッシュボードを充実させるためには、application の`routes/console.php`ファイルで、Horizon の`snapshot` Artisan command を５分ごとに実行するよう設定する必要があります。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('horizon:snapshot')->everyFiveMinutes();
+```
+
+<a name="deleting-failed-jobs"></a>
+
+## Deleting Failed Jobs
+
+もし失敗した job を delete したい場合は、`horizon:forget` command を使用することができます。`horizon:forget` command は、その唯一の引数として失敗した job の ID または UUID を受け入れます：
+
+```shell
+php artisan horizon:forget 5
+```
+
+<a name="clearing-jobs-from-queues"></a>
+
+## Clearing Jobs From Queues
+
+アプリケーションの default queue から全ての jobs を delete したい場合、`horizon:clear` Artisan command を使用して行うことができます。
+
+```shell
+php artisan horizon:clear
+```
+
+特定の queue から delete jobs を行うために`queue`オプションを提供することができます：
+
+```shell
+php artisan horizon:clear --queue=emails
+```

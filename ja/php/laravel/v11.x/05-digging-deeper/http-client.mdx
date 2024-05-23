@@ -1,0 +1,842 @@
+---
+filePath: "source/laravel/http-client.md"
+title: "HTTP Client"
+description: "HTTP Client"
+org_path: "/docs/11.x/http-client"
+is_empty: false
+nav_title: "HTTP Client"
+org_title: "HTTP Client"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Making Requests](#making-requests)
+  - [Request Data](#request-data)
+  - [Headers](#headers)
+  - [Authentication](#authentication)
+  - [Timeout](#timeout)
+  - [Retries](#retries)
+  - [Error Handling](#error-handling)
+  - [Guzzle Middleware](#guzzle-middleware)
+  - [Guzzle Options](#guzzle-options)
+- [Concurrent Requests](#concurrent-requests)
+- [Macros](#macros)
+- [Testing](#testing)
+  - [Faking Responses](#faking-responses)
+  - [Inspecting Requests](#inspecting-requests)
+  - [Preventing Stray Requests](#preventing-stray-requests)
+- [Events](#events)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、[Guzzle の HTTP client](http://docs.guzzlephp.org/en/stable/)を中心に、最小限の API を提供し、他の webapplication と迅速に通信するための発信 types の HTTP requests を可能にします。Laravel の Guzzle ラッパーは、最も一般的な使用例と素晴らしい development 者エクスペリエンスに焦点を当てています。
+
+<a name="making-requests"></a>
+
+## Making Requests
+
+リクエストを行うには、`Http` facade が提供する`head`、`GET`、`post`、`put`、`patch`、`delete`メソッドを使用することができます。まず、基本的な`get` request を別の URL に送る方法を見てみましょう：
+
+```php
+use Illuminate\Support\Facades\Http;
+
+$response = Http::get('http://example.com');
+```
+
+`get` method は、`Illuminate\Http\Client\Response`のインスタンスを返します。これには、 response を検証するために使用できる様々なメソッドが提供されています。
+
+```php
+$response->body() : string;
+$response->json($key = null, $default = null) : mixed;
+$response->object() : object;
+$response->collect($key = null) : Illuminate\Support\Collection;
+$response->status() : int;
+$response->successful() : bool;
+$response->redirect(): bool;
+$response->failed() : bool;
+$response->clientError() : bool;
+$response->header($header) : string;
+$response->headers() : array;
+```
+
+`Illuminate\Http\Client\Response` object は、PHP の`ArrayAccess`インターフェースも実装しており、 response 上で直接 JSON response data にアクセスすることができます。
+
+```php
+return Http::get('http://example.com/users/1')['name'];
+```
+
+上記に挙げた response メソッドに加えて、以下のメソッドは response が指定した status code を持っているかどうかを判断するために使用できます：
+
+```php
+$response->ok() : bool;                  // 200 OK
+$response->created() : bool;             // 201 Created
+$response->accepted() : bool;            // 202 Accepted
+$response->noContent() : bool;           // 204 No Content
+$response->movedPermanently() : bool;    // 301 Moved Permanently
+$response->found() : bool;               // 302 Found
+$response->badRequest() : bool;          // 400 Bad Request
+$response->unauthorized() : bool;        // 401 Unauthorized
+$response->paymentRequired() : bool;     // 402 Payment Required
+$response->forbidden() : bool;           // 403 Forbidden
+$response->notFound() : bool;            // 404 Not Found
+$response->requestTimeout() : bool;      // 408 Request Timeout
+$response->conflict() : bool;            // 409 Conflict
+$response->unprocessableEntity() : bool; // 422 Unprocessable Entity
+$response->tooManyRequests() : bool;     // 429 Too Many Requests
+$response->serverError() : bool;         // 500 Internal Server Error
+```
+
+<a name="uri-templates"></a>
+
+#### URI テンプレート
+
+HTTP client も[URI テンプレート仕様](https://www.rfc-editor.org/rfc/rfc6570)を使用して requestURL を構築することができます。 URI テンプレートによって展開できる URL パラメータを定義するためには、`withUrlParameters` method を使用することができます：
+
+```php
+Http::withUrlParameters([
+    'endpoint' => 'https://laravel.com',
+    'page' => 'docs',
+    'version' => '11.x',
+    'topic' => 'validation',
+])->get('{+endpoint}/{page}/{version}/{topic}');
+```
+
+<a name="dumping-requests"></a>
+
+#### リクエストのダンプ
+
+送信する前に request インスタンスを dump したい、そしてスクリプトの実行を terminate したい場合は、 request の定義の始めに `dd` method を追加することができます:
+
+```php
+return Http::dd()->get('http://example.com');
+```
+
+<a name="request-data"></a>
+
+### Request Data
+
+もちろん、`POST`、`PUT`、`PATCH`リクエストを作成する際には、追加の data を request と共に送信することが一般的です。したがって、これらのメソッドは第二引数として data の array を受け入れます。 default として、 data は`application/json`の content type を使用して送信されます。
+
+```php
+use Illuminate\Support\Facades\Http;
+
+$response = Http::post('http://example.com/users', [
+    'name' => 'Steve',
+    'role' => 'Network Administrator',
+]);
+```
+
+<a name="get-request-query-parameters"></a>
+
+#### GET Request Query パラメータ
+
+`GET`request を作成する際、直接 URL に query ストリングを追加するか、または key/value のペアの array を`get`method の第二引数として渡すことができます：
+
+```php
+$response = Http::get('http://example.com/users', [
+    'name' => 'Taylor',
+    'page' => 1,
+]);
+```
+
+または、`withQueryParameters` method を使用することもできます：
+
+```php
+Http::retry(3, 100)->withQueryParameters([
+    'name' => 'Taylor',
+    'page' => 1,
+])->get('http://example.com/users')
+```
+
+<a name="sending-form-url-encoded-requests"></a>
+
+#### フォーム URL エンコードリクエストの送信
+
+`application/x-www-form-urlencoded`の content type を使用して data を送信したい場合は、 request を行う前に`asForm`の method を呼び出す必要があります：
+
+```php
+$response = Http::asForm()->post('http://example.com/users', [
+    'name' => 'Sara',
+    'role' => 'Privacy Consultant',
+]);
+```
+
+<a name="sending-a-raw-request-body"></a>
+
+#### 生の Request ボディの送信
+
+`withBody` method を利用すると、request を行う際に生の request ボディを提供することができます。 contenttype は method の 2 つ目の引数を通じて提供することができます：
+
+```php
+$response = Http::withBody(
+    base64_encode($photo), 'image/jpeg'
+)->post('http://example.com/photo');
+```
+
+<a name="multi-part-requests"></a>
+
+#### マルチパートリクエスト
+
+複数パートのリクエストとしてファイルを送信したい場合は、`attach` method をご自身の request を作成する前に呼び出すべきです。この method は、ファイルの名前とその内容を受け付けます。必要に応じて、3 つ目の引数を提供してファイルのファイル名として考えることができ、4 つ目の引数はファイルに関連する headers を提供するために使用することができます：
+
+```php
+$response = Http::attach(
+    'attachment', file_get_contents('photo.jpg'), 'photo.jpg', ['Content-Type' => 'image/jpeg']
+)->post('http://example.com/attachments');
+```
+
+ファイルの生の内容を渡す代わりに、ストリームの resource を渡すことができます：
+
+```php
+$photo = fopen('photo.jpg', 'r');
+
+$response = Http::attach(
+    'attachment', $photo, 'photo.jpg'
+)->post('http://example.com/attachments');
+```
+
+<a name="headers"></a>
+
+### Headers
+
+`withHeaders` method を使用して、 Headers を requests に追加できます。この`withHeaders` method は、key / value ペアの array を受け入れます：
+
+```php
+$response = Http::withHeaders([
+    'X-First' => 'foo',
+    'X-Second' => 'bar'
+])->post('http://example.com/users', [
+    'name' => 'Taylor',
+]);
+```
+
+あなたは`accept`の method を使用して、あなたの application が request に対する response で期待している content type を指定することができます:
+
+```php
+$response = H“ttp::accept('application/json')->get('http://example.com/users');
+```
+
+便宜上、あなたの application があなたの request への response で `application/json` content type を期待していることを素早く指定するために、`acceptJson` method を使用することができます。
+
+```php
+$response = Http::acceptJson()->get('http://example.com/users');
+```
+
+`withHeaders` method は、新たな headers を request の既存の headers に merges します。必要に応じて、`replaceHeaders` method を使用して、すべての headers を完全に置き換えることも可能です。
+
+```php
+$response = Http::withHeaders([
+    'X-Original' => 'foo',
+])->replaceHeaders([
+    'X-Replacement' => 'bar',
+])->post('http://example.com/users', [
+    'name' => 'Taylor',
+]);
+```
+
+<a name="authentication"></a>
+
+### Authentication
+
+`withBasicAuth`メソッドと`withDigestAuth`メソッドを使用して、基本認証とダイジェスト authentication の認証情報を指定することができます。それぞれ：
+
+```php
+// Basic authentication...
+$response = Http::withBasicAuth('taylor@laravel.com', 'secret')->post(/* ... */);
+
+// Digest authentication...
+$response = Http::withDigestAuth('taylor@laravel.com', 'secret')->post(/* ... */);
+```
+
+<a name="bearer-tokens"></a>
+
+#### Bearer Tokens
+
+もし素早く bearer token を request の`Authorization` header に追加したい場合は、`withToken` method を使用することができます：
+
+```php
+$response = Http::withToken('token')->post(/* ... */);
+```
+
+<a name="timeout"></a>
+
+### Timeout
+
+`timeout` method は、response を待つ最大秒数を指定するために使用できます。default では、HTTP client は 30 秒後にタイムアウトします。
+
+```php
+$response = Http::timeout(3)->get(/* ... */);
+```
+
+指定された timeout を超えると、`Illuminate\Http\Client\ConnectionException`のインスタンスがスローされます。
+
+`connectTimeout` method を使用してサーバーへの接続を試みる際の最大待機時間(秒)を指定することができます：
+
+```php
+$response = Http::connectTimeout(3)->get(/* ... */);
+```
+
+<a name="retries"></a>
+
+### Retries
+
+もし、 client または サーバの error が発生した際に HTTP client が自動的に retry を request するようにしたい場合は、`retry` method を使用することができます。`retry` method は、 request を試行する最大回数と、 Laravel が試行間で待つべきミリ秒数を指定します：
+
+```php
+$response = Http::retry(3, 100)->post(/* ... */);
+```
+
+試行間で sleep するミリ秒数を手動で計算したい場合は、`retry` method の第二引数としてクロージャを渡すことができます：
+
+```php
+use Exception;
+
+$response = Http::retry(3, function (int $attempt, Exception $exception) {
+    return $attempt * 100;
+})->post(/* ... */);
+```
+
+便宜上、`retry`の method の最初の引数として、 array を提供することもできます。この array は、次の試行まで何ミリ秒 sleep するかを決定するために使用されます：
+
+```php
+$response = Http::retry([100, 200])->post(/* ... */);
+```
+
+必要に応じて、`retry` method に対して第三引数を渡すことができます。 第三引数は、再試行が実際に試みられるべきかどうかを判断する呼び出し可能なものでなければなりません。例えば、初回の request が`ConnectionException`に遭遇した場合にのみ、retry を行いたいと考えるかもしれません。
+
+```php
+use Exception;
+use Illuminate\Http\Client\PendingRequest;
+
+$response = Http::retry(3, 100, function (Exception $exception, PendingRequest $request) {
+    return $exception instanceof ConnectionException;
+})->post(/* ... */);
+```
+
+request attempt が失敗した場合、新しい attempt が行われる前に request を変更することをお勧めします。これは、`retry` method に提供された呼び出し可能なものに提供された request 引数を変更することで達成できます。例えば、最初の attempt が authentication error を返した場合、新しい authorization token を持って request を retry することができます。
+
+```php
+use Exception;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+
+$response = Http::withToken($this->getToken())->retry(2, 0, function (Exception $exception, PendingRequest $request) {
+    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+        return false;
+    }
+
+    $request->withToken($this->getNewToken());
+
+    return true;
+})->post(/* ... */);
+```
+
+すべてのリクエストが失敗すると、`Illuminate\Http\Client\RequestException`のインスタンスがスローされます。この動作を無効にしたい場合は、`false`の value を持つ`throw`引数を提供することができます。無効にすると、すべてのリトライが試みられた後に、 client によって受け取られた最後の response が返されます。
+
+```php
+$response = Http::retry(3, 100, throw: false)->post(/* ... */);
+```
+
+> <LaravelNote type="warning" />
+> すべての requests が接続問題のために失敗した場合でも、`throw` 引数が `false` に設定されている場合でも、`Illuminate\Http\Client\ConnectionException`
+> が throw されます。
+
+<a name="error-handling"></a>
+
+### Error Handling
+
+Guzzle の default 動作とは異なり、Laravel の HTTP client ラッパーは、 client またはサーバーの errors (サーバーからの`400`および`500`レベルのレスポンス)に対して throw exceptions を行いません。これらの errors のうちの 1 つが返されたかどうかは、`successful`、`clientError`、または`serverError`メソッドを使用して判断できます：
+
+```php
+// Determine if the status code is >= 200 and < 300...
+$response->successful();
+
+// Determine if the status code is >= 400...
+$response->failed();
+
+// Determine if the response has a 400 level status code...
+$response->clientError();
+
+// Determine if the response has a 500 level status code...
+$response->serverError();
+
+// Immediately execute the given callback if there was a client or server error...
+$response->onError(callable $callback);
+```
+
+<a name="throwing-exceptions"></a>
+
+#### Exceptions のスロー
+
+あなたが response インスタンスを持っており、 response status code が client またはサーバーの error を示している場合に、 `Illuminate\Http\Client\RequestException` のインスタンスを throw したい場合は、 `throw` または `throwIf` メソッドを使用できます：
+
+```php
+use Illuminate\Http\Client\Response;
+
+$response = Http::post(/* ... */);
+
+// Throw an exception if a client or server error occurred...
+$response->throw();
+
+// Throw an exception if an error occurred and the given condition is true...
+$response->throwIf($condition);
+
+// Throw an exception if an error occurred and the given closure resolves to true...
+$response->throwIf(fn (Response $response) => true);
+
+// Throw an exception if an error occurred and the given condition is false...
+$response->throwUnless($condition);
+
+// Throw an exception if an error occurred and the given closure resolves to false...
+$response->throwUnless(fn (Response $response) => false);
+
+// Throw an exception if the response has a specific status code...
+$response->throwIfStatus(403);
+
+// Throw an exception unless the response has a specific status code...
+$response->throwUnlessStatus(200);
+
+return $response['user']['id'];
+```
+
+`Illuminate\Http\Client\RequestException`インスタンスには、公開の`$response`プロパティがあり、これにより返された response を検査できます。
+
+`throw` method は、何の error も発生しなかった場合に、 response インスタンスを返し、他の操作を `throw` method に連結することを可能にします：
+
+```php
+return Http::post(/* ... */)->throw()->json();
+```
+
+例外がスローされる前に追加のロジックを実行したい場合は、クロージャを`throw` method に渡すことができます。例外はクロージャが呼び出された後に自動的にスローされるので、クロージャの中から例外を再スローする必要はありません：
+
+```php
+use Illuminate\Http\Client\Response;
+use Illuminate\Http\Client\RequestException;
+
+return Http::post(/* ... */)->throw(function (Response $response, RequestException $e) {
+    // ...
+})->json();
+```
+
+<a name="guzzle-middleware"></a>
+
+### Guzzle Middleware
+
+Laravel の HTTP client は Guzzle により動作しているため、[Guzzle の middleware](https://docs.guzzlephp.org/en/stable/handlers-and-middleware.html)を使用して発信側の request を操作したり、着信側の response を検査することができます。発信側の request を操作するために、Guzzle の middleware を`withRequestMiddleware`method で 登録してください：
+
+```php
+use Illuminate\Support\Facades\Http;
+use Psr\Http\Message\RequestInterface;
+
+$response = Http::withRequestMiddleware(
+    function (RequestInterface $request) {
+        return $request->withHeader('X-Example', 'Value');
+    }
+)->get('http://example.com');
+```
+
+同様に、`withResponseMiddleware` method を使用して middleware を登録することで、受信した HTTP response を確認することができます。
+
+```php
+use Illuminate\Support\Facades\Http;
+use Psr\Http\Message\ResponseInterface;
+
+$response = Http::withResponseMiddleware(
+    function (ResponseInterface $response) {
+        $header = $response->getHeader('X-Example');
+
+        // ...
+
+        return $response;
+    }
+)->get('http://example.com');
+```
+
+<a name="global-middleware"></a>
+
+#### グローバル Middleware
+
+時々、すべての発信 request と受信 response に適用する middleware を register したい場合があります。これを達成するためには、`globalRequestMiddleware`と`globalResponseMiddleware`メソッドを使用することができます。通常、これらのメソッドは、アプリケーションの`AppServiceProvider`の中の`boot` method で呼び出されるべきです:
+
+```php
+use Illuminate\Support\Facades\Http;
+
+Http::globalRequestMiddleware(fn ($request) => $request->withHeader(
+    'User-Agent', 'Example Application/1.0'
+));
+
+Http::globalResponseMiddleware(fn ($response) => $response->withHeader(
+    'X-Finished-At', now()->toDateTimeString()
+));
+```
+
+<a name="guzzle-options"></a>
+
+### Guzzle Options
+
+次のように、`withOptions` method を使用して、送信する request に対して追加の[Guzzle request options](http://docs.guzzlephp.org/en/stable/request-options.html)を指定することができます。`withOptions` method は、key/ value のペアの array を受け入れます：
+
+```php
+$response = Http::withOptions([
+    'debug' => true,
+])->get('http://example.com/users');
+```
+
+<a name="global-options"></a>
+
+#### グローバル Options
+
+すべての送信用の request に対して defaultoptions を設定するには、`globalOptions` method を利用することができます。通常、この method は、application の `AppServiceProvider` の `boot` method から呼び出されるべきです：
+
+```php
+use Illuminate\Support\Facades\Http;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Http::globalOptions([
+        'allow_redirects' => false,
+    ]);
+}
+```
+
+<a name="concurrent-requests"></a>
+
+## Concurrent Requests
+
+時には、複数の HTTP requests concurrently を同時に行いたい場合があるかもしれません。つまり、リクエストを順番に発行するのではなく、同時に複数のリクエストを送信したいということです。これにより、遅い HTTP API とのやりとりにおいて大幅なパフォーマンスの向上をもたらすことができます。
+
+幸いなことに、これは `pool` method を使用して達成することができます。 `pool` method は、 `Illuminate\Http\Client\Pool` インスタンスを受け取るクロージャを受け付け、簡単に requests を request pool に追加して dispatch することができます:
+
+```php
+use Illuminate\Http\Client\Pool;
+use Illuminate\Support\Facades\Http;
+
+$responses = Http::pool(fn (Pool $pool) => [
+    $pool->get('http://localhost/first'),
+    $pool->get('http://localhost/second'),
+    $pool->get('http://localhost/third'),
+]);
+
+return $responses[0]->ok() &&
+       $responses[1]->ok() &&
+       $responses[2]->ok();
+```
+
+ご覧の通り、各々の response インスタンスはそれが pool に追加された順番でアクセス可能です。もしご希望であれば、`as` method を使ってリクエストに名前を付けることができます。これにより、名前に基づいて対応するレスポンスにアクセスすることが可能になります。
+
+```php
+use Illuminate\Http\Client\Pool;
+use Illuminate\Support\Facades\Http;
+
+$responses = Http::pool(fn (Pool $pool) => [
+    $pool->as('first')->get('http://localhost/first'),
+    $pool->as('second')->get('http://localhost/second'),
+    $pool->as('third')->get('http://localhost/third'),
+]);
+
+return $responses['first']->ok();
+```
+
+<a name="customizing-concurrent-requests"></a>
+
+#### 同時リクエストのカスタマイズ
+
+`pool`method は、`withHeaders`や`middleware`のような他の HTTP client のメソッドと連携できません。プールされたリクエストに対して customheaders や middleware を適用したい場合は、それぞれの request に対してこれらの options を設定する必要があります。それぞれの request は、プール内で設定されます：
+
+```php
+use Illuminate\Http\Client\Pool;
+use Illuminate\Support\Facades\Http;
+
+$headers = [
+    'X-Example' => 'example',
+];
+
+$responses = Http::pool(fn (Pool $pool) => [
+    $pool->withHeaders($headers)->get('http://laravel.test/test'),
+    $pool->withHeaders($headers)->get('http://laravel.test/test'),
+    $pool->withHeaders($headers)->get('http://laravel.test/test'),
+]);
+```
+
+<a name="macros"></a>
+
+## Macros
+
+Laravel HTTP client は、「マクロ」を定義することができます。これは、 application 全体で services とやりとりする際に一般的な request paths と headers を設定するための流れるような、表現力豊かなメカニズムとして機能します。始めるためには、`boot` method 内に、お使いのアプリケーションの `App\Providers\AppServiceProvider` class 内で macro を定義することができます。
+
+```php
+use Illuminate\Support\Facades\Http;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Http::macro('github', function () {
+        return Http::withHeaders([
+            'X-Example' => 'example',
+        ])->baseUrl('https://github.com');
+    });
+}
+```
+
+あなたの macro が設定されたら、あなたの application のどこからでもそれを呼び出して指定した設定で保留中の request を作成することができます。
+
+```php
+$response = Http::github()->get('/');
+```
+
+<a name="testing"></a>
+
+## Testing
+
+多くの Laravel services は、容易かつ表現豊かにテストを書くための機能を提供しており、Laravel の HTTP client も例外ではありません。`Http`ファサードの`fake` method を使用すると、リクエストが行われたときに HTTP client がスタブ化／ダミーのレスポンスを返すように指示することができます。
+
+<a name="faking-responses"></a>
+
+### レスポンスの偽装
+
+たとえば、`200`の status code の空の responses をすべての request に対して HTTP client に返すように指示するには、引数なしで`fake`の method を呼び出すことができます。
+
+```php
+use Illuminate\Support\Facades\Http;
+
+Http::fake();
+
+$response = Http::post(/* ... */);
+```
+
+<a name="faking-specific-urls"></a>
+
+#### 特定の URL を偽装する
+
+あるいは、`fake` method に array を渡すことも可能です。その array の keys は、あなたが fake にしたい URL のパターンを表し、それらに関連する`response`s です。`*`はワイルドカード文字として使用できます。フェイクされていない URL への requests は実際に実行されます。これらのエンドポイントに対する stub / fake responses を構築するために、`Http` facade の `response` method を使用できます。
+
+```php
+Http::fake([
+    // Stub a JSON response for GitHub endpoints...
+    'github.com/*' => Http::response(['foo' => 'bar'], 200, $headers),
+
+    // Stub a string response for Google endpoints...
+    'google.com/*' => Http::response('Hello World', 200, $headers),
+]);
+```
+
+すべての一致しない URL をスタブにするフォールバックの URL パターンを指定したい場合は、single の `*` 文字を使用することができます：
+
+```php
+Http::fake([
+    // Stub a JSON response for GitHub endpoints...
+    'github.com/*' => Http::response(['foo' => 'bar'], 200, ['Headers']),
+
+    // Stub a string response for all other endpoints...
+    '*' => Http::response('Hello World', 200, ['Headers']),
+]);
+```
+
+<a name="faking-response-sequences"></a>
+
+#### Response シーケンスの偽造
+
+場合によっては、 single URL が特定の順序で一連の fake の応答を返すように指定する必要があるかもしれません。これは、`Http::sequence` method を使って応答を build することで達成できます：
+
+```php
+Http::fake([
+    // Stub a series of responses for GitHub endpoints...
+    'github.com/*' => Http::sequence()
+                            ->push('Hello World', 200)
+                            ->push(['foo' => 'bar'], 200)
+                            ->pushStatus(404),
+]);
+```
+
+すべての response sequence 内の応答が消費されたとき、それ以上のリクエストは response sequence を throw し、例外が発生します。 sequence が空の場合に返されるべき default response を指定したい場合は、`whenEmpty` method を使用できます。
+
+```php
+Http::fake([
+    // Stub a series of responses for GitHub endpoints...
+    'github.com/*' => Http::sequence()
+                            ->push('Hello World', 200)
+                            ->push(['foo' => 'bar'], 200)
+                            ->whenEmpty(Http::response()),
+]);
+```
+
+もし、 fake の responses sequence を作りたいけれども、偽造すべき特定の URL パターンを指定する必要がない場合、`Http::fakeSequence` method を使うことができます：
+
+```php
+Http::fakeSequence()
+        ->push('Hello World', 200)
+        ->whenEmpty(Http::response());
+```
+
+<a name="fake-callback"></a>
+
+#### Fake コールバック
+
+もし特定のエンドポイントに対してどのレスポンスを返すかを決定するために、より複雑なロジックが必要な場合、`fake` method にクロージャを渡すことができます。このクロージャは`Illuminate\Http\Client\Request`のインスタンスを受け取り、 response インスタンスを返すべきです。クロージャ内では、どの type の response を返すかを決定するために必要なロジックを実行できます。
+
+```php
+use Illuminate\Http\Client\Request;
+
+Http::fake(function (Request $request) {
+    return Http::response('Hello World', 200);
+});
+```
+
+<a name="preventing-stray-requests"></a>
+
+### ストレイリクエストの防止
+
+もし全ての HTTP client を介したリクエストが個々のテストや完全なテストスイート全体で偽装されていることを確認したい場合、`preventStrayRequests` method を呼び出すことができます。この method を呼び出した後、対応する fake response がないリクエストは、実際の HTTP request を行うのではなく、例外を throw します：
+
+```php
+use Illuminate\Support\Facades\Http;
+
+Http::preventStrayRequests();
+
+Http::fake([
+    'github.com/*' => Http::response('ok'),
+]);
+
+// An "ok" response is returned...
+Http::get('https://github.com/laravel/framework');
+
+// An exception is thrown...
+Http::get('https://laravel.com');
+```
+
+<a name="inspecting-requests"></a>
+
+### リクエストの検査
+
+レスポンスを偽造する際には、あなたの application が正しい data または headers を送信していることを確認するために、 client が受け取るリクエストを確認したい場合があります。これは、 `Http::fake` を呼び出した後に `Http::assertSent` method を呼び出すことで実現できます。
+
+`assertSent` method は、`Illuminate\Http\Client\Request`インスタンスを受け取り、request があなたの期待に一致しているかどうかを示すブール value を返すべきクロージャを受け入れます。test が path するためには、少なくとも 1 つの request が与えられた期待 value に一致して発行されていなければなりません：
+
+```php
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+
+Http::fake();
+
+Http::withHeaders([
+    'X-First' => 'foo',
+])->post('http://example.com/users', [
+    'name' => 'Taylor',
+    'role' => 'Developer',
+]);
+
+Http::assertSent(function (Request $request) {
+    return $request->hasHeader('X-First', 'foo') &&
+           $request->url() == 'http://example.com/users' &&
+           $request['name'] == 'Taylor' &&
+           $request['role'] == 'Developer';
+});
+```
+
+必要に応じて、特定の request が `assertNotSent` method を使用して送信されなかったと assert することができます：
+
+```php
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+
+Http::fake();
+
+Http::post('http://example.com/users', [
+    'name' => 'Taylor',
+    'role' => 'Developer',
+]);
+
+Http::assertNotSent(function (Request $request) {
+    return $request->url() === 'http://example.com/posts';
+});
+```
+
+テスト中に sent が何回送信されたかを assert するために、`assertSentCount` method を使うことができます。
+
+```php
+Http::fake();
+
+Http::assertSentCount(5);
+```
+
+または、test 中に requests が送信されなかったことを assert するために、`assertNothingSent` method を使用することもできます：
+
+```php
+Http::fake();
+
+Http::assertNothingSent();
+```
+
+<a name="recording-requests-and-responses"></a>
+
+#### リクエスト/レスポンスの記録
+
+すべての requests とそれに対応する response を収集するために、`recorded` method を使うことができます。`recorded` method は、`Illuminate\Http\Client\Request` と `Illuminate\Http\Client\Response` のインスタンスを含む arrays の collection を返します:
+
+```php
+Http::fake([
+    'https://laravel.com' => Http::response(status: 500),
+    'https://nova.laravel.com/' => Http::response(),
+]);
+
+Http::get('https://laravel.com');
+Http::get('https://nova.laravel.com/');
+
+$recorded = Http::recorded();
+
+[$request, $response] = $recorded[0];
+```
+
+さらに、`recorded` method はクロージャを受け入れ、`Illuminate\Http\Client\Request`および`Illuminate\Http\Client\Response`のインスタンスを受け取り、あなたの期待に基づいて request / response のペアをフィルタリングするために使用することができます：
+
+```php
+use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\Response;
+
+Http::fake([
+    'https://laravel.com' => Http::response(status: 500),
+    'https://nova.laravel.com/' => Http::response(),
+]);
+
+Http::get('https://laravel.com');
+Http::get('https://nova.laravel.com/');
+
+$recorded = Http::recorded(function (Request $request, Response $response) {
+    return $request->url() !== 'https://laravel.com' &&
+           $response->successful();
+});
+```
+
+<a name="events"></a>
+
+## Events
+
+Laravel は、 HTTP requests の送信 process 中に三つの events を発火します。`RequestSending` event は、 request が送信される前に発火し、`ResponseReceived` event は特定の request に対する response を受け取った後に発火します。特定の request に対する response が受け取られなかった場合、`ConnectionFailed` event が発火します。
+
+`RequestSending` と `ConnectionFailed` event の両方は、`Illuminate\Http\Client\Request` インスタンスを調査するために使用できる `$request` プロパティを公開( public )しています。同様に、`ResponseReceived` events にも `$request` プロパティと `$response` プロパティが含まれており、これらを用いて `Illuminate\Http\Client\Response` インスタンスを調査することができます。これらの events に対する[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)をあなたの application 内で作成することができます：
+
+```php
+use Illuminate\Http\Client\Events\RequestSending;
+
+class LogRequest
+{
+    /**
+     * Handle the given event.
+     */
+    public function handle(RequestSending $event): void
+    {
+        // $event->request ...
+    }
+}
+
+```

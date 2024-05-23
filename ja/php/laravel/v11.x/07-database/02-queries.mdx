@@ -1,0 +1,1387 @@
+---
+filePath: "source/laravel/queries.md"
+title: "Database: Query Builder"
+description: "Database: Query Builder"
+org_path: "/docs/11.x/queries"
+is_empty: false
+nav_title: "Query Builder"
+org_title: "Database: Query Builder"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Running Database Queries](#running-database-queries)
+  - [Chunking Results](#chunking-results)
+  - [Streaming Results Lazily](#streaming-results-lazily)
+  - [Aggregates](#aggregates)
+- [Select Statements](#select-statements)
+- [Raw Expressions](#raw-expressions)
+- [Joins](#joins)
+- [Unions](#unions)
+- [Basic Where Clauses](#basic-where-clauses)
+  - [Where Clauses](#where-clauses)
+  - [Or Where Clauses](#or-where-clauses)
+  - [Where Not Clauses](#where-not-clauses)
+  - [Where Any / All Clauses](#where-any-all-clauses)
+  - [JSON Where Clauses](#json-where-clauses)
+  - [Additional Where Clauses](#additional-where-clauses)
+  - [Logical Grouping](#logical-grouping)
+- [Advanced Where Clauses](#advanced-where-clauses)
+  - [Where Exists Clauses](#where-exists-clauses)
+  - [Subquery Where Clauses](#subquery-where-clauses)
+  - [Full Text Where Clauses](#full-text-where-clauses)
+- [Ordering, Grouping, Limit and Offset](#ordering-grouping-limit-and-offset)
+  - [Ordering](#ordering)
+  - [Grouping](#grouping)
+  - [Limit and Offset](#limit-and-offset)
+- [Conditional Clauses](#conditional-clauses)
+- [Insert Statements](#insert-statements)
+  - [Upserts](#upserts)
+- [Update Statements](#update-statements)
+  - [Updating JSON Columns](#updating-json-columns)
+  - [Increment and Decrement](#increment-and-decrement)
+- [Delete Statements](#delete-statements)
+- [Pessimistic Locking](#pessimistic-locking)
+- [Debugging](#debugging)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel の database query builder は、便利で流暢なインターフェースを提供し、 database query の作成と実行を行うことができます。 これは、あなたの application でほとんどの database 操作を実行するために使用することができ、Laravel がサポートするすべての database システムと完璧に動作します。
+
+Laravel query ビルダーは PDO パラメーターバインディングを使用して、 application を SQL インジェクション攻撃から保護します。 query ビルダーに渡す文字列をクリーンアップまたはサニタイズする必要はありません。 query バインディングとして。
+
+> <LaravelNote type="warning" />
+> PDO は column 名のバインディングをサポートしていません。そのため、query で参照される
+> column 名、"order by"の列を含め、ユーザ入力を決定させるべきではありません。
+
+<a name="running-database-queries"></a>
+
+## Running Database Queries
+
+<a name="retrieving-all-rows-from-a-table"></a>
+
+#### テーブルからすべての行を取得する
+
+`DB` facade によって提供される`table` method を使用して、 query を開始することができます。`table` method は、与えられたテーブルのための流暢な query ビルダーインスタンスを返し、より多くの制約を query に連鎖させて、最終的には`get` method を使用して query の結果を取得することができます。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+
+class UserController extends Controller
+{
+    /**
+     * Show a list of all of the application's users.
+     */
+    public function index(): View
+    {
+        $users = DB::table('users')->get();
+
+        return view('user.index', ['users' => $users]);
+    }
+}
+```
+
+`get` method は、それぞれの結果が PHP の`stdClass` object のインスタンスである query の結果を含む`Illuminate\Support\Collection`インスタンスを返します。各列の value には、 object の column のプロパティとしてアクセスすることでアクセスできます:
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$users = DB::table('users')->get();
+
+foreach ($users as $user) {
+    echo $user->name;
+}
+```
+
+> <LaravelNote type="note" />
+> Laravel collections は、 data のマッピングや削減に非常に強力な手段を提供します。
+> Laravel collections の詳細については、[collection のドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/collections)をご覧ください。
+
+<a name="retrieving-a-single-row-column-from-a-table"></a>
+
+#### テーブルから Single 行 / Column の取得
+
+database テーブルから単一の行を取得する必要がある場合は、`DB`facade の`first` method を使用することができます。この method は単一の`stdClass` object を返します。
+
+```php
+$user = DB::table('users')->where('name', 'John')->first();
+
+return $user->email;
+```
+
+全ての行が必要でない場合は、`value` method を使用してレコードから single value を抽出することができます。この method は、 column の value を直接返します：
+
+```php
+$email = DB::table('users')->where('name', 'John')->value('email');
+```
+
+`id`の column value によって single の行を取得するには、`find`の method を使用します:
+
+```php
+$user = DB::table('users')->find(3);
+```
+
+<a name="retrieving-a-list-of-column-values"></a>
+
+#### Column Values のリストを取得する
+
+`Illuminate\Support\Collection` インスタンスを取得して、 single column の values を取得したい場合は、`pluck` method を使用できます。この例では、 user のタイトルの collection を取得します。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$titles = DB::table('users')->pluck('title');
+
+foreach ($titles as $title) {
+    echo $title;
+}
+```
+
+`pluck`の二つ目の引数により、結果の collection が keys として使用する column を指定することができます。
+
+```php
+$titles = DB::table('users')->pluck('title', 'name');
+
+foreach ($titles as $name => $title) {
+    echo $title;
+}
+```
+
+<a name="chunking-results"></a>
+
+### Chunking Results
+
+何千もの database レコードを扱う必要がある場合、`DB` facade が提供する`chunk` method の使用を検討してみてください。この method は一度に小さな chunk の結果を取得し、各 chunk を閉包にフィードして processing します。例えば、`users`テーブル全体を一度に 100 レコードずつ取得するようにしましょう：
+
+```php
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
+DB::table('users')->orderBy('id')->chunk(100, function (Collection $users) {
+    foreach ($users as $user) {
+        // ...
+    }
+});
+```
+
+クロージャから`false`を返すことで、これ以上のチャンクを処理するのを停止することができます。
+
+```php
+DB::table('users')->orderBy('id')->chunk(100, function (Collection $users) {
+    // Process the records...
+
+    return false;
+});
+```
+
+database のレコードを更新しながら結果を chunk する場合、chunk の結果は予想外の方法で変わる可能性があります。chunk 化しながら retrieved レコードを update するつもりであれば、代わりに`chunkById` method を使用することを常におすすめします。この method は、レコードの primarykey に基づいて結果を自動的に paginate します。
+
+```php
+DB::table('users')->where('active', false)
+    ->chunkById(100, function (Collection $users) {
+        foreach ($users as $user) {
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update(['active' => true]);
+        }
+    });
+```
+
+> <LaravelNote type="warning" />
+> chunk コールバック内でレコードを更新または削除する場合、primarykeys や外部 keys
+> への変更は chunkquery に影響を及ぼす可能性があります。これにより、chunk 化された結果にレコードが含まれない可能性があります。
+
+<a name="streaming-results-lazily"></a>
+
+### 結果を遅延評価でストリーミング
+
+`lazy`の method は、 query を single で実行するという意味で、[`chunk` method](#chunking-results)と同様に動作します。しかし、各 chunk をコールバックに渡す代わりに、`lazy()` method は[`LazyCollection`](/ja/php/laravel/v11.x/05-digging-deeper/collections#lazy-collections)を返し、結果をシングルストリームとして操作することができます。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+DB::table('users')->orderBy('id')->lazy()->each(function (object $user) {
+    // ...
+});
+```
+
+再度申し上げますが、取得したレコードをイテレーティングしながら update する予定の場合、`lazyById`または`lazyByIdDesc`methods を使用するのが最善です。これらの methods は、レコードの primarykey に基づいて結果を自動的に paginate します。
+
+```php
+DB::table('users')->where('active', false)
+    ->lazyById()->each(function (object $user) {
+        DB::table('users')
+            ->where('id', $user->id)
+            ->update(['active' => true]);
+    });
+```
+
+> <LaravelNote type="warning" />
+> レコードをイテレートしながら更新または削除するとき、primary キーや外部 keys への変更は、chunkquery
+> に影響を与える可能性があります。これにより、結果に含まれないレコードが生じる可能性があります。
+
+<a name="aggregates"></a>
+
+### Aggregates
+
+query ビルダーは、`count`、`max`、`min`、`avg`、そして`sum`のような集計 values を取得するためのさまざまな methods も提供します。これらの methods は query を構築した後にいずれでも呼び出すことができます。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$users = DB::table('users')->count();
+
+$price = DB::table('orders')->max('price');
+```
+
+もちろん、これらの方法を他の節と組み合わせて、集計された value がどのように計算されるかを微調整することもできます。
+
+```php
+$price = DB::table('orders')
+                ->where('finalized', 1)
+                ->avg('price');
+```
+
+<a name="determining-if-records-exist"></a>
+
+#### レコードが存在するかどうかの判定
+
+`count`の method を使用して query の制約に match するレコードが存在するかどうかを判断する代わりに、`exists`と`doesntExist`のメソッドを使用することができます：
+
+```php
+if (DB::table('orders')->where('finalized', 1)->exists()) {
+    // ...
+}
+
+if (DB::table('orders')->where('finalized', 1)->doesntExist()) {
+    // ...
+}
+```
+
+<a name="select-statements"></a>
+
+## Select Statements
+
+<a name="specifying-a-select-clause"></a>
+
+#### Select 節の指定
+
+あなたは必ずしも database の全ての列を select したくないかもしれません。`select` method を使用すると、query に対して custom select 節を指定することができます。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$users = DB::table('users')
+            ->select('name', 'email as user_email')
+            ->get();
+```
+
+`distinct` method は、 query が重複しない結果を返すように強制することができます。
+
+```php
+$users = DB::table('users')->distinct()->get();
+```
+
+すでに query ビルダーのインスタンスがあり、その既存の select 句に column を追加したい場合は、 `addSelect` method を使用することができます。
+
+```php
+$query = DB::table('users')->select('name');
+
+$users = $query->addSelect('age')->get();
+```
+
+<a name="raw-expressions"></a>
+
+## Raw Expressions
+
+時々、任意の string を query に insert する必要があるかもしれません。 raw string 表現を作成するには、`DB` facade が提供する`raw` method を使用できます：
+
+```php
+$users = DB::table('users')
+             ->select(DB::raw('count(*) as user_count, status'))
+             ->where('status', '<>', 1)
+             ->groupBy('status')
+             ->get();
+```
+
+> <LaravelNote type="warning" />
+> 生のステートメントは、文字列として query に挿入されるため、SQL インジェクションの脆弱性を作成しないように非常に注意する必要があります。
+
+<a name="raw-methods"></a>
+
+### Raw メソッド
+
+`DB::raw`の method を使用する代わりに、以下のメソッドを使用して、 query のさまざまな部分に生の式を insert することもできます。**ただし、 Laravel は、生の式を使用した任意の query が SQL インジェクションの脆弱性から保護されていることを保証することはできません。**
+
+<a name="selectraw"></a>
+
+#### `selectRaw`
+
+`selectRaw` method は `addSelect(DB::raw(/* ... */))`の代わりに使用できます。この method は、二つ目の引数としてオプショナルな array のバインディングを受け入れます：
+
+```php
+$orders = DB::table('orders')
+                ->selectRaw('price * ? as price_with_tax', [1.0825])
+                ->get();
+```
+
+<a name="whereraw-orwhereraw"></a>
+
+#### `whereRaw / orWhereRaw`
+
+`whereRaw`と`orWhereRaw`メソッドは、あなたの query に生の"where"節を挿入するために使用できます。これらのメソッドは、二つ目の引数としてオプションの array のバインディングを受け入れます:
+
+```php
+$orders = DB::table('orders')
+                ->whereRaw('price > IF(state = "TX", ?, 100)', [200])
+                ->get();
+```
+
+<a name="havingraw-orhavingraw"></a>
+
+#### `havingRaw / orHavingRaw`
+
+`havingRaw`と`orHavingRaw`methods は、"having"句の" value "として生の string を提供するために使用できます。これらの methods は、2 番目の引数として option の array のバインディングを受け入れます：
+
+```php
+$orders = DB::table('orders')
+                ->select('department', DB::raw('SUM(price) as total_sales'))
+                ->groupBy('department')
+                ->havingRaw('SUM(price) > ?', [2500])
+                ->get();
+```
+
+<a name="orderbyraw"></a>
+
+#### `orderByRaw`
+
+`orderByRaw` method は、"order by" 句の value として生の string を提供するために使用することができます。
+
+```php
+$orders = DB::table('orders')
+                ->orderByRaw('updated_at - created_at DESC')
+                ->get();
+```
+
+<a name="groupbyraw"></a>
+
+### `groupByRaw`
+
+`groupByRaw` method は、`group by`句の value として生の string を提供するために使用することができます。
+
+```php
+$orders = DB::table('orders')
+                ->select('city', 'state')
+                ->groupByRaw('city, state')
+                ->get();
+```
+
+<a name="joins"></a>
+
+## Joins
+
+<a name="inner-join-clause"></a>
+
+#### Inner Join 句
+
+query ビルダーは、クエリに join 句を追加するためにも使用できます。基本的な inner join を実行するには、query ビルダーインスタンスで `join` method を使用します。`join` method に渡される最初の引数は結合するテーブルの名前であり、残りの引数は join の column 制約を指定します。単一のクエリで複数のテーブルを join することもできます:
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$users = DB::table('users')
+            ->join('contacts', 'users.id', '=', 'contacts.user_id')
+            ->join('orders', 'users.id', '=', 'orders.user_id')
+            ->select('users.*', 'contacts.phone', 'orders.price')
+            ->get();
+```
+
+<a name="left-join-right-join-clause"></a>
+
+#### Left Join / Right Join 節
+
+left join または right join を inner join の代わりに実行する場合は、`leftJoin` または `rightJoin` メソッドを使用します。これらのメソッドは `join` method と同じ signature です:
+
+```php
+$users = DB::table('users')
+            ->leftJoin('posts', 'users.id', '=', 'posts.user_id')
+            ->get();
+
+$users = DB::table('users')
+            ->rightJoin('posts', 'users.id', '=', 'posts.user_id')
+            ->get();
+```
+
+<a name="cross-join-clause"></a>
+
+#### クロス Join 句
+
+`crossJoin` method を使用してクロスジョインを実行することができます。クロスジョインは、最初のテーブルと結合されたテーブルの間のデカルト積を生成します。
+
+```php
+$sizes = DB::table('sizes')
+            ->crossJoin('colors')
+            ->get();
+```
+
+<a name="advanced-join-clauses"></a>
+
+#### 高度な Join 句
+
+あなたは、また、より高度な "join" 句を指定することもできます。始めるには、 `join` "method" の第二引数としてクロージャを渡します。クロージャは `Illuminate\Database\Query\JoinClause` インスタンスを受け取り、"join"句に制約を指定することができます。
+
+```php
+DB::table('users')
+        ->join('contacts', function (JoinClause $join) {
+            $join->on('users.id', '=', 'contacts.user_id')->orOn(/* ... */);
+        })
+        ->get();
+```
+
+結合に "where" 句を使用する場合は、`JoinClause` インスタンスによって提供される `where` および `orWhere` メソッドを使用できます。これらのメソッドは、2 つのカラムを比較する代わりに、カラムの value を value と比較します:
+
+```php
+DB::table('users')
+        ->join('contacts', function (JoinClause $join) {
+            $join->on('users.id', '=', 'contacts.user_id')
+                 ->where('contacts.user_id', '>', 5);
+        })
+        ->get();
+```
+
+<a name="subquery-joins"></a>
+
+#### サブクエリ結合
+
+`joinSub`、`leftJoinSub`、`rightJoinSub` メソッドを使用して、 query をサブクエリに join することができます。これらのメソッドは各々 3 つの引数を受け取ります：サブクエリ、そのテーブルのエイリアス、および関連列を定義するクロージャです。この例では、各 user レコードが最も最近公開されたブログ投稿の `created_at` timestamp を含む users の collection を取得します：
+
+```php
+$latestPosts = DB::table('posts')
+                   ->select('user_id', DB::raw('MAX(created_at) as last_post_created_at'))
+                   ->where('is_published', true)
+                   ->groupBy('user_id');
+
+$users = DB::table('users')
+        ->joinSub($latestPosts, 'latest_posts', function (JoinClause $join) {
+            $join->on('users.id', '=', 'latest_posts.user_id');
+        })->get();
+```
+
+<a name="lateral-joins"></a>
+
+#### ラテラルジョイン
+
+> <LaravelNote type="warning" />
+> 現在、横断結合は PostgreSQL、 MySQL >= 8.0.14、および SQL Server によってサポートされています。
+
+`joinLateral`と`leftJoinLateral`methods を使用してサブ query で"lateral join"を実行することができます。これらの methods はそれぞれ二つの引数を受け取ります：サブ query とそのテーブル alias。''join''条件は、指定されたサブ query の`where`節内で指定する必要があります。Lateral join は各行で評価され、サブ query の外部の列を参照することができます。
+
+この例では、 collection の users とそのユーザーの最新のブログ posts の 3 つを取得します。各 user は、最新のブログ posts ごとに結果セットで最大 3 行を生成することができます。 join 条件は、サブクエリ内の`whereColumn`節を使用して指定され、現在の user 行を参照します。
+
+```php
+$latestPosts = DB::table('posts')
+                   ->select('id as post_id', 'title as post_title', 'created_at as post_created_at')
+                   ->whereColumn('user_id', 'users.id')
+                   ->orderBy('created_at', 'desc')
+                   ->limit(3);
+
+$users = DB::table('users')
+            ->joinLateral($latestPosts, 'latest_posts')
+            ->get();
+```
+
+<a name="unions"></a>
+
+## Unions
+
+query ビルダーは、2 つ以上の query を一緒に"union"する便利な method も提供しています。たとえば、初期の query を作成し、それを`union`method を使用して他の query と union することができます：
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$first = DB::table('users')
+            ->whereNull('first_name');
+
+$users = DB::table('users')
+            ->whereNull('last_name')
+            ->union($first)
+            ->get();
+```
+
+`union`の method に加えて、 query ビルダーは`unionAll`の method も提供します。`unionAll`の method を使用して組み合わされたクエリは、重複する結果が削除されません。`unionAll`の method は`union`の method と同じ method signature を持っています。
+
+<a name="basic-where-clauses"></a>
+
+## Basic Where Clauses
+
+<a name="where-clauses"></a>
+
+### Where 句
+
+query ビルダーの `where` method を使用して、クエリに "where" 句を追加できます。`where` method の最も基本的な呼び出しには 3 つの引数が必要です。最初の引数はカラムの名前です。2 番目の引数はオペレーターであり、データベースがサポートする任意のオペレーターを使用できます。3 番目の引数はカラムの value と比較する value です。
+
+たとえば、次の query は、 users を取得し、 value が `votes` column が `100` に等しく、また value が `age` column が `35` より大きい場合に取得します。
+
+```php
+$users = DB::table('users')
+                ->where('votes', '=', 100)
+                ->where('age', '>', 35)
+                ->get();
+```
+
+便宜上、もし特定の column が`=`で与えられた value に一致することを確認したい場合、その value を`where` method の第二引数として与えることができます。 Laravel はあなたが`=`演算子を使いたいと考えるでしょう：
+
+```php
+$users = DB::table('users')->where('votes', 100)->get();
+```
+
+前述の通り、あなたの database システムでサポートされている任意のオペレーターを使用することができます：
+
+```php
+$users = DB::table('users')
+                ->where('votes', '>=', 100)
+                ->get();
+
+$users = DB::table('users')
+                ->where('votes', '<>', 100)
+                ->get();
+
+$users = DB::table('users')
+                ->where('name', 'like', 'T%')
+                ->get();
+```
+
+また、条件の array を`where`関数に渡すこともできます。 array の各要素は、通常`where` method に渡される 3 つの引数を含む array であるべきです。
+
+```php
+$users = DB::table('users')->where([
+    ['status', '=', '1'],
+    ['subscribed', '<>', '1'],
+])->get();
+```
+
+> <LaravelNote type="warning" />
+> PDO は column 名のバインディングをサポートしていません。そのため、"order by" の列を含むクエリで参照される
+> column の名前を user input で決定することは決して許されません。
+
+<a name="or-where-clauses"></a>
+
+### または Where 節
+
+query ビルダーの `where` method への呼び出しを連鎖させると、"where" 句は `and` オペレーターで結合されます。ただし、`orWhere` method を使用して、クエリに `or` オペレーターで結合する句を追加できます。`orWhere` method は `where` method と同じ引数を受け取ります:
+
+```php
+$users = DB::table('users')
+                    ->where('votes', '>', 100)
+                    ->orWhere('name', 'John')
+                    ->get();
+```
+
+or" 条件を括弧内にグループ化する必要がある場合は、`orWhere` method の最初の引数としてクロージャを渡すことができます。
+
+```php
+$users = DB::table('users')
+            ->where('votes', '>', 100)
+            ->orWhere(function (Builder $query) {
+                $query->where('name', 'Abigail')
+                      ->where('votes', '>', 50);
+            })
+            ->get();
+```
+
+上記の例は、次の SQL を生成します：
+
+```sql
+select * from users where votes > 100 or (name = 'Abigail' and votes > 50)
+```
+
+> <LaravelNote type="warning" />
+> 常に `orWhere` の呼び出しをグループ化すべきです。これにより、グローバルスコープが適用された場合の予期しない動作を避けることができます。
+
+<a name="where-not-clauses"></a>
+
+### Where Not 節
+
+`whereNot`と`orWhereNot`メソッドは、与えられた一群の query 制約を否定するために使われます。例えば、以下の query は、クリアランス中の商品や price が十以下の商品を除外します：
+
+```php
+$products = DB::table('products')
+                ->whereNot(function (Builder $query) {
+                    $query->where('clearance', true)
+                          ->orWhere('price', '<', 10);
+                })
+                ->get();
+```
+
+<a name="where-any-all-clauses"></a>
+
+### Any / All 節の場所
+
+時々、同じ query の制約を複数の列に適用する必要があるかもしれません。例えば、指定したリスト内の任意の列が指定した value と`LIKE`であるすべてのレコードを取得したい場合などです。これは、`whereAny` method を使用して達成することができます:
+
+```php
+$users = DB::table('users')
+            ->where('active', true)
+            ->whereAny([
+                'name',
+                'email',
+                'phone',
+            ], 'LIKE', 'Example%')
+            ->get();
+```
+
+上記の query は、次の SQL を生成します：
+
+```sql
+SELECT *
+FROM users
+WHERE active = true AND (
+    name LIKE 'Example%' OR
+    email LIKE 'Example%' OR
+    phone LIKE 'Example%'
+)
+```
+
+同様に、`whereAll` method は、指定されたすべての columns が指定した制約と一致する match レコードを取得するために使用することができます。
+
+```php
+$posts = DB::table('posts')
+            ->where('published', true)
+            ->whereAll([
+                'title',
+                'content',
+            ], 'LIKE', '%Laravel%')
+            ->get();
+```
+
+上記の query は、次の SQL を生み出します：
+
+```sql
+SELECT *
+FROM posts
+WHERE published = true AND (
+    title LIKE '%Laravel%' AND
+    content LIKE '%Laravel%'
+)
+```
+
+<a name="json-where-clauses"></a>
+
+### JSON Where 句
+
+Laravel は、 JSON column タイプをサポートするデータベースでの JSON column タイプのクエリもサポートしています。現在、これには、 MySQL 8.0+、PostgreSQL 12.0+、SQL Server 2017+、SQLite 3.39.0+([JSON1 extension](https://www.sqlite.org/json1.html)付き)が含まれます。 JSON column を query するには、`->`オペレータを使用します。
+
+```php
+$users = DB::table('users')
+                ->where('preferences->dining->meal', 'salad')
+                ->get();
+```
+
+`whereJsonContains`を使用して query JSON 配列が利用できます：
+
+```php
+$users = DB::table('users')
+                ->whereJsonContains('options->languages', 'en')
+                ->get();
+```
+
+あなたの application が、 MySQL もしくは PostgreSQL データベースを利用している場合、`whereJsonContains` method に values の array を渡すことができます:
+
+```php
+$users = DB::table('users')
+                ->whereJsonContains('options->languages', ['en', 'de'])
+                ->get();
+```
+
+あなたは、その length によって JSON を問い合わせるために、`whereJsonLength` method を使用することができます：
+
+```php
+$users = DB::table('users')
+                ->whereJsonLength('options->languages', 0)
+                ->get();
+
+$users = DB::table('users')
+                ->whereJsonLength('options->languages', '>', 1)
+                ->get();
+```
+
+<a name="additional-where-clauses"></a>
+
+### 追加の Where 又は制約句
+
+**whereBetween / orWhereBetween**
+
+`whereBetween`の method は、列の value が二つの values の間にあることを確認します。
+
+```php
+$users = DB::table('users')
+           ->whereBetween('votes', [1, 100])
+           ->get();
+```
+
+**whereNotBetween / orWhereNotBetween**
+
+`whereNotBetween` method は、列の value が二つの values の範囲外にあることを確認します。
+
+```php
+$users = DB::table('users')
+                    ->whereNotBetween('votes', [1, 100])
+                    ->get();
+```
+
+**whereBetweenColumns / whereNotBetweenColumns / orWhereBetweenColumns / orWhereNotBetweenColumns**
+
+`whereBetweenColumns` method は、ある列の value が同じテーブル行の二つの列の values の間にあることを確認します：
+
+```php
+$patients = DB::table('patients')
+                       ->whereBetweenColumns('weight', ['minimum_allowed_weight', 'maximum_allowed_weight'])
+                       ->get();
+```
+
+`whereNotBetweenColumns`の method は、ある columns の value が同じテーブル行の二つの columns の values の範囲外にあることを確認します：
+
+```php
+$patients = DB::table('patients')
+                       ->whereNotBetweenColumns('weight', ['minimum_allowed_weight', 'maximum_allowed_weight'])
+                       ->get();
+```
+
+**whereIn / whereNotIn / orwhereIn / orwhereNotIn**
+
+`whereIn`の method は、指定された列の value が指定された array 内に含まれていることを確認します。
+
+```php
+$users = DB::table('users')
+                    ->whereIn('id', [1, 2, 3])
+                    ->get();
+```
+
+`whereNotIn` method は、指定された column の value が指定された array に含まれていないことを確認します：
+
+```php
+$users = DB::table('users')
+                    ->whereNotIn('id', [1, 2, 3])
+                    ->get();
+```
+
+あなたはまた、`whereIn`メソッドの二番目の引数として query object を提供することもできます：
+
+```php
+$activeUsers = DB::table('users')->select('id')->where('is_active', 1);
+
+$users = DB::table('comments')
+                    ->whereIn('user_id', $activeUsers)
+                    ->get();
+```
+
+上記の例では、次の SQL が生成されます：
+
+```sql
+select * from comments where user_id in (
+    select id
+    from users
+    where is_active = 1
+)
+```
+
+> <LaravelNote type="warning" />
+> もし大量の array の integer バインディングをあなたの query に追加する場合、`whereIntegerInRaw`
+> または `whereIntegerNotInRaw` メソッドを使用することで、大幅に reduce メモリ使用量を減らすことができます。
+
+**whereNull / whereNotNull / orWhereNull / orWhereNotNull**
+
+`whereNull` method は、指定された column の value が`NULL`であることを確認します。
+
+```php
+$users = DB::table('users')
+                ->whereNull('updated_at')
+                ->get();
+```
+
+`whereNotNull` method により、column の value が`NULL`ではないことを確認します：
+
+```php
+$users = DB::table('users')
+                ->whereNotNull('updated_at')
+                ->get();
+```
+
+**whereDate / whereMonth / whereDay / whereYear / whereTime**
+
+`whereDate` method は、column の value を日付と比較するために使用することができます：
+
+```php
+$users = DB::table('users')
+                ->whereDate('created_at', '2016-12-31')
+                ->get();
+```
+
+`whereMonth` method は、特定の月と列の value を比較するために使用できます：
+
+```php
+$users = DB::table('users')
+                ->whereMonth('created_at', '12')
+                ->get();
+```
+
+`whereDay` method は、列の value を特定の月の日付と比較するために使用できます：
+
+```php
+$users = DB::table('users')
+                ->whereDay('created_at', '31')
+                ->get();
+```
+
+`whereYear` method は、column の value を特定の年と比較するために使用することができます：
+
+```php
+$users = DB::table('users')
+                ->whereYear('created_at', '2016')
+                ->get();
+```
+
+`whereTime` method は、列の value を特定の時間と比較するために使用できます。
+
+```php
+$users = DB::table('users')
+                ->whereTime('created_at', '=', '11:20:45')
+                ->get();
+```
+
+**whereColumn / または whereColumn**
+
+`whereColumn` method は、二つのカラムが等しいことを確認するために使うことができます：
+
+```php
+$users = DB::table('users')
+                ->whereColumn('first_name', 'last_name')
+                ->get();
+```
+
+また、比較演算子を`whereColumn` method に渡すこともできます：
+
+```php
+$users = DB::table('users')
+                ->whereColumn('updated_at', '>', 'created_at')
+                ->get();
+```
+
+また、`whereColumn` method に array の column の比較を渡すことも可能です。これらの条件は、`and`演算子を使用して結合されます。
+
+```php
+$users = DB::table('users')
+                ->whereColumn([
+                    ['first_name', '=', 'last_name'],
+                    ['updated_at', '>', 'created_at'],
+                ])->get();
+```
+
+<a name="logical-grouping"></a>
+
+### ロジカルグルーピング
+
+時々、クエリの希望する論理グループ化を達成するために、いくつかの "where" 句をかっこ内でグループ化する必要があることがあります。実際、予期しない query 動作を回避するために、`orWhere` method への呼び出しを常にかっこ内にグループ化することをお勧めします。これを達成するために、`where` method にクロージャを渡すことができます:
+
+```php
+$users = DB::table('users')
+           ->where('name', '=', 'John')
+           ->where(function (Builder $query) {
+               $query->where('votes', '>', 100)
+                     ->orWhere('title', '=', 'Admin');
+           })
+           ->get();
+```
+
+ご覧の通り、`where` method にクロージャを渡すと、 query ビルダーに制約グループを開始するよう指示します。クロージャは query ビルダーのインスタンスを受け取り、その中に含まれるべき制約を設定するために使用できます。上記の例は、次の SQL を生成します：
+
+```sql
+select * from users where name = 'John' and (votes > 100 or title = 'Admin')
+```
+
+> <LaravelNote type="warning" />
+> 常に`orWhere`の呼び出しをグループ化すべきです。これにより、グローバルスコープが適用された時の予期しない動作を回避することができます。
+
+<a name="advanced-where-clauses"></a>
+
+### 高度な Where 又範囲指定
+
+<a name="where-exists-clauses"></a>
+
+### Where Exists 句
+
+`whereExists` method により、"where exists" SQL 句を書くことができます。`whereExists` method は、 query ビルダーインスタンスを受け取るクロージャを受け入れ、"exists"句の中に配置すべき query を定義することができます：
+
+```php
+$users = DB::table('users')
+           ->whereExists(function (Builder $query) {
+               $query->select(DB::raw(1))
+                     ->from('orders')
+                     ->whereColumn('orders.user_id', 'users.id');
+           })
+           ->get();
+```
+
+あるいは、クロージャーの代わりに `whereExists` method に query object を提供することもできます：
+
+```php
+$orders = DB::table('orders')
+                ->select(DB::raw(1))
+                ->whereColumn('orders.user_id', 'users.id');
+
+$users = DB::table('users')
+                    ->whereExists($orders)
+                    ->get();
+```
+
+上記の両方の例は、次の SQL を生成します：
+
+```sql
+select * from users
+where exists (
+    select 1
+    from orders
+    where orders.user_id = users.id
+)
+```
+
+<a name="subquery-where-clauses"></a>
+
+### サブクエリの Where 又は調節
+
+時々、サブクエリの結果を特定の value と比較する "where" 句を構築する必要があることがあります。これを達成するために、クロージャと value を `where` method に渡すことができます。例えば、次の query は特定のタイプの "membership" を持つ最近のすべての users を取得します;
+
+```php
+use App\Models\User;
+use Illuminate\Database\Query\Builder;
+
+$users = User::where(function (Builder $query) {
+    $query->select('type')
+        ->from('membership')
+        ->whereColumn('membership.user_id', 'users.id')
+        ->orderByDesc('membership.start_date')
+        ->limit(1);
+}, 'Pro')->get();
+```
+
+または、"where" 句を構築して、column をサブクエリの結果と比較する必要がある場合があります。これは、`where` method に column、演算子、クロージャを渡すことで実現できます。例えば、次の query は、金額が平均未満のすべての収入記録を取得します。
+
+```php
+use App\Models\Income;
+use Illuminate\Database\Query\Builder;
+
+$incomes = Income::where('amount', '<', function (Builder $query) {
+    $query->selectRaw('avg(i.amount)')->from('incomes as i');
+})->get();
+```
+
+<a name="full-text-where-clauses"></a>
+
+### 完全テキストの節
+
+> <LaravelNote type="warning" />
+> 現在、クラウゼルの全文は MySQL と PostgreSQL に対応しています。
+
+`whereFullText`と`orWhereFullText`methods は、[全文検索インデックス](/ja/php/laravel/v11.x/07-database/04-migrations#available-index-types)を持つ columns に対して query に完全なテキストの"where"節を追加するために使用できます。これらの methods は、 Laravel によって基礎となる database システムの適切な SQL に変換されます。例えば、 MySQL を利用する applications では、`MATCH AGAINST`節が生成されます。
+
+```php
+$users = DB::table('users')
+           ->whereFullText('bio', 'web developer')
+           ->get();
+```
+
+<a name="ordering-grouping-limit-and-offset"></a>
+
+## Ordering, Grouping, Limit and Offset
+
+<a name="ordering"></a>
+
+### Ordering
+
+<a name="orderby"></a>
+
+#### `orderBy` Method
+
+`orderBy` method を使用すると、指定した column によって query の結果をソートできます。`orderBy` method が最初に受け入れる引数は、ソートしたい column であり、2 番目の引数はソートの方向を決定し、`asc`または`desc`のいずれかになります。
+
+```php
+$users = DB::table('users')
+                ->orderBy('name', 'desc')
+                ->get();
+```
+
+複数の列でソートするには、必要な回数だけ`orderBy`を呼び出すことができます：
+
+```php
+$users = DB::table('users')
+                ->orderBy('name', 'desc')
+                ->orderBy('email', 'asc')
+                ->get();
+```
+
+<a name="latest-oldest"></a>
+
+#### `latest` と `oldest` メソッド
+
+`latest` と `oldest` methods は結果を日付順に簡単に並べ替えることができます。 default では、結果はテーブルの `created_at` column によって並べ替えられます。または、並べ替えたい column の名前を渡すこともできます。
+
+```php
+$user = DB::table('users')
+                ->latest()
+                ->first();
+```
+
+<a name="random-ordering"></a>
+
+#### Random 順序付け
+
+`inRandomOrder` method は、 query の結果をランダムに並べ替えるために使用することができます。例えば、この method を使って random user を取得することができます：
+
+```php
+$randomUser = DB::table('users')
+                ->inRandomOrder()
+                ->first();
+```
+
+<a name="removing-existing-orderings"></a>
+
+#### 既存の順序付けの削除
+
+`reorder` method は、以前に query に適用されたすべての"order by"節を削除します：
+
+```php
+$query = DB::table('users')->orderBy('name');
+
+$unorderedUsers = $query->reorder()->get();
+```
+
+`reorder` method を呼び出すときに、 column と方向を渡すことで、すべての既存の "order by"節を削除し、 query にまったく新しい順序を適用できます。
+
+```php
+$query = DB::table('users')->orderBy('name');
+
+$usersOrderedByEmail = $query->reorder('email', 'desc')->get();
+```
+
+<a name="grouping"></a>
+
+### Grouping
+
+<a name="groupby-having"></a>
+
+#### `groupBy`と`having`メソッド
+
+ご想像の通り、`groupBy`および`having`メソッドは、 query の結果をグループ化するために使用できます。`having`メソッドの signature は、`where` method と似ています。
+
+```php
+$users = DB::table('users')
+                ->groupBy('account_id')
+                ->having('account_id', '>', 100)
+                ->get();
+```
+
+指定した範囲内の結果をフィルタリングするために、`havingBetween` method を使用できます：
+
+```php
+$report = DB::table('orders')
+                ->selectRaw('count(id) as number_of_orders, customer_id')
+                ->groupBy('customer_id')
+                ->havingBetween('number_of_orders', [5, 15])
+                ->get();
+```
+
+`groupBy` method に複数の引数を渡すことで、複数の列でグループ化することができます。
+
+```php
+$users = DB::table('users')
+                ->groupBy('first_name', 'status')
+                ->having('account_id', '>', 100)
+                ->get();
+```
+
+より高度な `having` statement を 作成するには、[`havingRaw`](#raw-methods) method を参照してください。
+
+<a name="limit-and-offset"></a>
+
+### リミットとオフセット
+
+<a name="skip-take"></a>
+
+#### `skip`と`take`メソッド
+
+あなたは`skip`と`take`メソッドを使用して、 query から返される結果の数を制限するか、 もしくは query の特定の数の結果を skip することができます:
+
+```php
+$users = DB::table('users')->skip(10)->take(5)->get();
+```
+
+あるいは、`limit`および`offset`メソッドを使用することもできます。これらのメソッドは機能的にはそれぞれ`take`および`skip`メソッドと同等です：
+
+```php
+$users = DB::table('users')
+                ->offset(10)
+                ->limit(5)
+                ->get();
+```
+
+<a name="conditional-clauses"></a>
+
+## Conditional Clauses
+
+時折、特定の query 節を別の条件に基づいて query に適用したい場合があるかもしれません。例えば、指定した input value が到着する HTTP request に存在する場合にのみ、`where`の statement を適用したいかもしれません。これは`when`の method を使用して実現できます。
+
+```php
+$role = $request->string('role');
+
+$users = DB::table('users')
+                ->when($role, function (Builder $query, string $role) {
+                    $query->where('role_id', $role);
+                })
+                ->get();
+```
+
+`when` method は、最初の引数が`true`の場合にのみ与えられたクロージャを実行します。最初の引数が`false`の場合、クロージャは実行されません。したがって、上の例では、`when` method に与えられたクロージャは、`role`フィールドが受信した request に存在し、`true`と評価される場合にのみ呼び出されます。
+
+`when`method の第 3 引数として別のクロージャを渡すことができます。このクロージャは、第 1 引数が`false`と評価された場合にのみ実行されます。この機能がどのように使用できるかを示すために、query の default の順序付けを設定するために使用します：
+
+```php
+$sortByVotes = $request->boolean('sort_by_votes');
+
+$users = DB::table('users')
+                ->when($sortByVotes, function (Builder $query, bool $sortByVotes) {
+                    $query->orderBy('votes');
+                }, function (Builder $query) {
+                    $query->orderBy('name');
+                })
+                ->get();
+```
+
+<a name="insert-statements"></a>
+
+## Insert Statements
+
+query ビルダーはまた、`insert`method を提供しており、これを使用すると database テーブルにレコードを挿入することができます。 `insert` method は、列名と values の array を受け入れます。
+
+```php
+DB::table('users')->insert([
+    'email' => 'kayla@example.com',
+    'votes' => 0
+]);
+```
+
+複数のレコードを一度に insert することができます。 array の配列を渡すことにより行います。それぞれの array はテーブルに挿入されるべきレコードを表しています：
+
+```php
+DB::table('users')->insert([
+    ['email' => 'picard@example.com', 'votes' => 0],
+    ['email' => 'janeway@example.com', 'votes' => 0],
+]);
+```
+
+`insertOrIgnore` method は、レコードを database に挿入する際に errors を無視します。この method を使用するときは、重複するレコードの errors が無視されるほか、database エンジンによっては他の種類の errors も無視される可能性があることに注意してください。例えば、`insertOrIgnore`は[MySQL の厳格モードをバイ path します](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)。
+
+```php
+DB::table('users')->insertOrIgnore([
+    ['id' => 1, 'email' => 'sisko@example.com'],
+    ['id' => 2, 'email' => 'archer@example.com'],
+]);
+```
+
+`insertUsing`method は、サブ query を使用して挿入されるべき data を決定しながら、テーブルに新しいレコードを挿入します。
+
+```php
+DB::table('pruned_users')->insertUsing([
+    'id', 'name', 'email', 'email_verified_at'
+], DB::table('users')->select(
+    'id', 'name', 'email', 'email_verified_at'
+)->where('updated_at', '<=', now()->subMonth()));
+```
+
+<a name="auto-incrementing-ids"></a>
+
+#### 自動インクリメント ID
+
+テーブルに自動インクリメント ID がある場合、レコードを insert してから ID を取得するために`insertGetId` method を使用します。
+
+```php
+$id = DB::table('users')->insertGetId(
+    ['email' => 'john@example.com', 'votes' => 0]
+);
+```
+
+> <LaravelNote type="warning" />
+> PostgreSQL を使用する場合、`insertGetId` method は自動インクリメントの column が
+> `id` と名付けられていることを期待します。別の "sequence" から ID を取得したい場合は、`insertGetId`
+> method に二番目のパラメータとして column の名前を渡すことができます。
+
+<a name="upserts"></a>
+
+### Upserts
+
+`upsert`method は、存在しないレコードを挿入し、既に存在するレコードを指定した新しい values で更新します。method の第一引数は、挿入するか更新する values を含み、第二引数は関連するテーブル内でレコードを一意に識別する columns を列挙します。method の第三引数である最後の引数は、マッチングレコードが既に database に存在する場合に更新するべき columns の array です。
+
+```php
+DB::table('flights')->upsert(
+    [
+        ['departure' => 'Oakland', 'destination' => 'San Diego', 'price' => 99],
+        ['departure' => 'Chicago', 'destination' => 'New York', 'price' => 150]
+    ],
+    ['departure', 'destination'],
+    ['price']
+);
+```
+
+上記の例では、 Laravel が２つのレコードを insert しようと attempt します。もし同じ`departure`と`destination`の column values を持つレコードがすでに存在する場合、 Laravel はそのレコードの`price` column を update します。
+
+> <LaravelNote type="warning" />
+> すべてのデータベースは、SQL Serverを除き、`upsert` methodの第二引数の列には、"primary"
+> または "unique" のインデックスが必要です。さらに、MySQL database driverは、`upsert`
+> method の第二引数を無視し、常にテーブルの "primary" および "unique" のインデックスを使用して既存のレコードを検出します。
+
+<a name="update-statements"></a>
+
+## Update Statements
+
+レコードを database に挿入するだけでなく、 query ビルダーは`update` method を使用して既存のレコードも update できます。`update` method は、`insert` method と同様に、更新する column と value のペアを示す array を受け入れます。`update` method は、影響を受けた行の数を返します。`where`句を使用して`update` query を制約することもできます：
+
+```php
+$affected = DB::table('users')
+              ->where('id', 1)
+              ->update(['votes' => 1]);
+```
+
+<a name="update-or-insert"></a>
+
+#### Update または Insert
+
+時々、既存のレコードを update したり、該当のレコードが存在しない場合には作成したいと思うかもしれません。このシナリオでは、`updateOrInsert` method を使用することができます。`updateOrInsert` method は、二つの引数を受け付けます。レコードを見つけるための条件の array と、更新するべき column と value のペアを示す array。
+
+`updateOrInsert` method は、最初の引数の column と values のペアを使用して、一致する database レコードを探し出すことを試みるでしょう。レコードが存在する場合、それは二つ目の引数の values で更新されます。レコードが見つからない場合は、両方の引数の属性を merge した新しいレコードが挿入されます：
+
+```php
+DB::table('users')
+    ->updateOrInsert(
+        ['email' => 'john@example.com', 'name' => 'John'],
+        ['votes' => '2']
+    );
+```
+
+<a name="updating-json-columns"></a>
+
+### JSON カラムの更新
+
+JSON column を更新する際は、`->` syntax を使用して JSON object の適切なキーを update する必要があります。この操作は MySQL 5.7+と PostgreSQL 9.5+でサポートされています。
+
+```php
+$affected = DB::table('users')
+              ->where('id', 1)
+              ->update(['options->enabled' => true]);
+```
+
+<a name="increment-and-decrement"></a>
+
+### Increment とデクリメント
+
+query ビルダーは、指定された column の value を増減するための便利なメソッドも提供しています。これらのメソッドは少なくとも 1 つの引数を受け入れます：変更する column 。2 番目の引数を指定して、 column を増やすまたは減らす量を指定することもできます。
+
+```php
+DB::table('users')->increment('votes');
+
+DB::table('users')->increment('votes', 5);
+
+DB::table('users')->decrement('votes');
+
+DB::table('users')->decrement('votes', 5);
+```
+
+必要に応じて、 increment 操作またはデクリメント操作中に update する追加の列を指定することもできます：
+
+```php
+DB::table('users')->increment('votes', 1, ['name' => 'John']);
+```
+
+また、`incrementEach`および`decrementEach`メソッドを使用して、複数の列を一度に increment またはデクリメントすることもできます:
+
+```php
+DB::table('users')->incrementEach([
+    'votes' => 5,
+    'balance' => 100,
+]);
+```
+
+<a name="delete-statements"></a>
+
+## Delete Statements
+
+`delete`method を使用して、テーブルからレコードを削除することができます。`delete`method は、影響を受けた行の数を返します。where"の条件を追加することにより、`delete`statements に制約を加えることができます。この制約は`delete`method を呼び出す前に行う必要があります。
+
+```php
+$deleted = DB::table('users')->delete();
+
+$deleted = DB::table('users')->where('votes', '>', 100)->delete();
+```
+
+もし全テーブルの truncate を望み、全てのレコードをテーブルから取り除き、自動増分 ID をゼロに reset する場合は、`truncate` method を使用することができます：
+
+```php
+DB::table('users')->truncate();
+```
+
+<a name="table-truncation-and-postgresql"></a>
+
+#### テーブルの切り捨てと PostgreSQL
+
+PostgreSQL の database を切り捨てるとき、`CASCADE`の動作が適用されます。つまり、他のテーブルのすべての外部キー関連レコードも削除されることを意味します。
+
+<a name="pessimistic-locking"></a>
+
+## Pessimistic Locking
+
+query ビルダーには、`select`文を実行する際に"悲観的ロッキング"を実現するためのいくつかの関数も含まれています。"共有ロック"を持つ statement を実行するには、`sharedLock` method を呼び出すことができます。共有ロックは、 transaction がコミットされるまで、選択された行の変更を防ぎます。
+
+```php
+DB::table('users')
+        ->where('votes', '>', 100)
+        ->sharedLock()
+        ->get();
+```
+
+あるいは、`lockForUpdate` method を使用することもできます。 "for update" ロックは、選択されたレコードが変更されたり、別の共有ロックで選択されるのを防ぎます。
+
+```php
+DB::table('users')
+        ->where('votes', '>', 100)
+        ->lockForUpdate()
+        ->get();
+```
+
+<a name="debugging"></a>
+
+## Debugging
+
+`dd`と`dump`method を使用して、query の dump を作成し、現在の query のバインディングと SQL を dump することができます。 `dd` method は debug 情報を表示し、その後 request の実行を停止します。 `dump` method は debug 情報を表示しますが、request の実行を続行させます。
+
+```php
+DB::table('users')->where('votes', '>', 100)->dd();
+
+DB::table('users')->where('votes', '>', 100)->dump();
+```
+
+`dumpRawSql` と `ddRawSql` methods は、問い合わせの SQL とすべてのパラメータバインディングを正しく置き換えたものを dump するために、 query で呼び出すことができます：
+
+```php
+DB::table('users')->where('votes', '>', 100)->dumpRawSql();
+
+DB::table('users')->where('votes', '>', 100)->ddRawSql();
+
+```

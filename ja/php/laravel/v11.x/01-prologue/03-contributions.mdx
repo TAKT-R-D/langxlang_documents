@@ -1,0 +1,194 @@
+---
+filePath: "source/laravel/contributions.md"
+title: "Contribution Guide"
+description: "Contribution Guide"
+org_path: "/docs/11.x/contributions"
+is_empty: false
+nav_title: "Contribution Guide"
+org_title: "Contribution Guide"
+---
+
+<InPageIndex>
+
+- [Bug Reports](#bug-reports)
+- [Support Questions](#support-questions)
+- [Core Development Discussion](#core-development-discussion)
+- [Which Branch?](#which-branch)
+- [Compiled Assets](#compiled-assets)
+- [Security Vulnerabilities](#security-vulnerabilities)
+- [Coding Style](#coding-style)
+  - [PHPDoc](#phpdoc)
+  - [StyleCI](#styleci)
+- [Code of Conduct](#code-of-conduct)
+
+</InPageIndex>
+
+<a name="bug-reports"></a>
+
+## Bug Reports
+
+アクティブなコラボレーションを促進するために、 Laravel はバグレポートだけでなくプルリクエストを強く推奨しています。プルリクエストは、"レビューの準備ができている"とマークされ("ドラフト"の state ではない)そして新しい features のすべてのテストが合格したときにのみレビューされます。"ドラフト"の state に残された活動のないプルリクエストは、数日後に閉じられます。
+
+しかし、バグレポートを送信する場合、あなたの問題はタイトルと明確な問題の説明を含めるべきです。また、可能な限り関連情報を多く含め、問題を示す code のサンプルも含めてください。バグレポートの目標は、自分自身 - そして他の人々 - がバグを再現し、修正を作り出すのを容易にすることです。
+
+覚えておいてください。バグレポートは、同じ問題を抱える他の人々があなたと協力してそれを解決することを期待して作成されます。バグレポートが自動的に何かの活動を見ることや他の人々がそれを修正しようと飛びつくことを期待しないでください。バグレポートを作成することは、自分自身と他の人々が問題を修正する path を開始するのに役立ちます。あなたが参加したいと思うなら、[私たちの問題追跡者に記載されている任意のバグ](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel)を修正することで手助けすることができます。 GitHub で認証されていなければならず、Laravel の全ての問題を view するためです。
+
+Laravel を使用している間に不適切な DocBlock、PHPStan、または IDE の警告に気がついた場合は、GitHub で問題を作成しないでください。代わりに、問題を解決するためにプル request を提出してください。
+
+Laravel のソース code は、 GitHub で管理されており、それぞれの Laravel のプロジェクトにはリポジトリが存在します：
+
+<div class="content-list" markdown="1">
+
+- [Laravel Application](https://github.com/laravel/laravel)
+- [Laravel Art](https://github.com/laravel/art)
+- [Laravel Documentation](https://github.com/laravel/docs)
+- [Laravel Dusk](https://github.com/laravel/dusk)
+- [Laravel Cashier Stripe](https://github.com/laravel/cashier)
+- [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle)
+- [Laravel Echo](https://github.com/laravel/echo)
+- [Laravel Envoy](https://github.com/laravel/envoy)
+- [Laravel Folio](https://github.com/laravel/folio)
+- [Laravel Framework](https://github.com/laravel/framework)
+- [Laravel Homestead](https://github.com/laravel/homestead)
+- [Laravel Homestead Build Scripts](https://github.com/laravel/settler)
+- [Laravel Horizon](https://github.com/laravel/horizon)
+- [Laravel Jetstream](https://github.com/laravel/jetstream)
+- [Laravel Passport](https://github.com/laravel/passport)
+- [Laravel Pennant](https://github.com/laravel/pennant)
+- [Laravel Pint](https://github.com/laravel/pint)
+- [Laravel Prompts](https://github.com/laravel/prompts)
+- [Laravel Reverb](https://github.com/laravel/reverb)
+- [Laravel Sail](https://github.com/laravel/sail)
+- [Laravel Sanctum](https://github.com/laravel/sanctum)
+- [Laravel Scout](https://github.com/laravel/scout)
+- [Laravel Socialite](https://github.com/laravel/socialite)
+- [Laravel Telescope](https://github.com/laravel/telescope)
+- [Laravel Website](https://github.com/laravel/laravel.com-next)
+
+</div>
+
+<a name="support-questions"></a>
+
+## Support Questions
+
+Laravel の GitHub の問題追跡は、Laravel のヘルプやサポートを提供する目的ではありません。代わりに、以下のいずれかの channel を使用してください：
+
+<div class="content-list" markdown="1">
+
+- [GitHub Discussions](https://github.com/laravel/framework/discussions)
+- [Laracasts Forums](https://laracasts.com/discuss)
+- [Laravel.io Forums](https://laravel.io/forum)
+- [StackOverflow](https://stackoverflow.com/questions/tagged/laravel)
+- [Discord](https://discord.gg/laravel)
+- [Larachat](https://larachat.co)
+- [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel)
+
+</div>
+
+<a name="core-development-discussion"></a>
+
+## Core Development Discussion
+
+新しい features の提案や、既存の Laravel 動作の改善を、 Laravel フレームワークのリポジトリである[GitHub ディスカッションボード](https://github.com/laravel/framework/discussions)で提案することができます。新しい feature を提案する場合は、その feature を完成させるために必要な code の一部を少なくとも実装する意欲があることをお願いします。
+
+バグ、新しい features 、既存の features の実装についての非公式な議論が、[Laravel Discord server](https://discord.gg/laravel) の `#internals` channel で行われます。 Laravel のメンテナーである Taylor Otwell は、通常、平日の午前 8 時から午後 5 時まで(UTC-06:00 または America/Chicago) channel に参加しており、その他の時間帯では不定期に channel に出現します。
+
+<a name="which-branch"></a>
+
+## Which Branch?
+
+**すべての**バグ修正は、バグ修正をサポートしている最新 version(現在は`10.x`)に送信する必要があります。バグ修正は、それが今後の release でのみ存在する機能を修正する限り、**決して**`master`ブランチに送信しないでください。
+
+**マイナーな** features は、現在の release と**完全に後方互換性がある**場合、最新の安定版ブランチ(現在は `11.x`)に送信することができます。
+
+**主要な**新たな features や、大規模な変更を伴う features は、常に`master`ブランチに送られるべきです。これは今後の release を含んでいます。
+
+<a name="compiled-assets"></a>
+
+## Compiled Assets
+
+`resources/css`や`resources/js`のような、`laravel/laravel`リポジトリのコンパイルされるファイルに影響を与える変更を提出している場合、コンパイルされたファイルをコミットしないでください。それらのファイルはサイズが大きいため、実際にはメンテナーによってレ view することは不可能です。これは、コードを Laravel に悪意のある方式で注入する方法として悪用される可能性があります。これを防ぐために、すべてのコンパイルされたファイルは Laravel のメンテナーによって生成され、コミットされます。
+
+<a name="security-vulnerabilities"></a>
+
+## Security Vulnerabilities
+
+Laravel 内でセキュリティの脆弱性を見つけた場合は、Taylor Otwell に taylor[at]Laravel.com まで "mail" でご連絡ください。すべてのセキュリティの脆弱性は直ちに対処されます。
+
+<a name="coding-style"></a>
+
+## Coding Style
+
+Laravel は、[PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)コーディング標準および[PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md)自動読み込み標準に従っています。
+
+<a name="phpdoc"></a>
+
+### PHPDoc
+
+以下は有効な Laravel ドキュメンテーションブロックの例です。`@param` 属性は、2 つのスペースで始まり、引数 type、さらに 2 つのスペース、最後に variable 名を指定していることに注意してください。
+
+```php
+/**
+ * Register a binding with the container.
+ *
+ * @param  string|array  $abstract
+ * @param  \Closure|string|null  $concrete
+ * @param  bool  $shared
+ * @return void
+ *
+ * @throws \Exception
+ */
+public function bind($abstract, $concrete = null, $shared = false)
+{
+    // ...
+}
+```
+
+`@param`または`@return`の attributes がネイティブ型の使用により冗長となる場合、それらは削除できます:
+
+```php
+/**
+ * Execute the job.
+ */
+public function handle(AudioProcessor $processor): void
+{
+    //
+}
+```
+
+しかし、ネイティブの type がジェネリックの場合、`@param`または`@return`の attributes を使って、ジェネリックの type を指定してください：
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromStorage('/path/to/file'),
+    ];
+}
+```
+
+<a name="styleci"></a>
+
+### StyleCI
+
+あなたの code スタイリングが完璧でなくても心配しないでください！ [StyleCI](https://styleci.io/)は、プルリクエストがマージされた後にスタイルの修正を自動的に Laravel リポジトリに merge します。これにより、私たちは content の提供に焦点を当て、 code スタイルではなくなります。
+
+<a name="code-of-conduct"></a>
+
+## Code of Conduct
+
+Laravel code の行動規範は、Ruby code の行動規範から派生しています。行動規範 code の違反は、Taylor Otwell(taylor[at]laravel.com)に報告することができます：
+
+<div class="content-list" markdown="1">
+
+- 参加者は、反対の views に対して寛容になります。
+- 参加者は、自分の言葉と行動が個人への攻撃や軽蔑的な個人的な発言から自由であることを確認しなければなりません。
+- 他者の言葉や行動を解釈する際、参加者は常に良い意図を仮定すべきです。
+- 合理的にハラスメントと考えられる行為は許容されません。
+
+</div>

@@ -1,0 +1,854 @@
+---
+filePath: "source/laravel/requests.md"
+title: "HTTP Requests"
+description: "HTTP Requests"
+org_path: "/docs/11.x/requests"
+is_empty: false
+nav_title: "Requests"
+org_title: "HTTP Requests"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Interacting With The Request](#interacting-with-the-request)
+  - [Accessing the Request](#accessing-the-request)
+  - [Request Path, Host, and Method](#request-path-and-method)
+  - [Request Headers](#request-headers)
+  - [Request IP Address](#request-ip-address)
+  - [Content Negotiation](#content-negotiation)
+  - [PSR-7 Requests](#psr7-requests)
+- [Input](#input)
+  - [Retrieving Input](#retrieving-input)
+  - [Input Presence](#input-presence)
+  - [Merging Additional Input](#merging-additional-input)
+  - [Old Input](#old-input)
+  - [Cookies](#cookies)
+  - [Input Trimming and Normalization](#input-trimming-and-normalization)
+- [Files](#files)
+  - [Retrieving Uploaded Files](#retrieving-uploaded-files)
+  - [Storing Uploaded Files](#storing-uploaded-files)
+- [Configuring Trusted Proxies](#configuring-trusted-proxies)
+- [Configuring Trusted Hosts](#configuring-trusted-hosts)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel の `Illuminate\Http\Request` class は、現在の HTTP request を object 指向的に操作する方法を提供し、さらに application が処理している request とともに送信された input 、cookies、ファイルを取得します。
+
+<a name="interacting-with-the-request"></a>
+
+## Interacting With The Request
+
+<a name="accessing-the-request"></a>
+
+### Request へのアクセス
+
+依存性注入を介して現在の HTTP request のインスタンスを取得するには、route クロージャまたはコントローラ method で`Illuminate\Http\Request` class を types ヒントする必要があります。着信 request インスタンスは、Laravel [service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって自動的に注入されます。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    /**
+     * Store a new user.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $name = $request->input('name');
+
+        // Store the user...
+
+        return redirect('/users');
+    }
+}
+```
+
+前述の通り、`Illuminate\Http\Request` class を route クロージャに types ヒントとしても指定することができます。クロージャが実行されるとき、 service container は自動的に入力された request をクロージャに注入します。
+
+```php
+use Illuminate\Http\Request;
+
+Route::get('/', function (Request $request) {
+    // ...
+});
+```
+
+<a name="dependency-injection-route-parameters"></a>
+
+#### Dependency Injection と Route パラメータ
+
+あなたの controller method も route パラメータからの input を期待している場合、他の依存関係の後にあなたの route パラメータをリストするべきです。例えば、あなたの route が以下のように定義されている場合：
+
+```php
+use App\Http\Controllers\UserController;
+
+Route::put('/user/{id}', [UserController::class, 'update']);
+```
+
+次のようにコントローラー method を定義することで、`Illuminate\Http\Request`に対する types ヒントを引き続き使用し、`id` route パラメータにアクセスすることができます。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    /**
+     * Update the specified user.
+     */
+    public function update(Request $request, string $id): RedirectResponse
+    {
+        // Update the user...
+
+        return redirect('/users');
+    }
+}
+```
+
+<a name="request-path-and-method"></a>
+
+### Request Path 、ホスト、そして Method
+
+`Illuminate\Http\Request`インスタンスは、入力される HTTP request を調査するためのさまざまな methods を提供し、`Symfony\Component\HttpFoundation\Request` class を拡張します。以下で最も重要な methods のいくつかについて説明します。
+
+<a name="retrieving-the-request-path"></a>
+
+#### Request Path の取得
+
+`path`method は request の path 情報を返します。したがって、着信する request が`http://example.com/foo/bar`に対して行われる場合、`path`method は`foo/bar`を返します。
+
+```php
+$uri = $request->path();
+```
+
+<a name="inspecting-the-request-path"></a>
+
+#### Request Path / Route の調査
+
+`is`の method を使用すると、受信した requestpath が指定のパターンと一致するかを確認できます。この method を使用する際には、`*`文字をワイルドカードとして使用することができます。
+
+```php
+if ($request->is('admin/*')) {
+    // ...
+}
+```
+
+`routeIs`の method を使用すると、着信の request が[named route](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes)に一致したかどうかを判断することができます：
+
+```php
+if ($request->routeIs('admin.*')) {
+    // ...
+}
+```
+
+<a name="retrieving-the-request-url"></a>
+
+#### Request URL の取得
+
+受信した request の完全な URL を取得するためには、`url` や `fullUrl` メソッドを使用することができます。`url` method は query string を除いた URL を返しますが、一方で `fullUrl` method は query string を含みます。
+
+```php
+$url = $request->url();
+
+$urlWithQueryString = $request->fullUrl();
+```
+
+現在の URL に append query string data data を追加したい場合は、 `fullUrlWithQuery` method を呼び出すことができます。この method は、与えられた query string 変数の array を現在の query string とマージします：
+
+```php
+$request->fullUrlWithQuery(['type' => 'phone']);
+```
+
+指定した query string パラメータなしで現在の URL を取得したい場合、`fullUrlWithoutQuery` method を利用することができます。
+
+```php
+$request->fullUrlWithoutQuery(['type']);
+```
+
+<a name="retrieving-the-request-host"></a>
+
+#### Request ホストの取得
+
+次の `host`、`httpHost`、および `schemeAndHttpHost` メソッドを使用して、着信の request の "host" を取得することができます。
+
+```php
+$request->host();
+$request->httpHost();
+$request->schemeAndHttpHost();
+```
+
+<a name="retrieving-the-request-method"></a>
+
+#### Request Method の取得
+
+`method` method は、 request の HTTP 動詞を返します。 あなたは、`isMethod` method を使って、 HTTP 動詞が指定された string と一致することを確認することができます。
+
+```php
+$method = $request->method();
+
+if ($request->isMethod('post')) {
+    // ...
+}
+```
+
+<a name="request-headers"></a>
+
+### Request Headers
+
+`Illuminate\Http\Request` インスタンスから request header を取得するには、`header` method を使用します。もし header が request に存在しない場合、`null`が返されます。ただし、`header` method では、オプションの第二引数が提供され、それが header が request に存在しない場合に返されます。
+
+```php
+$value = $request->header('X-Header-Name');
+
+$value = $request->header('X-Header-Name', 'default');
+```
+
+`hasHeader` method は、 request が特定の header を含むかどうかを判断するために使用できます。
+
+```php
+if ($request->hasHeader('X-Header-Name')) {
+    // ...
+}
+```
+
+便宜上、`bearerToken` method を使用して `Authorization` header から bearer token を取得することができます。該当する header が存在しない場合、空の string が返されます。
+
+```php
+$token = $request->bearerToken();
+```
+
+<a name="request-ip-address"></a>
+
+### Request IP アドレス
+
+`ip` method を使用して、あなたの application に request を行った client の IP アドレスを取得できます。
+
+```php
+$ipAddress = $request->ip();
+```
+
+もしプロキシによって転送されたすべての client IP アドレスを含む IP アドレスの array を取得したい場合、`ips` method を使用することができます。original の client IP アドレスは array の最後になります：
+
+```php
+$ipAddresses = $request->ips();
+```
+
+一般的に、IP アドレスは信頼できない、ユーザーが制御する input と考えられ、情報提供のみに使用されるべきです。
+
+<a name="content-negotiation"></a>
+
+### Content ネゴシエーション
+
+Laravel は、`Accept` header を通じて着信リクエストの要求された content タイプを検査するためのいくつかの方法を提供します。まず、`getAcceptableContentTypes` method は、 request によって受け入れられるすべての content タイプを含む array を返します：
+
+```php
+$contentTypes = $request->getAcceptableContentTypes();
+```
+
+`accepts` method は、content の種類を array で受け取り、そのいずれかが request によって受け入れられるときは`true`を返します。それ以外の場合、`false`を返します。
+
+```php
+if ($request->accepts(['text/html', 'application/json'])) {
+    // ...
+}
+```
+
+`prefers`method を使用して、与えられた array の contenttypes の中で、request が最も好むコンテンツ types を決定することができます。 提供された contenttypes のどれもが request に受け入れられない場合は、`null`が返されます：
+
+```php
+$preferred = $request->prefers(['text/html', 'application/json']);
+```
+
+多くの applications は HTML または JSON response のみを提供するため、`expectsJson` method を使用して、着信 request が JSON response を期待しているかどうかをすばやく判断することができます。
+
+```php
+if ($request->expectsJson()) {
+    // ...
+}
+```
+
+<a name="psr7-requests"></a>
+
+### PSR-7 リクエスト
+
+[PSR-7 standard](https://www.php-fig.org/psr/psr-7/)では、リクエストとレスポンスを含む HTTP メッセージのためのインターフェイスが規定されています。もし PSR-7 の request のインスタンスを、 Laravel request の代わりに取得したい場合は、まずいくつかのライブラリをインストールする必要があります。 Laravel は*Symfony HTTP Message Bridge* component を使用して、標準的な Laravel リクエストとレスポンスを PSR-7 互換の実装に変換します：
+
+```shell
+composer require symfony/psr-http-message-bridge
+composer require nyholm/psr7
+```
+
+これらのライブラリをインストールしたら、 route クロージャや controller method に request インターフェースをタイプヒントとして使用することで、PSR-7 の request を取得できます。
+
+```php
+use Psr\Http\Message\ServerRequestInterface;
+
+Route::get('/', function (ServerRequestInterface $request) {
+    // ...
+});
+```
+
+> <LaravelNote type="note" />
+> route や controller から PSR-7 の response インスタンスを返すと、自動的に Laravel
+> response インスタンスに戻され、フレームワークによって表示されます。
+
+<a name="input"></a>
+
+## Input
+
+<a name="retrieving-input"></a>
+
+### Retrieving Input
+
+<a name="retrieving-all-input-data"></a>
+
+#### すべての Input Data を取得する
+
+すべての受信リクエストの input data を`array`として`all` method を使用して取得することができます。この method は、受信 request が HTML フォームからであるか、XHR request であるかにかかわらず使用することができます。
+
+```php
+$input = $request->all();
+```
+
+`collect`の method を使用すると、受信 request のすべての input data を[collection](/ja/php/laravel/v11.x/05-digging-deeper/collections)として取得することができます：
+
+```php
+$input = $request->collect();
+```
+
+`collect` method は、着信リクエストの input の一部を collection として取得することも可能です：
+
+```php
+$request->collect('users')->each(function (string $user) {
+    // ...
+});
+```
+
+<a name="retrieving-an-input-value"></a>
+
+#### Input Value の取得
+
+いくつかのシンプルな方法を使用すると、`Illuminate\Http\Request`インスタンスからすべての user 入力にアクセスでき、HTTP 動詞が request にどのように使用されたかを心配する必要はありません。 HTTP 動詞に関係なく、`input` method を使用して user 入力を取得することができます:
+
+```php
+$name = $request->input('name');
+```
+
+`input` method の二つ目の引数として、defaultvalue を渡すことができます。この value は、要求された入力 value が request に存在しない場合に返されます。
+
+```php
+$name = $request->input('name', 'Sally');
+```
+
+array 入力を含むフォームで作業するときは、dot 表記法を使用して配列にアクセスします。
+
+```php
+$name = $request->input('products.0.name');
+
+$names = $request->input('products.*.name');
+```
+
+`input`の method を引数なしで呼び出して、すべての input values を連想 array として取得することができます。
+
+```php
+$input = $request->input();
+```
+
+<a name="retrieving-input-from-the-query-string"></a>
+
+#### Query String からの Input の取得
+
+`input` method は、全体の request ペイロード(query string を含む)から values を取得しますが、`query` method は、query string からのみ values を取得します：
+
+```php
+$name = $request->query('name');
+```
+
+要求された query string value data が存在しない場合、この method への 2 番目の引数が返されます。
+
+```php
+$name = $request->query('name', 'Helen');
+```
+
+あなたは全ての query string の values を関連付けられた array として取得するために、引数なしで `query`method を呼び出すことができます。
+
+```php
+$query = $request->query();
+```
+
+<a name="retrieving-json-input-values"></a>
+
+#### JSON Input Values の取得
+
+あなたの application に JSON request を送信する際、`Content-Type` header が適切に`application/json`に設定されていれば、`input` method を通じて JSON data にアクセスすることができます。 dot syntax を使用して、JSON arrays/object 内にネストされている values を取得することさえできます:
+
+```php
+$name = $request->input('user.name');
+```
+
+<a name="retrieving-stringable-input-values"></a>
+
+#### Stringable Input Values の取得
+
+リクエストの input data をプリミティブな`string`として取得する代わりに、`string` method を使用して request data を[`Illuminate\Support\Stringable`](/ja/php/laravel/v11.x/05-digging-deeper/helpers#fluent-strings)のインスタンスとして取得することができます：
+
+```php
+$name = $request->string('name')->trim();
+```
+
+<a name="retrieving-boolean-input-values"></a>
+
+#### Boolean Input Values の取得
+
+HTML elements"といったチェックボックスのようなものを扱うとき、"真実性"という"values"を string として受け取ることがあるかもしれません。例えば、"true"あるいは"on"のような。便宜上、これらの"values"をブール values として取得するために、`boolean` "method"を使用することができます。`boolean` "method"は、1、"1"、true、"true"、"on"、そして"yes"に対しては`true`を返します。他のすべての"values"に対しては`false`を返します。
+
+```php
+$archived = $request->boolean('archived');
+```
+
+<a name="retrieving-date-input-values"></a>
+
+#### 日付 Input Values の取得
+
+便宜上、日付/時間を含む input values は `date` method を使用して Carbon のインスタンスとして retrieved することができます。もし request が指定した名前の input value を含んでいない場合、`null`が返されます。
+
+```php
+$birthday = $request->date('birthday');
+```
+
+`date` method が受け入れる第二引数と第三引数は、それぞれ日付の形式と timezone を指定するために使用できます。
+
+```php
+$elapsed = $request->date('elapsed', '!H:i', 'Europe/Madrid');
+```
+
+もし input value が存在するが invalid な形式である場合、`InvalidArgumentException`がスローされます。したがって、`date` method を呼び出す前に input を validate することを推奨します。
+
+<a name="retrieving-enum-input-values"></a>
+
+#### Enum Input Values の取得
+
+Input values は[PHP enums](https://www.php.net/manual/en/language.types.enumerations.php)に対応するもので、また request からも retrieved することができます。もし request が指定された名前の input value を含んでいない場合や、enum が input value と一致する value を持っていない場合は、`null`が返されます。`enum`の method は、input value の名前と、enum class を最初と二番目の引数として受け入れます：
+
+```php
+use App\Enums\Status;
+
+$status = $request->enum('status', Status::class);
+```
+
+<a name="retrieving-input-via-dynamic-properties"></a>
+
+#### 動的プロパティを使用して Input を取得する
+
+また、`Illuminate\Http\Request`インスタンス上の動的プロパティを使用して、 user input にアクセスすることもできます。例えば、アプリケーションのフォームの一つに`name`フィールドが含まれている場合、以下のようにフィールドの value にアクセスできます。
+
+```php
+$name = $request->name;
+```
+
+動的プロパティを使用する際、 Laravel はまず、 request のペイロード内のパラメータの value を探します。もし存在しない場合、 Laravel はマッチしたルートのパラメータでフィールドを search します。
+
+<a name="retrieving-a-portion-of-the-input-data"></a>
+
+#### Input Data の一部を取得する
+
+もし input data の一部を取得する必要がある場合、`only` メソッドと `except` メソッドを使用することができます。これらのメソッドはどちらも single `array` または動的な引数リストを受け入れます：
+
+```php
+$input = $request->only(['username', 'password']);
+
+$input = $request->only('username', 'password');
+
+$input = $request->except(['credit_card']);
+
+$input = $request->except('credit_card');
+```
+
+> <LaravelNote type="warning" />
+> `only` method は、要求した key/ value のペアをすべて返します。しかし、 request
+> 上に存在しない key/ value のペアは返しません。
+
+<a name="input-presence"></a>
+
+### Input の存在
+
+`has` method を使用して、 request に value が存在するかどうかを判断できます。`has` method は、 request に value が存在する場合、`true`を返します。
+
+```php
+if ($request->has('name')) {
+    // ...
+}
+```
+
+array が与えられると、`has` method は指定された values がすべて存在するかどうかを判断します。
+
+```php
+if ($request->has(['name', 'email'])) {
+    // ...
+}
+```
+
+`hasAny` method は、指定された values のいずれかが存在する場合に`true`を返します：
+
+```php
+if ($request->hasAny(['name', 'email'])) {
+    // ...
+}
+```
+
+`whenHas` method は、 request に value が存在する場合、与えられたクロージャを実行します。
+
+```php
+$request->whenHas('name', function (string $input) {
+    // ...
+});
+```
+
+指定された value が request に存在しない場合に実行される、`whenHas` method に 2 つ目のクロージャを渡すことができます。
+
+```php
+$request->whenHas('name', function (string $input) {
+    // The "name" value is present...
+}, function () {
+    // The "name" value is not present...
+});
+```
+
+もし request 上にある value が存在し、それが空の string でないかどうかを判断したい場合は、`filled` method を使用できます：
+
+```php
+if ($request->filled('name')) {
+    // ...
+}
+```
+
+`anyFilled` method は、指定された values のいずれかが空でない string である場合、`true`を返します。
+
+```php
+if ($request->anyFilled(['name', 'email'])) {
+    // ...
+}
+```
+
+`whenFilled` method は、 request に value が存在し、それが空の string でない場合、指定されたクロージャを実行します。
+
+```php
+$request->whenFilled('name', function (string $input) {
+    // ...
+});
+```
+
+第二のクロージャは、指定された value が"filled"でない場合に実行されるように、`whenFilled` method に渡すことができます。
+
+```php
+$request->whenFilled('name', function (string $input) {
+    // The "name" value is filled...
+}, function () {
+    // The "name" value is not filled...
+});
+```
+
+指定したキーが request から欠落しているかどうかを判断するには、`missing`メソッドと`whenMissing`メソッドを使用できます：
+
+```php
+if ($request->missing('name')) {
+    // ...
+}
+
+$request->whenMissing('name', function () {
+    // The "name" value is missing...
+}, function () {
+    // The "name" value is present...
+});
+```
+
+<a name="merging-additional-input"></a>
+
+### 追加の Input のマージ
+
+場合によっては、リクエストの既存の input data に手動で merge した追加の input が必要になることがあります。これを実現するために、`merge` method を使用することができます。指定した input キーがすでに request に存在する場合、それは`merge` method に提供された data によって上書きされます。
+
+```php
+$request->merge(['votes' => 0]);
+```
+
+`mergeIfMissing` method は、対応する keys が request の入力 data 内に既に存在しない場合、入力を request に統合するために使用できます。
+
+```php
+$request->mergeIfMissing(['votes' => 0]);
+```
+
+<a name="old-input"></a>
+
+### 古い Input
+
+Laravel では、次の request の間で入力を保持することができます。この特徴は特に、validationerror 検出後にフォームを再入力する際に便利です。しかし、Laravel の初めから含まれている[validation 機能](/ja/php/laravel/v11.x/04-the-basics/12-validation)を使用している場合、Laravel の内蔵 validation 設備の一部が自動的にこれらの session 入力フラッシング機能を呼び出すため、手動でこれらの機能を使う必要がない可能性があります。
+
+<a name="flashing-input-to-the-session"></a>
+
+#### Session に Input をフラッシュする
+
+`Illuminate\Http\Request`の class 上の`flash` method は、現在の input を[session](/ja/php/laravel/v11.x/04-the-basics/11-session)にフラッシュするので、それが user の次の request 中に application で利用可能になります。
+
+```php
+$request->flash();
+```
+
+また、 request data の一部を session にフラッシュするために`flashOnly`および`flashExcept`メソッドを使用することもできます。これらのメソッドは、 passwords などの機密情報を session から除外するために役立ちます。
+
+```php
+$request->flashOnly(['username', 'email']);
+
+$request->flashExcept('password');
+```
+
+<a name="flashing-input-then-redirecting"></a>
+
+#### Input を点滅させてからリダイレクト
+
+あなたはしばしば input を session にフラッシュしてから前のページに redirect したいと思うでしょう、したがって、簡単に redirect に `withInput` method を用いて input フラッシュをチェーンできます:
+
+```php
+return redirect('form')->withInput();
+
+return redirect()->route('user.create')->withInput();
+
+return redirect('form')->withInput(
+    $request->except('password')
+);
+```
+
+<a name="retrieving-old-input"></a>
+
+#### 古い Input の取得
+
+以前の request からフラッシュされた input を取得するには、`Illuminate\Http\Request`のインスタンスで`old` method を呼び出します。`old` method は、[session](/ja/php/laravel/v11.x/04-the-basics/11-session)から以前にフラッシュされた input data を引き出します。
+
+```php
+$username = $request->old('username');
+```
+
+Laravel はグローバルな`old`ヘルパーも提供しています。古い input を[Blade テンプレート](/ja/php/laravel/v11.x/04-the-basics/08-blade)で表示している場合、フォームを再入力するために`old`ヘルパーを使用する方が便利です。指定されたフィールドに対して古い input が存在しない場合、`null`が返されます：
+
+```php
+<input type="text" name="username" value="{{ old('username') }}">
+```
+
+<a name="cookies"></a>
+
+### Cookies
+
+<a name="retrieving-cookies-from-requests"></a>
+
+#### リクエストからクッキーを取得する
+
+Laravel フレームワークによって作成されたすべての cookies は、暗号化され、authentication code で署名されています。これは、もし cookies が client によって変更されていたら、それは invalid とみなされることを意味します。 request から cookie value を取得するには、 `Illuminate\Http\Request` インスタンス上で `cookie` method を使用します。
+
+```php
+$value = $request->cookie('name');
+```
+
+<a name="input-trimming-and-normalization"></a>
+
+## Input Trimming and Normalization
+
+default で、Laravel はあなたの application のグローバルな middlewarestack に`Illuminate\Foundation\Http\Middleware\TrimStrings`と`Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull`の middleware を含んでいます。これらの middleware は、request の上のすべての受信ストリングフィールドを自動的にトリムし、そして任意の空のストリングフィールドを`null`に変換します。これにより、あなたは routes とコントローラにおけるこれらの正規化の懸念について心配する必要がなくなります。
+
+#### Input 正規化の無効化
+
+すべてのリクエストでこの動作を無効にしたい場合は、アプリケーションの middleware stack から二つの middleware を削除できます。それには、`bootstrap/app.php`ファイル内のアプリケーションで`$middleware->remove` method を呼び出します:
+
+```php
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
+use Illuminate\Foundation\Http\Middleware\TrimStrings;
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->remove([
+        ConvertEmptyStringsToNull::class,
+        TrimStrings::class,
+    ]);
+})
+```
+
+もし、あなたがあなたの application へのリクエストの一部に対して、 string のトリミングを無効にし、空の string を変換したい場合、アプリケーションの`bootstrap/app.php`ファイル内で`trimStrings`と`convertEmptyStringsToNull`の middleware メソッドを使用することができます。両方のメソッドは、 input の正規化がスキップされるべきかどうかを示すために`true`または`false`を返すべきクロージャの array を受け入れます。
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->convertEmptyStringsToNull(except: [
+        fn (Request $request) => $request->is('admin/*'),
+    ]);
+
+    $middleware->trimStrings(except: [
+        fn (Request $request) => $request->is('admin/*'),
+    ]);
+})
+```
+
+<a name="files"></a>
+
+## Files
+
+<a name="retrieving-uploaded-files"></a>
+
+### アップロードしたファイルの取得
+
+`Illuminate\Http\Request` インスタンスからアップロードされたファイルを取得するには、`file` method を使用するか、動的なプロパティを使用します。`file` method は `Illuminate\Http\UploadedFile` class のインスタンスを返し、これは PHP の `SplFileInfo` class を拡張し、ファイルと対話するためのさまざまなメソッドを提供します：
+
+```php
+$file = $request->file('photo');
+
+$file = $request->photo;
+```
+
+ファイルが request 上に存在するかどうかは、`hasFile` method を使用して判断することができます：
+
+```php
+if ($request->hasFile('photo')) {
+    // ...
+}
+```
+
+<a name="validating-successful-uploads"></a>
+
+#### Validating 成功したアップロード
+
+ファイルが存在するかどうかを確認するだけでなく、`isValid` method を使用してファイルのアップロードに問題がなかったことも確認できます。
+
+```php
+if ($request->file('photo')->isValid()) {
+    // ...
+}
+```
+
+<a name="file-paths-extensions"></a>
+
+#### ファイルパスと Extensions
+
+`UploadedFile` class には、ファイルの完全修飾 path とその拡張子にアクセスするためのメソッドも含まれています。`extension` method は、ファイルの内容に基づいてファイルの拡張子を attempt します。この拡張子は、 client が提供した拡張子とは異なる場合があります。
+
+```php
+$path = $request->photo->path();
+
+$extension = $request->photo->extension();
+```
+
+<a name="other-file-methods"></a>
+
+#### 他のファイルメソッド
+
+`UploadedFile` インスタンスには、さまざまな他のメソッドが利用可能です。これらのメソッドに関する詳細な情報は、[API ドキュメンテーションの class](https://github.com/symfony/symfony/blob/6.0/src/Symfony/Component/HttpFoundation/File/UploadedFile.php)をご覧ください。
+
+<a name="storing-uploaded-files"></a>
+
+### アップロードされたファイルの保存
+
+アップロードされたファイルを保存するには、通常、設定した[filesystems](/ja/php/laravel/v11.x/05-digging-deeper/filesystem)のうちの一つを使用します。`UploadedFile` class には、アップロードされたファイルをローカルファイルシステム上の場所や、Amazon S3 のようなクラウド storage の位置に移動させる`store` method があります。
+
+`store`の method は、ファイルが保存されるべき path をファイルシステムの設定された root ディレクトリに対して受け入れます。この path にはファイル名を含めないでください。なぜなら、 unique な ID が自動的に生成され、ファイル名として機能するからです。
+
+`store`の method は、ファイルを保存するために使用するディスクの名前のための任意の二番目の引数も受け付けます。 method は、ディスクの root に対するファイルの path を返します。
+
+```php
+$path = $request->photo->store('images');
+
+$path = $request->photo->store('images', 's3');
+```
+
+ファイル名を自動的に生成させたくない場合は、`storeAs` method を使用することができます。これは path 、ファイル名、ディスク名をその引数として受け取ります：
+
+```php
+$path = $request->photo->storeAs('images', 'filename.jpg');
+
+$path = $request->photo->storeAs('images', 'filename.jpg', 's3');
+```
+
+> <LaravelNote type="note" />
+> Laravel のファイル storage についての詳しい情報は、完全な [ファイル storage のドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/filesystem)
+> をご覧ください。
+
+<a name="configuring-trusted-proxies"></a>
+
+## Configuring Trusted Proxies
+
+TLS / SSL 証明書を終了させるロードバランサーの背後でアプリケーションを実行すると、ご使用の`url`helper を使う際に、 application が HTTPS links を生成しないときがあることに気付くかもしれません。通常、これは、ロードバランサーからのトラフィックがポート 80 で転送され、安全な links を生成するべきであることを application が認識していないためです。
+
+これを解決するには、`Illuminate\Http\Middleware\TrustProxies` middleware を有効にし、これはあなたの Laravel application に含まれており、ロードバランサーやプロキシをすばやくカスタマイズすることを可能にします。これらはあなたの application から信頼するべきです。信頼すべきプロキシは、アプリケーションの`bootstrap/app.php`ファイルの`trustProxies` middleware method を使って指定するべきです：
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustProxies(at: [
+        '192.168.1.1',
+        '192.168.1.2',
+    ]);
+})
+```
+
+信頼できるプロキシを設定するだけでなく、信頼すべきプロキシの headers も設定することができます：
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_FOR |
+        Request::HEADER_X_FORWARDED_HOST |
+        Request::HEADER_X_FORWARDED_PORT |
+        Request::HEADER_X_FORWARDED_PROTO |
+        Request::HEADER_X_FORWARDED_AWS_ELB
+    );
+})
+```
+
+> <LaravelNote type="note" />
+> AWS Elastic Load Balancing を使用している場合、`headers`の value は`Request::HEADER_X_FORWARDED_AWS_ELB`であるべきです。ロードバランサが[RFC
+> 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4)からの標準的な`Forwarded`
+> header を使用している場合、`headers`の value は`Request::HEADER_FORWARDED`であるべきです。`headers`の
+> value で使用できる定数についての詳細は、Symfony の[trusting proxies](https://symfony.com/doc/7.0/deployment/proxies.html)のドキュメンテーションをご覧ください。
+
+<a name="trusting-all-proxies"></a>
+
+#### すべてのプロキシを信頼する
+
+Amazon AWS や他の"クラウド"ロードバランサーの provider を使用している場合、実際のバランサーの IP アドレスがわからないかもしれません。この場合、全てのプロキシを信頼するために`*`を使用することができます：
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustProxies(at: '*');
+})
+```
+
+<a name="configuring-trusted-hosts"></a>
+
+## Configuring Trusted Hosts
+
+default では、Laravel は、`Host`header の HTTP requests の content に関係なく、受信したすべての requests に response します。さらに、`Host` header の value は、web request 中にあなたの application への絶対 URL を生成する際に使用されます。
+
+通常は、Nginx や Apache などの webserver を設定して、特定のホスト名と一致する application への requests のみを送信するようにします。しかし、直接 webserver をカスタマイズする能力がなく、`Illuminate\Http\Middleware\TrustHosts` middleware を有効にして Laravel に特定のホスト名に対してのみ response するよう指示する必要がある場合もあります。
+
+`TrustHosts`の middleware を有効にするには、アプリケーションの`bootstrap/app.php`ファイルで、`trustHosts`の middleware method を呼び出す必要があります。この method の`at`引数を使用して、 application が response する必要があるホスト名を指定できます。その他の`Host`の headers を持つ着信 requests は拒否されます：
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustHosts(at: ['laravel.test']);
+})
+```
+
+default で、アプリケーションの URL のサブドメインからのリクエストも自動的に信頼されます。この挙動を無効にしたい場合は、`subdomains`引数を使用することができます：
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustHosts(at: ['laravel.test'], subdomains: false);
+})
+
+```

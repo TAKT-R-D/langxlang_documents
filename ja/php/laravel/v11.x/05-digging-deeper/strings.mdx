@@ -1,0 +1,3305 @@
+---
+filePath: "source/laravel/strings.md"
+title: "Strings"
+description: "Strings"
+org_path: "/docs/11.x/strings"
+is_empty: false
+nav_title: "Strings"
+org_title: "Strings"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+- [Available Methods](#available-methods)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、 string values の操作に関するさまざまな関数を含んでいます。これらの関数の多くはフレームワーク自体で使用されますが、それが便利であればあなたのアプリケーションでも自由に使用することができます。
+
+<a name="available-methods"></a>
+
+## Available Methods
+
+<a name="strings-method-list"></a>
+
+### Strings
+
+<div class="collection-method-list" markdown="1">
+
+[\_\_](#method-__) [class_basename](#method-class-basename) [e](#method-e) [preg_replace_array](#method-preg-replace-array) [Str::after](#method-str-after) [Str::afterLast](#method-str-after-last) [Str::apa](#method-str-apa) [Str::ascii](#method-str-ascii) [Str::before](#method-str-before) [Str::beforeLast](#method-str-before-last) [Str::between](#method-str-between) [Str::betweenFirst](#method-str-between-first) [Str::camel](#method-camel-case) [Str::charAt](#method-char-at) [Str::contains](#method-str-contains) [Str::containsAll](#method-str-contains-all) [Str::endsWith](#method-ends-with) [Str::excerpt](#method-excerpt) [Str::finish](#method-str-finish) [Str::headline](#method-str-headline) [Str::inlineMarkdown](#method-str-inline-markdown) [Str::is](#method-str-is) [Str::isAscii](#method-str-is-ascii) [Str::isJson](#method-str-is-json) [Str::isUlid](#method-str-is-ulid) [Str::isUrl](#method-str-is-url) [Str::isUuid](#method-str-is-uuid) [Str::kebab](#method-kebab-case) [Str::lcfirst](#method-str-lcfirst) [Str::length](#method-str-length) [Str::limit](#method-str-limit) [Str::lower](#method-str-lower) [Str::markdown](#method-str-markdown) [Str::mask](#method-str-mask) [Str::orderedUuid](#method-str-ordered-uuid) [Str::padBoth](#method-str-padboth) [Str::padLeft](#method-str-padleft) [Str::padRight](#method-str-padright) [Str::password](#method-str-password) [Str::plural](#method-str-plural) [Str::pluralStudly](#method-str-plural-studly) [Str::position](#method-str-position) [Str::random](#method-str-random) [Str::remove](#method-str-remove) [Str::repeat](#method-str-repeat) [Str::replace](#method-str-replace) [Str::replaceArray](#method-str-replace-array) [Str::replaceFirst](#method-str-replace-first) [Str::replaceLast](#method-str-replace-last) [Str::replaceMatches](#method-str-replace-matches) [Str::replaceStart](#method-str-replace-start) [Str::replaceEnd](#method-str-replace-end) [Str::reverse](#method-str-reverse) [Str::singular](#method-str-singular) [Str::slug](#method-str-slug) [Str::snake](#method-snake-case) [Str::squish](#method-str-squish) [Str::start](#method-str-start) [Str::startsWith](#method-starts-with) [Str::studly](#method-studly-case) [Str::substr](#method-str-substr) [Str::substrCount](#method-str-substrcount) [Str::substrReplace](#method-str-substrreplace) [Str::swap](#method-str-swap) [Str::take](#method-take) [Str::title](#method-title-case) [Str::toBase64](#method-str-to-base64) [Str::toHtmlString](#method-str-to-html-string) [Str::trim](#method-str-trim) [Str::ltrim](#method-str-ltrim) [Str::rtrim](#method-str-rtrim) [Str::ucfirst](#method-str-ucfirst) [Str::ucsplit](#method-str-ucsplit) [Str::upper](#method-str-upper) [Str::ulid](#method-str-ulid) [Str::unwrap](#method-str-unwrap) [Str::uuid](#method-str-uuid) [Str::wordCount](#method-str-word-count) [Str::wordWrap](#method-str-word-wrap) [Str::words](#method-str-words) [Str::wrap](#method-str-wrap) [str](#method-str) [trans](#method-trans) [trans_choice](#method-trans-choice)
+
+</div>
+
+<a name="fluent-strings-method-list"></a>
+
+### 流暢な文字列
+
+<div class="collection-method-list" markdown="1">
+
+[after](#method-fluent-str-after) [afterLast](#method-fluent-str-after-last) [apa](#method-fluent-str-apa) [append](#method-fluent-str-append) [ascii](#method-fluent-str-ascii) [basename](#method-fluent-str-basename) [before](#method-fluent-str-before) [beforeLast](#method-fluent-str-before-last) [between](#method-fluent-str-between) [betweenFirst](#method-fluent-str-between-first) [camel](#method-fluent-str-camel) [charAt](#method-fluent-str-char-at) [classBasename](#method-fluent-str-class-basename) [contains](#method-fluent-str-contains) [containsAll](#method-fluent-str-contains-all) [dirname](#method-fluent-str-dirname) [endsWith](#method-fluent-str-ends-with) [excerpt](#method-fluent-str-excerpt) [exactly](#method-fluent-str-exactly) [explode](#method-fluent-str-explode) [finish](#method-fluent-str-finish) [headline](#method-fluent-str-headline) [inlineMarkdown](#method-fluent-str-inline-markdown) [is](#method-fluent-str-is) [isAscii](#method-fluent-str-is-ascii) [isEmpty](#method-fluent-str-is-empty) [isNotEmpty](#method-fluent-str-is-not-empty) [isJson](#method-fluent-str-is-json) [isUlid](#method-fluent-str-is-ulid) [isUrl](#method-fluent-str-is-url) [isUuid](#method-fluent-str-is-uuid) [kebab](#method-fluent-str-kebab) [lcfirst](#method-fluent-str-lcfirst) [length](#method-fluent-str-length) [limit](#method-fluent-str-limit) [lower](#method-fluent-str-lower) [markdown](#method-fluent-str-markdown) [mask](#method-fluent-str-mask) [match](#method-fluent-str-match) [matchAll](#method-fluent-str-match-all) [isMatch](#method-fluent-str-is-match) [newLine](#method-fluent-str-new-line) [padBoth](#method-fluent-str-padboth) [padLeft](#method-fluent-str-padleft) [padRight](#method-fluent-str-padright) [pipe](#method-fluent-str-pipe) [plural](#method-fluent-str-plural) [position](#method-fluent-str-position) [prepend](#method-fluent-str-prepend) [remove](#method-fluent-str-remove) [repeat](#method-fluent-str-repeat) [replace](#method-fluent-str-replace) [replaceArray](#method-fluent-str-replace-array) [replaceFirst](#method-fluent-str-replace-first) [replaceLast](#method-fluent-str-replace-last) [replaceMatches](#method-fluent-str-replace-matches) [replaceStart](#method-fluent-str-replace-start) [replaceEnd](#method-fluent-str-replace-end) [scan](#method-fluent-str-scan) [singular](#method-fluent-str-singular) [slug](#method-fluent-str-slug) [snake](#method-fluent-str-snake) [split](#method-fluent-str-split) [squish](#method-fluent-str-squish) [start](#method-fluent-str-start) [startsWith](#method-fluent-str-starts-with) [stripTags](#method-fluent-str-strip-tags) [studly](#method-fluent-str-studly) [substr](#method-fluent-str-substr) [substrReplace](#method-fluent-str-substrreplace) [swap](#method-fluent-str-swap) [take](#method-fluent-str-take) [tap](#method-fluent-str-tap) [test](#method-fluent-str-test) [title](#method-fluent-str-title) [toBase64](#method-fluent-str-to-base64) [trim](#method-fluent-str-trim) [ltrim](#method-fluent-str-ltrim) [rtrim](#method-fluent-str-rtrim) [ucfirst](#method-fluent-str-ucfirst) [ucsplit](#method-fluent-str-ucsplit) [unwrap](#method-fluent-str-unwrap) [upper](#method-fluent-str-upper) [when](#method-fluent-str-when) [whenContains](#method-fluent-str-when-contains) [whenContainsAll](#method-fluent-str-when-contains-all) [whenEmpty](#method-fluent-str-when-empty) [whenNotEmpty](#method-fluent-str-when-not-empty) [whenStartsWith](#method-fluent-str-when-starts-with) [whenEndsWith](#method-fluent-str-when-ends-with) [whenExactly](#method-fluent-str-when-exactly) [whenNotExactly](#method-fluent-str-when-not-exactly) [whenIs](#method-fluent-str-when-is) [whenIsAscii](#method-fluent-str-when-is-ascii) [whenIsUlid](#method-fluent-str-when-is-ulid) [whenIsUuid](#method-fluent-str-when-is-uuid) [whenTest](#method-fluent-str-when-test) [wordCount](#method-fluent-str-word-count) [words](#method-fluent-str-words)
+
+</div>
+
+<a name="strings"></a>
+
+## Strings
+
+<a name="method-__"></a>
+
+#### `__()`
+
+`__` function は、指定された翻訳 string または翻訳キーを [language files](/ja/php/laravel/v11.x/05-digging-deeper/localization) を使用して翻訳します。
+
+```php
+echo __('Welcome to our application');
+
+echo __('messages.welcome');
+```
+
+指定された翻訳 string またはキーが存在しない場合、`__` function は指定された value を返します。したがって、上記の例では、翻訳キーが存在しない場合、`__` function は `messages.welcome` を返します。
+
+<a name="method-class-basename"></a>
+
+#### `class_basename()`
+
+`class_basename`関数は、クラスの名前空間を削除した与えられた class の class 名を返します:
+
+```php
+$class = class_basename('Foo\Bar\Baz');
+
+// Baz
+```
+
+<a name="method-e"></a>
+
+#### `e()`
+
+`e` function は、default で `double_encode` オプションを `true` に設定して PHP の `htmlspecialchars` function を実行します。
+
+```php
+echo e('<html>foo</html>');
+
+// &lt;html&gt;foo&lt;/html&gt;
+```
+
+<a name="method-preg-replace-array"></a>
+
+#### `preg_replace_array()`
+
+`preg_replace_array` 関数は、与えられたパターンを string に順次、 array を使用して置き換えます。
+
+```php
+$string = 'The event will take place between :start and :end';
+
+$replaced = preg_replace_array('/:[a-z_]+/', ['8:30', '9:00'], $string);
+
+// The event will take place between 8:30 and 9:00
+```
+
+<a name="method-str-after"></a>
+
+#### `Str::after()`
+
+`Str::after` method は、指定された value の後にある全てを string として返します。もし、 string 内に value が存在しない場合、その全ての string が返されます。
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::after('This is my name', 'This is');
+
+// ' my name'
+```
+
+<a name="method-str-after-last"></a>
+
+#### `Str::afterLast()`
+
+`Str::afterLast`の method は、与えられた value の最後の出現後のすべてを string として返します。もし value が string の中に存在しない場合、 string 全体が返されます。
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::afterLast('App\Http\Controllers\Controller', '\\');
+
+// 'Controller'
+```
+
+<a name="method-str-apa"></a>
+
+#### `Str::apa()`
+
+`Str::apa` method は、与えられた string を、[APA ガイドライン](https://apastyle.apa.org/style-grammar-guidelines/capitalization/title-case)に従ってタイトルケースに変換します:
+
+```php
+use Illuminate\Support\Str;
+
+$title = Str::apa('Creating A Project');
+
+// 'Creating a Project'
+```
+
+<a name="method-str-ascii"></a>
+
+#### `Str::ascii()`
+
+`Str::ascii`の method は、string を ASCIIvalues に転写しようと試みます:
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::ascii('û');
+
+// 'u'
+```
+
+<a name="method-str-before"></a>
+
+#### `Str::before()`
+
+`Str::before` method は、指定された value より前のすべてを string で返します。
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::before('This is my name', 'my name');
+
+// 'This is '
+```
+
+<a name="method-str-before-last"></a>
+
+#### `Str::beforeLast()`
+
+`Str::beforeLast` method は、指定された value の最後の出現の前の全てを string で返します：
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::beforeLast('This is my name', 'is');
+
+// 'This '
+```
+
+<a name="method-str-between"></a>
+
+#### `Str::between()`
+
+`Str::between` method は、二つの values の間の string の一部を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::between('This is my name', 'This', 'name');
+
+// ' is my '
+```
+
+<a name="method-str-between-first"></a>
+
+#### `Str::betweenFirst()`
+
+`Str::betweenFirst` method は、二つの values の間の string のうちで最も小さい部分を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::betweenFirst('[a] bc [d]', '[', ']');
+
+// 'a'
+```
+
+<a name="method-camel-case"></a>
+
+#### `Str::camel()`
+
+`Str::camel`の method は与えられた string を`camelCase`に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::camel('foo_bar');
+
+// 'fooBar'
+```
+
+<a name="method-char-at"></a>
+
+#### `Str::charAt()`
+
+`Str::charAt` method は、指定されたインデックスの文字を返します。インデックスが範囲外の場合、`false`が返されます：
+
+```php
+use Illuminate\Support\Str;
+
+$character = Str::charAt('This is my name.', 6);
+
+// 's'
+```
+
+<a name="method-str-contains"></a>
+
+#### `Str::contains()`
+
+`Str::contains` method は、指定された string が指定された value を含むかどうかを判断します。この method は大文字と小文字を区別します。
+
+```php
+use Illuminate\Support\Str;
+
+$contains = Str::contains('This is my name', 'my');
+
+// true
+```
+
+与えられた string が array の中のいずれかの values を含んでいるかどうかを判断するために、 values の array も渡すことができます。
+
+```php
+use Illuminate\Support\Str;
+
+$contains = Str::contains('This is my name', ['my', 'foo']);
+
+// true
+```
+
+<a name="method-str-contains-all"></a>
+
+#### `Str::containsAll()`
+
+`Str::containsAll` method は、指定された string が与えられた array 内のすべての values を含むかどうかを判断します:
+
+```php
+use Illuminate\Support\Str;
+
+$containsAll = Str::containsAll('This is my name', ['my', 'name']);
+
+// true
+```
+
+<a name="method-ends-with"></a>
+
+#### `Str::endsWith()`
+
+`Str::endsWith` method は、指定した string が指定した value で終わるかどうかを判断します:
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::endsWith('This is my name', 'name');
+
+// true
+```
+
+指定した string が array 内のいずれかの values で終わっているかどうかを判断するために、 values の array を渡すこともできます：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::endsWith('This is my name', ['name', 'foo']);
+
+// true
+
+$result = Str::endsWith('This is my name', ['this', 'foo']);
+
+// false
+```
+
+<a name="method-excerpt"></a>
+
+#### `Str::excerpt()`
+
+`Str::excerpt`の method は、与えられた string から、その string 中で最初に一致するフレーズの抜粋を抽出します。
+
+```php
+use Illuminate\Support\Str;
+
+$excerpt = Str::excerpt('This is my name', 'my', [
+    'radius' => 3
+]);
+
+// '...is my na...'
+```
+
+`radius`option は、default で`100`に設定されており、切り捨てられる string の両側に表示されるべき文字数を定義することができます。
+
+また、`omission`オプションを使用して、切り捨てられた string の前後に追加される string を定義することもできます：
+
+```php
+use Illuminate\Support\Str;
+
+$excerpt = Str::excerpt('This is my name', 'name', [
+    'radius' => 3,
+    'omission' => '(...) '
+]);
+
+// '(...) my name'
+```
+
+<a name="method-str-finish"></a>
+
+#### `Str::finish()`
+
+`Str::finish`の method は、指定された value がすでに string の末尾にない場合に、単一のインスタンスを追加します。
+
+```php
+use Illuminate\Support\Str;
+
+$adjusted = Str::finish('this/string', '/');
+
+// this/string/
+
+$adjusted = Str::finish('this/string/', '/');
+
+// this/string/
+```
+
+<a name="method-str-headline"></a>
+
+#### `Str::headline()`
+
+`Str::headline` method はケーシング、ハイフン、アンダースコアで区切られた string を、各単語の最初の文字が大文字のスペースで区切られた string に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$headline = Str::headline('steve_jobs');
+
+// Steve Jobs
+
+$headline = Str::headline('EmailNotificationSent');
+
+// Email Notification Sent
+```
+
+<a name="method-str-inline-markdown"></a>
+
+#### `Str::inlineMarkdown()`
+
+`Str::inlineMarkdown` method は、[CommonMark](https://commonmark.thephpleague.com/)を使用して、 GitHub 風の Markdown をインラインの HTML に変換します。ただし、`markdown` method とは異なり、生成されたすべての HTML をブロックレベルの要素にはラップしません。
+
+```php
+use Illuminate\Support\Str;
+
+$html = Str::inlineMarkdown('**Laravel**');
+
+// <strong>Laravel</strong>
+```
+
+#### Markdown セキュリティ
+
+default では、Markdown は生の HTML をサポートしており、生の user 入力とともに使用すると、クロスサイトスクリプティング(XSS)の脆弱性を露呈します。[CommonMark Security documentation](https://commonmark.thephpleague.com/security/)によれば、`html_input` option を使用して生の HTML をエスケープまたは削除し、`allow_unsafe_links` option を使用して安全でない links を許可するかどうかを指定できます。一部の生の HTML を許可する必要がある場合は、コンパイルされた Markdown を HTML Purifier を通してください。
+
+```php
+use Illuminate\Support\Str;
+
+Str::inlineMarkdown('Inject: <script>alert("Hello XSS!");</script>', [
+    'html_input' => 'strip',
+    'allow_unsafe_links' => false,
+]);
+
+// Inject: alert(&quot;Hello XSS!&quot;);
+```
+
+<a name="method-str-is"></a>
+
+#### `Str::is()`
+
+`Str::is` method は、指定された string が指定されたパターンと一致するかどうかを判断します。アスタリスクはワイルドカードとして使用することが可能な values として使うことができます。
+
+```php
+use Illuminate\Support\Str;
+
+$matches = Str::is('foo*', 'foobar');
+
+// true
+
+$matches = Str::is('baz*', 'foobar');
+
+// false
+```
+
+<a name="method-str-is-ascii"></a>
+
+#### `Str::isAscii()`
+
+`Str::isAscii` method は、指定された string が 7 ビットの ASCII であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$isAscii = Str::isAscii('Taylor');
+
+// true
+
+$isAscii = Str::isAscii('ü');
+
+// false
+```
+
+<a name="method-str-is-json"></a>
+
+#### `Str::isJson()`
+
+`Str::isJson` method は、与えられた string が有効な JSON であるかどうかを判断します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::isJson('[1,2,3]');
+
+// true
+
+$result = Str::isJson('{"first": "John", "last": "Doe"}');
+
+// true
+
+$result = Str::isJson('{first: "John", last: "Doe"}');
+
+// false
+```
+
+<a name="method-str-is-url"></a>
+
+#### `Str::isUrl()`
+
+`Str::isUrl` method は、指定された string が有効な URL であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$isUrl = Str::isUrl('http://example.com');
+
+// true
+
+$isUrl = Str::isUrl('laravel');
+
+// false
+```
+
+`isUrl` method は、様々なプロトコルを有効とみなします。しかし、有効とみなすべきプロトコルを指定することができます。それを`isUrl` method に提供することで：
+
+```php
+$isUrl = Str::isUrl('http://example.com', ['http', 'https']);
+```
+
+<a name="method-str-is-ulid"></a>
+
+#### `Str::isUlid()`
+
+`Str::isUlid` method は、与えられた string が有効な ULID であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$isUlid = Str::isUlid('01gd6r360bp37zj17nxb55yv40');
+
+// true
+
+$isUlid = Str::isUlid('laravel');
+
+// false
+```
+
+<a name="method-str-is-uuid"></a>
+
+#### `Str::isUuid()`
+
+`Str::isUuid` method は、指定された string が有効な UUID であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$isUuid = Str::isUuid('a0a2a2d2-0b87-4a18-83f2-2529882be2de');
+
+// true
+
+$isUuid = Str::isUuid('laravel');
+
+// false
+```
+
+<a name="method-kebab-case"></a>
+
+#### `Str::kebab()`
+
+`Str::kebab` method は、指定された string を`kebab-case`に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::kebab('fooBar');
+
+// foo-bar
+```
+
+<a name="method-str-lcfirst"></a>
+
+#### `Str::lcfirst()`
+
+`Str::lcfirst` method は、与えられた string の最初の文字を小文字にして返します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::lcfirst('Foo Bar');
+
+// foo Bar
+```
+
+<a name="method-str-length"></a>
+
+#### `Str::length()`
+
+`Str::length` method は、与えられた string の length を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$length = Str::length('Laravel');
+
+// 7
+```
+
+<a name="method-str-limit"></a>
+
+#### `Str::limit()`
+
+`Str::limit` method は、指定された length まで与えられた string を切り詰めます：
+
+```php
+use Illuminate\Support\Str;
+
+$truncated = Str::limit('The quick brown fox jumps over the lazy dog', 20);
+
+// The quick brown fox...
+```
+
+あなたは、切り捨てられた string の最後に追加される string を変更するために、 method に第三の引数を渡すことができます：
+
+```php
+use Illuminate\Support\Str;
+
+$truncated = Str::limit('The quick brown fox jumps over the lazy dog', 20, ' (...)');
+
+// The quick brown fox (...)
+```
+
+<a name="method-str-lower"></a>
+
+#### `Str::lower()`
+
+`Str::lower` method は与えられた string を小文字に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::lower('LARAVEL');
+
+// laravel
+```
+
+<a name="method-str-markdown"></a>
+
+#### `Str::markdown()`
+
+`Str::markdown`の method は、[CommonMark](https://commonmark.thephpleague.com/)を使って GitHub 風の Markdown を HTML に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$html = Str::markdown('# Laravel');
+
+// <h1>Laravel</h1>
+
+$html = Str::markdown('# Taylor <b>Otwell</b>', [
+    'html_input' => 'strip',
+]);
+
+// <h1>Taylor Otwell</h1>
+```
+
+#### Markdown セキュリティ
+
+default では、Markdown は生の HTML をサポートしており、生の user 入力と一緒に使用すると Cross-Site Scripting(XSS)の脆弱性が露呈します。[CommonMark Security documentation](https://commonmark.thephpleague.com/security/)によると、`html_input`option を使用して生の HTML をエスケープまたはストリップし、`allow_unsafe_links`option を使用して安全でない links を許可するかどうかを指定できます。生の HTML の一部を許可する必要がある場合は、コンパイル済みの Markdown を HTML パリファイアを通して処理するべきです：
+
+```php
+use Illuminate\Support\Str;
+
+Str::markdown('Inject: <script>alert("Hello XSS!");</script>', [
+    'html_input' => 'strip',
+    'allow_unsafe_links' => false,
+]);
+
+// <p>Inject: alert(&quot;Hello XSS!&quot;);</p>
+```
+
+<a name="method-str-mask"></a>
+
+#### `Str::mask()`
+
+`Str::mask`method は string の一部を繰り返し文字でマスクし、メールアドレスや電話番号などの string のセグメントを難読化するために使用できます。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::mask('taylor@example.com', '*', 3);
+
+// tay***************
+```
+
+必要な場合、3 つ目の引数としてマイナスの数値を`mask` method に提供します。これにより、 method は、 string の終わりから指定した距離でマスキングを開始するよう指示します。
+
+```php
+$string = Str::mask('taylor@example.com', '*', -15, 3);
+
+// tay***@example.com
+```
+
+<a name="method-str-ordered-uuid"></a>
+
+#### `Str::orderedUuid()`
+
+`Str::orderedUuid` method は、timestamp を最初に配置した database column を生成し、それを効率的にインデックス付き database 列に保存することができます。この method を使用して生成されるすべての UUID は、 method を使用して以前に生成された UUID の後に並べられます。
+
+```php
+use Illuminate\Support\Str;
+
+return (string) Str::orderedUuid();
+```
+
+<a name="method-str-padboth"></a>
+
+#### `Str::padBoth()`
+
+`Str::padBoth` method は、PHP の`str_pad`関数をラップし、最終的な string が所望の長さに達するまで、他の string で string の両側を埋めます:
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::padBoth('James', 10, '_');
+
+// '__James___'
+
+$padded = Str::padBoth('James', 10);
+
+// '  James   '
+```
+
+<a name="method-str-padleft"></a>
+
+#### `Str::padLeft()`
+
+`Str::padLeft` method は PHP の`str_pad`関数をラップし、最終的な string が目的の長さに達するまで、他の string で string の左側をパディングします。
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::padLeft('James', 10, '-=');
+
+// '-=-=-James'
+
+$padded = Str::padLeft('James', 10);
+
+// '     James'
+```
+
+<a name="method-str-padright"></a>
+
+#### `Str::padRight()`
+
+`Str::padRight` method は、PHP の`str_pad`関数をラップし、右側を別の string で埋めて、最終的な string が目的の長さに達するまでパディングします。
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::padRight('James', 10, '-');
+
+// 'James-----'
+
+$padded = Str::padRight('James', 10);
+
+// 'James     '
+```
+
+<a name="method-str-password"></a>
+
+#### `Str::password()`
+
+`Str::password` method は、与えられた長さの安全な、ランダムな path ワードを生成するために使用することができます。 passwords は、文字、数字、記号、空白の組み合わせで構成されます。 default では、passwords は 32 文字の長さです。
+
+```php
+use Illuminate\Support\Str;
+
+$password = Str::password();
+
+// 'EbJo2vE-AS:U,$%_gkrV4n,q~1xy/-_4'
+
+$password = Str::password(12);
+
+// 'qwuar>#V|i]N'
+```
+
+<a name="method-str-plural"></a>
+
+#### `Str::plural()`
+
+`Str::plural`の method は、単数形の単語 string をその複数形に変換します。この関数は[Laravel の複数形化機能がサポートするどの言語でも](/ja/php/laravel/v11.x/05-digging-deeper/localization#pluralization-language)対応しています。
+
+```php
+use Illuminate\Support\Str;
+
+$plural = Str::plural('car');
+
+// cars
+
+$plural = Str::plural('child');
+
+// children
+```
+
+関数の第二引数として integer を指定すると、 string の単数形または複数形を取得できます：
+
+```php
+use Illuminate\Support\Str;
+
+$plural = Str::plural('child', 2);
+
+// children
+
+$singular = Str::plural('child', 1);
+
+// child
+```
+
+<a name="method-str-plural-studly"></a>
+
+#### `Str::pluralStudly()`
+
+`Str::pluralStudly` method は、スタッドリーキャップスケースでフォーマットされた単数形の単語 string をその複数形に変換します。この関数は、[Laravel の複数形変換器がサポートする任意の言語](/ja/php/laravel/v11.x/05-digging-deeper/localization#pluralization-language)をサポートしています：
+
+```php
+use Illuminate\Support\Str;
+
+$plural = Str::pluralStudly('VerifiedHuman');
+
+// VerifiedHumans
+
+$plural = Str::pluralStudly('UserFeedback');
+
+// UserFeedback
+```
+
+関数の第二引数として integer を指定することで、 string の単数形または複数形を取得することができます:
+
+```php
+use Illuminate\Support\Str;
+
+$plural = Str::pluralStudly('VerifiedHuman', 2);
+
+// VerifiedHumans
+
+$singular = Str::pluralStudly('VerifiedHuman', 1);
+
+// VerifiedHuman
+```
+
+<a name="method-str-position"></a>
+
+#### `Str::position()`
+
+`Str::position` method は、 string 内で部分文字列が初めて出現する位置を返します。もし部分文字列が指定された string 内に存在しない場合、`false`が返されます。
+
+```php
+use Illuminate\Support\Str;
+
+$position = Str::position('Hello, World!', 'Hello');
+
+// 0
+
+$position = Str::position('Hello, World!', 'W');
+
+// 7
+```
+
+<a name="method-str-random"></a>
+
+#### `Str::random()`
+
+`Str::random` method は、指定された長さのランダムな string を生成します。この関数は PHP の`random_bytes`関数を使用します。
+
+```php
+use Illuminate\Support\Str;
+
+$random = Str::random(40);
+```
+
+testing の間、`Str::random` method によって返される value を偽装することが有用かもしれません。これを達成するために、`createRandomStringsUsing` method を使用することができます。
+
+```php
+Str::createRandomStringsUsing(function () {
+    return 'fake-random-string';
+});
+```
+
+`random` method が通常どおりにランダムな strings を生成するように指示するには、`createRandomStringsNormally` method を呼び出すことができます。
+
+```php
+Str::createRandomStringsNormally();
+```
+
+<a name="method-str-remove"></a>
+
+#### `Str::remove()`
+
+`Str::remove` method は、指定された value または array の values を string から削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = 'Peter Piper picked a peck of pickled peppers.';
+
+$removed = Str::remove('e', $string);
+
+// Ptr Pipr pickd a pck of pickld ppprs.
+```
+
+string を削除する際に、大文字小文字を ignore するために、`remove` method への第三引数として`false`を渡すこともできます。
+
+<a name="method-str-repeat"></a>
+
+#### `Str::repeat()`
+
+`Str::repeat` method は与えられた string を繰り返します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = 'a';
+
+$repeat = Str::repeat($string, 5);
+
+// aaaaa
+```
+
+<a name="method-str-replace"></a>
+
+#### `Str::replace()`
+
+`Str::replace` method は、与えられた string を string 内で置き換えます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = 'Laravel 10.x';
+
+$replaced = Str::replace('10.x', '11.x', $string);
+
+// Laravel 11.x
+```
+
+`replace` method はまた、`caseSensitive`引数を受け入れます。 default では、`replace` method は大文字と小文字を区別します：
+
+```php
+Str::replace('Framework', 'Laravel', caseSensitive: false);
+```
+
+<a name="method-str-replace-array"></a>
+
+#### `Str::replaceArray()`
+
+`Str::replaceArray` method は、与えられた value を string の中で順次、 array を使用して置換します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = 'The event will take place between ? and ?';
+
+$replaced = Str::replaceArray('?', ['8:30', '9:00'], $string);
+
+// The event will take place between 8:30 and 9:00
+```
+
+<a name="method-str-replace-first"></a>
+
+#### `Str::replaceFirst()`
+
+`Str::replaceFirst` method は、 string 内の指定した value の最初の出現を置換します:
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::replaceFirst('the', 'a', 'the quick brown fox jumps over the lazy dog');
+
+// a quick brown fox jumps over the lazy dog
+```
+
+<a name="method-str-replace-last"></a>
+
+#### `Str::replaceLast()`
+
+`Str::replaceLast` method は、指定された value の string の最後の出現箇所を置換します。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::replaceLast('the', 'a', 'the quick brown fox jumps over the lazy dog');
+
+// the quick brown fox jumps over a lazy dog
+```
+
+<a name="method-str-replace-matches"></a>
+
+#### `Str::replaceMatches()`
+
+`Str::replaceMatches` method は、指定された置換 string でパターンに一致する string のすべての部分を置き換えます。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::replaceMatches(
+    pattern: '/[^A-Za-z0-9]++/',
+    replace: ,
+    subject: '(+1) 501-555-1000'
+)
+
+// '15015551000'
+```
+
+`replaceMatches` method は、与えられたパターンに一致する string の各部分で呼び出されるクロージャも受け入れます。これにより、クロージャ内で置換ロジックを実行し、置換された value を返すことができます：
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::replaceMatches('/\d/', function (array $matches) {
+    return '['.$matches[0].']';
+}, '123');
+
+// '[1][2][3]'
+```
+
+<a name="method-str-replace-start"></a>
+
+#### `Str::replaceStart()`
+
+`Str::replaceStart` method は、指定された value が string の最初に現れる場合にのみ、その最初の出現を置換します:
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::replaceStart('Hello', 'Laravel', 'Hello World');
+
+// Laravel World
+
+$replaced = Str::replaceStart('World', 'Laravel', 'Hello World');
+
+// Hello World
+```
+
+<a name="method-str-replace-end"></a>
+
+#### `Str::replaceEnd()`
+
+`Str::replaceEnd`の method は、指定された value が string の末尾にある場合にのみ、その最後の出現を置き換えます。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::replaceEnd('World', 'Laravel', 'Hello World');
+
+// Hello Laravel
+
+$replaced = Str::replaceEnd('Hello', 'Laravel', 'Hello World');
+
+// Hello World
+```
+
+<a name="method-str-reverse"></a>
+
+#### `Str::reverse()`
+
+`Str::reverse` method は与えられた string を逆にします。
+
+```php
+use Illuminate\Support\Str;
+
+$reversed = Str::reverse('Hello World');
+
+// dlroW olleH
+```
+
+<a name="method-str-singular"></a>
+
+#### `Str::singular()`
+
+`Str::singular` method は、 string をその単数形に変換します。この関数は、[Laravel の複数形機能が対応しているすべての言語](/ja/php/laravel/v11.x/05-digging-deeper/localization#pluralization-language)をサポートしています：
+
+```php
+use Illuminate\Support\Str;
+
+$singular = Str::singular('cars');
+
+// car
+
+$singular = Str::singular('children');
+
+// child
+```
+
+<a name="method-str-slug"></a>
+
+#### `Str::slug()`
+
+`Str::slug` method は、与えられた string から URL に優しい"slug"を生成します:
+
+```php
+use Illuminate\Support\Str;
+
+$slug = Str::slug('Laravel 5 Framework', '-');
+
+// laravel-5-framework
+```
+
+<a name="method-snake-case"></a>
+
+#### `Str::snake()`
+
+`Str::snake` method は与えられた string を`snake_case`に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::snake('fooBar');
+
+// foo_bar
+
+$converted = Str::snake('fooBar', '-');
+
+// foo-bar
+```
+
+<a name="method-str-squish"></a>
+
+#### `Str::squish()`
+
+`Str::squish` method は、 string から余分な空白をすべて削除します。これには、単語間の余分な空白も含まれます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::squish('    laravel    framework    ');
+
+// laravel framework
+```
+
+<a name="method-str-start"></a>
+
+#### `Str::start()`
+
+`Str::start`の method は、指定された value がすでに string の最初に存在しない場合、その value を一つ追加します。
+
+```php
+use Illuminate\Support\Str;
+
+$adjusted = Str::start('this/string', '/');
+
+// /this/string
+
+$adjusted = Str::start('/this/string', '/');
+
+// /this/string
+```
+
+<a name="method-starts-with"></a>
+
+#### `Str::startsWith()`
+
+`Str::startsWith` method は、与えられた string が与えられた value で始まるかどうかを判断します:
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::startsWith('This is my name', 'This');
+
+// true
+```
+
+values の array が渡されると、`startsWith` method は与えられた values のいずれかで string が始まる場合、`true`を返します。
+
+```php
+$result = Str::startsWith('This is my name', ['This', 'That', 'There']);
+
+// true
+```
+
+<a name="method-studly-case"></a>
+
+#### `Str::studly()`
+
+`Str::studly` method は、指定された string を`StudlyCase`に変換します:
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::studly('foo_bar');
+
+// FooBar
+```
+
+<a name="method-str-substr"></a>
+
+#### `Str::substr()`
+
+`Str::substr` method は、開始と length パラメータで指定された string の 一部を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::substr('The Laravel Framework', 4, 7);
+
+// Laravel
+```
+
+<a name="method-str-substrcount"></a>
+
+#### `Str::substrCount()`
+
+`Str::substrCount` method は、指定された string 内の指定された value の出現回数を返します。
+
+```php
+use Illuminate\Support\Str;
+
+$count = Str::substrCount('If you like ice cream, you will like snow cones.', 'like');
+
+// 2
+```
+
+<a name="method-str-substrreplace"></a>
+
+#### `Str::substrReplace()`
+
+`Str::substrReplace` method は、第三引数で指定した位置から始まり、第四引数で指定した文字数を置き換えることで、 string の一部にあるテキストを置き換えます。 メソッドの第四引数に`0`を渡すと、既存の string の任意の文字を置き換えずに指定した位置に string を insert します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::substrReplace('1300', ':', 2);
+// 13:
+
+$result = Str::substrReplace('1300', ':', 2, 0);
+// 13:00
+```
+
+<a name="method-str-swap"></a>
+
+#### `Str::swap()`
+
+`Str::swap` method は、指定された string 内の複数の values を PHP の`strtr`関数を使用して置換します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::swap([
+    'Tacos' => 'Burritos',
+    'great' => 'fantastic',
+], 'Tacos are great!');
+
+// Burritos are fantastic!
+```
+
+<a name="method-take"></a>
+
+#### `Str::take()`
+
+`Str::take` method は、 string の先頭から指定された数の文字を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$taken = Str::take('Build something amazing!', 5);
+
+// Build
+```
+
+<a name="method-title-case"></a>
+
+#### `Str::title()`
+
+`Str::title`の method は、与えられた string を`Title Case`に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::title('a nice title uses the correct case');
+
+// A Nice Title Uses The Correct Case
+```
+
+<a name="method-str-to-base64"></a>
+
+#### `Str::toBase64()`
+
+`Str::toBase64`の method は与えられた string を Base64 に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$base64 = Str::toBase64('Laravel');
+
+// TGFyYXZlbA==
+```
+
+<a name="method-str-to-html-string"></a>
+
+#### `Str::toHtmlString()`
+
+`Str::toHtmlString` method は string インスタンスを`Illuminate\Support\HtmlString`インスタンスに変換します。これは Blade テンプレートで表示することができます:
+
+```php
+use Illuminate\Support\Str;
+
+$htmlString = Str::of('Nuno Maduro')->toHtmlString();
+```
+
+<a name="method-str-trim"></a>
+
+#### `Str::trim()`
+
+`Str::trim` method は、指定された string の先頭と末尾から空白(または他の文字)を削除します。PHP のネイティブな `trim` 関数とは異なり、`Str::trim` method はユニコード空白文字も削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::trim(' foo bar ');
+
+// 'foo bar'
+```
+
+<a name="method-str-ltrim"></a>
+
+#### `Str::ltrim()`
+
+`Str::ltrim` method は、与えられた string の先頭から空白(またはその他の文字)を削除します。PHP のネイティブな `ltrim` 関数とは異なり、`Str::ltrim` method はユニコードの空白文字も削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::ltrim('  foo bar  ');
+
+// 'foo bar  '
+```
+
+<a name="method-str-rtrim"></a>
+
+#### `Str::rtrim()`
+
+`Str::rtrim` method は、与えられた string の終わりから空白(または他の文字)を削除します。PHP のネイティブ`rtrim`関数とは異なり、`Str::rtrim` method ではユニコード空白文字も削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::rtrim('  foo bar  ');
+
+// '  foo bar'
+```
+
+<a name="method-str-ucfirst"></a>
+
+#### `Str::ucfirst()`
+
+`Str::ucfirst`の method は、与えられた string の最初の文字を大文字にして返します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::ucfirst('foo bar');
+
+// Foo bar
+```
+
+<a name="method-str-ucsplit"></a>
+
+#### `Str::ucsplit()`
+
+`Str::ucsplit` method は、与えられた string を大文字の文字で array に分割します。
+
+```php
+use Illuminate\Support\Str;
+
+$segments = Str::ucsplit('FooBar');
+
+// [0 => 'Foo', 1 => 'Bar']
+```
+
+<a name="method-str-upper"></a>
+
+#### `Str::upper()`
+
+`Str::upper` method は指定した string を大文字に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::upper('laravel');
+
+// LARAVEL
+```
+
+<a name="method-str-ulid"></a>
+
+#### `Str::ulid()`
+
+`Str::ulid` method は、コンパクトで時間順序のある unique な識別子である ULID を生成します：
+
+```php
+use Illuminate\Support\Str;
+
+return (string) Str::ulid();
+
+// 01gd6r360bp37zj17nxb55yv40
+```
+
+指定した ULID が作成された日時を表す`Illuminate\Support\Carbon`日付インスタンスを取得したい場合、Laravel の Carbon インテグレーションによって提供された `createFromId` method を使用することができます：
+
+```php
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+
+$date = Carbon::createFromId((string) Str::ulid());
+```
+
+testing 中には、(`Str::ulid`)の method が返す value を偽造することが有用かもしれません。これを達成するためには、`createUlidsUsing` method を使用することができます：
+
+```php
+use Symfony\Component\Uid\Ulid;
+
+Str::createUlidsUsing(function () {
+    return new Ulid('01HRDBNHHCKNW2AK4Z29SN82T9');
+});
+```
+
+`ulid` method に ULID の生成を通常通りに戻すよう指示するには、`createUlidsNormally` method を呼び出すことができます。
+
+```php
+Str::createUlidsNormally();
+```
+
+<a name="method-str-unwrap"></a>
+
+#### `Str::unwrap()`
+
+`Str::unwrap` method は、指定された文字列を与えられた string の始まりと終わりから削除します:
+
+```php
+use Illuminate\Support\Str;
+
+Str::unwrap('-Laravel-', '-');
+
+// Laravel
+
+Str::unwrap('{framework: "Laravel"}', '{', '}');
+
+// framework: "Laravel"
+```
+
+<a name="method-str-uuid"></a>
+
+#### `Str::uuid()`
+
+`Str::uuid` method は、 UUID (バージョン 4)を生成します：
+
+```php
+use Illuminate\Support\Str;
+
+return (string) Str::uuid();
+```
+
+testing 中には、`Str::uuid` method によって返される value をフェイクすることが役立つかもしれません。そのためには、`createUuidsUsing` method を使用できます：
+
+```php
+use Ramsey\Uuid\Uuid;
+
+Str::createUuidsUsing(function () {
+    return Uuid::fromString('eadbfeac-5258-45c2-bab7-ccb9b5ef74f9');
+});
+```
+
+`uuid` method に UUID の生成を通常通りに戻すよう指示するには、`createUuidsNormally` method を呼び出すことができます。
+
+```php
+Str::createUuidsNormally();
+```
+
+<a name="method-str-word-count"></a>
+
+#### `Str::wordCount()`
+
+`Str::wordCount` method は、 string が含む単語の数を返します。
+
+```php
+use Illuminate\Support\Str;
+
+Str::wordCount('Hello, world!'); // 2
+```
+
+<a name="method-str-word-wrap"></a>
+
+#### `Str::wordWrap()`
+
+`Str::wordWrap` method は、指定した文字数に string を折り返します。
+
+```php
+use Illuminate\Support\Str;
+
+$text = "The quick brown fox jumped over the lazy dog."
+
+Str::wordWrap($text, characters: 20, break: "<br />\n");
+
+/*
+The quick brown fox<br />
+jumped over the lazy<br />
+dog.
+*/
+```
+
+<a name="method-str-words"></a>
+
+#### `Str::words()`
+
+`Str::words` method は、 string 内の単語の数を制限します。 別の string をこの method の第 3 引数を通じて渡すことができ、切り詰められた string の最後にどの string を追加するかを指定します：
+
+```php
+use Illuminate\Support\Str;
+
+return Str::words('Perfectly balanced, as all things should be.', 3, ' >>>');
+
+// Perfectly balanced, as >>>
+```
+
+<a name="method-str-wrap"></a>
+
+#### `Str::wrap()`
+
+`Str::wrap` method は、指定された string を追加の string または一対の string で包み込みます:
+
+```php
+use Illuminate\Support\Str;
+
+Str::wrap('Laravel', '"');
+
+// "Laravel"
+
+Str::wrap('is', before: 'This ', after: ' Laravel!');
+
+// This is Laravel!
+```
+
+<a name="method-str"></a>
+
+#### `str()`
+
+`str`関数は与えられた string の新しい`Illuminate\Support\Stringable`インスタンスを返します。この関数は`Str::of` method と同等です。
+
+```php
+$string = str('Taylor')->append(' Otwell');
+
+// 'Taylor Otwell'
+```
+
+`str`関数に引数が提供されない場合、その関数は`Illuminate\Support\Str`のインスタンスを返します：
+
+```php
+$snake = str()->snake('FooBar');
+
+// 'foo_bar'
+```
+
+<a name="method-trans"></a>
+
+#### `trans()`
+
+`trans`関数は指定された翻訳キーをあなたの[言語ファイル](/ja/php/laravel/v11.x/05-digging-deeper/localization)を使用して翻訳します：
+
+```php
+echo trans('messages.welcome');
+```
+
+指定された翻訳キーが存在しない場合、`trans`関数は指定されたキーを返します。したがって、上記の例を使用すると、翻訳キーが存在しない場合、`trans`関数は`messages.welcome`を返すでしょう。
+
+<a name="method-trans-choice"></a>
+
+#### `trans_choice()`
+
+`trans_choice` 関数は、指定された翻訳キーを活用形で翻訳します：
+
+```php
+echo trans_choice('messages.notifications', $unreadCount);
+```
+
+指定された翻訳キーが存在しない場合、`trans_choice`関数は与えられたキーを返します。したがって、上記の例を使用すると、翻訳キーが存在しない場合、`trans_choice`関数は`messages.notifications`を返します。
+
+<a name="fluent-strings"></a>
+
+## Fluent Strings
+
+Fluent strings は、string values を操作するためのより流暢で、object 指向のインターフェースを提供します。これにより、伝統的な string 操作と比べてより読みやすい syntax を使用して、複数の string 操作を一緒に連鎖させることができます。
+
+<a name="method-fluent-str-after"></a>
+
+#### `after`
+
+`after` method は、指定された value の後にあるすべてを string として返します。 value が string 内に存在しない場合、 string 全体が返されます。
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::of('This is my name')->after('This is');
+
+// ' my name'
+```
+
+<a name="method-fluent-str-after-last"></a>
+
+#### `afterLast`
+
+`afterLast` method は、指定した value の最後の出現後のすべてを返します。指定した value が string 内に存在しない場合、string 全体が返されます。
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::of('App\Http\Controllers\Controller')->afterLast('\\');
+
+// 'Controller'
+```
+
+<a name="method-fluent-str-apa"></a>
+
+#### `apa`
+
+`apa` method は、指定された string を [APA ガイドライン]((https://apastyle.apa.org/style-grammar-guidelines/capitalization/title-case) に従ってタイトルケースに変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('a nice title uses the correct case')->apa();
+
+// A Nice Title Uses the Correct Case
+```
+
+<a name="method-fluent-str-append"></a>
+
+#### `append`
+
+`append` method appends 与えられた values を string に追加します:
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Taylor')->append(' Otwell');
+
+// 'Taylor Otwell'
+```
+
+<a name="method-fluent-str-ascii"></a>
+
+#### `ascii`
+
+`ascii`の method は string を ASCII value に転写しようと attempt します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('ü')->ascii();
+
+// 'u'
+```
+
+<a name="method-fluent-str-basename"></a>
+
+#### `basename`
+
+`basename`の method は、指定された string の末尾の名前 component を返します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('/foo/bar/baz')->basename();
+
+// 'baz'
+```
+
+必要に応じて、末尾の " component " から削除される "extension" を提供することができます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('/foo/bar/baz.jpg')->basename('.jpg');
+
+// 'baz'
+```
+
+<a name="method-fluent-str-before"></a>
+
+#### `before`
+
+`before` method は、 string 内で指定した value の前にあるすべてを返します：
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::of('This is my name')->before('my name');
+
+// 'This is '
+```
+
+<a name="method-fluent-str-before-last"></a>
+
+#### `beforeLast`
+
+`beforeLast` method は、指定された value の最後の出現前の全てを string で返します。
+
+```php
+use Illuminate\Support\Str;
+
+$slice = Str::of('This is my name')->beforeLast('is');
+
+// 'This '
+```
+
+<a name="method-fluent-str-between"></a>
+
+#### `between`
+
+`between` method は、二つの values の間の string の一部を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('This is my name')->between('This', 'name');
+
+// ' is my '
+```
+
+<a name="method-fluent-str-between-first"></a>
+
+#### `betweenFirst`
+
+`betweenFirst` method は、二つの values の間にある string の中で最も小さい部分を返します。
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('[a] bc [d]')->betweenFirst('[', ']');
+
+// 'a'
+```
+
+<a name="method-fluent-str-camel"></a>
+
+#### `camel`
+
+`camel` method は、指定された string を `camelCase`に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('foo_bar')->camel();
+
+// 'fooBar'
+```
+
+<a name="method-fluent-str-char-at"></a>
+
+#### `charAt`
+
+`charAt` method は指定されたインデックスにある文字を返します。 インデックスが範囲外の場合、`false`が返されます。
+
+```php
+use Illuminate\Support\Str;
+
+$character = Str::of('This is my name.')->charAt(6);
+
+// 's'
+```
+
+<a name="method-fluent-str-class-basename"></a>
+
+#### `classBasename`
+
+`classBasename`method は、指定された class の名前をクラスのネームスペースを除去して返します。
+
+```php
+use Illuminate\Support\Str;
+
+$class = Str::of('Foo\Bar\Baz')->classBasename();
+
+// 'Baz'
+```
+
+<a name="method-fluent-str-contains"></a>
+
+#### `contains`
+
+`contains` method は、与えられた string が指定した value を含んでいるかどうかを判断します。この method は大文字と小文字を区別します：
+
+```php
+use Illuminate\Support\Str;
+
+$contains = Str::of('This is my name')->contains('my');
+
+// true
+```
+
+また、与えられた string が array の中のどれかの values を含むかどうかを判断するために、 values の array を渡すこともできます。
+
+```php
+use Illuminate\Support\Str;
+
+$contains = Str::of('This is my name')->contains(['my', 'foo']);
+
+// true
+```
+
+<a name="method-fluent-str-contains-all"></a>
+
+#### `containsAll`
+
+`containsAll`の method は、与えられた string が、与えられた array のすべての values を含むかどうかを判断します。
+
+```php
+use Illuminate\Support\Str;
+
+$containsAll = Str::of('This is my name')->containsAll(['my', 'name']);
+
+// true
+```
+
+<a name="method-fluent-str-dirname"></a>
+
+#### `dirname`
+
+`dirname` method は、与えられた string の親ディレクトリ部分を返します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('/foo/bar/baz')->dirname();
+
+// '/foo/bar'
+```
+
+必要に応じて、 string からいくつのディレクトリレベルを trim したいかを指定することができます。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('/foo/bar/baz')->dirname(2);
+
+// '/foo'
+```
+
+<a name="method-fluent-str-excerpt"></a>
+
+#### `excerpt`
+
+`excerpt`の method は、その string 内のフレーズの最初のインスタンスと一致する string から抜粋を抽出します。
+
+```php
+use Illuminate\Support\Str;
+
+$excerpt = Str::of('This is my name')->excerpt('my', [
+    'radius' => 3
+]);
+
+// '...is my na...'
+```
+
+`radius`option は、default で`100`に設定されており、切り捨てられた string の両側に表示する文字数を定義することができます。
+
+また、`omission`オプションを使用して、切り詰められた string の前後に追加される string を変更することもできます。
+
+```php
+use Illuminate\Support\Str;
+
+$excerpt = Str::of('This is my name')->excerpt('name', [
+    'radius' => 3,
+    'omission' => '(...) '
+]);
+
+// '(...) my name'
+```
+
+<a name="method-fluent-str-ends-with"></a>
+
+#### `endsWith`
+
+`endsWith`の method は、指定された string が指定された value で終わるかどうかを判断します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('This is my name')->endsWith('name');
+
+// true
+```
+
+与えられた string が array 内のどの values で終わるかを判断するために、 values の array を渡すこともできます：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('This is my name')->endsWith(['name', 'foo']);
+
+// true
+
+$result = Str::of('This is my name')->endsWith(['this', 'foo']);
+
+// false
+```
+
+<a name="method-fluent-str-exactly"></a>
+
+#### `exactly`
+
+`exactly`の method は、指定された string が別の string と完全に match しているかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('Laravel')->exactly('Laravel');
+
+// true
+```
+
+<a name="method-fluent-str-explode"></a>
+
+#### `explode`
+
+`explode` method は、与えられたデリミターで string を分割し、分割された文字列の各セクションを含む collection を返します。
+
+```php
+use Illuminate\Support\Str;
+
+$collection = Str::of('foo bar baz')->explode(' ');
+
+// collect(['foo', 'bar', 'baz'])
+```
+
+<a name="method-fluent-str-finish"></a>
+
+#### `finish`
+
+`finish` method は与えられた value が既に string の終わりに存在しない場合、その value の single インスタンスを追加します。
+
+```php
+use Illuminate\Support\Str;
+
+$adjusted = Str::of('this/string')->finish('/');
+
+// this/string/
+
+$adjusted = Str::of('this/string/')->finish('/');
+
+// this/string/
+```
+
+<a name="method-fluent-str-headline"></a>
+
+#### `headline`
+
+`headline`の method は、ケーシング、ハイフン、またはアンダースコアで区切られた文字列を、各単語の最初の文字を大文字にしたスペースで区切られた string に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$headline = Str::of('taylor_otwell')->headline();
+
+// Taylor Otwell
+
+$headline = Str::of('EmailNotificationSent')->headline();
+
+// Email Notification Sent
+```
+
+<a name="method-fluent-str-inline-markdown"></a>
+
+#### `inlineMarkdown`
+
+`inlineMarkdown` method は[CommonMark](https://commonmark.thephpleague.com/)を使用して GitHub 風の Markdown をインラインの HTML に変換します。ただし、`markdown` method とは異なり、すべての生成された HTML をブロックレベルの要素でラップしません：
+
+```php
+use Illuminate\Support\Str;
+
+$html = Str::of('**Laravel**')->inlineMarkdown();
+
+// <strong>Laravel</strong>
+```
+
+#### Markdown セキュリティ
+
+default で、Markdown は原生の HTML をサポートし、原生の user 入力と併用するとクロスサイトスクリプティング(XSS)の脆弱性を露出します。 [CommonMark Security documentation](https://commonmark.thephpleague.com/security/)によると、原生の HTML をエスケープまたは除去するために`html_input`option を使用でき、安全でない links を許可するかどうかを指定するために`allow_unsafe_links`option を使用できます。一部の原生の HTML を許可する必要がある場合は、コンパイル済みの Markdown を HTML Purifier を介して送信するべきです：
+
+```php
+use Illuminate\Support\Str;
+
+Str::of('Inject: <script>alert("Hello XSS!");</script>')->inlineMarkdown([
+    'html_input' => 'strip',
+    'allow_unsafe_links' => false,
+]);
+
+// Inject: alert(&quot;Hello XSS!&quot;);
+```
+
+<a name="method-fluent-str-is"></a>
+
+#### `is`
+
+`is` method は、指定された string が指定されたパターンに一致するかどうかを判断します。アスタリスクはワイルドカードとして使用されるかもしれません values 。
+
+```php
+use Illuminate\Support\Str;
+
+$matches = Str::of('foobar')->is('foo*');
+
+// true
+
+$matches = Str::of('foobar')->is('baz*');
+
+// false
+```
+
+<a name="method-fluent-str-is-ascii"></a>
+
+#### `isAscii`
+
+`isAscii` method は、与えられた string が ASCII string であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('Taylor')->isAscii();
+
+// true
+
+$result = Str::of('ü')->isAscii();
+
+// false
+```
+
+<a name="method-fluent-str-is-empty"></a>
+
+#### `isEmpty`
+
+`isEmpty` method は、指定された string が空であるかどうかを判断します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('  ')->trim()->isEmpty();
+
+// true
+
+$result = Str::of('Laravel')->trim()->isEmpty();
+
+// false
+```
+
+<a name="method-fluent-str-is-not-empty"></a>
+
+#### `isNotEmpty`
+
+`isNotEmpty` method は、与えられた string が空でないかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('  ')->trim()->isNotEmpty();
+
+// false
+
+$result = Str::of('Laravel')->trim()->isNotEmpty();
+
+// true
+```
+
+<a name="method-fluent-str-is-json"></a>
+
+#### `isJson`
+
+`isJson` method は、指定された string が有効な JSON であるかどうかを判断します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('[1,2,3]')->isJson();
+
+// true
+
+$result = Str::of('{"first": "John", "last": "Doe"}')->isJson();
+
+// true
+
+$result = Str::of('{first: "John", last: "Doe"}')->isJson();
+
+// false
+```
+
+<a name="method-fluent-str-is-ulid"></a>
+
+#### `isUlid`
+
+`isUlid` method は、指定された string が ULID であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('01gd6r360bp37zj17nxb55yv40')->isUlid();
+
+// true
+
+$result = Str::of('Taylor')->isUlid();
+
+// false
+```
+
+<a name="method-fluent-str-is-url"></a>
+
+#### `isUrl`
+
+`isUrl` method は与えられた string が URL であるかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('http://example.com')->isUrl();
+
+// true
+
+$result = Str::of('Taylor')->isUrl();
+
+// false
+```
+
+`isUrl` method は、さまざまなプロトコルを有効とみなします。しかし、有効とみなすべきプロトコルを指定して、それらを`isUrl` method に提供することもできます：
+
+```php
+$result = Str::of('http://example.com')->isUrl(['http', 'https']);
+```
+
+<a name="method-fluent-str-is-uuid"></a>
+
+#### `isUuid`
+
+`isUuid` method は、与えられた string が UUID であるかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('5ace9ab9-e9cf-4ec6-a19d-5881212a452c')->isUuid();
+
+// true
+
+$result = Str::of('Taylor')->isUuid();
+
+// false
+```
+
+<a name="method-fluent-str-kebab"></a>
+
+#### `kebab`
+
+`kebab` method は与えられた string を `kebab-case` に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('fooBar')->kebab();
+
+// foo-bar
+```
+
+<a name="method-fluent-str-lcfirst"></a>
+
+#### `lcfirst`
+
+`lcfirst` method は、与えられた string の最初の文字が小文字になるように返します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Foo Bar')->lcfirst();
+
+// foo Bar
+```
+
+<a name="method-fluent-str-length"></a>
+
+#### `length`
+
+`length` method は、与えられたストリングの長さを返します：
+
+```php
+use Illuminate\Support\Str;
+
+$length = Str::of('Laravel')->length();
+
+// 7
+```
+
+<a name="method-fluent-str-limit"></a>
+
+#### `limit`
+
+`limit` method は、指定された length まで与えられた string を切り捨てます：
+
+```php
+use Illuminate\Support\Str;
+
+$truncated = Str::of('The quick brown fox jumps over the lazy dog')->limit(20);
+
+// The quick brown fox...
+```
+
+また、2 つ目の引数を渡して、切り捨てられた string の末尾に追加される string を変更することもできます。
+
+```php
+use Illuminate\Support\Str;
+
+$truncated = Str::of('The quick brown fox jumps over the lazy dog')->limit(20, ' (...)');
+
+// The quick brown fox (...)
+```
+
+<a name="method-fluent-str-lower"></a>
+
+#### `lower`
+
+`lower` method は与えられた string を小文字に変換します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('LARAVEL')->lower();
+
+// 'laravel'
+```
+
+<a name="method-fluent-str-markdown"></a>
+
+#### `markdown`
+
+`markdown`の method は GitHub 風の Markdown を HTML に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$html = Str::of('# Laravel')->markdown();
+
+// <h1>Laravel</h1>
+
+$html = Str::of('# Taylor <b>Otwell</b>')->markdown([
+    'html_input' => 'strip',
+]);
+
+// <h1>Taylor Otwell</h1>
+```
+
+#### Markdown セキュリティ
+
+default で、 Markdown は生の user input をサポートしており、これは生の user インプットと一緒に使用するとクロスサイトスクリプティング(XSS)の脆弱性を露出させます。[CommonMark セキュリティドキュメンテーション](https://commonmark.thephpleague.com/security/)によれば、生の HTML をエスケープするか、または生の HTML を消去するために、`html_input`option を使用することができます。また、`allow_unsafe_links`option を使用して、安全でない links を許可するかどうかを指定することができます。一部の生の HTML を許可する必要がある場合は、コンパイル済みの Markdown を HTML パリファイア(Purifier)を通して渡すべきです：
+
+```php
+use Illuminate\Support\Str;
+
+Str::of('Inject: <script>alert("Hello XSS!");</script>')->markdown([
+    'html_input' => 'strip',
+    'allow_unsafe_links' => false,
+]);
+
+// <p>Inject: alert(&quot;Hello XSS!&quot;);</p>
+```
+
+<a name="method-fluent-str-mask"></a>
+
+#### `mask`
+
+`mask`method は、string の一部を繰り返し文字でマスクし、email アドレスや電話番号などの string のセグメントを難読化するために使用することができます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('taylor@example.com')->mask('*', 3);
+
+// tay***************
+```
+
+必要に応じて、3 番目または 4 番目の引数として負の数を `mask` method に提供できます。これにより、 method は指定された距離から string の最後をマスキングし始めるよう指示します。
+
+```php
+$string = Str::of('taylor@example.com')->mask('*', -15, 3);
+
+// tay***@example.com
+
+$string = Str::of('taylor@example.com')->mask('*', 4, -4);
+
+// tayl**********.com
+```
+
+<a name="method-fluent-str-match"></a>
+
+#### `match`
+
+`match`の method は、与えられた正規表現パターンに一致する string の一部を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('foo bar')->match('/bar/');
+
+// 'bar'
+
+$result = Str::of('foo bar')->match('/foo (.*)/');
+
+// 'bar'
+```
+
+<a name="method-fluent-str-match-all"></a>
+
+#### `matchAll`
+
+`matchAll` method は、特定の正規表現パターンと match する string の部分を含む collection を返します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('bar foo bar')->matchAll('/bar/');
+
+// collect(['bar', 'bar'])
+```
+
+式内でマッチンググループを指定すると、 Laravel はそのグループのマッチングの collection を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('bar fun bar fly')->matchAll('/f(\w*)/');
+
+// collect(['un', 'ly']);
+```
+
+一致するものが見つからない場合、空の collection が返されます。
+
+<a name="method-fluent-str-is-match"></a>
+
+#### `isMatch`
+
+`isMatch` method は、与えられた正規表現に string が一致する場合、`true`を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('foo bar')->isMatch('/foo (.*)/');
+
+// true
+
+$result = Str::of('laravel')->isMatch('/foo (.*)/');
+
+// false
+```
+
+<a name="method-fluent-str-new-line"></a>
+
+#### `newLine`
+
+`newLine` の method はに行の終わりのキャラクターを追加します。
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::of('Laravel')->newLine()->append('Framework');
+
+// 'Laravel
+//  Framework'
+```
+
+<a name="method-fluent-str-padboth"></a>
+
+#### `padBoth`
+
+`padBoth` method は、PHP の`str_pad`関数をラップし、最終的な string が目的の length に達するまで、ある string の両側を別の string で埋めます。
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::of('James')->padBoth(10, '_');
+
+// '__James___'
+
+$padded = Str::of('James')->padBoth(10);
+
+// '  James   '
+```
+
+<a name="method-fluent-str-padleft"></a>
+
+#### `padLeft`
+
+`padLeft` method は、PHP の`str_pad`関数をラップし、別の string で string の左側をパディングし、最終的な string が望ましい length に達するまで続けます。
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::of('James')->padLeft(10, '-=');
+
+// '-=-=-James'
+
+$padded = Str::of('James')->padLeft(10);
+
+// '     James'
+```
+
+<a name="method-fluent-str-padright"></a>
+
+#### `padRight`
+
+`padRight` method は PHP の`str_pad`関数をラッパーし、右側から他の string を順に追加し、最終的な string が求められた長さに達するまで続けます。
+
+```php
+use Illuminate\Support\Str;
+
+$padded = Str::of('James')->padRight(10, '-');
+
+// 'James-----'
+
+$padded = Str::of('James')->padRight(10);
+
+// 'James     '
+```
+
+<a name="method-fluent-str-pipe"></a>
+
+#### `pipe`
+
+`pipe` method を使用すると、与えられたコールバックに現在の value を渡すことで string を transform することができます：
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$hash = Str::of('Laravel')->pipe('md5')->prepend('Checksum: ');
+
+// 'Checksum: a5c95b86291ea299fcbe64458ed12702'
+
+$closure = Str::of('foo')->pipe(function (Stringable $str) {
+    return 'bar';
+});
+
+// 'bar'
+```
+
+<a name="method-fluent-str-plural"></a>
+
+#### `plural`
+
+`plural` の method は、単数形の string をその複数形に変換します。この関数は[Laravel の複数形作成ツールが対応しているどの言語でも](/ja/php/laravel/v11.x/05-digging-deeper/localization#pluralization-language)サポートしています:
+
+```php
+use Illuminate\Support\Str;
+
+$plural = Str::of('car')->plural();
+
+// cars
+
+$plural = Str::of('child')->plural();
+
+// children
+```
+
+関数に第二引数として integer を指定することで、 string の単数形または複数形を取得することができます:
+
+```php
+use Illuminate\Support\Str;
+
+$plural = Str::of('child')->plural(2);
+
+// children
+
+$plural = Str::of('child')->plural(1);
+
+// child
+```
+
+<a name="method-fluent-str-position"></a>
+
+#### `position`
+
+`position` method は、string 内で部分 string が最初に現れる位置を返します。部分 string が string 内に存在しない場合、`false`が返されます：
+
+```php
+use Illuminate\Support\Str;
+
+$position = Str::of('Hello, World!')->position('Hello');
+
+// 0
+
+$position = Str::of('Hello, World!')->position('W');
+
+// 7
+```
+
+<a name="method-fluent-str-prepend"></a>
+
+#### `prepend`
+
+`prepend`の method は与えられた values を string の前に追加します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Framework')->prepend('Laravel ');
+
+// Laravel Framework
+```
+
+<a name="method-fluent-str-remove"></a>
+
+#### `remove`
+
+`remove` method は指定された value または array 内の values を string から削除します:
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Arkansas is quite beautiful!')->remove('quite');
+
+// Arkansas is beautiful!
+```
+
+また、文字列を削除する際にケースを ignore するために、第二パラメータとして`false`を渡すこともできます。
+
+<a name="method-fluent-str-repeat"></a>
+
+#### `repeat`
+
+`repeat` method は指定された string を繰り返します:
+
+```php
+use Illuminate\Support\Str;
+
+$repeated = Str::of('a')->repeat(5);
+
+// aaaaa
+```
+
+<a name="method-fluent-str-replace"></a>
+
+#### `replace`
+
+`replace` method は、指定された string を string の中で置き換えます。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('Laravel 6.x')->replace('6.x', '7.x');
+
+// Laravel 7.x
+```
+
+`replace` method はまた、`caseSensitive`引数を受け付けます。 default では、`replace` method は大文字と小文字を区別します：
+
+```php
+$replaced = Str::of('macOS 13.x')->replace(
+    'macOS', 'iOS', caseSensitive: false
+);
+```
+
+<a name="method-fluent-str-replace-array"></a>
+
+#### `replaceArray`
+
+`replaceArray` method は、指定された value を string 内で順番に array を使用して置き換えます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = 'The event will take place between ? and ?';
+
+$replaced = Str::of($string)->replaceArray('?', ['8:30', '9:00']);
+
+// The event will take place between 8:30 and 9:00
+```
+
+<a name="method-fluent-str-replace-first"></a>
+
+#### `replaceFirst`
+
+`replaceFirst` method は、与えられた value の最初の出現を string で置き換えます：
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('the quick brown fox jumps over the lazy dog')->replaceFirst('the', 'a');
+
+// a quick brown fox jumps over the lazy dog
+```
+
+<a name="method-fluent-str-replace-last"></a>
+
+#### `replaceLast`
+
+`replaceLast` method は、 string 内の指定された value の最後の出現を置換します。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('the quick brown fox jumps over the lazy dog')->replaceLast('the', 'a');
+
+// the quick brown fox jumps over a lazy dog
+```
+
+<a name="method-fluent-str-replace-matches"></a>
+
+#### `replaceMatches`
+
+`replaceMatches` method は、パターンに一致する string の全ての部分を指定された置換 string で置き換えます：
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('(+1) 501-555-1000')->replaceMatches('/[^A-Za-z0-9]++/', )
+
+// '15015551000'
+```
+
+`replaceMatches` method は、指定したパターンに一致する string の各部分で呼び出されるクロージャも受け入れます。これにより、クロージャ内で置換ロジックを実行し、置換された value を返すことができます。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('123')->replaceMatches('/\d/', function (array $matches) {
+    return '['.$matches[0].']';
+});
+
+// '[1][2][3]'
+```
+
+<a name="method-fluent-str-replace-start"></a>
+
+#### `replaceStart`
+
+`replaceStart` method は、与えられた value の最初の出現箇所を置換しますが、その value が string の先頭に現れる場合に限ります。
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('Hello World')->replaceStart('Hello', 'Laravel');
+
+// Laravel World
+
+$replaced = Str::of('Hello World')->replaceStart('World', 'Laravel');
+
+// Hello World
+```
+
+<a name="method-fluent-str-replace-end"></a>
+
+#### `replaceEnd`
+
+`replaceEnd`method は、指定した value が string の末尾に現れた場合に限り、その最後の出現を置き換えます：
+
+```php
+use Illuminate\Support\Str;
+
+$replaced = Str::of('Hello World')->replaceEnd('World', 'Laravel');
+
+// Hello Laravel
+
+$replaced = Str::of('Hello World')->replaceEnd('Hello', 'Laravel');
+
+// Hello World
+```
+
+<a name="method-fluent-str-scan"></a>
+
+#### `scan`
+
+`scan` method は string からの入力を[`sscanf` PHP 関数](https://www.php.net/manual/en/function.sscanf.php)がサポートする形式に従って collection に解析します。
+
+```php
+use Illuminate\Support\Str;
+
+$collection = Str::of('filename.jpg')->scan('%[^.].%s');
+
+// collect(['filename', 'jpg'])
+```
+
+<a name="method-fluent-str-singular"></a>
+
+#### `singular`
+
+`singular` method は、 string をその単数形に変換します。この関数は[Laravel の複数形化機能がサポートする言語のいずれでも](/ja/php/laravel/v11.x/05-digging-deeper/localization#pluralization-language)対応しています：
+
+```php
+use Illuminate\Support\Str;
+
+$singular = Str::of('cars')->singular();
+
+// car
+
+$singular = Str::of('children')->singular();
+
+// child
+```
+
+<a name="method-fluent-str-slug"></a>
+
+#### `slug`
+
+`slug` method は、指定された string から URL 友好的な "slug" を生成します。
+
+```php
+use Illuminate\Support\Str;
+
+$slug = Str::of('Laravel Framework')->slug('-');
+
+// laravel-framework
+```
+
+<a name="method-fluent-str-snake"></a>
+
+#### `snake`
+
+`snake` method は指定された string を `snake_case`に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('fooBar')->snake();
+
+// foo_bar
+```
+
+<a name="method-fluent-str-split"></a>
+
+#### `split`
+
+`split` method は、正規表現を使用して string を collection に分割します。
+
+```php
+use Illuminate\Support\Str;
+
+$segments = Str::of('one, two, three')->split('/[\s,]+/');
+
+// collect(["one", "two", "three"])
+```
+
+<a name="method-fluent-str-squish"></a>
+
+#### `squish`
+
+`squish` method は、 string から余分な空白をすべて削除します。これには、単語の間の余分な空白も含まれます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('    laravel    framework    ')->squish();
+
+// laravel framework
+```
+
+<a name="method-fluent-str-start"></a>
+
+#### `start`
+
+`start` method は、指定された value の single のインスタンスを、すでにその value で始まっていない場合に string に追加します:
+
+```php
+use Illuminate\Support\Str;
+
+$adjusted = Str::of('this/string')->start('/');
+
+// /this/string
+
+$adjusted = Str::of('/this/string')->start('/');
+
+// /this/string
+```
+
+<a name="method-fluent-str-starts-with"></a>
+
+#### `startsWith`
+
+`startsWith` method は、指定された string が指定された value で始まるかどうかを判断します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('This is my name')->startsWith('This');
+
+// true
+```
+
+<a name="method-fluent-str-strip-tags"></a>
+
+#### `stripTags`
+
+`stripTags`の method は、すべての HTML および PHP の tags を string から削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('<a href="https://laravel.com">Taylor <b>Otwell</b></a>')->stripTags();
+
+// Taylor Otwell
+
+$result = Str::of('<a href="https://laravel.com">Taylor <b>Otwell</b></a>')->stripTags('<b>');
+
+// Taylor <b>Otwell</b>
+```
+
+<a name="method-fluent-str-studly"></a>
+
+#### `studly`
+
+`studly` method は与えられた string を`StudlyCase`に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('foo_bar')->studly();
+
+// FooBar
+```
+
+<a name="method-fluent-str-substr"></a>
+
+#### `substr`
+
+`substr`の method は、指定された開始位置と length パラメーターによって指定された string の一部を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Laravel Framework')->substr(8);
+
+// Framework
+
+$string = Str::of('Laravel Framework')->substr(8, 5);
+
+// Frame
+```
+
+<a name="method-fluent-str-substrreplace"></a>
+
+#### `substrReplace`
+
+`substrReplace`の method は、二つ目の引数で指定された位置から始まり、三つ目の引数で指定された文字数を置換して、 string の一部分内のテキストを置換します。メソッドの三つ目の引数に`0`を渡すと、指定した位置に string を insert し、 string の既存の文字を何も置換せずに追加します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('1300')->substrReplace(':', 2);
+
+// 13:
+
+$string = Str::of('The Framework')->substrReplace(' Laravel', 3, 0);
+
+// The Laravel Framework
+```
+
+<a name="method-fluent-str-swap"></a>
+
+#### `swap`
+
+`swap` method は、PHP の`strtr`関数を使用して、 string 内の複数の values を置換します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Tacos are great!')
+    ->swap([
+        'Tacos' => 'Burritos',
+        'great' => 'fantastic',
+    ]);
+
+// Burritos are fantastic!
+```
+
+<a name="method-fluent-str-take"></a>
+
+#### `take`
+
+`take` method は、 string の始まりから指定された数の文字を返します：
+
+```php
+use Illuminate\Support\Str;
+
+$taken = Str::of('Build something amazing!')->take(5);
+
+// Build
+```
+
+<a name="method-fluent-str-tap"></a>
+
+#### `tap`
+
+`tap` method は、与えられたクロージャに string を渡し、その string を検査し、操作することを可能にしますが、 string 自体には影響を与えません。 元の string は、クロージャが何を返しても、`tap` method によって返されます：
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('Laravel')
+    ->append(' Framework')
+    ->tap(function (Stringable $string) {
+        dump('String after append: '.$string);
+    })
+    ->upper();
+
+// LARAVEL FRAMEWORK
+```
+
+<a name="method-fluent-str-test"></a>
+
+#### `test`
+
+`test` method は、指定された正規表現パターンに string が一致するかどうかを判断します：
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('Laravel Framework')->test('/Laravel/');
+
+// true
+```
+
+<a name="method-fluent-str-title"></a>
+
+#### `title`
+
+`title` method は与えられた string を`Title Case`に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$converted = Str::of('a nice title uses the correct case')->title();
+
+// A Nice Title Uses The Correct Case
+```
+
+<a name="method-fluent-str-to-base64"></a>
+
+#### `toBase64()`
+
+`toBase64` method は、指定された string を Base64 に変換します：
+
+```php
+use Illuminate\Support\Str;
+
+$base64 = Str::of('Laravel')->toBase64();
+
+// TGFyYXZlbA==
+```
+
+<a name="method-fluent-str-trim"></a>
+
+#### `trim`
+
+`trim` method は与えられた string をトリムします。PHP のネイティブ`trim`関数とは異なり、Laravel の`trim` method はユニコードの空白文字も削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('  Laravel  ')->trim();
+
+// 'Laravel'
+
+$string = Str::of('/Laravel/')->trim('/');
+
+// 'Laravel'
+```
+
+<a name="method-fluent-str-ltrim"></a>
+
+#### `ltrim`
+
+`ltrim` method は、 string の左側をトリムします。 PHP のネイティブ `ltrim` 関数とは異なり、Laravel の `ltrim` method はユニコードの空白文字も削除します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('  Laravel  ')->ltrim();
+
+// 'Laravel  '
+
+$string = Str::of('/Laravel/')->ltrim('/');
+
+// 'Laravel/'
+```
+
+<a name="method-fluent-str-rtrim"></a>
+
+#### `rtrim`
+
+`rtrim` method は、与えられた string の右側をトリムします。PHP のネイティブな`rtrim`関数とは異なり、Laravel の`rtrim` method はユニコードの空白文字も削除します。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('  Laravel  ')->rtrim();
+
+// '  Laravel'
+
+$string = Str::of('/Laravel/')->rtrim('/');
+
+// '/Laravel'
+```
+
+<a name="method-fluent-str-ucfirst"></a>
+
+#### `ucfirst`
+
+`ucfirst` method は、与えられた string の最初の文字を大文字にして返します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('foo bar')->ucfirst();
+
+// Foo bar
+```
+
+<a name="method-fluent-str-ucsplit"></a>
+
+#### `ucsplit`
+
+`ucsplit` method は与えられた string を大文字の文字で collection に分割します：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Foo Bar')->ucsplit();
+
+// collect(['Foo', 'Bar'])
+```
+
+<a name="method-fluent-str-unwrap"></a>
+
+#### `unwrap`
+
+`unwrap` method は指定された文字列を与えられた string の始めと終わりから取り除きます：
+
+```php
+use Illuminate\Support\Str;
+
+Str::of('-Laravel-')->unwrap('-');
+
+// Laravel
+
+Str::of('{framework: "Laravel"}')->unwrap('{', '}');
+
+// framework: "Laravel"
+```
+
+<a name="method-fluent-str-upper"></a>
+
+#### `upper`
+
+`upper` method は与えられた string を大文字に変換します:
+
+```php
+use Illuminate\Support\Str;
+
+$adjusted = Str::of('laravel')->upper();
+
+// LARAVEL
+```
+
+<a name="method-fluent-str-when"></a>
+
+#### `when`
+
+`when` method は、指定した条件が`true`である場合に指定したクロージャを呼び出します。クロージャは、流暢な string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('Taylor')
+                ->when(true, function (Stringable $string) {
+                    return $string->append(' Otwell');
+                });
+
+// 'Taylor Otwell'
+```
+
+必要に応じて、`when` method の第 3 パラメータとして別のクロージャを渡すことができます。このクロージャは、条件パラメータが`false`と評価された場合に実行されます。
+
+<a name="method-fluent-str-when-contains"></a>
+
+#### `whenContains`
+
+`whenContains`の method は、指定された value が string に含まれている場合に、指定されたクロージャを呼び出します。クロージャはフルエントな string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('tony stark')
+            ->whenContains('tony', function (Stringable $string) {
+                return $string->title();
+            });
+
+// 'Tony Stark'
+```
+
+必要に応じて、`when` method の 3 つ目のパラメータとして別のクロージャを渡すことができます。このクロージャは、指定された value が string に含まれていない場合に実行されます。
+
+与えられた string が array 内のどの values を含んでいるかを決定するために、 array の values を渡すこともできます：
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('tony stark')
+            ->whenContains(['tony', 'hulk'], function (Stringable $string) {
+                return $string->title();
+            });
+
+// Tony Stark
+```
+
+<a name="method-fluent-str-when-contains-all"></a>
+
+#### `whenContainsAll`
+
+`whenContainsAll` method は、指定されたクロージャーを呼び出します。これは、string が指定されたすべての部分 string を含んでいる場合です。クロージャーは流暢な string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('tony stark')
+                ->whenContainsAll(['tony', 'stark'], function (Stringable $string) {
+                    return $string->title();
+                });
+
+// 'Tony Stark'
+```
+
+必要であれば、3 番目のパラメータとして `when` method に別のクロージャを渡すことができます。このクロージャは、条件パラメータが`false`と評価された場合に実行されます。
+
+<a name="method-fluent-str-when-empty"></a>
+
+#### `whenEmpty`
+
+`whenEmpty` method は、 string が空の場合に指定されたクロージャを呼び出します。クロージャが value を返すと、その value も`whenEmpty` method によって返されます。クロージャが value を返さない場合、流暢な string インスタンスが返されます。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('  ')->whenEmpty(function (Stringable $string) {
+    return $string->trim()->prepend('Laravel');
+});
+
+// 'Laravel'
+```
+
+<a name="method-fluent-str-when-not-empty"></a>
+
+#### `whenNotEmpty`
+
+`whenNotEmpty` method は、 string が空でない場合に与えられたクロージャを呼びます。もしクロージャが value を返した場合、その value も `whenNotEmpty` method により返されます。もしクロージャが value を返さなかった場合、フルエントな string のインスタンスが返されます：
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('Framework')->whenNotEmpty(function (Stringable $string) {
+    return $string->prepend('Laravel ');
+});
+
+// 'Laravel Framework'
+```
+
+<a name="method-fluent-str-when-starts-with"></a>
+
+#### `whenStartsWith`
+
+`whenStartsWith`の method は、与えられた string が指定した部分文字列で始まる場合、指定したクロージャーを実行します。クロージャーには、流暢な string インスタンスが渡されます。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('disney world')->whenStartsWith('disney', function (Stringable $string) {
+    return $string->title();
+});
+
+// 'Disney World'
+```
+
+<a name="method-fluent-str-when-ends-with"></a>
+
+#### `whenEndsWith`
+
+`whenEndsWith` method は、 string が指定のサブストリングで終わる場合に与えられたクロージャーを呼び出します。クロージャーは、流れるような string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('disney world')->whenEndsWith('world', function (Stringable $string) {
+    return $string->title();
+});
+
+// 'Disney World'
+```
+
+<a name="method-fluent-str-when-exactly"></a>
+
+#### `whenExactly`
+
+`whenExactly` method は、指定した string が完全に一致する場合に、与えられたクロージャを呼び出します。クロージャは、流暢な string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('laravel')->whenExactly('laravel', function (Stringable $string) {
+    return $string->title();
+});
+
+// 'Laravel'
+```
+
+<a name="method-fluent-str-when-not-exactly"></a>
+
+#### `whenNotExactly`
+
+`whenNotExactly` method は、与えられた string が指定された string と完全に match しない場合に指定されたクロージャを呼び出します。クロージャは流暢な string インスタンスを受け取ります：
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('framework')->whenNotExactly('laravel', function (Stringable $string) {
+    return $string->title();
+});
+
+// 'Framework'
+```
+
+<a name="method-fluent-str-when-is"></a>
+
+#### `whenIs`
+
+`whenIs`の method は、与えられた string が特定のパターンと一致する場合に、指定されたクロージャを呼び出します。アスタリスクはワイルドカードの values として使用できます。クロージャは、流暢な string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('foo/bar')->whenIs('foo/*', function (Stringable $string) {
+    return $string->append('/baz');
+});
+
+// 'foo/bar/baz'
+```
+
+<a name="method-fluent-str-when-is-ascii"></a>
+
+#### `whenIsAscii`
+
+`whenIsAscii` method は、与えられたクロージャを呼び出します。もし string が 7 ビットの ASCII である場合。クロージャはフルエント string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('laravel')->whenIsAscii(function (Stringable $string) {
+    return $string->title();
+});
+
+// 'Laravel'
+```
+
+<a name="method-fluent-str-when-is-ulid"></a>
+
+#### `whenIsUlid`
+
+`whenIsUlid` method は、 string が有効な ULID である場合、指定したクロージャを呼び出します。クロージャはフルエントの string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('01gd6r360bp37zj17nxb55yv40')->whenIsUlid(function (Stringable $string) {
+    return $string->substr(0, 8);
+});
+
+// '01gd6r36'
+```
+
+<a name="method-fluent-str-when-is-uuid"></a>
+
+#### `whenIsUuid`
+
+`whenIsUuid` method は、与えられたクロージャを string が有効な UUID である場合に呼び出します。クロージャはフルエントの string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('a0a2a2d2-0b87-4a18-83f2-2529882be2de')->whenIsUuid(function (Stringable $string) {
+    return $string->substr(0, 8);
+});
+
+// 'a0a2a2d2'
+```
+
+<a name="method-fluent-str-when-test"></a>
+
+#### `whenTest`
+
+`whenTest` method は、指定された string が指定された正規表現と一致する場合、与えられたクロージャーを呼び出します。クロージャーは、流暢な string インスタンスを受け取ります。
+
+```php
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
+
+$string = Str::of('laravel framework')->whenTest('/laravel/', function (Stringable $string) {
+    return $string->title();
+});
+
+// 'Laravel Framework'
+```
+
+<a name="method-fluent-str-word-count"></a>
+
+#### `wordCount`
+
+`wordCount` method は、 string が含む単語の数を返します：
+
+```php
+use Illuminate\Support\Str;
+
+Str::of('Hello, world!')->wordCount(); // 2
+```
+
+<a name="method-fluent-str-words"></a>
+
+#### `words`
+
+`words`の method は、 string 内の単語数を制限します。必要に応じて、切り詰められた string に追加される別の string を指定することができます：
+
+```php
+use Illuminate\Support\Str;
+
+$string = Str::of('Perfectly balanced, as all things should be.')->words(3, ' >>>');
+
+// Perfectly balanced, as >>>
+
+```

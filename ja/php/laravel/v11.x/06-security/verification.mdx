@@ -1,0 +1,193 @@
+---
+filePath: "source/laravel/verification.md"
+title: "Email Verification"
+description: "Email Verification"
+org_path: "/docs/11.x/verification"
+is_empty: false
+nav_title: "Email Verification"
+org_title: "Email Verification"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+  - [Model Preparation](#model-preparation)
+  - [Database Preparation](#database-preparation)
+- [Routing](#verification-routing)
+  - [The Email Verification Notice](#the-email-verification-notice)
+  - [The Email Verification Handler](#the-email-verification-handler)
+  - [Resending the Verification Email](#resending-the-verification-email)
+  - [Protecting Routes](#protecting-routes)
+- [Customization](#customization)
+- [Events](#events)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+多くの web アプリケーションでは、 application を使用する前に users が自分の email アドレスを確認する必要があります。手作業でこの feature を各 application で再実装するのではなく、 Laravel は便利な組み込みの services を提供して、 email verification のリクエストを送信し、確認することができます。
+
+> <LaravelNote type="note" />
+> すぐに始めたいですか？新規の Laravel application に[Laravel application のスターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をインストールしてみてください。スターターキットにより、
+> email verification サポートを含む全体的な authentication システムの足場が整います。
+
+<a name="model-preparation"></a>
+
+### Model の準備
+
+始める前に、あなたの`App\Models\User` model が`Illuminate\Contracts\Auth\MustVerifyEmail` コントラクトを実装していることを確認してください：
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable implements MustVerifyEmail
+{
+    use Notifiable;
+
+    // ...
+}
+```
+
+このインターフェースがあなたの model に追加されると、新しく登録された users には自動的に email verification リンクが含まれた email が送信されます。これは、 Laravel が自動的に`Illuminate\Auth\Listeners\SendEmailVerificationNotification` [listener](/ja/php/laravel/v11.x/05-digging-deeper/events)を`Illuminate\Auth\Events\Registered` event に登録するため、シームレスに行われます。
+
+[starter kit](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を利用せずに、application 内で登録を手動で実装している場合、user の登録が成功した後に`Illuminate\Auth\Events\Registered` event を dispatch していることを確認する必要があります：
+
+```php
+use Illuminate\Auth\Events\Registered;
+
+event(new Registered($user));
+```
+
+<a name="database-preparation"></a>
+
+### Database Preparation
+
+次に、あなたの`users`テーブルには、ユーザーの email アドレスが確認された日時を保存するための`email_verified_at` column が含まれていなければなりません。通常、これは Laravel の default `0001_01_01_000000_create_users_table.php` database マイグレーションに含まれています。
+
+<a name="verification-routing"></a>
+
+## Routing
+
+email verification を適切に実装するためには、3 つの routes を定義する必要があります。まず、user に email verification の link をクリックするように通知するための route が必要です。この link は、Laravel が登録後に user に送った確認用の email の中にあります。
+
+二つ目、 user が email の中の email verification リンクをクリックすると発生するリクエストを handle するための route が必要になります。
+
+三つ目に、もし user が最初の確認リンクを誤って失った場合、確認リンクを再送するための route が必要となります。
+
+<a name="the-email-verification-notice"></a>
+
+### Email Verification 通知
+
+前述の通り、登録後に Laravel から送信された email verification のリンクを user にクリックさせるように指示する view を返す route を定義する必要があります。この view は、 users が他の application の部分にアクセスしようとしたときに、まず email アドレスを確認せずに表示されます。リンクは自動的に user にメールで送信されます、あなたの `App\Models\User` model が `MustVerifyEmail` インターフェースを実装している限り。
+
+```php
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+```
+
+email verification の通知を返す route は、`verification.notice`と名付けるべきです。 route にこの正確な名前が割り当てられていることが重要です。なぜなら、`verified` middleware が[“ Laravel 付属](#protecting-routes)で、 user が email アドレスを確認していない場合、自動的にこの route 名に redirect するからです。
+
+> <LaravelNote type="note" />
+> email verification を手動で実装する際には、 view の検証通知の内容をご自身で required
+> 定義する必要があります。全ての必要な authentication 和検証 views を含む足場が欲しい場合は、[Laravel
+> application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をご覧ください。
+
+<a name="the-email-verification-handler"></a>
+
+### Email Verification Handler
+
+次に、 user がメールで送られた email verification のリンクをクリックしたときに生成されるリクエストを handle する route を定義する必要があります。 この route は`verification.verify`と名付けられ、`auth`と`signed`のミドルウェアに割り当てられるべきです:
+
+```php
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect('/home');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+```
+
+次へ進む前に、この route をよく見てみましょう。まず、通常の`Illuminate\Http\Request`インスタンスではなく、`EmailVerificationRequest`という request type を使用していることに気付くでしょう。`EmailVerificationRequest`は、 Laravel とともに提供される[form request](/ja/php/laravel/v11.x/04-the-basics/12-validation#form-request-validation)です。この request は、リクエストの`id`と`hash`パラメータの validating を自動的に行います。
+
+次に、`fulfill`という method を直接 request に呼び出すことができます。この method は、authentication された user の`markEmailAsVerified`という method を呼び出し、`Illuminate\Auth\Events\Verified`という event を dispatch します。 `markEmailAsVerified`の method は、 default の`App\Models\User`という model に`Illuminate\Foundation\Auth\User`の基本 class を介して利用できます。ユーザーの email が確認されると、あなたは彼らを希望する場所に redirect することができます。
+
+<a name="resending-the-verification-email"></a>
+
+### 認証 Email の再送信
+
+時折、 user が誤って email アドレスの確認の email を紛失したり delete したりすることがあります。このような事態に対応するため、 user が確認の email を再送信するように request できる route を定義することができます。その後、[確認通知の view ](#the-email-verification-notice)にシンプルな形式の送信 button を設置することで、この route への request を行うことができます。
+
+```php
+use Illuminate\Http\Request;
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+```
+
+<a name="protecting-routes"></a>
+
+### Protecting Routes
+
+[ルートミドルウェア](/ja/php/laravel/v11.x/04-the-basics/02-middleware) は、特定の route にアクセスできるのは確認済みの users のみに制限するために使用できます。Laravel には、`verified` [ミドルウェア alias](/ja/php/laravel/v11.x/04-the-basics/02-middleware#middleware-alias) が含まれており、これは `Illuminate\Auth\Middleware\EnsureEmailIsVerified` ミドルウェア class の alias です。この alias はすでに Laravel によって自動的に登録されているため、必要なことは `verified` middleware を route 定義に attach することだけです。通常、この middleware は `auth` middleware とペアになっています。
+
+```php
+Route::get('/profile', function () {
+    // Only verified users may access this route...
+})->middleware(['auth', 'verified']);
+```
+
+未認証の user がこの middleware に割り当てられた route にアクセスを試みた場合、自動的に `verification.notice` [名前付き route](/ja/php/laravel/v11.x/04-the-basics/01-routing#named-routes) にリダイレクトされます。
+
+<a name="customization"></a>
+
+## Customization
+
+<a name="verification-email-customization"></a>
+
+#### Email カスタマイズの確認
+
+default の mail 確認通知は、ほとんどの application の要件を満たすはずですが、Laravel では mail 確認 mail メッセージがどのように構築されるかをカスタマイズすることができます。
+
+始めるためには、`Illuminate\Auth\Notifications\VerifyEmail` 通知が提供する`toMailUsing` method にクロージャを渡します。クロージャは、通知を受け取っている model インスタンスと、user が mail アドレスの確認をするために訪れる必要がある署名付き mail 確認 URL を受け取ります。クロージャは `Illuminate\Notifications\Messages\MailMessage` のインスタンスを返すべきです。通常、application の `AppServiceProvider` class の `boot` method から `toMailUsing` method を呼び出すべきです。
+
+```php
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    // ...
+
+    VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
+        return (new MailMessage)
+            ->subject('Verify Email Address')
+            ->line('Click the button below to verify your email address.')
+            ->action('Verify Email Address', $url);
+    });
+}
+```
+
+> <LaravelNote type="note" />
+> mail notifications について詳しく学びたい場合は、[mail notification ドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/notifications#mail-notifications)をご参照ください。
+
+<a name="events"></a>
+
+## Events
+
+[Laravel application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用するとき、Laravel は、 `Illuminate\Auth\Events\Verified` [events](/ja/php/laravel/v11.x/05-digging-deeper/events)を email verification process 中に発行します。自分の application の mailauthentication を手動で行っている場合、authentication が完了した後にこれらの イベント を手動で dispatch することを検討するかもしれません。

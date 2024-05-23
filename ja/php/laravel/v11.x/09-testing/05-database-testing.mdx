@@ -1,0 +1,308 @@
+---
+filePath: "source/laravel/database-testing.md"
+title: "Database Testing"
+description: "Database Testing"
+org_path: "/docs/11.x/database-testing"
+is_empty: false
+nav_title: "Database"
+org_title: "Database Testing"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+  - [Resetting the Database After Each Test](#resetting-the-database-after-each-test)
+- [Model Factories](#model-factories)
+- [Running Seeders](#running-seeders)
+- [Available Assertions](#available-assertions)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+Laravel は、database 駆動 types の application の test を容易にするための、様々な便利なツールとアサーションを提供しています。加えて、Laravel モデルの factories ーやシーダーは、application の Eloquent モデルやリレーションシップを使用した testdatabase レコードの作成を簡単にします。以下のドキュメンテーションでは、これらの強力な機能について全て説明します。
+
+<a name="resetting-the-database-after-each-test"></a>
+
+### テストのたびに Database をリセットする
+
+これ以上進む前に、各テストの後にどのように reset を行い、前のテストの data が次のテストに干渉しないように database をリセットするかについて説明しましょう。Laravel に含まれる `Illuminate\Foundation\Testing\RefreshDatabase` トレイトがこれを処理してくれます。テストの class でこのトレイトを使うだけです：
+
+```php tab=Pest
+<?php
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+test('basic example', function () {
+    $response = $this->get('/');
+
+    // ...
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /**
+     * A basic functional test example.
+     */
+    public function test_basic_example(): void
+    {
+        $response = $this->get('/');
+
+        // ...
+    }
+}
+```
+
+`Illuminate\Foundation\Testing\RefreshDatabase` トレイトは、 schema が最新の場合、 database を migrate しません。代わりに、 database transaction 内でテストのみを実行します。そのため、このトレイトを使用しないテストケースによって database に追加されたレコードは、 database に存在し続ける可能性があります。
+
+あなたが database を完全に reset したい場合は、代わりに`Illuminate\Foundation\Testing\DatabaseMigrations` または `Illuminate\Foundation\Testing\DatabaseTruncation` の特性を使用することができます。しかし、これらの options は、`RefreshDatabase` の特性よりもかなり遅いです。
+
+<a name="model-factories"></a>
+
+## Model Factories
+
+testing を行う際には、testing を実行する前に database にいくつかのレコードを挿入する必要があるかもしれません。testingdata を作成する際に各列の value を手動で指定する代わりに、Laravel では、[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)ごとに一連の default 属性を定義することができます。これは[modelfactory ー](/ja/php/laravel/v11.x/08-eloquent-orm/07-eloquent-factories)を使用して行います。
+
+modelfactory ーの作成と活用について更に詳しく学ぶためには、完全な[model factory ドキュメンテーション](/ja/php/laravel/v11.x/08-eloquent-orm/07-eloquent-factories)をご覧ください。model factory を定義すると、test 内で factory を活用して models を作成することができます。
+
+```php tab=Pest
+use App\Models\User;
+
+test('models can be instantiated', function () {
+    $user = User::factory()->create();
+
+    // ...
+});
+```
+
+```php tab=PHPUnit
+use App\Models\User;
+
+public function test_models_can_be_instantiated(): void
+{
+    $user = User::factory()->create();
+
+    // ...
+}
+```
+
+<a name="running-seeders"></a>
+
+## Running Seeders
+
+[database seeders](/ja/php/laravel/v11.x/07-database/05-seeding)を使用して feature テスト中に database を満たしたい場合、`seed` method を呼び出すことができます。default では、`seed` method は`DatabaseSeeder`を実行し、他のすべてのシーダーを実行するはずです。または、特定のシーダー class 名を`seed` method に渡すこともできます：
+
+```php tab=Pest
+<?php
+
+use Database\Seeders\OrderStatusSeeder;
+use Database\Seeders\TransactionStatusSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+test('orders can be created', function () {
+    // Run the DatabaseSeeder...
+    $this->seed();
+
+    // Run a specific seeder...
+    $this->seed(OrderStatusSeeder::class);
+
+    // ...
+
+    // Run an array of specific seeders...
+    $this->seed([
+        OrderStatusSeeder::class,
+        TransactionStatusSeeder::class,
+        // ...
+    ]);
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use Database\Seeders\OrderStatusSeeder;
+use Database\Seeders\TransactionStatusSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /**
+     * Test creating a new order.
+     */
+    public function test_orders_can_be_created(): void
+    {
+        // Run the DatabaseSeeder...
+        $this->seed();
+
+        // Run a specific seeder...
+        $this->seed(OrderStatusSeeder::class);
+
+        // ...
+
+        // Run an array of specific seeders...
+        $this->seed([
+            OrderStatusSeeder::class,
+            TransactionStatusSeeder::class,
+            // ...
+        ]);
+    }
+}
+```
+
+あるいは、`RefreshDatabase` トレイトを使用する各 test の前に Laravel に自動的に seed を database に行うよう指示することもできます。これは、ベース test class 上に `$seed` プロパティを定義することで実現できます：
+
+```php
+<?php
+
+namespace Tests;
+
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
+{
+    /**
+     * Indicates whether the default seeder should run before each test.
+     *
+     * @var bool
+     */
+    protected $seed = true;
+}
+```
+
+`$seed`プロパティが`true`の場合、test は`RefreshDatabase`トレイトを使用する各 test の前に`Database\Seeders\DatabaseSeeder` class を実行します。ただし、test class 上の`$seeder`プロパティを定義することで実行するべき特定のシーダーを指定することができます。
+
+```php
+use Database\Seeders\OrderStatusSeeder;
+
+/**
+ * Run a specific seeder before each test.
+ *
+ * @var string
+ */
+protected $seeder = OrderStatusSeeder::class;
+```
+
+<a name="available-assertions"></a>
+
+## Available Assertions
+
+Laravel は、[Pest](https://pestphp.com)または[PHPUnit](https://phpunit.de)の feature test のためのいくつかの database アサーションを提供します。以下でこれらのアサーションのそれぞれについて議論します。
+
+<a name="assert-database-count"></a>
+
+#### assertDatabaseCount
+
+database のテーブルに指定された数のレコードが含まれていることを Assert します：
+
+```php
+$this->assertDatabaseCount('users', 5);
+```
+
+<a name="assert-database-has"></a>
+
+#### assertDatabaseHas
+
+指定されたキー/ value query 制約に一致するレコードを database のテーブルが含んでいると Assert します：
+
+```php
+$this->assertDatabaseHas('users', [
+    'email' => 'sally@example.com',
+]);
+```
+
+<a name="assert-database-missing"></a>
+
+#### assertDatabaseMissing
+
+database 内のテーブルが与えられた key/ value query 制約に一致するレコードを含まないことを Assert します:
+
+```php
+$this->assertDatabaseMissing('users', [
+    'email' => 'sally@example.com',
+]);
+```
+
+<a name="assert-deleted"></a>
+
+#### assertSoftDeleted
+
+`assertSoftDeleted`method は、特定の Eloquent model が "soft deleted"されたことを assert するために使用できます。
+
+```php
+$this->assertSoftDeleted($user);
+```
+
+<a name="assert-not-deleted"></a>
+
+#### assertNotSoftDeleted
+
+`assertNotSoftDeleted` method は、特定の Eloquent model が "soft deleted" されていないことを assert するために使用できます。
+
+```php
+$this->assertNotSoftDeleted($user);
+```
+
+<a name="assert-model-exists"></a>
+
+#### assertModelExists
+
+指定された model が database に存在することを Assert します：
+
+```php
+use App\Models\User;
+
+$user = User::factory()->create();
+
+$this->assertModelExists($user);
+```
+
+<a name="assert-model-missing"></a>
+
+#### assertModelMissing
+
+指定された model が database に存在しないと Assert します：
+
+```php
+use App\Models\User;
+
+$user = User::factory()->create();
+
+$user->delete();
+
+$this->assertModelMissing($user);
+```
+
+<a name="expects-database-query-count"></a>
+
+#### expectsDatabaseQueryCount
+
+test の開始時に、test 中に実行されることを予期する databasequeries の合計数を指定するために、`expectsDatabaseQueryCount`method を呼び出すことができます。実際に実行された queries の数がこの期待 values と一致しない場合、test は失敗します。
+
+```php
+$this->expectsDatabaseQueryCount(5);
+
+// Test...
+
+```

@@ -1,0 +1,323 @@
+---
+filePath: "source/laravel/views.md"
+title: "Views"
+description: "Views"
+org_path: "/docs/11.x/views"
+is_empty: false
+nav_title: "Views"
+org_title: "Views"
+---
+
+<InPageIndex>
+
+- [Introduction](#introduction)
+  - [Writing Views in React / Vue](#writing-views-in-react-or-vue)
+- [Creating and Rendering Views](#creating-and-rendering-views)
+  - [Nested View Directories](#nested-view-directories)
+  - [Creating the First Available View](#creating-the-first-available-view)
+  - [Determining if a View Exists](#determining-if-a-view-exists)
+- [Passing Data to Views](#passing-data-to-views)
+  - [Sharing Data With All Views](#sharing-data-with-all-views)
+- [View Composers](#view-composers)
+  - [View Creators](#view-creators)
+- [Optimizing Views](#optimizing-views)
+
+</InPageIndex>
+
+<a name="introduction"></a>
+
+## Introduction
+
+もちろん、 routes やコントローラから直接全体の HTML ドキュメントの文字列を返すことは現実的ではありません。幸いなことに、 views は私たちのすべての HTML を別々のファイルに配置する便利な方法を提供してくれます。
+
+Views は、プレゼンテーションロジックから、 controller / application ロジックを分離し、`resources/views`ディレクトリに保存されます。 Laravel を使用する場合、 view のテンプレートは通常、[Blade テンプレート言語](/ja/php/laravel/v11.x/04-the-basics/08-blade)を使用して記述されます。シンプルな view は次のようになるかもしれません：
+
+```blade
+<!-- View stored in resources/views/greeting.blade.php -->
+
+<html>
+    <body>
+        <h1>Hello, {{ $name }}</h1>
+    </body>
+</html>
+```
+
+この view は `resources/views/greeting.blade.php`に保存されているため、以下のようにグローバルな `view` ヘルパーを使って返すことができます。
+
+```php
+Route::get('/', function () {
+    return view('greeting', ['name' => 'James']);
+});
+```
+
+> <LaravelNote type="note" />
+> Blade テンプレートの作成方法の詳細をお探しですか？始めるには、 [Blade ドキュメンテーション](/ja/php/laravel/v11.x/04-the-basics/08-blade)をご確認ください。
+
+<a name="writing-views-in-react-or-vue"></a>
+
+### React / Vue での Views の記述
+
+PHP を使ってフロントエンドのテンプレートを作成する代わりに、 Blade を使ってテンプレートを作成することを好む開発者が増えてきました。React または Vue を使ってテンプレートを作成します。 Laravel は、[Inertia](https://inertiajs.com/)という library のおかげで、これを簡単に行うことができます。これにより、React / Vue のフロントエンドを Laravel のバックエンドに結びつけることが、SPA の構築に伴う一般的な複雑さなしに、楽になります。
+
+私たちの Breeze および Jetstream [スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)は、Inertia で動作する次の Laravel アプリケーションのための素晴らしいスタート地点を提供します。さらに、[Laravel ブートキャンプ](https://bootcamp.laravel.com)は Inertia で動作する Laravel アプリケーションの構築に関する完全なデモを提供し、Vue および React の例を含みます。
+
+<a name="creating-and-rendering-views"></a>
+
+## Creating and Rendering Views
+
+あなたは、ファイルをアプリケーションの `resources/views` ディレクトリに配置するか、または `make:view` Artisan command を使用することで view を作成することができます。 `.blade.php` 拡張子を持つファイルを配置してください:
+
+```shell
+php artisan make:view greeting
+```
+
+`.blade.php`拡張子は、このファイルが["" Blade templates "テンプレート](/ja/php/laravel/v11.x/04-the-basics/08-blade)を含んでいることをフレームワークに知らせます。"" Blade テンプレート""は"" HTML ""と同様に、"" values ""を簡単にエコーし、"if"ステートメントを作成し、"" data ""に反復するなど、"" Blade ""ディレクティブも含んでいます。
+
+一度 view を作成したら、グローバルな`view`ヘルパーを使用して、アプリケーションの routes またはコントローラの一つからそれを返すことができます。
+
+```php
+Route::get('/', function () {
+    return view('greeting', ['name' => 'James']);
+});
+```
+
+Views は、`View` facade を使用して返すこともできます：
+
+```php
+use Illuminate\Support\Facades\View;
+
+return View::make('greeting', ['name' => 'James']);
+```
+
+ご覧の通り、`view`helper に渡される最初の引数は、`resources/views`ディレクトリ内の view ファイルの名前に対応しています。二番目の引数は、 view で利用可能にするべき data の array です。この場合、私たちは`name`variables を渡しており、これは[Blade syntax](/ja/php/laravel/v11.x/04-the-basics/08-blade)を使って view で表示されます。
+
+<a name="nested-view-directories"></a>
+
+### ネストされた View ディレクトリ
+
+Views "は`resources/views`ディレクトリのサブディレクトリ内にネストすることもできます。 "ドット"表記法は、ネストされた" views "を参照するために使用することができます。例えば、あなたの" view "が`resources/views/admin/profile.blade.php`に保存されている場合、あなたのアプリケーションの" routes " / controllers の一つからそれを返すことができます：
+
+```php
+return view('admin.profile', $data);
+```
+
+> <LaravelNote type="warning" />
+> View ディレクトリ名には `.` 文字を含めてはいけません。
+
+<a name="creating-the-first-available-view"></a>
+
+### 最初の利用可能な View の作成
+
+`View`facade の`first`の method を使用すると、指定した array の中の最初の views を作成することができます。これは、あなたの application やパッケージが views をカスタマイズしたり、上書きすることを可能にする場合に有用です：
+
+```php
+use Illuminate\Support\Facades\View;
+
+return View::first(['custom.admin', 'admin'], $data);
+```
+
+<a name="determining-if-a-view-exists"></a>
+
+### View が存在するかどうかの判定
+
+view が存在するかどうかを判断する必要がある場合、`View` facade を使用することができます。 `exists` method は、 view が存在する場合に`true`を返します：
+
+```php
+use Illuminate\Support\Facades\View;
+
+if (View::exists('admin.profile')) {
+    // ...
+}
+```
+
+<a name="passing-data-to-views"></a>
+
+## Passing Data to Views
+
+前の例で見たように、 data の array を views に渡してその data を view で利用可能にすることができます:
+
+```php
+return view('greetings', ['name' => 'Victoria']);
+```
+
+このような方法で情報を伝える際、data は keys / value のペアを持つ array でなければなりません。 data を view に提供した後、`<?php echo $name; ?>` などの data の keys を使用して、view 内の各 value にアクセスできます。
+
+`view`ヘルパー関数に完全な array の data を渡す代わりに、`with` method を使用して個々の data を view に追加することができます。`with` method は view object のインスタンスを返し、 view を返す前にメソッドの連鎖を続けることができます。
+
+```php
+return view('greeting')
+            ->with('name', 'Victoria')
+            ->with('occupation', 'Astronaut');
+```
+
+<a name="sharing-data-with-all-views"></a>
+
+### すべての Views と Data の共有
+
+たまに、全ての views に data を共有する必要があるかもしれません。これは、`View`facade の`share` method を使って行うことができます。通常、`share` method への呼び出しは、service プロバイダの`boot` method 内に配置する必要があります。それらを`App\Providers\AppServiceProvider` class に追加するか、別の service provider を生成して格納することができます。
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\View;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        // ...
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        View::share('key', 'value');
+    }
+}
+```
+
+<a name="view-composers"></a>
+
+## View Composers
+
+View コンポーザーは、 View がレンダリングされるときに呼び出されるコールバックや class メソッドです。もし view がレンダリングされるたびに、ある data を view にバインドしたい場合、 view composer を使用すると、そのロジックを single の場所にまとめることができます。 view コンポーザーは特に、同じ view があなたの application 内の複数の routes やコントローラーから返され、常に特定の data が必要な場合に役立つかもしれません。
+
+通常、 view コンポーザは、アプリケーションの[service providers](/ja/php/laravel/v11.x/03-architecture-concepts/03-providers)のいずれかに登録されます。この例では、`App\Providers\AppServiceProvider`がこのロジックを保管すると仮定します。
+
+`View` facade の `composer` method を使用して、 view composer を register します。 Laravel は class ベースの view コンポーザー用の default ディレクトリを含んでいませんので、自由に整理することができます。例えば、application のすべての view コンポーザーを収納するための `app/View/Composers` ディレクトリを作成することができます。
+
+```php
+<?php
+
+namespace App\Providers;
+
+use App\View\Composers\ProfileComposer;
+use Illuminate\Support\Facades;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\View\View;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        // ...
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // Using class based composers...
+        Facades\View::composer('profile', ProfileComposer::class);
+
+        // Using closure based composers...
+        Facades\View::composer('welcome', function (View $view) {
+            // ...
+        });
+
+        Facades\View::composer('dashboard', function (View $view) {
+            // ...
+        });
+    }
+}
+```
+
+composer を登録したところで、`App\View\Composers\ProfileComposer` class の `compose` method は、`profile` view が rendering されるたびに実行されます。 composer class の例を見てみましょう：
+
+```php
+<?php
+
+namespace App\View\Composers;
+
+use App\Repositories\UserRepository;
+use Illuminate\View\View;
+
+class ProfileComposer
+{
+    /**
+     * Create a new profile composer.
+     */
+    public function __construct(
+        protected UserRepository $users,
+    ) {}
+
+    /**
+     * Bind data to the view.
+     */
+    public function compose(View $view): void
+    {
+        $view->with('count', $this->users->count());
+    }
+}
+```
+
+ご覧のとおり、すべての view コンポーザは[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されるので、コンポーザのコンストラクタ内で必要な依存関係をタイプヒントすることができます。
+
+<a name="attaching-a-composer-to-multiple-views"></a>
+
+#### 複数の Views に Composer を添付する
+
+あなたは`composer`の method の最初の引数として views の array を渡すことで、一度に複数の views に view composer を attach することができます。
+
+```php
+use App\Views\Composers\MultiComposer;
+use Illuminate\Support\Facades\View;
+
+View::composer(
+    ['profile', 'dashboard'],
+    MultiComposer::class
+);
+```
+
+`composer`の method もワイルドカードとして`*`文字を受け入れ、すべての views に composer を attach することを可能にします。
+
+```php
+use Illuminate\Support\Facades;
+use Illuminate\View\View;
+
+Facades\View::composer('*', function (View $view) {
+    // ...
+});
+```
+
+<a name="view-creators"></a>
+
+### View クリエイター
+
+View クリエーターは、 view コンポーザーにとても似ていますが、 view の render する直前を待つのではなく、 view がインスタンス化された直後に実行されます。 view クリエーターを register するには、`creator` method を使用してください：
+
+```php
+use App\View\Creators\ProfileCreator;
+use Illuminate\Support\Facades\View;
+
+View::creator('profile', ProfileCreator::class);
+```
+
+<a name="optimizing-views"></a>
+
+## Optimizing Views
+
+default では、 Blade テンプレートの views は要求に応じてコンパイルされます。 request が実行され、 view をレンダリングすると、 Laravel は view のコンパイル済みバージョンが存在するかどうかを判断します。ファイルが存在する場合、 Laravel は、未コンパイルの view がコンパイル済みの view よりも新しく変更されたかどうかを判断します。コンパイル済みの view が存在しないか、未コンパイルの view が変更されている場合、 Laravel は view を再コンパイルします。
+
+request 中に views をコンパイルすることは、パフォーマンスにわずかな悪影響を及ぼす可能性があるため、Laravel は`view:cache` Artisan command を提供して、application で使用されるすべての views を事前にコンパイルします。パフォーマンスを向上させるために、この command をデプロイメント process の一部として実行することを検討してみてください。
+
+```shell
+php artisan view:cache
+```
+
+あなたは `view:clear` command を使って view cache をクリアすることができます：
+
+```shell
+php artisan view:clear
+```
