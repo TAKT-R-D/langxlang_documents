@@ -44,8 +44,11 @@ org_title: "Laravel Fortify"
 
 Fortify は独自のユーザインターフェースを提供していないため、それを登録する routes への requests を行う独自のユーザインターフェースとペアにすることを意図しています。このドキュメントの残りの部分で、これらの routes への requests の方法について具体的に説明します。
 
-> [!NOTE]  
-> 覚えておいてください、Fortify は、Laravel の認証機能を実装するためのスタート地点を提供することを目的としたパッケージです。**それを使用することは必須ではありません。** [authentication](/ja/php/laravel/v11.x/06-security/authentication)、[password reset](/ja/php/laravel/v11.x/06-security/passwords)、そして[mail 認証](/ja/php/laravel/v11.x/06-security/verification)のドキュメンテーションが提供している通り、Laravel の認証 services と直接対話する自由が常にあります。
+> <LaravelNote type="note" />
+> 覚えておいてください、Fortify は、Laravel の認証機能を実装するためのスタート地点を提供することを目的としたパッケージです。**それを使用することは必須ではありません。**
+> [authentication](/ja/php/laravel/v11.x/06-security/authentication)、[password reset](/ja/php/laravel/v11.x/06-security/passwords)、そして[mail
+> 認証](/ja/php/laravel/v11.x/06-security/verification)のドキュメンテーションが提供している通り、Laravel
+> の認証 services と直接対話する自由が常にあります。
 
 <a name="what-is-fortify"></a>
 
@@ -237,8 +240,10 @@ default では、Fortify は`EnsureLoginIsNotThrottled` middleware を使用し�
 
 一部のアプリケーションでは、IP アドレスのみでのスロットリングなど、 authentication 試行を制御するための異なるアプローチが必要となる場合があります。そのため、 Fortify では、`fortify.limiters.login`設定オプションを通じて、独自の[レートリミッター](/ja/php/laravel/v11.x/04-the-basics/01-routing#rate-limiting)を指定することができます。もちろん、この設定オプションは、アプリケーションの`config/fortify.php`設定ファイル内に位置しています。
 
-> [!NOTE]  
-> スロットリング、[二要素 authentication](/ja/php/laravel/v11.x/10-packages/fortify#two-factor-authentication)、外部の webapplication ファイアウォール(WAF)を組み合わせて利用することで、正規の applicationuser のための最も強固な防御を提供できます。
+> <LaravelNote type="note" />
+> スロットリング、[二要素 authentication](/ja/php/laravel/v11.x/10-packages/fortify#two-factor-authentication)、外部の
+> webapplication ファイアウォール(WAF)を組み合わせて利用することで、正規の applicationuser
+> のための最も強固な防御を提供できます。
 
 <a name="customizing-authentication-redirects"></a>
 

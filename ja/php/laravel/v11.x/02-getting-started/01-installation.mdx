@@ -39,8 +39,9 @@ Laravel は、徹底的な dependency injection 、表現豊かな database abst
 
 あなたが PHP の web フレームワークに新しいのか、それとも何年もの経験を持っているのかに関係なく、 Laravel はあなたと共に成長するフレームワークです。私たちはあなたが初めて web 開発者としての一歩を踏み出すのを手助けし、またはあなたがあなたの専門知識を次のレベルに引き上げるのを後押しします。あなたが build するものを待つことができません。
 
-> [!NOTE]  
-> Laravel に初めて触れるなら、[Laravel Bootcamp](https://bootcamp.laravel.com)をチェックしてみてください。フレームワークの操作方法を手取り足取り教えつつ、あなたが初めての Laravel application を build するお手伝いをします。
+> <LaravelNote type="note" />
+> Laravel に初めて触れるなら、[Laravel Bootcamp](https://bootcamp.laravel.com)をチェックしてみてください。フレームワークの操作方法を手取り足取り教えつつ、あなたが初めての
+> Laravel application を build するお手伝いをします。
 
 <a name="why-laravel"></a>
 
@@ -94,8 +95,10 @@ php artisan serve
 
 Artisan 開発サーバーを起動すると、あなたの application はあなたの web ブラウザで [http://localhost:8000](http://localhost:8000) にアクセス可能になります。次に、あなたは [Laravel エコシステムへの次のステップを進める](#next-steps) 準備ができています。もちろん、 [database を設定する](#databases-and-migrations) こともできます。
 
-> [!NOTE]
-> Laravel application の開発をスタートさせたい場合は、[starter kits](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)の一つを使用することを検討してみてください。Laravel のスターターキットは、新しい Laravel application のバックエンドとフロントエンドの authentication スキャフォールディングを提供します。
+> <LaravelNote type="note" />
+> Laravel application の開発をスタートさせたい場合は、[starter kits](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)の一つを使用することを検討してみてください。Laravel
+> のスターターキットは、新しい Laravel application のバックエンドとフロントエンドの
+> authentication スキャフォールディングを提供します。
 
 <a name="initial-configuration"></a>
 
@@ -113,7 +116,8 @@ Laravel の設定オプションの values の多くは、あなたの applicati
 
 あなたの`.env` ファイルは、各開発者/サーバーが異なる environment 設定を必要とする可能性があるため、あなたの application のソースコントロールにコミットしてはならない。さらに、これは侵入者がソースコントロールリポジトリにアクセスを得た event に、セキュリティリスクになり得る。というのも、どんなにセンシティブな認証情報も露出するからである。
 
-> [!NOTE] > `.env`ファイルや environment に基づく設定についての詳細は、[設定のドキュメンテーション](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)をご覧ください。
+> <LaravelNote type="note" />
+> `.env`ファイルや environment に基づく設定についての詳細は、[設定のドキュメンテーション](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)をご覧ください。
 
 <a name="databases-and-migrations"></a>
 
@@ -140,7 +144,7 @@ SQLite 以外の database を使用することを選んだ場合は、 database
 php artisan migrate
 ```
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > macOS で開発を行い、ローカルに MySQL 、PostgreSQL、または Redis をインストールする必要がある場合は、[DBngin](https://dbngin.com/)の使用を検討してみてください。
 
 <a name="directory-configuration"></a>
@@ -159,8 +163,9 @@ Docker は、アプリケーションと services を小型で軽量な"containe
 
 Laravel Sail は、Laravel の default の Docker 設定と対話するための軽量 command ラインインターフェースです。 Sail は、PHP、 MySQL 、および Redis を使用した Laravel application の構築を始めるのに最適な出発点を提供し、Docker の経験が事前に必要なくなります。
 
-> [!NOTE]  
-> すでに Docker のエキスパートですか？心配しないでください！ Sail に関するすべては、 Laravel に付属の`docker-compose.yml`ファイルを使用してカスタマイズできます。
+> <LaravelNote type="note" />
+> すでに Docker のエキスパートですか？心配しないでください！ Sail に関するすべては、
+> Laravel に付属の`docker-compose.yml`ファイルを使用してカスタマイズできます。
 
 <a name="sail-on-macos"></a>
 
@@ -192,7 +197,7 @@ cd example-app
 
 最後に、あなたの web ブラウザーで application にアクセスできます: http://localhost
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Laravel Sail についてさらに学び続けるには、その[完全なドキュメンテーション](/ja/php/laravel/v11.x/10-packages/sail)をご覧ください。
 
 <a name="sail-on-windows"></a>
@@ -201,7 +206,7 @@ cd example-app
 
 あなたの Windows マシンで新しい Laravel application を作成する前に、まず[Docker Desktop](https://www.docker.com/products/docker-desktop)をインストールしてください。次に、Windows Subsystem for Linux 2(WSL2)がインストールされ、有効化されていることを確認する必要があります。WSL は、Windows 10 上でネイティブに Linux の binary 実行可能ファイルを実行できます。WSL2 のインストール方法と有効化方法についての情報は、Microsoft の[developer environment documentation](https://docs.microsoft.com/en-us/windows/wsl/install-win10)内で見つけることができます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > WSL2 をインストールして有効化した後、Docker Desktop が[WSL2 バックエンドを使用するように設定](https://docs.docker.com/docker-for-windows/wsl/)されていることを確認する必要があります。
 
 次に、あなたは初めての" Laravel project を作成する準備が整いました。[Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?rtc=1&activetab=pivot:overviewtab)を起動し、WSL2 Linux オペレーティングシステムの新しい" session "を開始します。次に、シンプルなターミナルの" command "を使用して新しい" Laravel project を作成できます。たとえば、"example-app"というディレクトリに新しい" Laravel application を作成するには、ターミナルで次の" command "を実行することができます。
@@ -230,7 +235,7 @@ cd example-app
 
 最後に、あなたの web ブラウザーで application にアクセスできます: http://localhost
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Laravel Sail についてさらに学び続けるためには、その[完全なドキュメンテーション](/ja/php/laravel/v11.x/10-packages/sail)をご覧ください。
 
 #### WSL2 内での開発
@@ -277,7 +282,7 @@ cd example-app
 
 最後に、あなたの web ブラウザで application にアクセスできます：http://localhost
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Laravel Sail についてさらに学び続けるためには、その[完全なドキュメンテーション](/ja/php/laravel/v11.x/10-packages/sail)をご覧ください。
 
 <a name="choosing-your-sail-services"></a>
@@ -325,8 +330,9 @@ Laravel アプリケーションを開発する際には、お好きな code エ
 
 あなたが Laravel をどのように使用したいかによって、次のステップも決まります。 Laravel の使用方法は様々であり、以下ではフレームワークの 2 つの primary な使用ケースについて探求します。
 
-> [!NOTE]  
-> Laravel に初めて触れる方は、フレームワークの実際の使い方を学びながら初めての Laravel application を作成する手引きとなる[Laravel Bootcamp](https://bootcamp.laravel.com)をご覧ください。
+> <LaravelNote type="note" />
+> Laravel に初めて触れる方は、フレームワークの実際の使い方を学びながら初めての Laravel
+> application を作成する手引きとなる[Laravel Bootcamp](https://bootcamp.laravel.com)をご覧ください。
 
 <a name="laravel-the-fullstack-framework"></a>
 
@@ -338,7 +344,7 @@ Laravel は完全な route フレームワークとして機能するかもし�
 
 Laravel をフル stack フレームワークとして使用している場合、アプリケーションの CSS と JavaScript を[Vite](/ja/php/laravel/v11.x/04-the-basics/09-vite)を使ってコンパイルする方法を学ぶことを強くお勧めします。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > あなたが application の開発を早めに始めたい場合は、私たちの公式[application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)のいずれかをご覧ください。
 
 <a name="laravel-the-api-backend"></a>
@@ -349,5 +355,7 @@ Laravel は、JavaScript のシングルページの application またはモバ
 
 もしこのように Laravel を使用する予定であれば、[routing](/ja/php/laravel/v11.x/04-the-basics/01-routing)、[Laravel Sanctum](/ja/php/laravel/v11.x/10-packages/sanctum)、そして[Eloquent ORM](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)に関する私たちのドキュメンテーションをチェックしてみてください。
 
-> [!NOTE]  
-> Laravel のバックエンドと Next.js のフロントエンドのスキャフォールディングに先行して必要ですか？ Laravel Breeze は[API stack](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#breeze-and-next)と[Next.js のフロントエンドの実装](https://github.com/laravel/breeze-next)を提供していますので、数分で始めることができます。
+> <LaravelNote type="note" />
+> Laravel のバックエンドと Next.js のフロントエンドのスキャフォールディングに先行して必要ですか？
+> Laravel Breeze は[API stack](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits#breeze-and-next)と[Next.js
+> のフロントエンドの実装](https://github.com/laravel/breeze-next)を提供していますので、数分で始めることができます。

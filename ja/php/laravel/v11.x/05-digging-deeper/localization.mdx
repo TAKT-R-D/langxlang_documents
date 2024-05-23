@@ -28,8 +28,9 @@ org_title: "Localization"
 
 ## Introduction
 
-> [!NOTE]  
-> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
+> <LaravelNote type="note" />
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel
+> の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 Laravel の localization features は、さまざまな言語で文字列を取得する便利な方法を提供し、あなたの application 内で複数の言語を簡単にサポートできるようにします。
 
@@ -123,7 +124,7 @@ public function boot(): void
 }
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 複数形定義の言語をカスタマイズする場合、あなたの Eloquent モデルの[テーブル名](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#table-names)を明示的に定義するべきです。
 
 <a name="defining-translation-strings"></a>
@@ -156,8 +157,9 @@ return [
 ];
 ```
 
-> [!WARNING]  
-> 領土ごとに異なる言語については、言語ディレクトリを ISO 15897 に従って命名する必要があります。例えば、イギリス英語では "en_GB" が "en-gb" よりも適切です。
+> <LaravelNote type="warning" />
+> 領土ごとに異なる言語については、言語ディレクトリを ISO 15897 に従って命名する必要があります。例えば、イギリス英語では
+> "en_GB" が "en-gb" よりも適切です。
 
 <a name="using-translation-strings-as-keys"></a>
 

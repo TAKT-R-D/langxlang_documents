@@ -299,7 +299,7 @@ Cache::add('key', 'value', $seconds);
 Cache::forever('key', 'value');
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Memcached driver を使用している場合、"永久に"保存されるアイテムは、 cache がそのサイズ制限に達したときに削除される可能性があります。
 
 <a name="removing-items-from-the-cache"></a>
@@ -326,8 +326,9 @@ Cache::put('key', 'value', -5);
 Cache::flush();
 ```
 
-> [!WARNING]  
-> cache のフラッシュは、設定した cache の"prefix"を尊重せず、 cache からすべてのエントリを削除します。他のアプリケーションと共有している cache をクリアする際には、これを慎重に考慮してください。
+> <LaravelNote type="warning" />
+> cache のフラッシュは、設定した cache の"prefix"を尊重せず、 cache からすべてのエントリを削除します。他のアプリケーションと共有している
+> cache をクリアする際には、これを慎重に考慮してください。
 
 <a name="the-cache-helper"></a>
 
@@ -355,15 +356,18 @@ cache()->remember('users', $seconds, function () {
 });
 ```
 
-> [!NOTE]  
-> testing 中にグローバルな `cache` 関数を呼び出すと、[facade の testing](/ja/php/laravel/v11.x/09-testing/06-mocking#mocking-facades)を行うかのように `Cache::shouldReceive` method を使用することができます。
+> <LaravelNote type="note" />
+> testing 中にグローバルな `cache` 関数を呼び出すと、[facade の testing](/ja/php/laravel/v11.x/09-testing/06-mocking#mocking-facades)を行うかのように
+> `Cache::shouldReceive` method を使用することができます。
 
 <a name="atomic-locks"></a>
 
 ## Atomic Locks
 
-> [!WARNING]  
-> この feature を利用するために、あなたの application は、`memcached`、`redis`、`dynamodb`、`database`、`file`、または`array`の cache driver を、あなたのアプリケーションの default cache driver として使用する必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
+> <LaravelNote type="warning" />
+> この feature を利用するために、あなたの application は、`memcached`、`redis`、`dynamodb`、`database`、`file`、または`array`の
+> cache driver を、あなたのアプリケーションの default cache driver として使用する必要があります。さらに、すべてのサーバーは同じ中央の
+> cache サーバーと通信している必要があります。
 
 <a name="managing-locks"></a>
 
@@ -487,8 +491,10 @@ Cache::extend('mongo', function (Application $app) {
 });
 ```
 
-> [!NOTE]  
-> もし custom cache driver code をどこに配置すればいいか疑問に思っているなら、`app`ディレクトリ内に`Extensions`という名前空間を作成することができます。ただし、 Laravel は厳密な application の構造を持っていないことと、あなたが自由に自分の application を整理することができるということを覚えておいてください。
+> <LaravelNote type="note" />
+> もし custom cache driver code をどこに配置すればいいか疑問に思っているなら、`app`ディレクトリ内に`Extensions`という名前空間を作成することができます。ただし、
+> Laravel は厳密な application の構造を持っていないことと、あなたが自由に自分の application
+> を整理することができるということを覚えておいてください。
 
 <a name="registering-the-driver"></a>
 

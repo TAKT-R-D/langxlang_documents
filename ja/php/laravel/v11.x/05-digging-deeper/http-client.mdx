@@ -342,8 +342,9 @@ $response = Http::withToken($this->getToken())->retry(2, 0, function (Exception 
 $response = Http::retry(3, 100, throw: false)->post(/* ... */);
 ```
 
-> [!WARNING]  
-> すべての requests が接続問題のために失敗した場合でも、`throw` 引数が `false` に設定されている場合でも、`Illuminate\Http\Client\ConnectionException` が throw されます。
+> <LaravelNote type="warning" />
+> すべての requests が接続問題のために失敗した場合でも、`throw` 引数が `false` に設定されている場合でも、`Illuminate\Http\Client\ConnectionException`
+> が throw されます。
 
 <a name="error-handling"></a>
 

@@ -69,8 +69,9 @@ broadcasting の背後にある基本的なコンセプトはシンプルです�
 
 default として、 Laravel は以下の 3 つのサーバーサイド broadcasting ドライバーを選択できます： [Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、そして [Ably](https://ably.com)。
 
-> [!NOTE]  
-> event broadcasting に深く潜る前に、まず Laravel のドキュメンテーションの[events と listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を読んでおくことを確認してください。
+> <LaravelNote type="note" />
+> event broadcasting に深く潜る前に、まず Laravel のドキュメンテーションの[events
+> と listeners](/ja/php/laravel/v11.x/05-digging-deeper/events)を読んでおくことを確認してください。
 
 <a name="server-side-installation"></a>
 
@@ -160,8 +161,11 @@ BROADCAST_CONNECTION=pusher
 
 ### Ably
 
-> [!NOTE]  
-> 以下のドキュメンテーションでは、Ably を"Pusher compatibility"モードで使用する方法について説明します。ただし、Ably チームは、Ably が提供する unique な機能を活用できる broadcaster と Echo の client を推奨し、メンテナンスしています。Ably がメンテナンスしているドライバーの使用方法についての詳細は、[Ably の Laravel broadcaster のドキュメント](https://github.com/ably/laravel-broadcaster)を参照してください。
+> <LaravelNote type="note" />
+> 以下のドキュメンテーションでは、Ably を"Pusher compatibility"モードで使用する方法について説明します。ただし、Ably
+> チームは、Ably が提供する unique な機能を活用できる broadcaster と Echo の client
+> を推奨し、メンテナンスしています。Ably がメンテナンスしているドライバーの使用方法についての詳細は、[Ably
+> の Laravel broadcaster のドキュメント](https://github.com/ably/laravel-broadcaster)を参照してください。
 
 [Ably](https://ably.com)を使用してあなたの events を broadcast する予定がある場合は、 Composer パッケージマネージャーを使用して Ably PHP SDK をインストールする必要があります：
 
@@ -222,7 +226,7 @@ window.Echo = new Echo({
 npm run build
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > Laravel Echo の`reverb`ブロードキャスターは、Laravel-echo v1.16.0 以降が必要です。
 
 <a name="client-pusher-channels"></a>
@@ -278,7 +282,7 @@ VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 npm run build
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > ご自身のアプリケーションの JavaScript アセットのコンパイルについて詳しく学ぶには、[Vite](/ja/php/laravel/v11.x/04-the-basics/09-vite)に関するドキュメンテーションをご参照ください。
 
 <a name="using-an-existing-client-instance"></a>
@@ -306,8 +310,11 @@ window.Echo = new Echo({
 
 ### Ably
 
-> [!NOTE]  
-> 以下のドキュメンテーションでは、Ably を"Pusher 互換性"モードで使う方法について説明します。しかし、Ably チームは、Ably が提供する unique な機能を活用できる broadcaster と Echo の client を推奨し、維持しています。Ably が維持しているドライバーの使用に関する詳細情報は、[Ably の Laravel broadcaster ドキュメンテーション](https://github.com/ably/laravel-broadcaster)をご覧ください。
+> <LaravelNote type="note" />
+> 以下のドキュメンテーションでは、Ably を"Pusher 互換性"モードで使う方法について説明します。しかし、Ably
+> チームは、Ably が提供する unique な機能を活用できる broadcaster と Echo の client
+> を推奨し、維持しています。Ably が維持しているドライバーの使用に関する詳細情報は、[Ably
+> の Laravel broadcaster ドキュメンテーション](https://github.com/ably/laravel-broadcaster)をご覧ください。
 
 [Laravel Echo](https://github.com/laravel/echo)は、チャンネルへの subscribe を容易にし、サーバーサイドの broadcasting driver によって events broadcast を待ち受ける JavaScript library です。Echo はまた、WebSocket の subscriptions、チャネル、メッセージのための Pusher プロトコルを実装するために `pusher-js` NPM パッケージを活用します。
 
@@ -345,7 +352,7 @@ window.Echo = new Echo({
 npm run dev
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > ご自身のアプリケーションの JavaScript アセットをコンパイルする方法について詳しく知るには、[Vite](/ja/php/laravel/v11.x/04-the-basics/09-vite)のドキュメンテーションをご参照ください。
 
 <a name="concept-overview"></a>
@@ -652,8 +659,9 @@ class ServerCreated implements ShouldBroadcast, ShouldDispatchAfterCommit
 }
 ```
 
-> [!NOTE]  
-> これらの問題を回避する方法について詳しく知るために、[queue 内の jobs と database transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> これらの問題を回避する方法について詳しく知るために、[queue 内の jobs と database
+> transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
 
 <a name="authorizing-channels"></a>
 
@@ -702,8 +710,10 @@ Broadcast::channel('orders.{order}', function (User $user, Order $order) {
 });
 ```
 
-> [!WARNING]  
-> HTTProutemodel バインディングとは異なり、channelsmodel バインディングは自動的な[暗黙の model バインディング scope](/ja/php/laravel/v11.x/04-the-basics/01-routing#implicit-model-binding-scoping)をサポートしていません。しかし、ほとんどの channels はシングル model の unique で primary な key に基づいて scope 化することができるため、これはほとんど問題になりません。
+> <LaravelNote type="warning" />
+> HTTProutemodel バインディングとは異なり、channelsmodel バインディングは自動的な[暗黙の
+> model バインディング scope](/ja/php/laravel/v11.x/04-the-basics/01-routing#implicit-model-binding-scoping)をサポートしていません。しかし、ほとんどの
+> channels はシングル model の unique で primary な key に基づいて scope 化することができるため、これはほとんど問題になりません。
 
 <a name="authorization-callback-authentication"></a>
 
@@ -765,8 +775,9 @@ class OrderChannel
 }
 ```
 
-> [!NOTE]  
-> Laravel の他の多くのクラスと同様に、 channel クラスは自動的に[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって解決されます。したがって、コンストラクタで channel が required する任意の依存関係をタイプヒントとして指定することができます。
+> <LaravelNote type="note" />
+> Laravel の他の多くのクラスと同様に、 channel クラスは自動的に[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって解決されます。したがって、コンストラクタで
+> channel が required する任意の依存関係をタイプヒントとして指定することができます。
 
 <a name="broadcasting-events"></a>
 
@@ -802,8 +813,9 @@ axios.post("/task", task).then((response) => {
 
 ただし、タスクの作成を broadcast も行うことを覚えておいてください。もし JavaScript application がこの event をリッスンしてタスクリストにタスクを追加するなら、リスト内に重複したタスクが表示されるでしょう：１つはエンドポイントから、もう１つは broadcast からです。これを解決するには、 `toOthers` “method を使用して、現在の “user に対して broadcast を行わないようにブロードキャスターに指示します。
 
-> [!WARNING]  
-> あなたの event は、`toOthers` method を呼び出すためには、`Illuminate\Broadcasting\InteractsWithSockets` trait を使用する必要があります。
+> <LaravelNote type="warning" />
+> あなたの event は、`toOthers` method を呼び出すためには、`Illuminate\Broadcasting\InteractsWithSockets`
+> trait を使用する必要があります。
 
 <a name="only-to-others-configuration"></a>
 
@@ -1088,8 +1100,9 @@ Echo.join(`chat.${roomId}`)
 
 ## Model Broadcasting
 
-> [!WARNING]  
-> 次の model broadcasting に関する文書を読む前に、Laravel の model broadcasting services の一般的な概念、および broadcast events の手動作成とリスニング方法について理解することをお勧めします。
+> <LaravelNote type="warning" />
+> 次の model broadcasting に関する文書を読む前に、Laravel の model broadcasting services
+> の一般的な概念、および broadcast events の手動作成とリスニング方法について理解することをお勧めします。
 
 あなたのアプリケーションの[Eloquent models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)が作成、更新、または削除されたときに、 broadcast events を行うことが一般的です。もちろん、これは手動で[Eloquent model state の変更に対して custom events を定義](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#events)し、それらの events を `ShouldBroadcast`インターフェースでマークすることで簡単に実現できます。
 
@@ -1282,8 +1295,10 @@ Echo.private(`App.Models.User.${this.user.id}`).listen(".PostUpdated", (e) => {
 
 ## Client Events
 
-> [!NOTE]  
-> [Pusher Channels](https://pusher.com/channels)を使用する際には、あなたの[application ダッシュボード](https://dashboard.pusher.com/) の "App Settings" セクションで "client events" option を有効にする必要があります。これにより、clientevent を送信することができます。
+> <LaravelNote type="note" />
+> [Pusher Channels](https://pusher.com/channels)を使用する際には、あなたの[application
+> ダッシュボード](https://dashboard.pusher.com/) の "App Settings" セクションで "client
+> events" option を有効にする必要があります。これにより、clientevent を送信することができます。
 
 時々、あなたは Laravel application に全く接触せずに、他の接続されたクライアントに event を broadcast したいと思うことがあるかもしれません。これは、typing のような notifications で特に便利で、あなたの application の他の user が特定の画面でメッセージを入力していることを alert users に知らせたいときに便利です。
 

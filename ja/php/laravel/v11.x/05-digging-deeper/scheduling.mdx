@@ -341,8 +341,10 @@ Schedule::command('report:generate')
 'schedule_timezone' => 'America/Chicago',
 ```
 
-> [!WARNING]  
-> 一部のタイムゾーンでは夏時間が利用されていることを覚えておいてください。夏時間の切り替え時には、スケジュールされたタスクが 2 回実行されるか、またはまったく実行されないかもしれません。そのため、可能な限り timezone によるスケジューリングは避けることをお勧めします。
+> <LaravelNote type="warning" />
+> 一部のタイムゾーンでは夏時間が利用されていることを覚えておいてください。夏時間の切り替え時には、スケジュールされたタスクが
+> 2 回実行されるか、またはまったく実行されないかもしれません。そのため、可能な限り
+> timezone によるスケジューリングは避けることをお勧めします。
 
 <a name="preventing-task-overlaps"></a>
 
@@ -370,8 +372,10 @@ Schedule::command('emails:send')->withoutOverlapping(10);
 
 ### 一つのサーバー上でのタスク実行
 
-> [!WARNING]  
-> この feature を利用するためには、あなたの application は`database`、`memcached`、`dynamodb`、または`redis` cache driver をアプリケーションの default cache driver として使用している必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
+> <LaravelNote type="warning" />
+> この feature を利用するためには、あなたの application は`database`、`memcached`、`dynamodb`、または`redis`
+> cache driver をアプリケーションの default cache driver として使用している必要があります。さらに、すべてのサーバーは同じ中央の
+> cache サーバーと通信している必要があります。
 
 あなたのアプリケーションのスケジューラが複数のサーバーで実行されている場合、スケジュールされた job を single サーバーでのみ実行するように制限することができます。例えば、毎週金曜日の夜に新しいレポートを生成するスケジュールされたタスクがあるとします。タスクスケジューラが 3 つのワーカーサーバーで実行されている場合、スケジュールされたタスクはすべての 3 つのサーバーで実行され、レポートが 3 回生成されます。良くない！
 
@@ -427,7 +431,7 @@ Schedule::command('analytics:report')
          ->runInBackground();
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `runInBackground`の method は、`command`および`exec`メソッドを介してタスクをスケジュールする際にのみ使用できます。
 
 <a name="maintenance-mode"></a>
@@ -539,7 +543,7 @@ Schedule::command('report:generate')
          ->emailOutputOnFailure('taylor@example.com');
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `emailOutputTo`、`emailOutputOnFailure`、`sendOutputTo`、および`appendOutputTo`メソッドは、`command`および`exec`メソッド専用です。
 
 <a name="task-hooks"></a>

@@ -60,8 +60,9 @@ php artisan make:resource UserCollection
 
 ## Concept Overview
 
-> [!NOTE]  
-> これは resources と resource collections の概観です。このドキュメンテーションの他のセクションを読むことを強くお勧めします。それにより、 resources が提供するカスタマイズとパワーについてより深く理解することができます。
+> <LaravelNote type="note" />
+> これは resources と resource collections の概観です。このドキュメンテーションの他のセクションを読むことを強くお勧めします。それにより、
+> resources が提供するカスタマイズとパワーについてより深く理解することができます。
 
 resources を書く際に利用可能な options すべてに飛び込む前に、まず Laravel 内で resources がどのように使われているかを大まかに見てみましょう。 resource class は、 JSON 構造に変換する必要がある single model を表しています。例えば、以下に簡単な`UserResource` resource class を示します：
 
@@ -232,7 +233,7 @@ class UserCollection extends ResourceCollection
 
 ## Writing Resources
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > あなたがまだ[コンセプトの概要](#concept-overview)を読んでいない場合、このドキュメントを進める前にぜひ読んでいただくことを強くおすすめします。
 
 Resources は、与えられた model を array に変換するだけです。したがって、各 resource は、model の属性を API フレンドリーな array に変換する`toArray` method を含んでいます。これは、application の routes またはコントローラから返すことができます。
@@ -304,7 +305,7 @@ public function toArray(Request $request): array
 }
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > すでに読み込まれたものだけを関連付けに含めたい場合は、[conditional relationships](#conditional-relationships)に関するドキュメンテーションを確認してください。
 
 <a name="writing-resource-collections"></a>
@@ -415,8 +416,9 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-> [!WARNING]  
-> `withoutWrapping`の method は最も外側の response のみに影響を与え、手動で自身の resource collections に追加した`data`の keys を削除することはありません。
+> <LaravelNote type="warning" />
+> `withoutWrapping`の method は最も外側の response のみに影響を与え、手動で自身の
+> resource collections に追加した`data`の keys を削除することはありません。
 
 <a name="wrapping-nested-resources"></a>
 
@@ -634,8 +636,9 @@ public function toArray(Request $request): array
 
 再度、指定された条件が`false`である場合、これらの attributes は resource response から送信前に client へ送る前に削除されます。
 
-> [!WARNING]  
-> `mergeWhen` method は、 string と数 values の keys を混在させた arrays 内で使用するべきではありません。さらに、連続的に並んでいない数 values の keys を持つ arrays 内でも使用すべきではありません。
+> <LaravelNote type="warning" />
+> `mergeWhen` method は、 string と数 values の keys を混在させた arrays 内で使用するべきではありません。さらに、連続的に並んでいない数
+> values の keys を持つ arrays 内でも使用すべきではありません。
 
 <a name="conditional-relationships"></a>
 

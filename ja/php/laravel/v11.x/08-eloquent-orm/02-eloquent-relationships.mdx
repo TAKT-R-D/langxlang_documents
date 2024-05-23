@@ -413,8 +413,9 @@ public function largestOrder(): HasOne
 }
 ```
 
-> [!WARNING]  
-> PostgreSQL は、`MAX`関数を UUID 列に対して実行することをサポートしていないため、現在、PostgreSQL の UUID 列との組み合わせで one-of-many 関係を使用することはできません。
+> <LaravelNote type="warning" />
+> PostgreSQL は、`MAX`関数を UUID 列に対して実行することをサポートしていないため、現在、PostgreSQL
+> の UUID 列との組み合わせで one-of-many 関係を使用することはできません。
 
 <a name="converting-many-relationships-to-has-one-relationships"></a>
 
@@ -790,8 +791,9 @@ return $this->belongsToMany(Role::class)->withPivot('active', 'created_by');
 return $this->belongsToMany(Role::class)->withTimestamps();
 ```
 
-> [!WARNING]  
-> Eloquent の自動的にメンテンされるタイムスタンプを利用する中間テーブルは、`created_at`と`updated_at`の両方の timestamp column が required です。
+> <LaravelNote type="warning" />
+> Eloquent の自動的にメンテンされるタイムスタンプを利用する中間テーブルは、`created_at`と`updated_at`の両方の
+> timestamp column が required です。
 
 <a name="customizing-the-pivot-attribute-name"></a>
 
@@ -905,8 +907,10 @@ class RoleUser extends Pivot
 }
 ```
 
-> [!WARNING]  
-> Pivot models は`SoftDeletes`トレイトを使用できません。もしピボットの delete pivot レコードをソフトに削除する必要がある場合は、あなたの pivot model を実際の Eloquent model に変換を検討してください。
+> <LaravelNote type="warning" />
+> Pivot models は`SoftDeletes`トレイトを使用できません。もしピボットの delete pivot
+> レコードをソフトに削除する必要がある場合は、あなたの pivot model を実際の Eloquent
+> model に変換を検討してください。
 
 <a name="custom-pivot-models-and-incrementing-ids"></a>
 
@@ -1205,8 +1209,9 @@ public function bestImage(): MorphOne
 }
 ```
 
-> [!NOTE]  
-> より高度な "one of many" 関係を構築することが可能です。詳細は、[has one of many documentation](#advanced-has-one-of-many-relationships)をご覧ください。
+> <LaravelNote type="note" />
+> より高度な "one of many" 関係を構築することが可能です。詳細は、[has one of many
+> documentation](#advanced-has-one-of-many-relationships)をご覧ください。
 
 <a name="many-to-many-polymorphic-relations"></a>
 
@@ -1237,7 +1242,7 @@ taggables
     taggable_type - string
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > ポリモーフィックな Many to Many の関係に深入りする前に、典型的な[Many to Many の関係](#many-to-many)に関する文書を読むことで有益な情報を得ることができます。
 
 <a name="many-to-many-polymorphic-model-structure"></a>
@@ -1365,8 +1370,9 @@ $alias = $post->getMorphClass();
 $class = Relation::getMorphedModel($alias);
 ```
 
-> [!WARNING]  
-> 既存の application に morph map を追加すると、`*_type` column value (列の値)でまだ完全に限定された class を含んでいる全ての database (データベース)を map 名に変換する必要があります。
+> <LaravelNote type="warning" />
+> 既存の application に morph map を追加すると、`*_type` column value (列の値)でまだ完全に限定された
+> class を含んでいる全ての database (データベース)を map 名に変換する必要があります。
 
 <a name="dynamic-relationships"></a>
 
@@ -1385,7 +1391,7 @@ Order::resolveRelationUsing('customer', function (Order $orderModel) {
 });
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 動的な関係を定義する際は、常に明示的なキー名の引数を Eloquent のリレーションシップメソッドに提供してください。
 
 <a name="querying-relations"></a>
@@ -1531,8 +1537,9 @@ $posts = Post::whereHas('comments', function (Builder $query) {
 }, '>=', 10)->get();
 ```
 
-> [!WARNING]  
-> Eloquent は現在、データベース間での関連性の存在に対するクエリをサポートしていません。関連性は同じ database 内に存在しなければなりません。
+> <LaravelNote type="warning" />
+> Eloquent は現在、データベース間での関連性の存在に対するクエリをサポートしていません。関連性は同じ
+> database 内に存在しなければなりません。
 
 <a name="inline-relationship-existence-queries"></a>
 
@@ -1947,7 +1954,7 @@ $activities = ActivityFeed::query()
 $books = Book::with('author:id,name,book_id')->get();
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > この feature を使用する際は、常に`id` column と関連する外部キー列を取得したい列のリストに含めるべきです。
 
 <a name="eager-loading-by-default"></a>
@@ -2275,7 +2282,7 @@ $user->posts()->createManyQuietly([
 
 また、`findOrNew`、`firstOrNew`、`firstOrCreate`、および`updateOrCreate`メソッドを使用して、[リレーションシップ上で update models](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#upserts)こともできます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > `create` method を使用する前に、必ず[mass assignment](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)のドキュメントを確認してください。
 
 <a name="updating-belongs-to-relationships"></a>
@@ -2445,5 +2452,5 @@ class Comment extends Model
 }
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 親の model のタイムスタンプは、子の model が Eloquent の `save` method を使って更新された場合にのみ更新されます。

@@ -86,7 +86,7 @@ class UserFactory extends Factory
 
 `fake`ヘルパーを参照して、ファクトリは[Faker](https://github.com/FakerPHP/Faker) PHP library にアクセスでき、これにより testing や seeding 用の様々な種類の random data を便利に生成することができます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > アプリケーションの Faker locale を変更するには、`config/app.php`設定ファイルの`faker_locale`オプションを更新します。
 
 <a name="defining-model-factories"></a>
@@ -284,8 +284,9 @@ $user = User::factory()->state([
 ])->make();
 ```
 
-> [!NOTE]  
-> [マスアサインメント保護](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)は、ファクトリを使用して models を作成するときに自動的に無効になります。
+> <LaravelNote type="note" />
+> [マスアサインメント保護](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)は、ファクトリを使用して
+> models を作成するときに自動的に無効になります。
 
 <a name="persisting-models"></a>
 

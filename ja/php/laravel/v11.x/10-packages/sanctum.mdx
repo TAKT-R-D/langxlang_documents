@@ -64,8 +64,9 @@ Laravel Sanctum は、 user API tokens を single database テーブルに保存
 
 Sanctum は、受け取った request が自分の SPA フロントエンドから来たものである時だけ、cookies を使用して authentication を試みます。Sanctum が到着する HTTP request を調べるとき、最初に authenticationcookies を確認し、なければ、 `Authorization` header で有効な API token を調査します。
 
-> [!NOTE]  
-> Sanctum を API token 認証のみに使用するか、または SPA の authentication のみに使用することは全く問題ありません。 Sanctum を使用するからといって、提供されている両方の機能を使用することが必須というわけではありません。
+> <LaravelNote type="note" />
+> Sanctum を API token 認証のみに使用するか、または SPA の authentication のみに使用することは全く問題ありません。
+> Sanctum を使用するからといって、提供されている両方の機能を使用することが必須というわけではありません。
 
 <a name="installation"></a>
 
@@ -117,8 +118,9 @@ public function boot(): void
 
 ## API Token Authentication
 
-> [!NOTE]  
-> 自身の第一者 SPA を認証するために API tokens を使用するべきではありません。代わりに、Sanctum の組み込み[SPA authentication features](#spa-authentication)を使用してください。
+> <LaravelNote type="note" />
+> 自身の第一者 SPA を認証するために API tokens を使用するべきではありません。代わりに、Sanctum
+> の組み込み[SPA authentication features](#spa-authentication)を使用してください。
 
 <a name="issuing-api-tokens"></a>
 
@@ -293,8 +295,10 @@ Sanctum は、 Laravel により制御された API と通信する必要があ�
 
 この feature では、 Sanctum はどの種類の tokens も使用しません。代わりに、 Sanctum は Laravel の組み込み cookie ベースの session authentication services を使用します。この authentication のアプローチは、 CSRF protection や session authentication の利点を提供するとともに、XSS による authentication 資格情報の漏洩から保護します。
 
-> [!WARNING]  
-> 認証するためには、あなたの SPA と API は同じトップレベルの domain を共有する必要があります。ただし、それらは異なるサブドメインに配置することができます。さらに、`Accept: application/json` header と、`Referer`または`Origin` header をあなたの request とともに送信することを確認する必要があります。
+> <LaravelNote type="warning" />
+> 認証するためには、あなたの SPA と API は同じトップレベルの domain を共有する必要があります。ただし、それらは異なるサブドメインに配置することができます。さらに、`Accept:
+> application/json` header と、`Referer`または`Origin` header をあなたの request
+> とともに送信することを確認する必要があります。
 
 <a name="spa-configuration"></a>
 
@@ -306,8 +310,9 @@ Sanctum は、 Laravel により制御された API と通信する必要があ�
 
 まず、SPA がリクエストを行うドメインを設定する必要があります。これらのドメインは、`sanctum` 設定ファイルの `stateful` 設定オプションを使用して設定できます。この設定は、API へのリクエストを行う際に Laravel のセッション cookies を使用して "stateful" 認証を維持するドメインを決定します。
 
-> [!WARNING]  
-> `127.0.0.1:8000`などのポートを含む URL を通じて application にアクセスしている場合、 domain 内でポート番号を含めることを確認してください。
+> <LaravelNote type="warning" />
+> `127.0.0.1:8000`などのポートを含む URL を通じて application にアクセスしている場合、
+> domain 内でポート番号を含めることを確認してください。
 
 <a name="sanctum-middleware"></a>
 
@@ -376,8 +381,10 @@ axios.get("/sanctum/csrf-cookie").then((response) => {
 
 もちろん、ユーザーの session が活動不足によって期限切れになると、その後の Laravel application への要求では、401 または 419 の HTTP error response を受け取る可能性があります。この場合、あなたは user をあなたの SPA のログインページに redirect すべきです。
 
-> [!WARNING]  
-> あなたは自由に自分の`/login`エンドポイントを作成することができます。ただし、通常、それは`web`の authentication ガードを使用することを意味します。[Laravel が提供する標準的な、user が session ベースの authenticationservices を使用して authentication する](/ja/php/laravel/v11.x/06-security/authentication#authenticating-users)ように確認してください。
+> <LaravelNote type="warning" />
+> あなたは自由に自分の`/login`エンドポイントを作成することができます。ただし、通常、それは`web`の
+> authentication ガードを使用することを意味します。[Laravel が提供する標準的な、user
+> が session ベースの authenticationservices を使用して authentication する](/ja/php/laravel/v11.x/06-security/authentication#authenticating-users)ように確認してください。
 
 <a name="protecting-spa-routes"></a>
 
@@ -480,7 +487,7 @@ Route::post('/sanctum/token', function (Request $request) {
 
 モバイルの application があなたの application に対して token を使用して APIrequest を行うとき、それは`Authorization`の header として`Bearer`の token を渡すべきです。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > モバイル application の token を発行する際には、[tokens の能力](#token-abilities)を自由に指定することもできます。
 
 <a name="protecting-mobile-api-routes"></a>

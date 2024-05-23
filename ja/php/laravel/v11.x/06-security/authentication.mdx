@@ -53,7 +53,7 @@ providers は、永続的な storage から users がどのように retrieved �
 
 あなたのアプリケーションの authentication 設定ファイルは`config/auth.php`に位置しています。このファイルには、Laravel の authentication services の動作を調整するための、よく文書化された options がいくつか含まれています。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > ガードと providers は、ロールとパーミッションと混同しないでください。 user のアクションをパーミッションを介して認可する方法の詳細については、[authorization](/ja/php/laravel/v11.x/06-security/authorization)のドキュメンテーションを参照してください。
 
 <a name="starter-kits"></a>
@@ -136,8 +136,11 @@ Passport は、あなたの application が OAuth2 仕様で提供される全�
 
 ## Authentication Quickstart
 
-> [!WARNING]  
-> このドキュメンテーションの一部では、 [Laravel application starter kits](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits) を通じて users を認証する方法について説明しています。これには、すばやく始められるように UI の足場を提供しています。もし Laravel の authentication システムと直接連携したい場合は、 [手動で users を認証する](#authenticating-users) のドキュメンテーションを参照してください。
+> <LaravelNote type="warning" />
+> このドキュメンテーションの一部では、 [Laravel application starter kits](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)
+> を通じて users を認証する方法について説明しています。これには、すばやく始められるように
+> UI の足場を提供しています。もし Laravel の authentication システムと直接連携したい場合は、
+> [手動で users を認証する](#authenticating-users) のドキュメンテーションを参照してください。
 
 <a name="install-a-starter-kit"></a>
 
@@ -205,8 +208,10 @@ if (Auth::check()) {
 }
 ```
 
-> [!NOTE]  
-> `check` method を使って user が authentication 済みかどうかを判断することが可能ですが、通常は user が authentication 済みであることを確認してから、 user に特定の routes /コントローラーにアクセスを許可するために middleware を使います。これについて詳しく知りたい方は、[routes の保護](/ja/php/laravel/v11.x/06-security/authentication#protecting-routes)に関するドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> `check` method を使って user が authentication 済みかどうかを判断することが可能ですが、通常は
+> user が authentication 済みであることを確認してから、 user に特定の routes /コントローラーにアクセスを許可するために
+> middleware を使います。これについて詳しく知りたい方は、[routes の保護](/ja/php/laravel/v11.x/06-security/authentication#protecting-routes)に関するドキュメンテーションをご覧ください。
 
 <a name="protecting-routes"></a>
 
@@ -255,7 +260,7 @@ Route::get('/flights', function () {
 
 Laravel Breeze または Laravel Jetstream [スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)を使用している場合、log イン試行に対して自動的に rate limiting が適用されます。default では、user が何度も試行しても正しい authentication 情報を提供できない場合、1 分間 log インできません。なお、制限は user の username / email アドレスとその IP アドレスに対して unique に適用されます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 他の routes をあなたの application でレート制限したい場合は、[rate limiting documentation](/ja/php/laravel/v11.x/04-the-basics/01-routing#rate-limiting)をご覧ください。
 
 <a name="authenticating-users"></a>
@@ -334,8 +339,9 @@ if (Auth::attempt([
 }
 ```
 
-> [!WARNING]  
-> これらの例で、`email`は必須の option ではなく、単に例として使用されています。あなたの database テーブルで user 名に対応する column 名を使用すべきです。
+> <LaravelNote type="warning" />
+> これらの例で、`email`は必須の option ではなく、単に例として使用されています。あなたの
+> database テーブルで user 名に対応する column 名を使用すべきです。
 
 `attemptWhen`という method は、2 番目の引数としてクロージャを受け取ることができ、これを利用して user を実際に authentication する前に、その user をより詳細に検査することができます。クロージャは user を受け取り、 user が authentication 可能かどうかを示すために`true`または`false`を返すべきです：
 
@@ -570,8 +576,9 @@ Auth::logoutOtherDevices($currentPassword);
 
 あなたの application を構築する間、 action を実行したり、 user を application の機密部分にリダイレクトする前に、 user に password の確認を求めるアクションがたまに必要になるかもしれません。 Laravel には、この process を breeze にするための組み込み middleware が含まれています。この feature を実装するには、二つの routes を定義する必要があります： user に password の確認を求める view を表示する route と、 password が有効であることを確認し、 user を目的地に redirect する別の route です。
 
-> [!NOTE]  
-> 以下のドキュメントでは、Laravel の password 確認 features を直接統合する方法について説明します。ただし、もっと早く始めたい場合は、[Laravel application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)にはこの機能のサポートが含まれています！
+> <LaravelNote type="note" />
+> 以下のドキュメントでは、Laravel の password 確認 features を直接統合する方法について説明します。ただし、もっと早く始めたい場合は、[Laravel
+> application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)にはこの機能のサポートが含まれています！
 
 <a name="password-confirmation-configuration"></a>
 

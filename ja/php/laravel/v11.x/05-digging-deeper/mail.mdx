@@ -401,7 +401,7 @@ public function content(): Content
 }
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > すべての email テンプレートを格納するために、`resources/views/emails`ディレクトリを作成したいかもしれません。ただし、`resources/views`ディレクトリ内の好きな場所に配置しても構いません。
 
 <a name="plain-text-emails"></a>
@@ -667,7 +667,7 @@ public function attachments(): array
 </body>
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > プレーンテキストのメッセージテンプレートには`$message`変数が利用できません。これは、プレーンテキストのメッセージがインライン添付を利用しないためです。
 
 <a name="embedding-raw-data-attachments"></a>
@@ -889,8 +889,9 @@ Thanks,<br>
 </x-mail::message>
 ```
 
-> [!NOTE]  
-> Markdown のメールを書くときに過度なインデントを使わないでください。 Markdown の標準によれば、 Markdown パーサーはインデントされた content を code ブロックとして render します。
+> <LaravelNote type="note" />
+> Markdown のメールを書くときに過度なインデントを使わないでください。 Markdown の標準によれば、
+> Markdown パーサーはインデントされた content を code ブロックとして render します。
 
 <a name="button-component"></a>
 
@@ -1126,8 +1127,9 @@ class OrderShipped extends Mailable implements ShouldQueue
 }
 ```
 
-> [!NOTE]  
-> これらの問題を回避する方法について詳しく知るために、[キュー内の jobs と database transaction](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> これらの問題を回避する方法について詳しく知るために、[キュー内の jobs と database
+> transaction](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
 
 <a name="rendering-mailables"></a>
 

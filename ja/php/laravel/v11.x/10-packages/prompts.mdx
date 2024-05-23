@@ -43,8 +43,9 @@ org_title: "Prompts"
 
 Laravel Prompts は、[Artisanconsole command](/ja/php/laravel/v11.x/05-digging-deeper/artisan#writing-commands)での user 入力の受け入れに最適ですが、任意の command ライン PHP project で使用することもできます。
 
-> [!NOTE]  
-> Laravel の Prompts は macOS、Linux、および WSL を使用した Windows をサポートしています。詳細については、弊社の[サポートされていない 環境 とフォールバック](#fallbacks)に関するドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> Laravel の Prompts は macOS、Linux、および WSL を使用した Windows をサポートしています。詳細については、弊社の[サポートされていない
+> 環境 とフォールバック](#fallbacks)に関するドキュメンテーションをご覧ください。
 
 <a name="installation"></a>
 
@@ -859,7 +860,7 @@ $response = spin(
 );
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `spin`関数は、スピナーをアニメーション表示するために`pcntl` PHP 拡張機能を必要とします。この拡張機能が利用できない場合は、スピナーの静的バージョンが代わりに表示されます。
 
 <a name="progress"></a>
@@ -939,7 +940,7 @@ Laravel Prompts は macOS、Linux、そして WSL を通じた Windows をサポ
 
 この理由から、 Laravel プロンプトは、[Symfony Console Question Helper](https://symfony.com/doc/7.0/components/console/helpers/questionhelper.html)などの代替実装にフォールバックをサポートしています。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Laravel フレームワークを使用する際には、各 prompt のフォールバックが設定されており、サポートされていない環境では自動的に有効になります。
 
 <a name="fallback-conditions"></a>

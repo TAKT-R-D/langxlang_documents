@@ -331,8 +331,9 @@ Facades\Redis::transaction(function (Redis $redis) {
 });
 ```
 
-> [!WARNING]  
-> Redis transaction を定義する際、どのような values も Redis connection から取得できません。忘れないでください、あなたの transaction は single のまま、原子操作として実行され、その操作はすべてのクロージャがコマンドを実行し終えるまで実行されません。
+> <LaravelNote type="warning" />
+> Redis transaction を定義する際、どのような values も Redis connection から取得できません。忘れないでください、あなたの
+> transaction は single のまま、原子操作として実行され、その操作はすべてのクロージャがコマンドを実行し終えるまで実行されません。
 
 #### Lua スクリプト
 
@@ -354,7 +355,7 @@ $value = Redis::eval(<<<'LUA'
 LUA, 2, 'first-counter', 'second-counter');
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > Redis スクリプティングに関する詳しい情報は、[Redis のドキュメンテーション](https://redis.io/commands/eval)をご参照ください。
 
 <a name="pipelining-commands"></a>

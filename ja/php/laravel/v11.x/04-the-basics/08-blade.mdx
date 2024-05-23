@@ -95,8 +95,9 @@ Route::get('/', function () {
 Hello, {{ $name }}.
 ```
 
-> [!NOTE]  
-> Blade の `{{ }}` エコーステートメントは、XSS 攻撃を防ぐために自動的に PHP の `htmlspecialchars` 関数を通過します。
+> <LaravelNote type="note" />
+> Blade の `{{}}` エコーステートメントは、XSS 攻撃を防ぐために自動的に PHP の `htmlspecialchars`
+> 関数を通過します。
 
 変数に渡された内容を表示することに限定されていません。 view 。 PHP 関数の結果をエコーすることも可能です。実際、任意の PHP の code を Blade のエコー statement 内に配置することができます。
 
@@ -140,8 +141,9 @@ default として、`{{ }}`の Blade 文は、XSS 攻撃を防ぐために PHP �
 Hello, {!! $name !!}.
 ```
 
-> [!WARNING]  
-> application の users から提供される content をエコーする際には非常に注意が必要です。通常、users が提供した data を表示する際に XSS 攻撃を防ぐために、エスケープされたダブルカーリーブレースの構文を使用する必要があります。
+> <LaravelNote type="warning" />
+> application の users から提供される content をエコーする際には非常に注意が必要です。通常、users
+> が提供した data を表示する際に XSS 攻撃を防ぐために、エスケープされたダブルカーリーブレースの構文を使用する必要があります。
 
 <a name="blade-and-javascript-frameworks"></a>
 
@@ -195,8 +197,9 @@ Hello, @{{ name }}.
 </script>
 ```
 
-> [!WARNING]  
-> `Js::from` method は、既存の variables を JSON として render するためにのみ使用すべきです。 Blade テンプレートは正規表現に基づいており、複雑な表現をディレクティブに渡そうとすると予期しない失敗を引き起こす可能性があります。
+> <LaravelNote type="warning" />
+> `Js::from` method は、既存の variables を JSON として render するためにのみ使用すべきです。
+> Blade テンプレートは正規表現に基づいており、複雑な表現をディレクティブに渡そうとすると予期しない失敗を引き起こす可能性があります。
 
 <a name="the-at-verbatim-directive"></a>
 
@@ -393,7 +396,7 @@ Hello, @{{ name }}.
 @endwhile
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > `foreach`ループを反復処理している間、[ループ変数](#the-loop-variable)を使用して、ループの最初の反復または最後の反復かどうかなど、ループに関する貴重な情報を得ることができます。
 
 ループを使用する際にも、現在の反復をスキップしたり、ループを終了させたりすることができます。これには、`@continue`および`@break`ディレクティブを使用します：
@@ -561,8 +564,9 @@ Hello, @{{ name }}.
 
 ### サブビューの含め方
 
-> [!NOTE]  
-> あなたは自由に `@include` ディレクティブを使うことができますが、 Blade [components](#components)は同様の機能を提供し、 data や attribute のバインディングなど、`@include` ディレクティブよりもいくつかの利点を提供します。
+> <LaravelNote type="note" />
+> あなたは自由に `@include` ディレクティブを使うことができますが、 Blade [components](#components)は同様の機能を提供し、
+> data や attribute のバインディングなど、`@include` ディレクティブよりもいくつかの利点を提供します。
 
 Blade の `@include` ディレクティブを使用すると、他の view から Blade view を含めることができます。親の view で利用可能なすべての変数は、含まれる view でも利用可能になります：
 
@@ -602,8 +606,9 @@ Blade の `@include` ディレクティブを使用すると、他の view か�
 @includeFirst(['custom.admin', 'admin'], ['status' => 'complete'])
 ```
 
-> [!WARNING]  
-> あなたの Blade views で`__DIR__`や`__FILE__`定数を使用することは避けるべきです。なぜなら、それらはキャッシュされ、コンパイルされた view の場所を参照するからです。
+> <LaravelNote type="warning" />
+> あなたの Blade views で`__DIR__`や`__FILE__`定数を使用することは避けるべきです。なぜなら、それらはキャッシュされ、コンパイルされた
+> view の場所を参照するからです。
 
 <a name="rendering-views-for-collections"></a>
 
@@ -623,7 +628,7 @@ Blade の `@each` ディレクティブを用いて、ループと includes を�
 @each('view.name', $jobs, 'job', 'view.empty')
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `@each`によって描画された Views は親の view から変数を継承しません。子の view がこれらの変数を必要とする場合、代わりに`@foreach`および`@include`ディレクティブを使用するべきです。
 
 <a name="the-once-directive"></a>
@@ -1020,8 +1025,8 @@ component のコンストラクタの一部でないすべての"属性"は、�
 </div>
 ```
 
-> [!WARNING]  
-> `@env` のような指令を component tags 内で使用することは現時点ではサポートされていません。例えば、`<x-alert :live="@env('production')"/>`はコンパイルされません。
+> <LaravelNote type="warning" />
+`@env` のような指令を component tags 内で使用することは現時点ではサポートされていません。例えば、`<x-alert :live="@env('production')" />`はコンパイルされません。
 
 <a name="default-merged-attributes"></a>
 
@@ -1069,8 +1074,9 @@ component のコンストラクタの一部でないすべての"属性"は、�
 </button>
 ```
 
-> [!NOTE]  
-> 他の HTML elements に対して条件付きでクラスをコンパイルする必要があり、それらがマージされた attributes を受け取るべきでない場合、[`@class` directive](#conditional-classes)を使用することができます。
+> <LaravelNote type="note" />
+> 他の HTML elements に対して条件付きでクラスをコンパイルする必要があり、それらがマージされた
+> attributes を受け取るべきでない場合、[`@class` directive](#conditional-classes)を使用することができます。
 
 <a name="non-class-attribute-merging"></a>
 
@@ -1355,8 +1361,10 @@ php artisan make:component Alert --inline
 
 ### コンポーネントの手動登録
 
-> [!WARNING]  
-> 次のコンポーネントの手動登録に関する文書は、主に Laravel パッケージを記述していて、そのパッケージに view コンポーネントが含まれている人々に適用されます。パッケージを作成していない場合、この component 文書の一部はあなたには関連性がないかもしれません。
+> <LaravelNote type="warning" />
+> 次のコンポーネントの手動登録に関する文書は、主に Laravel パッケージを記述していて、そのパッケージに
+> view コンポーネントが含まれている人々に適用されます。パッケージを作成していない場合、この
+> component 文書の一部はあなたには関連性がないかもしれません。
 
 自身の application 向けのコンポーネントを作成する際、コンポーネントは自動的に `app/View/Components` ディレクトリおよび `resources/views/components` ディレクトリ内で発見されます。
 
@@ -1513,8 +1521,10 @@ Blade は"pascal-case"を使用して component の名前を自動的に検出�
 </li>
 ```
 
-> [!WARNING]  
-> `@aware` ディレクティブは、親の component に HTML attributes 経由で明示的に渡されていない親の data にアクセスできません。親の component に明示的に渡されていない Default `@props` values には、`@aware` ディレクティブからアクセスできません。
+> <LaravelNote type="warning" />
+> `@aware` ディレクティブは、親の component に HTML attributes 経由で明示的に渡されていない親の
+> data にアクセスできません。親の component に明示的に渡されていない Default `@props`
+> values には、`@aware` ディレクティブからアクセスできません。
 
 <a name="anonymous-component-paths"></a>
 
@@ -1686,7 +1696,7 @@ Route::get('/tasks', function () {
 
 この例では、`sidebar`セクションが `@@parent` ディレクティブを使用して、 content をレイアウトのサイドバーに append しています(上書きするのではなく)。`@@parent` ディレクティブは、 view がレンダリングされるときに、 layout の content に置き換えられます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 前の例とは異なり、この`sidebar`セクションは`@show`ではなく`@endsection`で終了します。`@endsection`ディレクティブはセクションを定義するだけであり、`@show`はセクションを定義し、**即座にそのセクションを使用します**。
 
 `@yield` ディレクティブは、二つ目のパラメータとして default default value も受け入れます。この value は、yield されているセクションが定義されていない場合に rendering されます:
@@ -1941,8 +1951,10 @@ class AppServiceProvider extends ServiceProvider
 <?php echo ($var)->format('m/d/Y H:i'); ?>
 ```
 
-> [!WARNING]  
-> Blade ディレクティブのロジックを更新した後、すべての cache された Blade views を delete する必要があります。cache された Blade views は、`view:clear` Artisan command を使用して削除できます。
+> <LaravelNote type="warning" />
+> Blade ディレクティブのロジックを更新した後、すべての cache された Blade views を
+> delete する必要があります。cache された Blade views は、`view:clear` Artisan command
+> を使用して削除できます。
 
 <a name="custom-echo-handlers"></a>
 

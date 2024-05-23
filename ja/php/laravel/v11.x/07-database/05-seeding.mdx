@@ -25,8 +25,9 @@ org_title: "Database: Seeding"
 
 Laravel は、data を使用して database に seed する機能を含んでいます。すべての seed クラスは`database/seeders`ディレクトリに保存されています。default には、`DatabaseSeeder` class があらかじめ定義されています。この class から、`call` method を使用して他の seed クラスを実行でき、seed 順序を制御することができます。
 
-> [!NOTE]  
-> [マスアサインメント保護](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)は、 database seeding 中に自動的に無効になります。
+> <LaravelNote type="note" />
+> [マスアサインメント保護](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent#mass-assignment)は、
+> database seeding 中に自動的に無効になります。
 
 <a name="writing-seeders"></a>
 
@@ -68,8 +69,9 @@ class DatabaseSeeder extends Seeder
 }
 ```
 
-> [!NOTE]  
-> `run`メソッドの signature 内で必要な依存関係をタイプヒントとして指定することができます。それらは自動的に Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されます。
+> <LaravelNote type="note" />
+> `run`メソッドの signature 内で必要な依存関係をタイプヒントとして指定することができます。それらは自動的に
+> Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されます。
 
 <a name="using-model-factories"></a>
 

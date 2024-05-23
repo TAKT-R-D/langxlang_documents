@@ -277,8 +277,9 @@ class SendShipmentNotification
 }
 ```
 
-> [!NOTE]
-> あなたの event listeners は、コンストラクタで必要とする依存関係を型ヒントとしても指定できます。すべての event listeners は、 Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されるため、依存関係は自動的に注入されます。
+> <LaravelNote type="note" />
+> あなたの event listeners は、コンストラクタで必要とする依存関係を型ヒントとしても指定できます。すべての
+> event listeners は、 Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されるため、依存関係は自動的に注入されます。
 
 <a name="stopping-the-propagation-of-an-event"></a>
 
@@ -465,8 +466,9 @@ class SendShipmentNotification implements ShouldQueue, ShouldHandleEventsAfterCo
 }
 ```
 
-> [!NOTE]
-> これらの問題を回避する方法について詳しく知るために、[キュー内の jobs と database transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> これらの問題を回避する方法について詳しく知るために、[キュー内の jobs と database
+> transactions](/ja/php/laravel/v11.x/05-digging-deeper/queues#jobs-and-database-transactions)に関するドキュメンテーションをご覧ください。
 
 <a name="handling-failed-jobs"></a>
 
@@ -593,8 +595,9 @@ OrderShipped::dispatchIf($condition, $order);
 OrderShipped::dispatchUnless($condition, $order);
 ```
 
-> [!NOTE]
-> testing helpers する際には、特定の events が dispatch されたことを assert することが役立つことがありますが、それらの listeners を実際にトリガーすることなく行います。Laravel の[組み込み testing helper](#testing)のおかげでとても簡単になります。
+> <LaravelNote type="note" />
+> testing helpers する際には、特定の events が dispatch されたことを assert することが役立つことがありますが、それらの
+> listeners を実際にトリガーすることなく行います。Laravel の[組み込み testing helper](#testing)のおかげでとても簡単になります。
 
 <a name="dispatching-events-after-database-transactions"></a>
 
@@ -829,8 +832,10 @@ Event::assertListening(
 );
 ```
 
-> [!WARNING]  
-> `Event::fake()`を呼び出した後、 event listeners は実行されません。そのため、テストが events に依存する model のファクトリーを使用している場合(たとえば、モデルの`creating` event の間に UUID を生成するような場合)、ファクトリーを使用した**後**に`Event::fake()`を呼び出すべきです。
+> <LaravelNote type="warning" />
+> `Event::fake()`を呼び出した後、 event listeners は実行されません。そのため、テストが
+> events に依存する model のファクトリーを使用している場合(たとえば、モデルの`creating`
+> event の間に UUID を生成するような場合)、ファクトリーを使用した**後**に`Event::fake()`を呼び出すべきです。
 
 <a name="faking-a-subset-of-events"></a>
 

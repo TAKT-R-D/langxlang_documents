@@ -160,7 +160,9 @@ class NewApi
 }
 ```
 
-> [!NOTE] Feature クラスは[container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を通じて解決されるため、必要に応じて feature クラスのコンストラクタに依存性を注入することができます。
+> <LaravelNote type="note" />
+> Feature クラスは[container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を通じて解決されるため、必要に応じて
+> feature クラスのコンストラクタに依存性を注入することができます。
 
 #### 保存された Feature 名のカスタマイズ
 
@@ -242,8 +244,11 @@ Feature::allAreInactive(['new-api', 'site-redesign']);
 Feature::someAreInactive(['new-api', 'site-redesign']);
 ```
 
-> [!NOTE]  
-> Pennant を HTTP コンテキストの外で使う場合、例えば Artisan command や queue ニングされた job などで、通常は[機能の scope を明示的に指定する](#specifying-the-scope)べきです。あるいは、authentication 済みの HTTP コンテキストと未 authentication のコンテキストの両方を考慮した[default スコープ](#default-scope)を定義することもできます。
+> <LaravelNote type="note" />
+> Pennant を HTTP コンテキストの外で使う場合、例えば Artisan command や queue ニングされた
+> job などで、通常は[機能の scope を明示的に指定する](#specifying-the-scope)べきです。あるいは、authentication
+> 済みの HTTP コンテキストと未 authentication のコンテキストの両方を考慮した[default
+> スコープ](#default-scope)を定義することもできます。
 
 <a name="checking-class-based-features"></a>
 
@@ -645,8 +650,9 @@ $color = Feature::value('purchase-button');
 @endfeature
 ```
 
-> [!NOTE]
-> values を使用する際、ある feature が`false`以外のあらゆる value を持っている場合に アクティブと見なされることを理解することが重要です。
+> <LaravelNote type="note" />
+> values を使用する際、ある feature が`false`以外のあらゆる value を持っている場合に
+> アクティブと見なされることを理解することが重要です。
 
 [条件 `when`](#conditional-execution) method を呼び出すとき、その機能の豊かな value が最初のクロージャに提供されます：
 
@@ -824,7 +830,9 @@ Feature::activateForEveryone('purchase-button', 'seafoam-green');
 Feature::deactivateForEveryone('new-api');
 ```
 
-> [!NOTE] これは Pennant の storage driver に保存された feature values のみを update します。また、あなたの application で feature の定義を update する必要もあります。
+> <LaravelNote type="note" />
+> これは Pennant の storage driver に保存された feature values のみを update します。また、あなたの
+> application で feature の定義を update する必要もあります。
 
 <a name="purging-features"></a>
 
@@ -983,7 +991,7 @@ class RedisFeatureDriver implements Driver
 
 さて、これらのメソッドそれぞれを Redis connection を使って実装するだけです。 これらのメソッドの実装方法の例については、[Pennant source code](https://github.com/laravel/pennant/blob/1.x/src/Drivers/DatabaseDriver.php)の`Laravel\Pennant\Drivers\DatabaseDriver`をご覧ください。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Laravel は、 extensions を格納するためのディレクトリが付属していません。それらを好きな場所に配置することができます。この例では、`RedisFeatureDriver`を格納するために`Extensions`ディレクトリを作成しました。
 
 <a name="registering-the-driver"></a>

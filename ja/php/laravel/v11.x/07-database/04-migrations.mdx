@@ -58,7 +58,7 @@ Laravel は、マイグレーションの名前を使用して、マイグレー
 
 生成されたマイグレーションのための custom path を指定したい場合は、`make:migration` command を実行する際に`--path`オプションを使用できます。指定する path は、アプリケーションのベース path に対する相対パスであるべきです。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > マイグレーションのスタブは[stub publishing](/ja/php/laravel/v11.x/05-digging-deeper/artisan#stub-customization)を使用してカスタマイズすることができます。
 
 <a name="squashing-migrations"></a>
@@ -85,8 +85,9 @@ php artisan schema:dump --database=testing --prune
 
 あなたは、チームの他の新しい開発者があなたのアプリケーションの初期の database 構造を素早く作成できるように、 database schema ファイルをソースコントロールにコミットすべきです。
 
-> [!WARNING]  
-> マイグレーションのスカッシュは、 MySQL 、PostgreSQL、および SQLite データベースのみで利用可能であり、データベースのコマンドライン client を利用します。
+> <LaravelNote type="warning" />
+> マイグレーションのスカッシュは、 MySQL 、PostgreSQL、および SQLite データベースのみで利用可能であり、データベースのコマンドライン
+> client を利用します。
 
 <a name="migration-structure"></a>
 
@@ -183,8 +184,10 @@ php artisan migrate --pretend
 php artisan migrate --isolated
 ```
 
-> [!WARNING]  
-> この feature を利用するためには、あなたの application は`database`、`memcached`、`dynamodb`、または`redis` cache driver をアプリケーションの default cache driver として使用している必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
+> <LaravelNote type="warning" />
+> この feature を利用するためには、あなたの application は`database`、`memcached`、`dynamodb`、または`redis`
+> cache driver をアプリケーションの default cache driver として使用している必要があります。さらに、すべてのサーバーは同じ中央の
+> cache サーバーと通信している必要があります。
 
 <a name="forcing-migrations-to-run-in-production"></a>
 
@@ -267,8 +270,10 @@ default では、`migrate:fresh` command は default の database 接続から�
 php artisan migrate:fresh --database=admin
 ```
 
-> [!WARNING]  
-> `migrate:fresh` command は、プレフィックスに関係なくすべての database テーブルを削除します。 他の application と database を共有して development している場合、この command は慎重に使用する必要があります。
+> <LaravelNote type="warning" />
+> `migrate:fresh` command は、プレフィックスに関係なくすべての database テーブルを削除します。
+> 他の application と database を共有して development している場合、この command
+> は慎重に使用する必要があります。
 
 <a name="tables"></a>
 
@@ -617,8 +622,10 @@ $table->foreignUuid('user_id');
 $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
-> [!NOTE]  
-> 空間型のサポートは、あなたの database driver に依存します。データベースのドキュメントを参照してください。もし、あなたの application が PostgreSQL の database を使用している場合は、`geography`の method が使用可能になる前に、[PostGIS](https://postgis.net)の拡張をインストールする必要があります。
+> <LaravelNote type="note" />
+> 空間型のサポートは、あなたの database driver に依存します。データベースのドキュメントを参照してください。もし、あなたの
+> application が PostgreSQL の database を使用している場合は、`geography`の method
+> が使用可能になる前に、[PostGIS](https://postgis.net)の拡張をインストールする必要があります。
 
 <a name="column-method-geometry"></a>
 
@@ -630,8 +637,9 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
-> [!NOTE]  
-> 空間型のサポートは、あなたの database driver に依存します。データベースのドキュメンテーションを参照してください。もし、あなたの application が PostgreSQL の database を使用している場合、`geometry` method を使用する前に[PostGIS](https://postgis.net)拡張機能をインストールする必要があります。
+> <LaravelNote type="note" />
+> 空間型のサポートは、あなたの database driver に依存します。データベースのドキュメンテーションを参照してください。もし、あなたの
+> application が PostgreSQL の database を使用している場合、`geometry` method を使用する前に[PostGIS](https://postgis.net)拡張機能をインストールする必要があります。
 
 <a name="column-method-id"></a>
 
@@ -1162,8 +1170,9 @@ return new class extends Migration
 };
 ```
 
-> [!WARNING]  
-> default 式のサポートは、ご使用の database driver と database のバージョン、そしてフィールドの type によります。詳細については、データベースのドキュメンテーションをご参照ください。
+> <LaravelNote type="warning" />
+> default 式のサポートは、ご使用の database driver と database のバージョン、そしてフィールドの
+> type によります。詳細については、データベースのドキュメンテーションをご参照ください。
 
 <a name="column-order"></a>
 
@@ -1436,8 +1445,10 @@ Schema::withoutForeignKeyConstraints(function () {
 });
 ```
 
-> [!WARNING]  
-> SQLite は default で外部 keys 制約を無効にします。 SQLite を使用するときは、migrations を作成しようとする前に、database の設定で[外部 keys のサポートを有効にする](/ja/php/laravel/v11.x/07-database/01-database#configuration)ことを確認してください。 さらに、SQLite はテーブル作成時にのみ外部 keys をサポートし、[テーブルが変更されたときはサポートしません](https://www.sqlite.org/omitted.html)。
+> <LaravelNote type="warning" />
+> SQLite は default で外部 keys 制約を無効にします。 SQLite を使用するときは、migrations
+> を作成しようとする前に、database の設定で[外部 keys のサポートを有効にする](/ja/php/laravel/v11.x/07-database/01-database#configuration)ことを確認してください。
+> さらに、SQLite はテーブル作成時にのみ外部 keys をサポートし、[テーブルが変更されたときはサポートしません](https://www.sqlite.org/omitted.html)。
 
 <a name="events"></a>
 

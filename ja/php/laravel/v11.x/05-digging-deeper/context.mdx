@@ -341,7 +341,9 @@ public function boot(): void
 }
 ```
 
-> [!NOTE] > `Context`の facade を`dehydrating`コールバック内で使うべきではありません。それは現在の process の context を変更するからです。コールバックに渡されたリポジトリに対してのみ変更を加えるようにしてください。
+> <LaravelNote type="note" />
+> `Context`の facade を`dehydrating`コールバック内で使うべきではありません。それは現在の
+> process の context を変更するからです。コールバックに渡されたリポジトリに対してのみ変更を加えるようにしてください。
 
 <a name="hydrated"></a>
 
@@ -369,4 +371,5 @@ public function boot(): void
 }
 ```
 
-> [!NOTE] > `Context` facade を`hydrated`コールバック内で使用するべきではなく、代わりにコールバックに渡されたリポジトリにのみ変更を加えるように確認してください。
+> <LaravelNote type="note" />
+> `Context` facade を`hydrated`コールバック内で使用するべきではなく、代わりにコールバックに渡されたリポジトリにのみ変更を加えるように確認してください。

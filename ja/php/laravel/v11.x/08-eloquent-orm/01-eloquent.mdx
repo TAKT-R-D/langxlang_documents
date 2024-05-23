@@ -56,8 +56,9 @@ org_title: "Eloquent: Getting Started"
 
 Laravel は、あなたの database と楽しくやり取りすることができるオブジェクトリレーショナルマッパー(ORM)である Eloquent を含んでいます。 Eloquent を使用するとき、各 database テーブルには、そのテーブルとやり取りするための対応する"Model"があります。 database テーブルからレコードを取得するだけでなく、 Eloquent models を使用すると、テーブルからレコードを insert 、 update 、および delete することもできます。
 
-> [!NOTE]  
-> 開始する前に、application の `config/database.php` 設定ファイルで database connection を設定してください。あなたの database の設定に関する詳しい情報は、[data ベースの設定ドキュメンテーション](/ja/php/laravel/v11.x/07-database/01-database#configuration)を参照してください。
+> <LaravelNote type="note" />
+> 開始する前に、application の `config/database.php` 設定ファイルで database connection
+> を設定してください。あなたの database の設定に関する詳しい情報は、[data ベースの設定ドキュメンテーション](/ja/php/laravel/v11.x/07-database/01-database#configuration)を参照してください。
 
 #### Laravel ブートキャンプ
 
@@ -464,8 +465,9 @@ $flights = Flight::where('active', 1)
                ->get();
 ```
 
-> [!NOTE]  
-> Eloquent models は query ビルダーであるため、Laravel が提供する[query builder](/ja/php/laravel/v11.x/07-database/02-queries)のすべてのメソッドを確認すべきです。これらのメソッドを使用してあなたの Eloquent クエリを書くことができます。
+> <LaravelNote type="note" />
+> Eloquent models は query ビルダーであるため、Laravel が提供する[query builder](/ja/php/laravel/v11.x/07-database/02-queries)のすべてのメソッドを確認すべきです。これらのメソッドを使用してあなたの
+> Eloquent クエリを書くことができます。
 
 <a name="refreshing-models"></a>
 
@@ -579,8 +581,9 @@ Flight::where('departed', true)
 
 `cursor` method は single database クエリを実行するだけです。しかし、個々の Eloquent models は、実際にそれらをイテレートするまでハイドレートされません。したがって、 cursor をイテレートする間、一度にメモリに保持される Eloquent model は一つだけです。
 
-> [!WARNING]  
-> `cursor` method は、一度に single Eloquent model のみをメモリに保持するため、リレーションシップを事前に読み込むことはできません。リレーションシップを事前に読み込む必要がある場合は、代わりに[`lazy` method](#chunking-using-lazy-collections)を使用することを検討してみてください。
+> <LaravelNote type="warning" />
+> `cursor` method は、一度に single Eloquent model のみをメモリに保持するため、リレーションシップを事前に読み込むことはできません。リレーションシップを事前に読み込む必要がある場合は、代わりに[`lazy`
+> method](#chunking-using-lazy-collections)を使用することを検討してみてください。
 
 内部的に、`cursor` method は、この機能を実装するために PHP の[ジェネレータ](https://www.php.net/manual/en/language.generators.overview.php)を使用します：
 
@@ -840,8 +843,10 @@ Flight::where('active', 1)
 
 `update`method は、更新すべき列と value のペアを表す array を期待します。`update`メソッドは、影響を受けた行の数を返します。
 
-> [!WARNING]  
-> 大量の update を Eloquent で行うとき、`saving`、`saved`、`updating`、そして`updated`の model events は更新された models に対して発火されません。これは、大量の update を行うときに models が実際には retrieved されないからです。
+> <LaravelNote type="warning" />
+> 大量の update を Eloquent で行うとき、`saving`、`saved`、`updating`、そして`updated`の
+> model events は更新された models に対して発火されません。これは、大量の update
+> を行うときに models が実際には retrieved されないからです。
 
 <a name="examining-attribute-changes"></a>
 
@@ -1028,8 +1033,10 @@ Flight::upsert([
 ], uniqueBy: ['departure', 'destination'], update: ['price']);
 ```
 
-> [!WARNING]  
-> すべての databases は、SQL Server を除き、`upsert` method の第二引数の列には、primary または unique のインデックスが必要です。さらに、 MySQL database driver は、`upsert` method の第二引数を無視し、常にテーブルの primary および unique のインデックスを使用して既存のレコードを検出します。
+> <LaravelNote type="warning" />
+> すべての databases は、SQL Server を除き、`upsert` method の第二引数の列には、primary
+> または unique のインデックスが必要です。さらに、 MySQL database driver は、`upsert`
+> method の第二引数を無視し、常にテーブルの primary および unique のインデックスを使用して既存のレコードを検出します。
 
 <a name="deleting-models"></a>
 
@@ -1067,8 +1074,9 @@ Flight::destroy([1, 2, 3]);
 Flight::destroy(collect([1, 2, 3]));
 ```
 
-> [!WARNING]  
-> `destroy` method は各 model を個別に読み込み、`delete` method を呼び出すことで、`deleting` および `deleted` events が各 model で適切に dispatch されます。
+> <LaravelNote type="warning" />
+> `destroy` method は各 model を個別に読み込み、`delete` method を呼び出すことで、`deleting`
+> および `deleted` events が各 model で適切に dispatch されます。
 
 <a name="deleting-models-using-queries"></a>
 
@@ -1080,8 +1088,10 @@ Flight::destroy(collect([1, 2, 3]));
 $deleted = Flight::where('active', 0)->delete();
 ```
 
-> [!WARNING]  
-> Eloquent を介して大量の delete statement を実行する際、`deleting` および`deleted` の model events は、削除された models に対して送出されません。これは、 delete statement を実行する際に models が実際には retrieved されないからです。
+> <LaravelNote type="warning" />
+> Eloquent を介して大量の delete statement を実行する際、`deleting` および`deleted`
+> の model events は、削除された models に対して送出されません。これは、 delete statement
+> を実行する際に models が実際には retrieved されないからです。
 
 <a name="soft-deleting"></a>
 
@@ -1103,8 +1113,9 @@ class Flight extends Model
 }
 ```
 
-> [!NOTE]  
-> `SoftDeletes` トレイトは、自動的に `deleted_at` attribute を `DateTime` / `Carbon` インスタンスにキャストします。
+> <LaravelNote type="note" />
+> `SoftDeletes` トレイトは、自動的に `deleted_at` attribute を `DateTime` / `Carbon`
+> インスタンスにキャストします。
 
 また、`deleted_at` column をあなたの database テーブルに追加すべきです。 Laravel の[schema builder](/ja/php/laravel/v11.x/07-database/04-migrations)には、この column を作成するためのヘルパー method が含まれています。
 
@@ -1278,8 +1289,9 @@ Schedule::command('model:prune', [
 php artisan model:prune --pretend
 ```
 
-> [!WARNING]  
-> Soft deleting models は、それらが match であるときに永久に削除され (`forceDelete`) ます。 query に一致する場合です。
+> <LaravelNote type="warning" />
+> Soft deleting models は、それらが match であるときに永久に削除され (`forceDelete`)
+> ます。 query に一致する場合です。
 
 <a name="mass-pruning"></a>
 
@@ -1397,8 +1409,9 @@ class AncientScope implements Scope
 }
 ```
 
-> [!NOTE]  
-> あなたのグローバル scope が query の select 句に列を追加している場合、`select`の代わりに`addSelect` method を使用するべきです。これにより、クエリの既存の select 句が意図せずに置き換えられるのを防ぐことができます。
+> <LaravelNote type="note" />
+> あなたのグローバル scope が query の select 句に列を追加している場合、`select`の代わりに`addSelect`
+> method を使用するべきです。これにより、クエリの既存の select 句が意図せずに置き換えられるのを防ぐことができます。
 
 <a name="applying-global-scopes"></a>
 
@@ -1627,8 +1640,9 @@ if ($post->author()->is($user)) {
 
 ## Events
 
-> [!NOTE]  
-> あなたのクライアントサイドのアプリケーションに直接 Eloquent events を broadcast したいですか？Laravel の [model event broadcasting](/ja/php/laravel/v11.x/05-digging-deeper/broadcasting#model-broadcasting)をチェックしてみてください。
+> <LaravelNote type="note" />
+> あなたのクライアントサイドのアプリケーションに直接 Eloquent events を broadcast
+> したいですか？Laravel の [model event broadcasting](/ja/php/laravel/v11.x/05-digging-deeper/broadcasting#model-broadcasting)をチェックしてみてください。
 
 Eloquent models dispatch は複数の events を発行し、モデルのライフサイクルの以下の瞬間に hook することができます：`retrieved`、`creating`、`created`、`updating`、`updated`、`saving`、`saved`、`deleting`、`deleted`、`trashed`、`forceDeleting`、`forceDeleted`、`restoring`、`restored`、そして`replicating`。
 
@@ -1664,8 +1678,10 @@ class User extends Authenticatable
 
 Eloquent events を定義し、マッピングした後、[event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events#defining-listeners)を使って events を handle することができます。
 
-> [!WARNING]  
-> Eloquent を通じて大量の update または delete query を発行すると、影響を受ける models で`saved`、`updated`、`deleting`、および`deleted`の model events は発行されません。これは、大量の更新や削除を実行するとき、 models は実際には retrieved されないためです。
+> <LaravelNote type="warning" />
+> Eloquent を通じて大量の update または delete query を発行すると、影響を受ける models
+> で`saved`、`updated`、`deleting`、および`deleted`の model events は発行されません。これは、大量の更新や削除を実行するとき、
+> models は実際には retrieved されないためです。
 
 <a name="events-using-closures"></a>
 
@@ -1799,8 +1815,9 @@ public function boot(): void
 }
 ```
 
-> [!NOTE]  
-> 観察者がリスニングできる追加の events があります。`saving`や`retrieved`などです。これらの events は、[events](#events)の文書に記載されています。
+> <LaravelNote type="note" />
+> 観察者がリスニングできる追加の events があります。`saving`や`retrieved`などです。これらの
+> events は、[events](#events)の文書に記載されています。
 
 <a name="observers-and-database-transactions"></a>
 

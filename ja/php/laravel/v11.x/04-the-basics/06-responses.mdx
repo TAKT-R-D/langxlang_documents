@@ -52,8 +52,9 @@ Route::get('/', function () {
 });
 ```
 
-> [!NOTE]  
-> ご存知でしたか、 routes やコントローラーからも[Eloquent collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections)を返すことができますか？それらは自動的に JSON に変換されます。試してみてください！
+> <LaravelNote type="note" />
+> ご存知でしたか、 routes やコントローラーからも[Eloquent collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections)を返すことができますか？それらは自動的に
+> JSON に変換されます。試してみてください！
 
 <a name="response-objects"></a>
 
@@ -377,8 +378,9 @@ return response()->download($pathToFile);
 return response()->download($pathToFile, $name, $headers);
 ```
 
-> [!WARNING]  
-> Symfony HttpFoundation は、ファイルのダウンロードを管理するために、ダウンロードされるファイルが ASCII ファイル名を持つことを必要とします。
+> <LaravelNote type="warning" />
+> Symfony HttpFoundation は、ファイルのダウンロードを管理するために、ダウンロードされるファイルが
+> ASCII ファイル名を持つことを必要とします。
 
 <a name="streamed-downloads"></a>
 

@@ -74,7 +74,7 @@ Laravel では、例外レポーティングは、例外の log を取るため�
 })
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 与えられた例外に対する例外報告をカスタマイズするために、[reportable exceptions](/ja/php/laravel/v11.x/04-the-basics/13-errors#renderable-exceptions)を利用することもできます。
 
 <a name="global-log-context"></a>
@@ -365,8 +365,10 @@ public function report(): bool
 }
 ```
 
-> [!NOTE]  
-> `report` method のすべての必要な依存関係を types ヒントとして指定することができ、それらは Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって自動的に method に注入されます。
+> <LaravelNote type="note" />
+> `report` method のすべての必要な依存関係を types ヒントとして指定することができ、それらは
+> Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)によって自動的に
+> method に注入されます。
 
 <a name="throttling-reported-exceptions"></a>
 

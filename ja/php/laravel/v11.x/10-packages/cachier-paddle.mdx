@@ -66,8 +66,9 @@ org_title: "Laravel Cashier (Paddle)"
 
 ## Introduction
 
-> [!WARNING]  
-> このドキュメンテーションは、 Cashier Paddle 2.x が Paddle Billing と統合するためのものです。まだ Paddle Classic を使用している場合は、[Cashier Paddle 1.x](https://github.com/laravel/cashier-paddle/tree/1.x)を使用する必要があります。
+> <LaravelNote type="warning" />
+> このドキュメンテーションは、 Cashier Paddle 2.x が Paddle Billing と統合するためのものです。まだ
+> Paddle Classic を使用している場合は、[Cashier Paddle 1.x](https://github.com/laravel/cashier-paddle/tree/1.x)を使用する必要があります。
 
 [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle)は、[Paddle's](https://paddle.com) subscription 課金 services に対して、表現豊かで流暢なインターフェースを提供します。ほとんどの既製の subscription 課金 code を処理します。基本的な subscription 管理に加えて、 Cashier は handle ： subscriptions の切り替え、 subscription の"quantities"、 subscription の一時停止、キャンセル猶予期間、などを行うことができます。
 
@@ -101,7 +102,7 @@ php artisan vendor:publish --tag="cashier-migrations"
 php artisan migrate
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > Cashier が全ての Paddle events を適切に処理するためには、[Cashier の webhook ハンドリングを設定する](#handling-paddle-webhooks)ことを忘れないでください。
 
 <a name="paddle-sandbox"></a>
@@ -191,7 +192,7 @@ Paddle は、Paddle の checkout ウィジェットを開始するために独�
 CASHIER_CURRENCY_LOCALE=nl_BE
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `en`以外のロケールを使用するためには、サーバー上に`ext-intl` PHP 拡張がインストールされ、設定されていることを確認してください。
 
 <a name="overriding-default-models"></a>
@@ -233,8 +234,9 @@ public function boot(): void
 
 ### Selling Products
 
-> [!NOTE]
-> Paddle の Checkout を利用する前に、Paddle ダッシュボードで固定価格の製品を定義する必要があります。また、[Paddle の webhook 処理を設定](#handling-paddle-webhooks)するべきです。
+> <LaravelNote type="note" />
+> Paddle の Checkout を利用する前に、Paddle ダッシュボードで固定価格の製品を定義する必要があります。また、[Paddle
+> の webhook 処理を設定](#handling-paddle-webhooks)するべきです。
 
 あなたの application を通じて商品と subscription の請求を提供することはたくさんの気後れを伴います。しかし、Cashier と、[Paddle の CheckoutOverlay](https://www.paddle.com/billing/checkout) のおかげで、現代的で頑丈な支払い統合を簡単に作成することができます。
 
@@ -341,8 +343,9 @@ class CompleteOrder
 
 ### Selling Subscriptions
 
-> [!NOTE]  
-> Paddle の Checkout を利用する前に、Paddle のダッシュボードで固定価格の製品を定義する必要があります。さらに、[Paddle の webhook ハンドリングを設定する](#handling-paddle-webhooks)べきです。
+> <LaravelNote type="note" />
+> Paddle の Checkout を利用する前に、Paddle のダッシュボードで固定価格の製品を定義する必要があります。さらに、[Paddle
+> の webhook ハンドリングを設定する](#handling-paddle-webhooks)べきです。
 
 あなたの application を通じて商品や subscription 課金を提供することは、ちょっと怖いかもしれません。しかし、 Cashier と[Paddle の Checkout オーバーレイ](https://www.paddle.com/billing/checkout)のおかげで、簡単に現代的で強固な支払い統合を build することができます。
 
@@ -463,8 +466,11 @@ Route::put('/subscription/cancel', function (Request $request, $price) {
 
 そして今、あなたの subscription は、請求期間の終わりにキャンセルされます。
 
-> [!NOTE]  
-> あなたが Cashier の webhook の処理を設定していれば、Cashier は自動的に Paddle から来る webhooks を検査することで、application の Cashier 関連の database テーブルを sync に保ちます。例えば、Paddle のダッシュボードから顧客の subscription を cancel すると、Cashier は対応する webhook を受け取り、application の database で subscription を"cancel"とマークします。
+> <LaravelNote type="note" />
+> あなたが Cashier の webhook の処理を設定していれば、Cashier は自動的に Paddle から来る
+> webhooks を検査することで、application の Cashier 関連の database テーブルを sync
+> に保ちます。例えば、Paddle のダッシュボードから顧客の subscription を cancel すると、Cashier
+> は対応する webhook を受け取り、application の database で subscription を"cancel"とマークします。
 
 <a name="checkout-sessions"></a>
 
@@ -509,8 +515,9 @@ default として、これは Paddle の defaultstyle を使用してウィジ�
 
 Paddle の checkout ウィジェットは非同期です。一度 user がウィジェット内で subscription を作成すると、Paddle はあなたの application に webhook を送り、あなたがアプリケーションの database の subscription state を適切に update できるようにします。そのため、Paddle からの state の変更を適切に受け入れるために、適切に[webhooks の設定](#handling-paddle-webhooks)をすることが重要です。
 
-> [!WARNING]  
-> subscription state の変更後、 webhook を受信するまでの delay は通常最小限ですが、ユーザーの subscription が checkout 完了後すぐに利用できない可能性を考慮し、 application でこれを考慮する必要があります。
+> <LaravelNote type="warning" />
+> subscription state の変更後、 webhook を受信するまでの delay は通常最小限ですが、ユーザーの
+> subscription が checkout 完了後すぐに利用できない可能性を考慮し、 application でこれを考慮する必要があります。
 
 <a name="manually-rendering-an-overlay-checkout"></a>
 
@@ -940,8 +947,9 @@ public function register(): void
 }
 ```
 
-> [!WARNING]  
-> subscription が`past_due`の state にある場合、支払い情報が更新されるまで変更することはできません。そのため、`swap`および`updateQuantity`のメソッドは、 subscription が`past_due`の state にある場合に例外を throw します。
+> <LaravelNote type="warning" />
+> subscription が`past_due`の state にある場合、支払い情報が更新されるまで変更することはできません。そのため、`swap`および`updateQuantity`のメソッドは、
+> subscription が`past_due`の state にある場合に例外を throw します。
 
 <a name="subscription-scopes"></a>
 
@@ -1152,8 +1160,9 @@ $user->subscription()->swapAndInvoice(['price_chat', 'price_original' => 2]);
 $user->subscription()->swap(['price_original' => 2]);
 ```
 
-> [!WARNING]  
-> subscription の最後の price を削除することはできません。代わりに、単に subscription を cancel すべきです。
+> <LaravelNote type="warning" />
+> subscription の最後の price を削除することはできません。代わりに、単に subscription
+> を cancel すべきです。
 
 <a name="multiple-subscriptions"></a>
 
@@ -1229,8 +1238,9 @@ if ($user->subscription()->onPausedGracePeriod()) {
 $user->subscription()->resume();
 ```
 
-> [!WARNING]  
-> subscription は一時停止中に変更することはできません。別のプランに swap したり、数量を update したい場合は、まず subscription を再開する必要があります。
+> <LaravelNote type="warning" />
+> subscription は一時停止中に変更することはできません。別のプランに swap したり、数量を
+> update したい場合は、まず subscription を再開する必要があります。
 
 <a name="canceling-subscriptions"></a>
 
@@ -1264,8 +1274,9 @@ $user->subscription()->cancelNow();
 $user->subscription()->stopCancelation();
 ```
 
-> [!WARNING]  
-> Paddle の subscriptions は、キャンセル後に再開することはできません。お客様が subscription を再開したい場合は、新たに subscription を作成する必要があります。
+> <LaravelNote type="warning" />
+> Paddle の subscriptions は、キャンセル後に再開することはできません。お客様が subscription
+> を再開したい場合は、新たに subscription を作成する必要があります。
 
 <a name="subscription-trials"></a>
 
@@ -1290,8 +1301,9 @@ Route::get('/user/subscribe', function (Request $request) {
 
 あなたの application が `subscription_created` event を受信したときに、 Cashier はお使いのアプリケーションの database の subscription レコード上の試用期間終了日を設定します。また、この日付まで顧客に請求を始めないように Paddle に指示します。
 
-> [!WARNING]  
-> お客様が subscription を試用期間終了日前にキャンセルしない場合、試用期間が終了するとすぐに課金されます。そのため、 users に試用期間終了日を通知するようにしましょう。
+> <LaravelNote type="warning" />
+> お客様が subscription を試用期間終了日前にキャンセルしない場合、試用期間が終了するとすぐに課金されます。そのため、
+> users に試用期間終了日を通知するようにしましょう。
 
 user がトライアル期間内かどうかを判断するには、user インスタンスの`onTrial` method または subscription インスタンスの`onTrial` method のいずれかを使用できます。以下の二つの例は同等です：
 
@@ -1418,8 +1430,9 @@ default では、この controller は自動的に失敗した請求が多すぎ
 - Subscription 一時停止中
 - Subscription キャンセルされました
 
-> [!WARNING]  
-> Cashier に含まれる[webhook signature の確認](/ja/php/laravel/v11.x/10-packages/cachier-paddle#verifying-webhook-signatures) middleware を使用して、着信リクエストを保護することを確認してください。
+> <LaravelNote type="warning" />
+> Cashier に含まれる[webhook signature の確認](/ja/php/laravel/v11.x/10-packages/cachier-paddle#verifying-webhook-signatures)
+> middleware を使用して、着信リクエストを保護することを確認してください。
 
 <a name="webhooks-csrf-protection"></a>
 
@@ -1567,7 +1580,7 @@ $response = $transaction->refund('Accidental charge');
 
 返金に関する詳しい情報は、[Paddle の返金ドキュメンテーション](https://developer.paddle.com/build/transactions/create-transaction-adjustments)をご覧ください。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 返金は常に完全に processing する前に Paddle によって承認される必要があります。
 
 <a name="crediting-transactions"></a>
@@ -1585,8 +1598,9 @@ $response = $transaction->credit('Compensation', 'pri_123');
 
 詳細な info については、[Paddle のクレジットに関するドキュメンテーションを参照してください](https://developer.paddle.com/build/transactions/create-transaction-adjustments)。
 
-> [!WARNING]  
-> クレジットは、手動で収集された transactions にのみ適用できます。自動的に収集された transactions は、Paddle 自体がクレジットを付与します。
+> <LaravelNote type="warning" />
+> クレジットは、手動で収集された transactions にのみ適用できます。自動的に収集された
+> transactions は、Paddle 自体がクレジットを付与します。
 
 <a name="transactions"></a>
 

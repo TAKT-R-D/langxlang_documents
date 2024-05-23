@@ -31,8 +31,10 @@ org_title: "Laravel Horizon"
 
 ## Introduction
 
-> [!NOTE]  
-> Laravel Horizon について詳しく調べる前に、まずは Laravel の基本的な[queueservice](/ja/php/laravel/v11.x/05-digging-deeper/queues)に慣れておくべきです。Horizon は Laravel の queue に追加の機能を追加しますが、それらの機能は、すでに Laravel が提供する基本的な queue 機能に精通していないと理解するのが難しいかもしれません。
+> <LaravelNote type="note" />
+> Laravel Horizon について詳しく調べる前に、まずは Laravel の基本的な[queueservice](/ja/php/laravel/v11.x/05-digging-deeper/queues)に慣れておくべきです。Horizon
+> は Laravel の queue に追加の機能を追加しますが、それらの機能は、すでに Laravel
+> が提供する基本的な queue 機能に精通していないと理解するのが難しいかもしれません。
 
 [Laravel Horizon](https://github.com/laravel/horizon)は、あなたの Laravel で動力を供給される[Redis queues](/ja/php/laravel/v11.x/05-digging-deeper/queues)のための美しいダッシュボードとコード駆動の設定を提供します。 Horizon を使用することで、 queue システムの主要な指標、例えば job のスループット、 runtime 、そして job の失敗を簡単にモニタリングすることができます。
 
@@ -44,8 +46,9 @@ Horizon を使用すると、すべての queue ワーカーの設定が single 
 
 ## Installation
 
-> [!WARNING]  
-> Laravel Horizon は、あなたの queue connection を供給するために[Redis](https://redis.io)を使用することを必要とします。したがって、application の`config/queue.php`設定ファイルで queue 接続が`redis`に設定されていることを確認する必要があります。
+> <LaravelNote type="warning" />
+> Laravel Horizon は、あなたの queue connection を供給するために[Redis](https://redis.io)を使用することを必要とします。したがって、application
+> の`config/queue.php`設定ファイルで queue 接続が`redis`に設定されていることを確認する必要があります。
 
 あなたはパッケージマネージャーの Composer を使って、あなたの project に Horizon をインストールすることができます:
 
@@ -65,8 +68,10 @@ php artisan horizon:install
 
 Horizon の資産を公開した後、その primary 設定ファイルは `config/horizon.php` に位置することになります。この設定ファイルでは application のための queue worker options を設定することが可能です。各設定オプションにはその目的の説明が含まれていますので、このファイルを十分に探索することを確認してください。
 
-> [!WARNING]  
-> Horizon は内部で`horizon`という名前の Redis connection を使用します。この Redis connection の名前は予約されており、`database.php`の設定ファイルや `horizon.php`の設定ファイル内の`use`オプションの value として他の Redis connection に割り当てるべきではありません。
+> <LaravelNote type="warning" />
+> Horizon は内部で`horizon`という名前の Redis connection を使用します。この Redis
+> connection の名前は予約されており、`database.php`の設定ファイルや `horizon.php`の設定ファイル内の`use`オプションの
+> value として他の Redis connection に割り当てるべきではありません。
 
 <a name="environments"></a>
 
@@ -94,7 +99,7 @@ Horizon の資産を公開した後、その primary 設定ファイルは `conf
 
 Horizon を開始すると、稼働中の application の environment に対する process の設定 options を使用します。通常、environment は `APP_ENV` [environment variable](/ja/php/laravel/v11.x/02-getting-started/02-configuration#determining-the-current-environment)の value によって決定されます。例えば、default の`local` Horizon environment は、3 つのワーカー process を起動し、各 queue に割り当てられたワーカー process の数を自動的に balance します。default の`production` environment は最大 10 のワーカー process を開始し、各 queue に割り当てられたワーカー process の数を自動的に balance するように設定されています。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `horizon`設定ファイルの`environments`部分には、 Horizon を実行する予定の各[environment](/ja/php/laravel/v11.x/02-getting-started/02-configuration#environment-configuration)のエントリが含まれていることを確認する必要があります。
 
 <a name="supervisors"></a>
@@ -285,8 +290,9 @@ Supervisor は Linux オペレーティングシステムの process モニタ�
 sudo apt-get install supervisor
 ```
 
-> [!NOTE]  
-> Supervisor の設定が大変そうなら、[Laravel Forge](https://forge.laravel.com) の利用を検討してみてください。これにより、 Laravel プロジェクトの Supervisor のインストールと設定が自動的に行われます。
+> <LaravelNote type="note" />
+> Supervisor の設定が大変そうなら、[Laravel Forge](https://forge.laravel.com) の利用を検討してみてください。これにより、
+> Laravel プロジェクトの Supervisor のインストールと設定が自動的に行われます。
 
 <a name="supervisor-configuration"></a>
 
@@ -308,7 +314,7 @@ stopwaitsecs=3600
 
 Supervisor の設定を定義する際、あなたは`stopwaitsecs`の value が最も長く実行されていた job によって消費される秒数よりも多くなるように確認すべきです。そうでないと、Supervisor は job が処理を終える前に終了するかもしれません。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 上記の例は Ubuntu ベースのサーバーに有効ですが、Supervisor の設定ファイルの場所やファイル拡張子は他のサーバーのオペレーティングシステム間で異なる場合があります。詳細については、サーバーのドキュメンテーションを参照してください。
 
 <a name="starting-supervisor"></a>
@@ -325,7 +331,7 @@ sudo supervisorctl update
 sudo supervisorctl start horizon
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Supervisor の実行に関する詳細な情報は、[Supervisor documentation](http://supervisord.org/index.html)をご覧ください。
 
 <a name="tags"></a>
@@ -424,8 +430,9 @@ class SendRenderNotifications implements ShouldQueue
 
 ## Notifications
 
-> [!WARNING]  
-> Horizon を設定して Slack や SMS の notifications を送信する際、関連する notification channel の[前提条件](/ja/php/laravel/v11.x/05-digging-deeper/notifications)を確認する必要があります。
+> <LaravelNote type="warning" />
+> Horizon を設定して Slack や SMS の notifications を送信する際、関連する notification
+> channel の[前提条件](/ja/php/laravel/v11.x/05-digging-deeper/notifications)を確認する必要があります。
 
 あなたの queues が長い待ち時間を持つ時に通知を受け取りたい場合は、`Horizon::routeMailNotificationsTo`、`Horizon::routeSlackNotificationsTo`、そして`Horizon::routeSmsNotificationsTo` メソッドを使うことができます。これらのメソッドは、あなたのアプリケーションの `App\Providers\HorizonServiceProvider` の `boot` method から呼び出すことができます。
 

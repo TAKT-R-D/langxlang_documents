@@ -169,8 +169,10 @@ class UserControllerTest extends TestCase
 }
 ```
 
-> [!WARNING]  
-> `Request`の facade をモックするべきではありません。代わりに、testing を実行する際に`get`や`post`のような[HTTP testing methods](/ja/php/laravel/v11.x/09-testing/02-http-tests)に望む input を渡してください。同様に、`Config`の facade をモックする代わりに、testing の中で`Config::set`の method を呼び出してください。
+> <LaravelNote type="warning" />
+> `Request`の facade をモックするべきではありません。代わりに、testing を実行する際に`get`や`post`のような[HTTP
+> testing methods](/ja/php/laravel/v11.x/09-testing/02-http-tests)に望む input を渡してください。同様に、`Config`の
+> facade をモックする代わりに、testing の中で`Config::set`の method を呼び出してください。
 
 <a name="facade-spies"></a>
 

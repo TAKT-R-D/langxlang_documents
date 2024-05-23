@@ -74,7 +74,7 @@ class EnsureTokenIsValid
 
 middleware を想像するのに最適なのは、 HTTP requests があなたの application に到達する前に通過しなければならない一連のレイヤーということです。各レイヤーは request を検査し、完全に reject することもできます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > すべての middleware は[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されるので、ミドルウェアのコンストラクタ内で必要な依存関係を型ヒントとして指定することができます。
 
 <a name="before-after-middleware"></a>
@@ -340,8 +340,9 @@ Laravel の default の`web`および`api` middleware グループ内のすべ�
 })
 ```
 
-> [!NOTE]  
-> default では、`web`および`api` middleware グループは、`bootstrap/app.php`ファイルによって、application の対応する`routes/web.php`および`routes/api.php`ファイルに自動的に適用されます。
+> <LaravelNote type="note" />
+> default では、`web`および`api` middleware グループは、`bootstrap/app.php`ファイルによって、application
+> の対応する`routes/web.php`および`routes/api.php`ファイルに自動的に適用されます。
 
 <a name="middleware-aliases"></a>
 

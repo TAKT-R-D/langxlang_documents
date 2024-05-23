@@ -95,8 +95,10 @@ org_title: "Laravel Cashier (Stripe)"
 
 新バージョンの Cashier にアップグレードする際は、[アップグレードガイド](https://github.com/laravel/cashier-stripe/blob/master/UPGRADE.md)を慎重に確認することが重要です。
 
-> [!WARNING]  
-> ブレーキングチェンジを防ぐために、 Cashier は固定の Stripe API バージョンを使用します。 Cashier 15 は Stripe API バージョン `2023-10-16`を使用します。Stripe API バージョンは、新しい Stripe features や改善を利用するために、マイナーリリースで更新されます。
+> <LaravelNote type="warning" />
+> ブレーキングチェンジを防ぐために、 Cashier は固定の Stripe API バージョンを使用します。
+> Cashier 15 は Stripe API バージョン `2023-10-16`を使用します。Stripe API バージョンは、新しい
+> Stripe features や改善を利用するために、マイナーリリースで更新されます。
 
 <a name="installation"></a>
 
@@ -130,8 +132,10 @@ php artisan vendor:publish --tag="cashier-config"
 
 最後に、Cashier が全ての Stripe の events を適切に処理するためには、[Cashier の webhook の取り扱いを設定](#handling-stripe-webhooks)することを忘れないでください。
 
-> [!WARNING]  
-> Stripe は、Stripe の識別子を保存するために使用される column は大文字と小文字を区別するようにすることを推奨しています。したがって、`stripe_id` column の照合順序は、MySQL を使用する場合には`utf8_bin`に設定する必要があります。これに関する詳細は、[Stripe documentation](https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible)で見つけることができます。
+> <LaravelNote type="warning" />
+> Stripe は、Stripe の識別子を保存するために使用される column は大文字と小文字を区別するようにすることを推奨しています。したがって、`stripe_id`
+> column の照合順序は、MySQL を使用する場合には`utf8_bin`に設定する必要があります。これに関する詳細は、[Stripe
+> documentation](https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible)で見つけることができます。
 
 <a name="configuration"></a>
 
@@ -167,8 +171,9 @@ public function boot(): void
 }
 ```
 
-> [!WARNING]  
-> Laravel が提供する`App\Models\User` model 以外の model を使用している場合、代替モデルのテーブル名に match するように、提供されている[Cashier migrations](#installation)を publish して変更する必要があります。
+> <LaravelNote type="warning" />
+> Laravel が提供する`App\Models\User` model 以外の model を使用している場合、代替モデルのテーブル名に
+> match するように、提供されている[Cashier migrations](#installation)を publish して変更する必要があります。
 
 <a name="api-keys"></a>
 
@@ -182,8 +187,9 @@ STRIPE_SECRET=your-stripe-secret
 STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
 ```
 
-> [!WARNING]  
-> あなたは、`STRIPE_WEBHOOK_SECRET` environment 変数がアプリケーションの`.env`ファイルで定義されていることを確認すべきです。なぜなら、この変数は、入ってくる webhooks が実際に Stripe からのものであることを確認するために使用されるからです。
+> <LaravelNote type="warning" />
+> あなたは、`STRIPE_WEBHOOK_SECRET` environment 変数がアプリケーションの`.env`ファイルで定義されていることを確認すべきです。なぜなら、この変数は、入ってくる
+> webhooks が実際に Stripe からのものであることを確認するために使用されるからです。
 
 <a name="currency-configuration"></a>
 
@@ -201,7 +207,7 @@ Cashier の通貨設定に加えて、請求書の表示用に金額の values �
 CASHIER_CURRENCY_LOCALE=nl_BE
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `en`以外のロケールを使用するためには、サーバー上に`ext-intl` PHP 拡張がインストールされ、設定されていることを確認してください。
 
 <a name="tax-configuration"></a>
@@ -226,7 +232,7 @@ public function boot(): void
 
 この feature が正しく機能するためには、顧客の氏名、住所、税 ID などの請求詳細を Stripe に同期させる必要があります。これを達成するためには、 Cashier が提供する[顧客 data 同期化](#syncing-customer-data-with-stripe)方法と[Tax ID](#tax-ids)方法を使用することができます。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > [単一の請求](#single-charges)や[単一の checkout](#single-charge-checkouts)には税金は計算されません。
 
 <a name="logging"></a>
@@ -280,8 +286,9 @@ public function boot(): void
 
 ### 商品の販売
 
-> [!NOTE]  
-> Stripe の Checkout を利用する前に、Stripe ダッシュボードで固定価格の製品を定義する必要があります。さらに、[Cashier の webhook ハンドリングを設定](#handling-stripe-webhooks)する必要があります。
+> <LaravelNote type="note" />
+> Stripe の Checkout を利用する前に、Stripe ダッシュボードで固定価格の製品を定義する必要があります。さらに、[Cashier
+> の webhook ハンドリングを設定](#handling-stripe-webhooks)する必要があります。
 
 あなたの application を通じて商品と subscription の課金を提供することは、気後れするかもしれません。しかし、 Cashier と[Stripe Checkout](https://stripe.com/payments/checkout)のおかげで、現代的で堅牢な支払い統合を簡単に build することができます。
 
@@ -375,8 +382,9 @@ Route::get('/checkout/success', function (Request $request) {
 
 ### Subscriptions の販売
 
-> [!NOTE]  
-> Stripe の Checkout を利用する前に、Stripe ダッシュボードで固定価格の製品を定義する必要があります。また、[Cashier の webhook ハンドリングを設定](#handling-stripe-webhooks)するべきです。
+> <LaravelNote type="note" />
+> Stripe の Checkout を利用する前に、Stripe ダッシュボードで固定価格の製品を定義する必要があります。また、[Cashier
+> の webhook ハンドリングを設定](#handling-stripe-webhooks)するべきです。
 
 あなたの application を通して製品と subscription 課金を提供することは、 intimidating です。しかし、 Cashier および [Stripe Checkout](https://stripe.com/payments/checkout) のおかげで、現代的で堅牢な決済統合を簡単に build することが可能になります。
 
@@ -487,8 +495,12 @@ Route::get('/billing', function (Request $request) {
 })->middleware(['auth'])->name('billing');
 ```
 
-> [!NOTE]  
-> Cashier の webhook の処理が設定されている限り、Cashier は Stripe からの受信した webhooks を検査することで、application の Cashier 関連の database テーブルを自動的に sync させます。ですから例えば、user が Stripe の Customer Billing Portal を通じて subscription を cancels すると、Cashier は対応する webhook を受け取り、application の database で subscription を"cancels"とマークします。
+> <LaravelNote type="note" />
+> Cashier の webhook の処理が設定されている限り、Cashier は Stripe からの受信した
+> webhooks を検査することで、application の Cashier 関連の database テーブルを自動的に
+> sync させます。ですから例えば、user が Stripe の Customer Billing Portal を通じて
+> subscription を cancels すると、Cashier は対応する webhook を受け取り、application
+> の database で subscription を"cancels"とマークします。
 
 <a name="customers"></a>
 
@@ -757,8 +769,9 @@ cardButton.addEventListener("click", async (e) => {
 
 Stripe によってカードが authentication された後、結果の `setupIntent.payment_method` 識別子を Laravel application に渡すことができ、それを顧客に関連付けることができます。 支払い 方法は、[新しい支払い 方法として追加する](#adding-payment-methods)か、[default の支払い 方法を 更新する](#updating-the-default-payment-method)ために使用することができます。また、支払い 方法の識別子を直ちに使用して、[新しい subscription を作成する](#creating-subscriptions)こともできます。
 
-> [!NOTE]  
-> セットアップインテントや顧客の支払い詳細の収集に関する詳細情報が必要な場合は、Stripe が提供する[この概要をご覧ください](https://stripe.com/docs/payments/save-and-reuse#php)。
+> <LaravelNote type="note" />
+> セットアップインテントや顧客の支払い詳細の収集に関する詳細情報が必要な場合は、Stripe
+> が提供する[この概要をご覧ください](https://stripe.com/docs/payments/save-and-reuse#php)。
 
 <a name="payment-methods-for-single-charges"></a>
 
@@ -887,8 +900,9 @@ Stripe のお客様の default 支払い method 情報とあなたの default �
 $user->updateDefaultPaymentMethodFromStripe();
 ```
 
-> [!WARNING]  
-> 顧客に対する default の支払い method は、請求書の作成や新しい subscriptions の作成にのみ使用できます。Stripe が課す制限により、 single の請求には使用できません。
+> <LaravelNote type="warning" />
+> 顧客に対する default の支払い method は、請求書の作成や新しい subscriptions の作成にのみ使用できます。Stripe
+> が課す制限により、 single の請求には使用できません。
 
 <a name="adding-payment-methods"></a>
 
@@ -900,7 +914,7 @@ $user->updateDefaultPaymentMethodFromStripe();
 $user->addPaymentMethod($paymentMethod);
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 支払い method イデンティファイアの取得方法を学ぶには、[支払い method storage のドキュメンテーション](#storing-payment-methods)をご覧ください。
 
 <a name="deleting-payment-methods"></a>
@@ -931,8 +945,9 @@ default として、この method は、全ての type の支払い方法を削�
 $user->deletePaymentMethods('sepa_debit');
 ```
 
-> [!WARNING]  
-> user がアクティブな subscription を持っている場合、あなたの application は彼らが default の支払い method を delete することを許可すべきではありません。
+> <LaravelNote type="warning" />
+> user がアクティブな subscription を持っている場合、あなたの application は彼らが
+> default の支払い method を delete することを許可すべきではありません。
 
 <a name="subscriptions"></a>
 
@@ -962,7 +977,7 @@ Route::post('/user/subscribe', function (Request $request) {
 
 `create`method は、[Stripe の支払い方法識別子](#storing-payment-methods)または Stripe の`PaymentMethod`object を受け取り、subscription を開始すると同時に、請求可能 model の Stripe 顧客 ID やその他の関連する請求情報を database に更新します。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 支払い method 識別子を直接`create` subscription method に渡すと、それは自動的にユーザーの保存された支払い方法に追加されます。
 
 <a name="collecting-recurring-payments-via-invoice-emails"></a>
@@ -1189,8 +1204,12 @@ if ($user->subscription('default')->recurring()) {
 }
 ```
 
-> [!WARNING]  
-> もし user が同じ type を持つ 2 つの subscriptions を持っていた場合、最新の subscription が常に`subscription` method によって返されます。例えば、user は`default`の type を持つ 2 つの subscription レコードを持っているかもしれませんが、そのうちの一つが古く、有効期限が切れた subscription であり、もう一つが現在の有効な subscription かもしれません。常に最新の subscription が返され、古い subscriptions は歴史的なレ view のために database に保持されます。
+> <LaravelNote type="warning" />
+> もし user が同じ type を持つ 2 つの subscriptions を持っていた場合、最新の subscription
+> が常に`subscription` method によって返されます。例えば、user は`default`の type
+> を持つ 2 つの subscription レコードを持っているかもしれませんが、そのうちの一つが古く、有効期限が切れた
+> subscription であり、もう一つが現在の有効な subscription かもしれません。常に最新の
+> subscription が返され、古い subscriptions は歴史的なレ view のために database に保持されます。
 
 <a name="cancelled-subscription-status"></a>
 
@@ -1261,8 +1280,9 @@ public function register(): void
 }
 ```
 
-> [!WARNING]  
-> subscription が`incomplete`の state にあるときは、支払いが確認されるまで変更することはできません。したがって、`swap`および`updateQuantity`メソッドは、 subscription が`incomplete`の state にあるときに例外を throw します。
+> <LaravelNote type="warning" />
+> subscription が`incomplete`の state にあるときは、支払いが確認されるまで変更することはできません。したがって、`swap`および`updateQuantity`メソッドは、
+> subscription が`incomplete`の state にあるときに例外を throw します。
 
 <a name="subscription-scopes"></a>
 
@@ -1338,7 +1358,7 @@ $user->subscription('default')->noProrate()->swap('price_yearly');
 
 詳細な情報については、 subscription の精算について、[Stripe のドキュメンテーション](https://stripe.com/docs/billing/subscriptions/prorations)をご覧ください。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `noProrate` method を`swapAndInvoice` method の前に実行しても、按分計算には影響を及ぼしません。常に請求書は発行されます。
 
 <a name="subscription-quantity"></a>
@@ -1446,8 +1466,9 @@ $user->subscription('default')->addPrice('price_chat', 5);
 $user->subscription('default')->removePrice('price_chat');
 ```
 
-> [!WARNING]  
-> subscription の最後の price を削除することはできません。代わりに、単に subscription を cancel すべきです。
+> <LaravelNote type="warning" />
+> subscription の最後の price を削除することはできません。代わりに、単に subscription
+> を cancel すべきです。
 
 <a name="swapping-prices"></a>
 
@@ -1512,8 +1533,10 @@ $user->subscription('default')->decrementQuantity(3, 'price_chat');
 $user->subscription('default')->updateQuantity(10, 'price_chat');
 ```
 
-> [!WARNING]  
-> subscription が複数の価格を持つ場合、`Subscription` model の`stripe_price`と`quantity` attributes は`null`になります。個々の price attributes にアクセスするには、`Subscription` model で利用可能な`items`の関係を使用する必要があります。
+> <LaravelNote type="warning" />
+> subscription が複数の価格を持つ場合、`Subscription` model の`stripe_price`と`quantity`
+> attributes は`null`になります。個々の price attributes にアクセスするには、`Subscription`
+> model で利用可能な`items`の関係を使用する必要があります。
 
 <a name="subscription-items"></a>
 
@@ -1678,7 +1701,7 @@ $usageRecords = $user->subscription('default')->usageRecordsFor('price_metered')
 
 ### Subscription 税金
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 税率を手動で計算する代わりに、[Stripe Tax を使用して自動的に税金を計算](#tax-configuration)することができます
 
 user が subscription で支払う税率を指定するには、`taxRates` method を billable model に実装し、Stripe の税率 ID を含む array を返す必要があります。これらの税率は、[あなたの Stripe ダッシュボード](https://dashboard.stripe.com/test/tax-rates)で定義できます。
@@ -1713,8 +1736,9 @@ public function priceTaxRates(): array
 }
 ```
 
-> [!WARNING]  
-> `taxRates`の method は、 subscription 料金にのみ適用されます。"一度きり"の料金を Cashier を使用して作成する場合、その時点で税率を手動で指定する必要があります。
+> <LaravelNote type="warning" />
+> `taxRates`の method は、 subscription 料金にのみ適用されます。"一度きり"の料金を
+> Cashier を使用して作成する場合、その時点で税率を手動で指定する必要があります。
 
 <a name="syncing-tax-rates"></a>
 
@@ -1744,8 +1768,9 @@ $user->isNotTaxExempt();
 $user->reverseChargeApplies();
 ```
 
-> [!WARNING]  
-> これらの methods は、`Laravel\Cashier\Invoice` object にも使用できます。ただし、`Invoice` object で呼び出された場合、methods は請求書が作成された時点の免責 status を決定します。
+> <LaravelNote type="warning" />
+> これらの methods は、`Laravel\Cashier\Invoice` object にも使用できます。ただし、`Invoice`
+> object で呼び出された場合、methods は請求書が作成された時点の免責 status を決定します。
 
 <a name="subscription-anchor-date"></a>
 
@@ -1855,8 +1880,9 @@ Route::post('/user/subscribe', function (Request $request) {
 
 この method は、 database 内の subscription レコードにトライアル期間の終了日を設定し、その日まで顧客に対しての請求を Stripe が開始しないように指示します。`trialDays` method を使用すると、 Cashier は Stripe の price に設定された default のトライアル期間を上書きします。
 
-> [!WARNING]  
-> お客様が subscription を試用期間終了日前にキャンセルしない場合、試用期間が終了するとすぐに課金されます。そのため、 users に試用期間終了日を通知するようにしましょう。
+> <LaravelNote type="warning" />
+> お客様が subscription を試用期間終了日前にキャンセルしない場合、試用期間が終了するとすぐに課金されます。そのため、
+> users に試用期間終了日を通知するようにしましょう。
 
 `trialUntil` method は、トライアル期間が終了する日時を指定する`DateTime`インスタンスを提供することを可能にします：
 
@@ -1919,8 +1945,9 @@ $user = User::create([
 ]);
 ```
 
-> [!WARNING]  
-> 必ず、`trial_ends_at` attribute を billable モデルの class 定義内で [日付キャスト](/ja/php/laravel/v11.x/08-eloquent-orm/04-eloquent-mutators#date-casting) に追加してください。
+> <LaravelNote type="warning" />
+> 必ず、`trial_ends_at` attribute を billable モデルの class 定義内で [日付キャスト](/ja/php/laravel/v11.x/08-eloquent-orm/04-eloquent-mutators#date-casting)
+> に追加してください。
 
 Cashier は、既存の subscription に関連付けられていないため、この type の試用期間を一般的な試用期間と呼びます。 billable model インスタンスの`onTrial` method は、現在の日付が`trial_ends_at`の value を過ぎていない場合、`true`を返します。
 
@@ -1980,7 +2007,7 @@ $subscription->extendTrial(
 
 ## Handling Stripe Webhooks
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > ローカル開発中に webhooks をテストするのに役立つ[the Stripe CLI](https://stripe.com/docs/stripe-cli)を使用してもよいです。
 
 Stripe は、 webhooks を介して様々な events をあなたの application に通知できます。 default では、Cashier の webhook controller に向けた route が Cashier service provider によって自動的に登録されます。この controller はすべての webhook リクエストを handle します。
@@ -2022,8 +2049,9 @@ php artisan cashier:webhook --api-version="2019-12-03"
 php artisan cashier:webhook --disabled
 ```
 
-> [!WARNING]  
-> Cashier が含む[webhook signature 検証](#verifying-webhook-signatures) middleware を使用して、Stripe の webhook リクエストの保護を確認してください。
+> <LaravelNote type="warning" />
+> Cashier が含む[webhook signature 検証](#verifying-webhook-signatures) middleware
+> を使用して、Stripe の webhook リクエストの保護を確認してください。
 
 <a name="webhooks-csrf-protection"></a>
 
@@ -2127,7 +2155,7 @@ try {
 }
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `charge` method は、お客様の application で使用されている通貨の最小単位での支払い額を受け入れます。例えば、顧客がアメリカドルで支払う場合、金額はペニーで指定する必要があります。
 
 <a name="charge-with-invoice"></a>
@@ -2168,8 +2196,10 @@ $user->invoiceFor('One Time Fee', 500);
 
 `invoiceFor`の method は使用可能ですが、事前に設定された価格を用いた`invoicePrice`と`tabPrice`のメソッドの使用が推奨されます。それにより、製品ごとの販売に関する Stripe ダッシュボード内のより良い分析と data にアクセスすることができます。
 
-> [!WARNING]  
-> `invoice`、`invoicePrice`、および `invoiceFor` methods は、失敗した課金の試行を再試行する Stripe の請求書を作成します。請求が失敗した課金を再試行しないようにしたい場合は、最初の失敗した課金の後に Stripe の API を使用してそれらを閉じる必要があります。
+> <LaravelNote type="warning" />
+> `invoice`、`invoicePrice`、および `invoiceFor` methods は、失敗した課金の試行を再試行する
+> Stripe の請求書を作成します。請求が失敗した課金を再試行しないようにしたい場合は、最初の失敗した課金の後に
+> Stripe の API を使用してそれらを閉じる必要があります。
 
 <a name="creating-payment-intents"></a>
 
@@ -2205,7 +2235,7 @@ Route::post('/pay', function (Request $request) {
 });
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `pay`および`payWith`メソッドは、ご利用の application で使用される通貨の最小単位での支払い金額を受け入れます。たとえば、お客様がアメリカドルで支払う場合、金額はペニーで指定する必要があります。
 
 <a name="refunding-charges"></a>
@@ -2460,15 +2490,19 @@ Route::get('/charge-checkout', function (Request $request) {
 });
 ```
 
-> [!WARNING]  
-> `checkoutCharge`の method を使用すると、Stripe は常に新しい製品と価格をあなたの Stripe ダッシュボードに作成します。したがって、Stripe ダッシュボードで商品を事前に作成し、代わりに`checkout`の method を使用することをお勧めします。
+> <LaravelNote type="warning" />
+> `checkoutCharge`の method を使用すると、Stripe は常に新しい製品と価格をあなたの
+> Stripe ダッシュボードに作成します。したがって、Stripe ダッシュボードで商品を事前に作成し、代わりに`checkout`の
+> method を使用することをお勧めします。
 
 <a name="subscription-checkouts"></a>
 
 ### Subscription チェックアウト
 
-> [!WARNING]  
-> Stripe の Checkout を subscriptions に使用するには、Stripe ダッシュボードで`customer.subscription.created` webhook を有効にする必要があります。この webhook は、 database に subscription レコードを作成し、関連するすべての subscription アイテムを保存します。
+> <LaravelNote type="warning" />
+> Stripe の Checkout を subscriptions に使用するには、Stripe ダッシュボードで`customer.subscription.created`
+> webhook を有効にする必要があります。この webhook は、 database に subscription
+> レコードを作成し、関連するすべての subscription アイテムを保存します。
 
 また、Stripe の Checkout を使用して subscriptions を開始することも可能です。Cashier の subscription ビルダーメソッドで subscription を定義した後、`checkout`メソッドを呼び出すことができます。顧客がこの route を訪れると、Stripe の Checkout ページにリダイレクトされます。
 
@@ -2510,8 +2544,12 @@ Route::get('/subscription-checkout', function (Request $request) {
 });
 ```
 
-> [!WARNING]  
-> 残念ながら、Stripe の Checkout は、 subscriptions を開始するときにすべての subscription 請求 options をサポートしていません。`anchorBillingCycleOn` method を subscription ビルダーに設定する、精算動作を設定する、または支払い動作を設定することは、Stripe の Checkout セッション中には一切影響を及ぼしません。利用可能なパラメータを確認するために、[Stripe の Checkout Session API ドキュメンテーション](https://stripe.com/docs/api/checkout/sessions/create)をご覧ください。
+> <LaravelNote type="warning" />
+> 残念ながら、Stripe の Checkout は、 subscriptions を開始するときにすべての subscription
+> 請求 options をサポートしていません。`anchorBillingCycleOn` method を subscription
+> ビルダーに設定する、精算動作を設定する、または支払い動作を設定することは、Stripe
+> の Checkout セッション中には一切影響を及ぼしません。利用可能なパラメータを確認するために、[Stripe
+> の Checkout Session API ドキュメンテーション](https://stripe.com/docs/api/checkout/sessions/create)をご覧ください。
 
 <a name="stripe-checkout-trial-periods"></a>
 
@@ -2545,8 +2583,9 @@ $checkout = $user->collectTaxIds()->checkout('price_tshirt');
 
 この method が呼び出されると、顧客は自分が会社として購入しているかどうかを示すことができる新しいチェックボックスが利用可能になります。そうであれば、彼らは自分の税 ID 番号を提供する機会を得ることができます。
 
-> [!WARNING]  
-> すでにアプリケーションの service provider で[automatic tax collection](#tax-configuration)を設定している場合、この feature は自動的に有効になり、`collectTaxIds` method を呼び出す必要はありません。
+> <LaravelNote type="warning" />
+> すでにアプリケーションの service provider で[automatic tax collection](#tax-configuration)を設定している場合、この
+> feature は自動的に有効になり、`collectTaxIds` method を呼び出す必要はありません。
 
 <a name="guest-checkouts"></a>
 
@@ -2677,8 +2716,9 @@ $subscription->withPaymentConfirmationOptions([
 
 あなたのビジネス、またはあなたの顧客の一部がヨーロッパに拠点を置いている場合、EU の Authentication (SCA)規制を遵守する必要があります。これらの規制は、支払い詐欺を防止するために、ヨーロッパの Union によって 2019 年 9 月に導入されました。幸いなことに、Stripe と Cashier は SCA 準拠のアプリケーションを構築するための準備が整っています。
 
-> [!WARNING]  
-> 開始する前に、[Stripe の PSD2 および SCA に関するガイド](https://stripe.com/guides/strong-customer-authentication)と、新しい[SCA API に関するドキュメンテーション](https://stripe.com/docs/strong-customer-authentication)を確認してください。
+> <LaravelNote type="warning" />
+> 開始する前に、[Stripe の PSD2 および SCA に関するガイド](https://stripe.com/guides/strong-customer-authentication)と、新しい[SCA
+> API に関するドキュメンテーション](https://stripe.com/docs/strong-customer-authentication)を確認してください。
 
 <a name="payments-requiring-additional-confirmation"></a>
 
@@ -2708,8 +2748,10 @@ CASHIER_PAYMENT_NOTIFICATION=Laravel\Cashier\Notifications\ConfirmPayment
 
 session 外の支払い確認 notifications が配信されることを確認するには、[Stripe の webhooks が設定されている](#handling-stripe-webhooks)ことをあなたの application で確認し、`invoice.payment_action_required` webhook が Stripe ダッシュボードで有効になっていることを確認してください。また、あなたの`Billable` model は、Laravel の`Illuminate\Notifications\Notifiable`トレイトも使用するようにすべきです。
 
-> [!WARNING]  
->  Notifications は、追加の確認が必要な支払いを顧客が手動で行っている場合でも送信されます。残念ながら、Stripe が支払いが手動で行われたのか"オフセッション"で行われたのかを知る方法はありません。しかし、顧客が支払いを既に確認した後に支払いページを訪れると、Payment Successful のメッセージが表示されます。顧客が同じ支払いを誤って二重に確認し、誤って二回めの請求を発生させることはありません。
+> <LaravelNote type="warning" />
+> Notifications は、追加の確認が必要な支払いを顧客が手動で行っている場合でも送信されます。残念ながら、Stripe
+> が支払いが手動で行われたのか"オフセッション"で行われたのかを知る方法はありません。しかし、顧客が支払いを既に確認した後に支払いページを訪れると、Payment
+> Successful のメッセージが表示されます。顧客が同じ支払いを誤って二重に確認し、誤って二回めの請求を発生させることはありません。
 
 <a name="stripe-sdk"></a>
 
@@ -2755,5 +2797,6 @@ testing を行う際、すでに Cashier 自体が充実したテストスイー
 
 これからは、 testing 中に Cashier と交流するたびに、実際の API リクエストを Stripe の testing environment に送信します。便利さを考慮して、 testing の際に使用するかもしれない subscriptions / 価格を Stripe の testing アカウントに事前に入力しておくべきです。
 
-> [!NOTE]  
-> クレジットカードの拒否や失敗など、さまざまな請求シナリオを testing するために、Stripe が提供する[testing カード番号と tokens](https://stripe.com/docs/testing)の広範な範囲をご利用いただけます。
+> <LaravelNote type="note" />
+> クレジットカードの拒否や失敗など、さまざまな請求シナリオを testing するために、Stripe
+> が提供する[testing カード番号と tokens](https://stripe.com/docs/testing)の広範な範囲をご利用いただけます。

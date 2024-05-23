@@ -302,8 +302,9 @@ Route::get('/', function (ServerRequestInterface $request) {
 });
 ```
 
-> [!NOTE]  
-> route や controller から PSR-7 の response インスタンスを返すと、自動的に Laravel response インスタンスに戻され、フレームワークによって表示されます。
+> <LaravelNote type="note" />
+> route や controller から PSR-7 の response インスタンスを返すと、自動的に Laravel
+> response インスタンスに戻され、フレームワークによって表示されます。
 
 <a name="input"></a>
 
@@ -477,8 +478,9 @@ $input = $request->except(['credit_card']);
 $input = $request->except('credit_card');
 ```
 
-> [!WARNING]  
-> `only` method は、要求した key/ value のペアをすべて返します。しかし、 request 上に存在しない key/ value のペアは返しません。
+> <LaravelNote type="warning" />
+> `only` method は、要求した key/ value のペアをすべて返します。しかし、 request
+> 上に存在しない key/ value のペアは返しません。
 
 <a name="input-presence"></a>
 
@@ -774,8 +776,9 @@ $path = $request->photo->storeAs('images', 'filename.jpg');
 $path = $request->photo->storeAs('images', 'filename.jpg', 's3');
 ```
 
-> [!NOTE]  
-> Laravel のファイル storage についての詳しい情報は、完全な [ファイル storage のドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/filesystem) をご覧ください。
+> <LaravelNote type="note" />
+> Laravel のファイル storage についての詳しい情報は、完全な [ファイル storage のドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/filesystem)
+> をご覧ください。
 
 <a name="configuring-trusted-proxies"></a>
 
@@ -807,8 +810,11 @@ TLS / SSL 証明書を終了させるロードバランサーの背後でアプ�
 })
 ```
 
-> [!NOTE]  
-> AWS Elastic Load Balancing を使用している場合、`headers`の value は`Request::HEADER_X_FORWARDED_AWS_ELB`であるべきです。ロードバランサが[RFC 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4)からの標準的な`Forwarded` header を使用している場合、`headers`の value は`Request::HEADER_FORWARDED`であるべきです。`headers`の value で使用できる定数についての詳細は、Symfony の[trusting proxies](https://symfony.com/doc/7.0/deployment/proxies.html)のドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> AWS Elastic Load Balancing を使用している場合、`headers`の value は`Request::HEADER_X_FORWARDED_AWS_ELB`であるべきです。ロードバランサが[RFC
+> 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4)からの標準的な`Forwarded`
+> header を使用している場合、`headers`の value は`Request::HEADER_FORWARDED`であるべきです。`headers`の
+> value で使用できる定数についての詳細は、Symfony の[trusting proxies](https://symfony.com/doc/7.0/deployment/proxies.html)のドキュメンテーションをご覧ください。
 
 <a name="trusting-all-proxies"></a>
 

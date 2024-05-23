@@ -82,8 +82,9 @@ Route::get('/user/{id}', [UserController::class, 'show']);
 
 着信の request が指定された route URI と一致すると、`App\Http\Controllers\UserController` class の`show` method が呼び出され、 route のパラメータが method に渡されます。
 
-> [!NOTE]  
-> コントローラーは**required**として基本の class を拡張する必要はありません。しかし、すべてのコントローラーで共有するべきメソッドを含む基本の controller class を拡張することは、時として便利です。
+> <LaravelNote type="note" />
+> コントローラーは**required**として基本の class を拡張する必要はありません。しかし、すべてのコントローラーで共有するべきメソッドを含む基本の
+> controller class を拡張することは、時として便利です。
 
 <a name="single-action-controllers"></a>
 
@@ -122,7 +123,7 @@ Route::post('/server', ProvisionServer::class);
 php artisan make:controller ProvisionServer --invokable
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Controller スタブは、[stub publishing](/ja/php/laravel/v11.x/05-digging-deeper/artisan#stub-customization)を使用してカスタマイズすることができます。
 
 <a name="controller-middleware"></a>
@@ -475,8 +476,9 @@ Route::get('/photos/popular', [PhotoController::class, 'popular']);
 Route::resource('photos', PhotoController::class);
 ```
 
-> [!NOTE]  
-> コントローラーは焦点を絞って運用してください。もし通常の resource アクションに含まれないメソッドを定期的に必要とする場合は、あなたの controller を 2 つの小さなコントローラーに分割することを検討してみてください。
+> <LaravelNote type="note" />
+> コントローラーは焦点を絞って運用してください。もし通常の resource アクションに含まれないメソッドを定期的に必要とする場合は、あなたの
+> controller を 2 つの小さなコントローラーに分割することを検討してみてください。
 
 <a name="singleton-resource-controllers"></a>
 

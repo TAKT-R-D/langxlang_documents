@@ -30,7 +30,7 @@ org_title: "Laravel Socialite"
 
 典型的な、フォームベースの authentication に加えて、 Laravel は、[Laravel Socialite](https://github.com/laravel/socialite)を使用して OAuth providers と認証するためのシンプルで便利な方法も提供します。 現在、 Socialite は Facebook、 Twitter 、LinkedIn、Google、 GitHub 、GitLab、Bitbucket、および Slack を介した authentication をサポートしています。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 他のプラットフォーム用のアダプタは、コミュニティが運営する[Socialite Providers](https://socialiteproviders.com/)ウェブサイトを通じて利用可能です。
 
 <a name="installation"></a>
@@ -65,8 +65,9 @@ Socialite を使用する前に、application が利用する OAuth プロバイ
 ],
 ```
 
-> [!NOTE]  
-> もし`redirect`オプションが相対的な path を含んでいる場合、それは自動的に完全修飾 URL に解決されます。
+> <LaravelNote type="note" />
+> もし`redirect`オプションが相対的な path を含んでいる場合、それは自動的に完全修飾
+> URL に解決されます。
 
 <a name="authentication"></a>
 
@@ -123,7 +124,7 @@ Route::get('/auth/callback', function () {
 });
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 特定の OAuth の providers から利用可能な user 情報についての詳細は、[user の詳細を取得する](#retrieving-user-details)に関するドキュメンテーションをご覧ください。
 
 <a name="access-scopes"></a>
@@ -194,7 +195,7 @@ return Socialite::driver('google')
     ->redirect();
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `with` method を使用する際には、`state`や`response_type`のような予約語を渡さないように注意してください。
 
 <a name="retrieving-user-details"></a>
@@ -267,5 +268,5 @@ use Laravel\Socialite\Facades\Socialite;
 return Socialite::driver('google')->stateless()->user();
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > ステートレスな authentication は、 Twitter の OAuth 1.0 driver では利用できません。

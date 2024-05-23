@@ -134,8 +134,9 @@ validationrequest またはフォーム送信中に返される validation error
 <span v-else-if="form.invalid('email')"> ❌ </span>
 ```
 
-> [!WARNING]  
-> フォームの input は、変更されて validation response が受け取られた後にのみ、有効または invalid として表示されます。
+> <LaravelNote type="warning" />
+> フォームの input は、変更されて validation response が受け取られた後にのみ、有効または
+> invalid として表示されます。
 
 あなたが Precognition を用いてフォームの入力の一部を validating する場合、手動で errors をクリアすることが有用です。この作業を達成するために、フォームの`forgetError`関数を使用することができます:
 
@@ -177,8 +178,10 @@ const submit = () =>
 
 ### Vue と Inertia の使用
 
-> [!NOTE]  
-> Vue と Inertia を使った Laravel application 開発にあたり、素早く始めたい場合は、私たちの[スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)の一つを使用することを検討してみてください。Laravel のスターターキットは、新しい Laravel application のバックエンドとフロントエンドの authentication スキャッフォルディングを提供します。
+> <LaravelNote type="note" />
+> Vue と Inertia を使った Laravel application 開発にあたり、素早く始めたい場合は、私たちの[スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)の一つを使用することを検討してみてください。Laravel
+> のスターターキットは、新しい Laravel application のバックエンドとフロントエンドの
+> authentication スキャッフォルディングを提供します。
 
 Vue と Inertia を使用して Precognition を使用する前に、[Vue を使用して Precognition を使用する](#using-vue)に関する一般的なドキュメントを必ず確認してください。Vue と Inertia を使用する場合、NPM 経由で Inertia 対応の Precognition library をインストールする必要があります:
 
@@ -315,8 +318,9 @@ validation request が処理中の場合、フォームの`validating`プロパ�
 }
 ```
 
-> [!WARNING]  
-> フォームの input は、変更されて validation response が受信された後でのみ、有効または invalid として表示されます。
+> <LaravelNote type="warning" />
+> フォームの input は、変更されて validation response が受信された後でのみ、有効または
+> invalid として表示されます。
 
 あなたが Precognition でフォームの入力の一部を validating する場合、手動で errors をクリアすることが役立つことがあります。これを実現するために、フォームの`forgetError`関数を使用することができます：
 
@@ -361,8 +365,10 @@ const submit = (e) => {
 
 ### React と Inertia の使用
 
-> [!NOTE]  
-> React と Inertia を使用して Laravel application を開発する際に先手を打ちたい場合は、私たちの[スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)の一つを使用してみてください。Laravel のスターターキットは、新たな Laravel application のバックエンドとフロントエンドの authentication の足場を提供します。
+> <LaravelNote type="note" />
+> React と Inertia を使用して Laravel application を開発する際に先手を打ちたい場合は、私たちの[スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)の一つを使用してみてください。Laravel
+> のスターターキットは、新たな Laravel application のバックエンドとフロントエンドの
+> authentication の足場を提供します。
 
 React と Inertia を使った Precognition の使用前に、必ず[React と Precognition の使い方](#using-react)についての一般的なドキュメントを確認してください。React と Inertia を一緒に使用する場合、NPM 経由で Inertia 互換の Precognition の library をインストールする必要があります。
 
@@ -509,8 +515,9 @@ validation request が進行中のとき、フォームの`validating`プロパ�
 </template>
 ```
 
-> [!WARNING]  
-> フォームの input は、変更されて validation response が受信された後にのみ、有効または invalid として表示されます。
+> <LaravelNote type="warning" />
+> フォームの input は、変更されて validation response が受信された後にのみ、有効または
+> invalid として表示されます。
 
 フォーム送信の request が進行中であるかどうかは、フォームの `processing` プロパティを調査することで判断することができます：
 
@@ -584,8 +591,9 @@ window.axios.defaults.headers.common["Authorization"] = authToken;
 client.use(window.axios);
 ```
 
-> [!WARNING]  
-> イナーシャ風のプレコグニションライブラリは、 validation リクエストのみに設定された Axios インスタンスを使用します。Form 送信は常に Inertia によって送信されます。
+> <LaravelNote type="warning" />
+> イナーシャ風のプレコグニションライブラリは、 validation リクエストのみに設定された
+> Axios インスタンスを使用します。Form 送信は常に Inertia によって送信されます。
 
 <a name="customizing-validation-rules"></a>
 

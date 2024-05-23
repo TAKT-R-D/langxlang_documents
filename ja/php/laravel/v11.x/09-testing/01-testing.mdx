@@ -62,7 +62,7 @@ php artisan make:test UserTest
 php artisan make:test UserTest --unit
 ```
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > テストスタブは[スタブ公開](/ja/php/laravel/v11.x/05-digging-deeper/artisan#stub-customization)を使用してカスタマイズすることができます。
 
 テストが生成されたら、通常どおりに Pest や PHPUnit を使ってテストを定義することができます。テストを実行するには、ターミナルから`vendor/bin/pest`、`vendor/bin/phpunit`、または`php artisan test` command を実行します。
@@ -94,8 +94,11 @@ class ExampleTest extends TestCase
 }
 ```
 
-> [!WARNING]
-> test の class 内に独自の`setUp` / `tearDown`メソッドを定義する場合は、親の class の`parent::setUp()` / `parent::tearDown()`メソッドを必ず呼び出すようにしてください。典 types 的には、独自の`setUp` method の開始時に`parent::setUp()`を、`tearDown` method の終了時に`parent::tearDown()`を呼び出すべきです。
+> <LaravelNote type="warning" />
+> test の class 内に独自の`setUp` / `tearDown`メソッドを定義する場合は、親の class
+> の`parent::setUp()` / `parent::tearDown()`メソッドを必ず呼び出すようにしてください。典
+> types 的には、独自の`setUp` method の開始時に`parent::setUp()`を、`tearDown` method
+> の終了時に`parent::tearDown()`を呼び出すべきです。
 
 <a name="running-tests"></a>
 
@@ -141,7 +144,7 @@ default で、 Laravel は、あなたのマシンに利用可能な CPU コア�
 php artisan test --parallel --processes=4
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > テストを並行して実行するとき、一部の Pest / PHPUnit options (`--do-not-cache-result`のような)は利用できないかもしれません。
 
 <a name="parallel-testing-and-databases"></a>
@@ -219,7 +222,7 @@ $token = ParallelTesting::token();
 
 ### テストカバレッジの報告
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > この feature は、[Xdebug](https://xdebug.org)または[PCOV](https://pecl.php.net/package/pcov)が必要です。
 
 あなたの application のテストを実行する際に、あなたのテストケースが実際に application code をカバーしているかどうか、そしてテストを実行するときにどれだけの application code が使用されているかを判断したいかもしれません。これを達成するために、`test` command を呼び出すときに`--coverage`オプションを提供できます。

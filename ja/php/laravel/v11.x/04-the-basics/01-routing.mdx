@@ -125,8 +125,10 @@ Route::any('/', function () {
 });
 ```
 
-> [!NOTE]  
-> 同じ URI を共有する複数の routes を定義するときに、`get`、`post`、`put`、`patch`、`delete`、`options` メソッドを使用する routes は、`any`、`match`、`redirect` メソッドを使用する routes よりも前に定義すべきです。これにより、入力された request が正しい route とマッチすることが確認されます。
+> <LaravelNote type="note" />
+> 同じ URI を共有する複数の routes を定義するときに、`get`、`post`、`put`、`patch`、`delete`、`options`
+> メソッドを使用する routes は、`any`、`match`、`redirect` メソッドを使用する routes
+> よりも前に定義すべきです。これにより、入力された request が正しい route とマッチすることが確認されます。
 
 <a name="dependency-injection"></a>
 
@@ -177,8 +179,9 @@ Route::redirect('/here', '/there', 301);
 Route::permanentRedirect('/here', '/there');
 ```
 
-> [!WARNING]  
-> route パラメータを redirect routes で使用する場合、以下のパラメータは Laravel によって予約されていて使用できません: `destination` と `status`。
+> <LaravelNote type="warning" />
+> route パラメータを redirect routes で使用する場合、以下のパラメータは Laravel によって予約されていて使用できません:
+> `destination` と `status`。
 
 <a name="view-routes"></a>
 
@@ -192,8 +195,9 @@ Route::view('/welcome', 'welcome');
 Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
 ```
 
-> [!WARNING]  
-> view routes 内で route パラメーターを使用する際、以下のパラメーターは Laravel によって予約されており、使用することはできません： `view`、 `data`、 `status`、そして `headers`。
+> <LaravelNote type="warning" />
+> view routes 内で route パラメーターを使用する際、以下のパラメーターは Laravel によって予約されており、使用することはできません：
+> `view`、 `data`、 `status`、そして `headers`。
 
 <a name="listing-your-routes"></a>
 
@@ -427,7 +431,7 @@ Route::get('/search/{search}', function (string $search) {
 })->where('search', '.*');
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > エンコードされたスラッシュは、最後の route セグメント内でのみサポートされています。
 
 <a name="named-routes"></a>
@@ -451,7 +455,7 @@ Route::get(
 )->name('profile');
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > Route の名称は常に unique であるべきです。
 
 <a name="generating-urls-to-named-routes"></a>
@@ -492,8 +496,9 @@ $url = route('profile', ['id' => 1, 'photos' => 'yes']);
 // /user/1/profile?photos=yes
 ```
 
-> [!NOTE]  
-> 時折、リクエスト全体で default values を設定したいと思うことがあるかもしれません。具体的には、現在の locale のような URL パラメータです。これを達成するために、[`URL::defaults` method](/ja/php/laravel/v11.x/04-the-basics/10-urls#default-values)を使用することができます。
+> <LaravelNote type="note" />
+> 時折、リクエスト全体で default values を設定したいと思うことがあるかもしれません。具体的には、現在の
+> locale のような URL パラメータです。これを達成するために、[`URL::defaults` method](/ja/php/laravel/v11.x/04-the-basics/10-urls#default-values)を使用することができます。
 
 <a name="inspecting-the-current-route"></a>
 
@@ -576,8 +581,10 @@ Route::domain('{account}.example.com')->group(function () {
 });
 ```
 
-> [!WARNING]  
-> サブドメインの routes が到達可能であることを確認するためには、 root domain routes を登録する前に、サブドメインの routes を register すべきです。これにより、同じ URI の path を持つサブドメインの routes が、 root domain routes によって上書きされるのを防ぐことができます。
+> <LaravelNote type="warning" />
+> サブドメインの routes が到達可能であることを確認するためには、 root domain routes
+> を登録する前に、サブドメインの routes を register すべきです。これにより、同じ
+> URI の path を持つサブドメインの routes が、 root domain routes によって上書きされるのを防ぐことができます。
 
 <a name="route-group-prefixes"></a>
 
@@ -878,7 +885,7 @@ Route::fallback(function () {
 });
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > フォールバックの route は、常にあなたの application で登録された最後の route であるべきです。
 
 <a name="rate-limiting"></a>
@@ -1069,7 +1076,7 @@ php artisan config:publish cors
 
 この command は、あなたのアプリケーションの `config` ディレクトリ内に `cors.php` 設定ファイルを配置します。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > CORS と CORS headers についての詳細は、[MDN web の CORS に関する文書](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers)をご覧ください。
 
 <a name="route-caching"></a>

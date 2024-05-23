@@ -51,7 +51,7 @@ Laravel のファイルシステムの設定ファイルは、`config/filesystem
 
 `local` driver は、Laravel application を実行しているサーバー上にローカルに保存されたファイルと対話し、`s3` driver は Amazon の S3 クラウド storage service に書き込むために使用されます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > お好きなだけディスクを設定することができ、同じ driver を使用する複数のディスクを持つことも可能です。
 
 <a name="the-local-driver"></a>
@@ -253,7 +253,7 @@ MinIO を使用している際に Laravel の Flysystem 統合が適切な URL �
 AWS_URL=http://localhost:9000/local
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > MinIO を使用している場合、`temporaryUrl` method を通じて一時的な storage URL を生成することはサポートされていません。
 
 <a name="obtaining-disk-instances"></a>
@@ -349,8 +349,9 @@ $url = Storage::url('file.jpg');
 
 `local` driver を使用する際は、公開すべき全てのファイルを `storage/app/public` ディレクトリに配置する必要があります。さらに、`public/storage` に[シンボリック link](#the-public-disk)を作成し、それを `storage/app/public` ディレクトリに link する必要があります。
 
-> [!WARNING]  
-> `local` driver を使用すると、`url`の返り value は URL エンコードされません。このため、常に有効な URL を生成するファイル名でファイルを保存することをお勧めします。
+> <LaravelNote type="warning" />
+> `local` driver を使用すると、`url`の返り value は URL エンコードされません。このため、常に有効な
+> URL を生成するファイル名でファイルを保存することをお勧めします。
 
 <a name="url-host-customization"></a>
 
@@ -431,7 +432,7 @@ class AppServiceProvider extends ServiceProvider
 
 #### 一時的なアップロード URL
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 一時的なアップロード URL を生成する能力は、`s3` driver だけがサポートしています。
 
 クライアントサイドの application から直接ファイルをアップロードするために使用できる一時的な URL を生成する必要がある場合、`temporaryUploadUrl` method を使用することができます。この method は、 URL が有効期限を迎える時点を指定する`DateTime`インスタンスと、 path を受け取ります。`temporaryUploadUrl` method は、アップロード URL とアップロード request と共に含まれるべき headers を分割して出力できる連想 array を返します。
@@ -623,8 +624,10 @@ $path = Storage::putFileAs(
 );
 ```
 
-> [!WARNING]  
-> 印刷不可能な文字や無効なユニコード文字は、ファイル paths から自動的に削除されます。したがって、Laravel のファイル storage メソッドに渡す前に、あなたのファイル paths をサニタイズすることを希望するかもしれません。ファイル paths は、`League\Flysystem\WhitespacePathNormalizer::normalizePath` method を使用して正規化されます。
+> <LaravelNote type="warning" />
+> 印刷不可能な文字や無効なユニコード文字は、ファイル paths から自動的に削除されます。したがって、Laravel
+> のファイル storage メソッドに渡す前に、あなたのファイル paths をサニタイズすることを希望するかもしれません。ファイル
+> paths は、`League\Flysystem\WhitespacePathNormalizer::normalizePath` method を使用して正規化されます。
 
 <a name="specifying-a-disk"></a>
 
@@ -869,7 +872,7 @@ class ExampleTest extends TestCase
 
 default では、`fake` method は一時ディレクトリ内のすべてのファイルを delete します。これらのファイルを保持したい場合は、"persistentFake" method を代わりに使用することができます。ファイルアップロードの testing についての詳細は、[HTTP テストのドキュメンテーションのファイルアップロードに関する情報](/ja/php/laravel/v11.x/09-testing/02-http-tests#testing-file-uploads)を参照してください。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `image` method は、[GD extension](https://www.php.net/manual/en/book.image.php)が必要です。
 
 <a name="custom-filesystems"></a>

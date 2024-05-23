@@ -149,8 +149,9 @@ Meilisearch に関する詳細は、[Meilisearch ドキュメンテーション]
 
 また、`meilisearch/meilisearch-php`のバージョンがあなたの Meilisearch binary バージョンと互換性があることを確認するために、[binary 互換性についての Meilisearch のドキュメンテーション](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch)を確認してインストールするべきです。
 
-> [!WARNING]  
-> Meilisearch を使用した application で Scout をアップグレードする際、常に[追加の重大な変更](https://github.com/meilisearch/Meilisearch/releases)を Meilisearch service 自体でレビューする必要があります。
+> <LaravelNote type="warning" />
+> Meilisearch を使用した application で Scout をアップグレードする際、常に[追加の重大な変更](https://github.com/meilisearch/Meilisearch/releases)を
+> Meilisearch service 自体でレビューする必要があります。
 
 <a name="typesense"></a>
 
@@ -448,7 +449,7 @@ SCOUT_IDENTIFY=true
 
 ### Database エンジン
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 現在の database エンジンは MySQL と PostgreSQL をサポートしています。
 
 あなたの application が中小規模の database と対話を行うか、軽い作業量を持つ場合、Scout の"database"エンジンを使い始める方が便利かもしれません。 database エンジンは、既存の database からフィルタリングされた結果を決定する際に、"where like"の節と全文インデックスを使用し、適用可能な search 結果をあなたの query に決定します。
@@ -489,7 +490,7 @@ public function toSearchableArray(): array
 }
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > column に全文テキストの query 制約を使用するよう指定する前に、その column に[全文インデックス](/ja/php/laravel/v11.x/07-database/04-migrations#available-index-types)が割り当てられていることを確認してください。
 
 <a name="collection-engine"></a>
@@ -550,8 +551,9 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 }
 ```
 
-> [!WARNING]  
-> `makeAllSearchableUsing` method は、 queue を使用して models を batch インポートする際に適用できない場合があります。 model collections が jobs によって処理されると、リレーションシップは[復元されません](/ja/php/laravel/v11.x/05-digging-deeper/queues#handling-relationships)。
+> <LaravelNote type="warning" />
+> `makeAllSearchableUsing` method は、 queue を使用して models を batch インポートする際に適用できない場合があります。
+> model collections が jobs によって処理されると、リレーションシップは[復元されません](/ja/php/laravel/v11.x/05-digging-deeper/queues#handling-relationships)。
 
 <a name="adding-records"></a>
 
@@ -593,8 +595,9 @@ $user->orders()->searchable();
 $orders->searchable();
 ```
 
-> [!NOTE]  
-> `searchable` method は、upsert 操作と見なすことができます。つまり、もし model のレコードがすでにインデックスに存在する場合、それは更新されます。もし search のインデックスに存在しない場合、それはインデックスに追加されます。
+> <LaravelNote type="note" />
+> `searchable` method は、upsert 操作と見なすことができます。つまり、もし model のレコードがすでにインデックスに存在する場合、それは更新されます。もし
+> search のインデックスに存在しない場合、それはインデックスに追加されます。
 
 <a name="updating-records"></a>
 
@@ -712,8 +715,10 @@ public function shouldBeSearchable(): bool
 
 `shouldBeSearchable` method は、`save`や`create`メソッド、query、またはリレーションシップを通じて models を操作する場合にのみ適用されます。`searchable` method を使用して直接 models や collections を検索可能にすると、`shouldBeSearchable` method の結果が上書きされます。
 
-> [!WARNING]  
-> `shouldBeSearchable` method は、Scout の Database エンジンを使用する際には適用できません。なぜなら、すべての検索可能な data は常に database に保存されているからです。同様の振る舞いを Database エンジンを使用して達成するためには、代わりに[where 節](#where-clauses)を使用すべきです。
+> <LaravelNote type="warning" />
+> `shouldBeSearchable` method は、Scout の Database エンジンを使用する際には適用できません。なぜなら、すべての検索可能な
+> data は常に database に保存されているからです。同様の振る舞いを Database エンジンを使用して達成するためには、代わりに[where
+> 節](#where-clauses)を使用すべきです。
 
 <a name="searching"></a>
 
@@ -786,8 +791,9 @@ $orders = Order::search('Star Trek')->whereNotIn(
 
 search インデックスはリレーショナル database ではないため、現在 where 句のような高度な機能はサポートされていません。
 
-> [!WARNING]  
-> あなたの application が Meilisearch を使用している場合、Scout の"where"節を利用する前に、アプリケーションの[フィルタリング可能な attributes](#configuring-filterable-data-for-meilisearch)を設定する必要があります。
+> <LaravelNote type="warning" />
+> あなたの application が Meilisearch を使用している場合、Scout の"where"節を利用する前に、アプリケーションの[フィルタリング可能な
+> attributes](#configuring-filterable-data-for-meilisearch)を設定する必要があります。
 
 <a name="pagination"></a>
 
@@ -828,8 +834,10 @@ Route::get('/orders', function (Request $request) {
 });
 ```
 
-> [!WARNING]  
-> search エンジンは、あなたの Eloquent モデルのグローバルな scope 定義を認識しないので、 Scout pagination を使用するアプリケーションでグローバルスコープを使用すべきではありません。あるいは、 Scout で検索する際に、グローバルスコープの制約を再作成する必要があります。
+> <LaravelNote type="warning" />
+> search エンジンは、あなたの Eloquent モデルのグローバルな scope 定義を認識しないので、
+> Scout pagination を使用するアプリケーションでグローバルスコープを使用すべきではありません。あるいは、
+> Scout で検索する際に、グローバルスコープの制約を再作成する必要があります。
 
 <a name="soft-deleting"></a>
 
@@ -853,8 +861,9 @@ $orders = Order::search('Star Trek')->withTrashed()->get();
 $orders = Order::search('Star Trek')->onlyTrashed()->get();
 ```
 
-> [!NOTE]  
-> ソフトに削除された model が`forceDelete`を使用して完全に削除されると、 Scout はそれを自動的に search インデックスから削除します。
+> <LaravelNote type="note" />
+> ソフトに削除された model が`forceDelete`を使用して完全に削除されると、 Scout はそれを自動的に
+> search インデックスから削除します。
 
 <a name="customizing-engine-searches"></a>
 

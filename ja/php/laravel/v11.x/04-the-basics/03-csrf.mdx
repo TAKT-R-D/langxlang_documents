@@ -103,7 +103,7 @@ POST、PUT、PATCH、または DELETE の HTML フォームを application で�
 })
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 便宜上、CSRF の middleware は、全ての routes に対して[テストを実行](/ja/php/laravel/v11.x/09-testing/01-testing)する際に自動的に無効化されます。
 
 <a name="csrf-x-csrf-token"></a>
@@ -134,5 +134,6 @@ Laravel は現在の CSRF token を、フレームワークによって生成さ
 
 この cookie は、開発者の利便性を主に考えて送信されます。なぜなら、Angular や Axios のような JavaScript フレームワークやライブラリは、同一オリジンのリクエストにおいて自動的にその value を`X-XSRF-TOKEN` header に配置するからです。
 
-> [!NOTE]  
-> default では、`resources/js/bootstrap.js`ファイルには Axios HTTP library が含まれており、自動的に`X-XSRF-TOKEN` header を送信します。
+> <LaravelNote type="note" />
+> default では、`resources/js/bootstrap.js`ファイルには Axios HTTP library が含まれており、自動的に`X-XSRF-TOKEN`
+> header を送信します。

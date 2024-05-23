@@ -49,7 +49,8 @@ $collection = collect(['taylor', 'abigail', null])->map(function (?string $name)
 $collection = collect([1, 2, 3]);
 ```
 
-> [!NOTE] > [Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)クエリの結果は常に`Collection`インスタンスとして返されます。
+> <LaravelNote type="note" />
+> [Eloquent](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)クエリの結果は常に`Collection`インスタンスとして返されます。
 
 <a name="extending-collections"></a>
 
@@ -254,7 +255,9 @@ $collection->all();
 // [1, 2, 3]
 ```
 
-> [!NOTE] > `collect` method は、`Enumerable`のインスタンスがあり、非遅延の collection インスタンスが必要な場合に特に便利です。 `collect()`は`Enumerable`の契約の一部であるため、安全に使用して`Collection`インスタンスを取得できます。
+> <LaravelNote type="note" />
+> `collect` method は、`Enumerable`のインスタンスがあり、非遅延の collection インスタンスが必要な場合に特に便利です。
+> `collect()`は`Enumerable`の契約の一部であるため、安全に使用して`Collection`インスタンスを取得できます。
 
 <a name="method-combine"></a>
 
@@ -363,7 +366,7 @@ collect(['1', '2'])->containsOneItem();
 
 この method は、[`contains`](#method-contains)メソッドと同じ signature を持っていますが、すべての values は strict な比較で比較されます。
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > このメソッドの動作は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-contains)を使用する場合に変更されます。
 
 <a name="method-count"></a>
@@ -491,7 +494,7 @@ $diff->all();
 // [1, 3, 5]
 ```
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > このメソッドの振る舞いは、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-diff)を使用すると変更されます。
 
 <a name="method-diffassoc"></a>
@@ -754,7 +757,8 @@ return $collection->ensure([User::class, Customer::class]);
 return $collection->ensure('int');
 ```
 
-> [!警告] > `ensure` method は、異なる種類の elements が後から collection に追加されないことを保証しません。
+> <LaravelNote type="warning" />
+> `ensure` method は、異なる種類の elements が後から collection に追加されないことを保証しません。
 
 <a name="method-every"></a>
 
@@ -800,7 +804,7 @@ $filtered->all();
 
 `except`の逆のために、[only](#method-only)の method を参照してください。
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > このメソッドの挙動は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-except)を使用すると変更されます。
 
 <a name="method-filter"></a>
@@ -1019,8 +1023,9 @@ $collection->all();
 // ['framework' => 'laravel']
 ```
 
-> [!WARNING]
-> 他のほとんどの collection メソッドとは異なり、`forget`は新たに変更されたコレクションを返すのではなく、呼び出された collection 自体を変更します。
+> <LaravelNote type="warning" />
+> 他のほとんどの collection メソッドとは異なり、`forget`は新たに変更されたコレクションを返すのではなく、呼び出された
+> collection 自体を変更します。
 
 <a name="method-forpage"></a>
 
@@ -1255,7 +1260,7 @@ $intersect->all();
 // [0 => 'Desk', 2 => 'Chair']
 ```
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > このメソッドの挙動は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-intersect)を使用すると変更されます。
 
 <a name="method-intersectAssoc"></a>
@@ -1482,8 +1487,10 @@ $multiplied->all();
 // [2, 4, 6, 8, 10]
 ```
 
-> [！警告]
-> 他のほとんどの collection メソッドと同様に、`map`は新しい collection インスタンスを返します。それは呼び出された collection を変更しません。元の collection を transform したい場合は、[`transform`](#method-transform) method を使用してください。
+> <LaravelNote type="warning" />
+> 他のほとんどの collection メソッドと同様に、`map`は新しい collection インスタンスを返します。それは呼び出された
+> collection を変更しません。元の collection を transform したい場合は、[`transform`](#method-transform)
+> method を使用してください。
 
 <a name="method-mapinto"></a>
 
@@ -1779,7 +1786,7 @@ $filtered->all();
 
 `only`の逆に関しては、[except](#method-except)の method を参照してください。
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > このメソッドの振る舞いは、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-only)を使用すると変更されます。
 
 <a name="method-pad"></a>
@@ -2451,8 +2458,9 @@ $subset->all();
 // [3, 4]
 ```
 
-> [!WARNING]
-> もし与えられた value が見つからない、またはコールバックが`true`を返さない場合、`skipUntil` method は空の collection を返します。
+> <LaravelNote type="warning" />
+> もし与えられた value が見つからない、またはコールバックが`true`を返さない場合、`skipUntil`
+> method は空の collection を返します。
 
 <a name="method-skipwhile"></a>
 
@@ -2472,7 +2480,7 @@ $subset->all();
 // [4]
 ```
 
-> [!WARNING]
+> <LaravelNote type="warning" />
 > コールバックが`false`を返さない場合、`skipWhile` method は空の collection を返します。
 
 <a name="method-slice"></a>
@@ -2604,8 +2612,9 @@ $sorted->values()->all();
 
 もし、あなたのソートニーズがより高度なものである場合、独自の algorithm を用いて`sort`にコールバックを渡すことができます。コレクションの `sort` method が内部で使用する[`uasort`](https://secure.php.net/manual/en/function.uasort.php#refsect1-function.uasort-parameters)についての PHP ドキュメンテーションを参照してください。
 
-> [!NOTE]
-> ネストされた配列やオブジェクトの collection をソートする必要がある場合は、[`sortBy`](#method-sortby) メソッドと [`sortByDesc`](#method-sortbydesc) メソッドをご覧ください。
+> <LaravelNote type="note" />
+> ネストされた配列やオブジェクトの collection をソートする必要がある場合は、[`sortBy`](#method-sortby)
+> メソッドと [`sortByDesc`](#method-sortbydesc) メソッドをご覧ください。
 
 <a name="method-sortby"></a>
 
@@ -3000,8 +3009,9 @@ $subset->all();
 // [1, 2]
 ```
 
-> [!WARNING]
-> 指定された value が見つからないか、コールバックが`true`を返さない場合、`takeUntil` method は collection 内のすべてのアイテムを返します。
+> <LaravelNote type="warning" />
+> 指定された value が見つからないか、コールバックが`true`を返さない場合、`takeUntil`
+> method は collection 内のすべてのアイテムを返します。
 
 <a name="method-takewhile"></a>
 
@@ -3021,7 +3031,7 @@ $subset->all();
 // [1, 2]
 ```
 
-> [!WARNING]
+> <LaravelNote type="warning" />
 > コールバックが`false`を返さない場合、`takeWhile` method は collection 内のすべてのアイテムを返します。
 
 <a name="method-tap"></a>
@@ -3075,7 +3085,10 @@ $collection->toArray();
 */
 ```
 
-> [!WARNING] > `toArray`は、`Arrayable`のインスタンスであるコレクションのすべてのネストされた objects も array に変換します。 collection の下にある原始的な array を取得したい場合は、代わりに[`all`](#method-all) method を使用してください。
+> <LaravelNote type="warning" />
+> `toArray`は、`Arrayable`のインスタンスであるコレクションのすべてのネストされた
+> objects も array に変換します。 collection の下にある原始的な array を取得したい場合は、代わりに[`all`](#method-all)
+> method を使用してください。
 
 <a name="method-tojson"></a>
 
@@ -3109,8 +3122,9 @@ $collection->all();
 // [2, 4, 6, 8, 10]
 ```
 
-> [!WARNING]
-> ほとんどの他の collection メソッドとは異なり、 `transform`は collection 自体を変更します。代わりに新しい collection を作成したい場合は、[`map`](#method-map) method を使用してください。
+> <LaravelNote type="warning" />
+> ほとんどの他の collection メソッドとは異なり、 `transform`は collection 自体を変更します。代わりに新しい
+> collection を作成したい場合は、[`map`](#method-map) method を使用してください。
 
 <a name="method-undot"></a>
 
@@ -3226,7 +3240,7 @@ $unique->values()->all();
 
 `unique`の method はアイテムの values をチェックする際に"ゆるい"比較を使用します。つまり、 integer value を持つ string は同じ value の integer と等しいと考えられます。 "厳格な"比較を使用してフィルタリングするためには、[`uniqueStrict`](#method-uniquestrict)の method を使用してください。
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > このメソッドの挙動は、[Eloquent Collections](/ja/php/laravel/v11.x/08-eloquent-orm/03-eloquent-collections#method-unique)を使用すると変更されます。
 
 <a name="method-uniquestrict"></a>
@@ -3808,7 +3822,7 @@ return $users->sum->votes;
 
 ### Introduction
 
-> [!WARNING]
+> <LaravelNote type="warning" />
 > Laravel の lazy collections について詳しく学ぶ前に、[PHP generators](https://www.php.net/manual/en/language.generators.overview.php)に慣れる時間を少し取ってください。
 
 既に強力な`Collection` class を補完するために、`LazyCollection` class は PHP の[ジェネレータ](https://www.php.net/manual/en/language.generators.overview.php)を利用して、非常に大きな data セットを低いメモリ使用量で操作できるようにします。
@@ -3886,8 +3900,9 @@ LazyCollection::make(function () {
 
 </div>
 
-> [!警告]
-> collection を変更する Methods(`shift`、`pop`、`prepend` etc )は、`LazyCollection` class では**利用できません**。
+> <LaravelNote type="warning" />
+> collection を変更する Methods(`shift`、`pop`、`prepend` etc )は、`LazyCollection`
+> class では**利用できません**。
 
 <a name="lazy-collection-methods"></a>
 

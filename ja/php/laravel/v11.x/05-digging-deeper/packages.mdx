@@ -129,8 +129,9 @@ public function boot(): void
 $value = config('courier.option');
 ```
 
-> [!WARNING]  
-> 設定ファイルでクロージャを定義するべきではありません。 users が`config:cache`の Artisan command を実行するとき、正しくシリアライズできません。
+> <LaravelNote type="warning" />
+> 設定ファイルでクロージャを定義するべきではありません。 users が`config:cache`の
+> Artisan command を実行するとき、正しくシリアライズできません。
 
 <a name="default-package-configuration"></a>
 
@@ -152,8 +153,9 @@ public function register(): void
 }
 ```
 
-> [!WARNING]  
-> この method は、設定の array の最初のレベルのみをマージします。あなたの users が多次元の設定 array を部分的に定義すると、欠けている options はマージされません。
+> <LaravelNote type="warning" />
+> この method は、設定の array の最初のレベルのみをマージします。あなたの users が多次元の設定
+> array を部分的に定義すると、欠けている options はマージされません。
 
 <a name="routes"></a>
 

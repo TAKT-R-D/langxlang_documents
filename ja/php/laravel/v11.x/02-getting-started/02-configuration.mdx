@@ -66,8 +66,9 @@ Laravel の default `.env` ファイルには、あなたの application がロ�
 
 チームで開発している場合、あなたは `.env.example` ファイルを含めて更新し続けたいと思うかもしれません。これはあなたの application についてです。例の設定ファイルに values を置くことで、チームの他の開発者は application を実行するために必要な environment 変数が何かを明確に見ることができます。
 
-> [!NOTE]
-> あなたの`.env`ファイル内の任意の変数は、サーバーレベルやシステムレベルの environment 変数などの外部の environment 変数によって上書きされることができます。
+> <LaravelNote type="note" />
+> あなたの`.env`ファイル内の任意の変数は、サーバーレベルやシステムレベルの environment
+> 変数などの外部の environment 変数によって上書きされることができます。
 
 <a name="environment-file-security"></a>
 
@@ -142,7 +143,7 @@ if (App::environment(['local', 'staging'])) {
 }
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 現在の application environment 検出は、サーバーレベルの `APP_ENV` environment 変数を定義することで上書きすることができます。
 
 <a name="encrypting-environment-files"></a>
@@ -167,8 +168,10 @@ php artisan env:encrypt
 php artisan env:encrypt --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
 ```
 
-> [!NOTE]  
-> 与えられた key の length は、使用される encryption 暗号によって length required される key の長さと match するべきです。default では Laravel は 32 文字の key を必要とする`AES-256-CBC`暗号を使用します。`--cipher`option を command で呼び出すときに、Laravel の[encrypter](/ja/php/laravel/v11.x/06-security/encryption)でサポートされている任意の暗号を自由に使用することができます。
+> <LaravelNote type="note" />
+> 与えられた key の length は、使用される encryption 暗号によって length required
+> される key の長さと match するべきです。default では Laravel は 32 文字の key を必要とする`AES-256-CBC`暗号を使用します。`--cipher`option
+> を command で呼び出すときに、Laravel の[encrypter](/ja/php/laravel/v11.x/06-security/encryption)でサポートされている任意の暗号を自由に使用することができます。
 
 もし皆さんの application に複数の environment ファイルがある場合、`.env`や`.env.staging`のような、暗号化すべき environment ファイルを、`--env`オプションを使用して environment 名を指定して指定することができます:
 
@@ -265,8 +268,11 @@ Config::array('config-key');
 php artisan config:clear
 ```
 
-> [!WARNING]  
-> あなたが `config:cache` command を デプロイメント process 中に実行する場合、設定ファイル内からだけ `env` 関数を呼び出していることを確認すべきです。一度設定が cache されると、 `.env` ファイルは読み込まれません。したがって、 `env` 関数は外部の、システムレベルの環境 variables のみを返すようになります。
+> <LaravelNote type="warning" />
+> あなたが `config:cache` command を デプロイメント process 中に実行する場合、設定ファイル内からだけ
+> `env` 関数を呼び出していることを確認すべきです。一度設定が cache されると、 `.env`
+> ファイルは読み込まれません。したがって、 `env` 関数は外部の、システムレベルの環境
+> variables のみを返すようになります。
 
 <a name="configuration-publishing"></a>
 
@@ -288,8 +294,10 @@ php artisan config:publish --all
 
 あなたの `config/app.php` 設定ファイル内の `debug` option は、 error に関する情報が実際に user に表示される量を決定します。 default では、この option は `APP_DEBUG` environment variables の value を尊重するように設定されており、この variables はあなたの `.env` ファイルに保存されています。
 
-> [!WARNING]  
-> ローオル development のために、 `APP_DEBUG` environment variable を `true`に設定するべきです。**production 環境では、この values は常に`false`であるべきです。variable が production で`true`に設定されている場合、あなたの application のエンド users に対して、機密性の高い設定 values を晒すリスクがあります。**
+> <LaravelNote type="warning" />
+> ローオル development のために、 `APP_DEBUG` environment variable を `true`に設定するべきです。**production
+> 環境では、この values は常に`false`であるべきです。variable が production で`true`に設定されている場合、あなたの
+> application のエンド users に対して、機密性の高い設定 values を晒すリスクがあります。**
 
 <a name="maintenance-mode"></a>
 
@@ -339,8 +347,9 @@ php artisan down --with-secret
 
 この hidden route にアクセスすると、 application の `/` route にリダイレクトされます。一度 cookie があなたのブラウザに発行されると、メンテナンスモードでないかのように通常通り application を閲覧できるようになります。
 
-> [!NOTE]  
-> あなたのメンテナンスモード secret は通常、英数字と、オプションでダッシュを使用するべきです。`?`や`&`のような URL で特殊な意味を持つ文字の使用は避けるべきです。
+> <LaravelNote type="note" />
+> あなたのメンテナンスモード secret は通常、英数字と、オプションでダッシュを使用するべきです。`?`や`&`のような
+> URL で特殊な意味を持つ文字の使用は避けるべきです。
 
 <a name="maintenance-mode-on-multiple-servers"></a>
 
@@ -389,8 +398,9 @@ php artisan down --redirect=/
 php artisan up
 ```
 
-> [!NOTE]  
-> `resources/views/errors/503.blade.php`に自分のテンプレートを定義することにより、 default メンテナンスモードテンプレートをカスタマイズすることができます。
+> <LaravelNote type="note" />
+> `resources/views/errors/503.blade.php`に自分のテンプレートを定義することにより、
+> default メンテナンスモードテンプレートをカスタマイズすることができます。
 
 <a name="maintenance-mode-queues"></a>
 

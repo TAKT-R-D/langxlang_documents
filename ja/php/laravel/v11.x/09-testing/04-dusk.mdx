@@ -78,8 +78,10 @@ org_title: "Laravel Dusk"
 composer require laravel/dusk --dev
 ```
 
-> [!WARNING]
-> あなたが手動で Dusk の service provider を register する場合、それを**決して**あなたの production environment で register してはならない、というのもそれによって任意の users があなたの application で authentication できるようになる可能性があるからです。
+> <LaravelNote type="warning" />
+> あなたが手動で Dusk の service provider を register する場合、それを**決して**あなたの
+> production environment で register してはならない、というのもそれによって任意の
+> users があなたの application で authentication できるようになる可能性があるからです。
 
 Dusk パッケージをインストールした後、`dusk:install`の Artisan command を実行します。`dusk:install`の command は、`tests/Browser`ディレクトリを作成し、例の Dusk test を作成し、お使いのオペレーティングシステムに Chrome Driver binary をインストールします:
 
@@ -89,8 +91,10 @@ php artisan dusk:install
 
 次に、アプリケーションの`.env`ファイルで`APP_URL`の environment 変数を設定します。この value は、ブラウザで application にアクセスするために使用する URL と match する必要があります。
 
-> [!NOTE]
-> あなたがローカル開発の environment を管理するために[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使用している場合は、[Dusk テストの設定と実行](/ja/php/laravel/v11.x/10-packages/sail#laravel-dusk)についての Sail のドキュメンテーションも参照してください。
+> <LaravelNote type="note" />
+> あなたがローカル開発の environment を管理するために[Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使用している場合は、[Dusk
+> テストの設定と実行](/ja/php/laravel/v11.x/10-packages/sail#laravel-dusk)についての
+> Sail のドキュメンテーションも参照してください。
 
 <a name="managing-chromedriver-installations"></a>
 
@@ -112,8 +116,10 @@ php artisan dusk:chrome-driver --all
 php artisan dusk:chrome-driver --detect
 ```
 
-> [!WARNING]
-> Dusk は、`chromedriver`バイナリが実行可能であることを必要とします。 Dusk の実行に問題がある場合は、次の command を使用してバイナリが実行可能であることを確認する必要があります: `chmod -R 0755 vendor/laravel/dusk/bin/`.
+> <LaravelNote type="warning" />
+> Dusk は、`chromedriver`バイナリが実行可能であることを必要とします。 Dusk の実行に問題がある場合は、次の
+> command を使用してバイナリが実行可能であることを確認する必要があります: `chmod
+> -R 0755 vendor/laravel/dusk/bin/`.
 
 <a name="using-other-browsers"></a>
 
@@ -205,8 +211,9 @@ class ExampleTest extends DuskTestCase
 }
 ```
 
-> [!WARNING]
-> SQLite のインメモリーデータベースは、 Dusk テストを実行する際には使用できないかもしれません。ブラウザは独自の process 内で実行されるため、他のプロセスのインメモリーデータベースにアクセスすることはできません。
+> <LaravelNote type="warning" />
+> SQLite のインメモリーデータベースは、 Dusk テストを実行する際には使用できないかもしれません。ブラウザは独自の
+> process 内で実行されるため、他のプロセスのインメモリーデータベースにアクセスすることはできません。
 
 <a name="reset-truncation"></a>
 
@@ -245,8 +252,9 @@ class ExampleTest extends DuskTestCase
 
 default として、この特性は`migrations`テーブルを除くすべてのテーブルを truncate します。トランケートされるべきテーブルをカスタマイズしたい場合は、test class 上で`$tablesToTruncate`プロパティを定義できます。
 
-> [!NOTE]
-> Pest を使用している場合、基本`DuskTestCase` class や test ファイルが拡張する任意の class にプロパティや methods を定義する必要があります。
+> <LaravelNote type="note" />
+> Pest を使用している場合、基本`DuskTestCase` class や test ファイルが拡張する任意の
+> class にプロパティや methods を定義する必要があります。
 
 ```php
 /**
@@ -321,7 +329,10 @@ php artisan dusk:fails
 php artisan dusk --group=foo
 ```
 
-> [!NOTE] > [Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使用してローカル開発の environment を管理している場合は、[Dusk テストの設定と実行](/ja/php/laravel/v11.x/10-packages/sail#laravel-dusk)についての Sail のドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> [Laravel Sail](/ja/php/laravel/v11.x/10-packages/sail)を使用してローカル開発の
+> environment を管理している場合は、[Dusk テストの設定と実行](/ja/php/laravel/v11.x/10-packages/sail#laravel-dusk)についての
+> Sail のドキュメンテーションをご覧ください。
 
 <a name="manually-starting-chromedriver"></a>
 
@@ -578,7 +589,8 @@ $this->browse(function (Browser $browser) {
 });
 ```
 
-> [!WARNING] > `loginAs` method を使用した後、ファイル内のすべての tests で user session が維持されます。
+> <LaravelNote type="warning" />
+> `loginAs` method を使用した後、ファイル内のすべての tests で user session が維持されます。
 
 <a name="cookies"></a>
 
@@ -851,7 +863,7 @@ $browser->radio('size', 'large');
 $browser->attach('photo', __DIR__.'/photos/mountains.png');
 ```
 
-> [!WARNING]
+> <LaravelNote type="warning" />
 > attach 関数を利用するには、サーバーに `Zip` PHP 拡張がインストールされ、有効になっている必要があります。
 
 <a name="pressing-buttons"></a>
@@ -892,8 +904,9 @@ if ($browser->seeLink($linkText)) {
 }
 ```
 
-> [!WARNING]
-> これらのメソッドは jQuery と連携します。もしページ上で jQuery が使用できない場合、 Dusk は自動的にページにそれを注入し、テストの期間中に利用可能となります。
+> <LaravelNote type="warning" />
+> これらのメソッドは jQuery と連携します。もしページ上で jQuery が使用できない場合、
+> Dusk は自動的にページにそれを注入し、テストの期間中に利用可能となります。
 
 <a name="using-the-keyboard"></a>
 
@@ -911,8 +924,9 @@ $browser->keys('selector', ['{shift}', 'taylor'], 'swift');
 $browser->keys('.app', ['{command}', 'j']);
 ```
 
-> [!NOTE]
-> すべての修飾 keys（例：`{command}`）は`{}`文字で囲まれ、`Facebook\WebDriver\WebDriverKeys` class で定群されている定数と match します。これは[GitHub 上で見つけることができます](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)。
+> <LaravelNote type="note" />
+> すべての修飾 keys（例：`{command}`）は`{}`文字で囲まれ、`Facebook\WebDriver\WebDriverKeys`
+> class で定群されている定数と match します。これは[GitHub 上で見つけることができます](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)。
 
 <a name="fluent-keyboard-interactions"></a>
 
@@ -2570,8 +2584,10 @@ class ExampleTest extends DuskTestCase
 
 ## Continuous Integration
 
-> [!WARNING]
-> ほとんどの Dusk 連続的な統合設定では、ご利用の Laravel application がビルトインの PHPdevelopmentserver を使用してポート 8000 で提供されることを想定しています。したがって、続行する前に、連続的な統合環境に `APP_URL` の環境変数 value が `http://127.0.0.1:8000`であることを確認していただく必要があります。
+> <LaravelNote type="warning" />
+> ほとんどの Dusk 連続的な統合設定では、ご利用の Laravel application がビルトインの
+> PHPdevelopmentserver を使用してポート 8000 で提供されることを想定しています。したがって、続行する前に、連続的な統合環境に
+> `APP_URL` の環境変数 value が `http://127.0.0.1:8000`であることを確認していただく必要があります。
 
 <a name="running-tests-on-heroku-ci"></a>
 

@@ -26,8 +26,9 @@ org_title: "Eloquent: Serialization"
 
 Laravel を使用して API を構築する際、しばしば models や関連付けを配列や JSON に変換する必要があります。 Eloquent には、これらの変換を行うための便利な方法が含まれており、 models のシリアル化された表現に含まれる attributes を制御することも可能です。
 
-> [!NOTE]  
-> さらに強力な方法で Eloquent model と collection JSON のシリアライズを処理するには、[Eloquent API resources](/ja/php/laravel/v11.x/08-eloquent-orm/05-eloquent-resources)のドキュメンテーションをご覧ください。
+> <LaravelNote type="note" />
+> さらに強力な方法で Eloquent model と collection JSON のシリアライズを処理するには、[Eloquent
+> API resources](/ja/php/laravel/v11.x/08-eloquent-orm/05-eloquent-resources)のドキュメンテーションをご覧ください。
 
 <a name="serializing-models-and-collections"></a>
 
@@ -123,7 +124,7 @@ class User extends Model
 }
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 関係を非表示にするには、関係の method 名を Eloquent モデルの`$hidden`プロパティに追加してください。
 
 あるいは、`visible`プロパティを使用して、モデルの array や JSON 表現に含めるべき attributes の"許可リスト"を定義することもできます。`$visible` array に存在しないすべての attributes は、 model が array や JSON に変換されるときに hidden になります。

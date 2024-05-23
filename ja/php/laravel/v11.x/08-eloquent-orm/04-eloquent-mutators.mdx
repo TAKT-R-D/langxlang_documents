@@ -81,8 +81,9 @@ $user = User::find(1);
 $firstName = $user->first_name;
 ```
 
-> [!NOTE]  
-> これらの計算された values をあなたの model の array / JSON 表現に追加したい場合は、[それらを append する必要があります](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#appending-values-to-json)。
+> <LaravelNote type="note" />
+> これらの計算された values をあなたの model の array / JSON 表現に追加したい場合は、[それらを
+> append する必要があります](/ja/php/laravel/v11.x/08-eloquent-orm/06-eloquent-serialization#appending-values-to-json)。
 
 <a name="building-value-objects-from-multiple-attributes"></a>
 
@@ -300,8 +301,9 @@ $user->mergeCasts([
 ]);
 ```
 
-> [!WARNING]  
-> `null`の属性はキャストされません。さらに、関係性と同じ名前のキャスト(または属性)を定義したり、model の primarykey にキャストを割り当てることは決してありません。
+> <LaravelNote type="warning" />
+> `null`の属性はキャストされません。さらに、関係性と同じ名前のキャスト(または属性)を定義したり、model
+> の primarykey にキャストを割り当てることは決してありません。
 
 <a name="stringable-casting"></a>
 
@@ -740,8 +742,9 @@ $user->address->lineOne = 'Updated Address Value';
 $user->save();
 ```
 
-> [!NOTE]  
-> あなたが Eloquent models に含まれる value オブジェクトを JSON や配列にシリアライズする予定の場合、 value object に`Illuminate\Contracts\Support\Arrayable`と`JsonSerializable`インタフェースを実装するべきです。
+> <LaravelNote type="note" />
+> あなたが Eloquent models に含まれる value オブジェクトを JSON や配列にシリアライズする予定の場合、
+> value object に`Illuminate\Contracts\Support\Arrayable`と`JsonSerializable`インタフェースを実装するべきです。
 
 <a name="value-object-caching"></a>
 

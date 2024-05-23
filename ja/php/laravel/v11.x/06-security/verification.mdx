@@ -29,8 +29,9 @@ org_title: "Email Verification"
 
 多くの web アプリケーションでは、 application を使用する前に users が自分の email アドレスを確認する必要があります。手作業でこの feature を各 application で再実装するのではなく、 Laravel は便利な組み込みの services を提供して、 email verification のリクエストを送信し、確認することができます。
 
-> [!NOTE]  
-> すぐに始めたいですか？新規の Laravel application に[Laravel application のスターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をインストールしてみてください。スターターキットにより、 email verification サポートを含む全体的な authentication システムの足場が整います。
+> <LaravelNote type="note" />
+> すぐに始めたいですか？新規の Laravel application に[Laravel application のスターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をインストールしてみてください。スターターキットにより、
+> email verification サポートを含む全体的な authentication システムの足場が整います。
 
 <a name="model-preparation"></a>
 
@@ -95,8 +96,10 @@ Route::get('/email/verify', function () {
 
 email verification の通知を返す route は、`verification.notice`と名付けるべきです。 route にこの正確な名前が割り当てられていることが重要です。なぜなら、`verified` middleware が[“ Laravel 付属](#protecting-routes)で、 user が email アドレスを確認していない場合、自動的にこの route 名に redirect するからです。
 
-> [!NOTE]  
-> email verification を手動で実装する際には、 view の検証通知の内容をご自身で required 定義する必要があります。全ての必要な authentication 和検証 views を含む足場が欲しい場合は、[Laravel application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をご覧ください。
+> <LaravelNote type="note" />
+> email verification を手動で実装する際には、 view の検証通知の内容をご自身で required
+> 定義する必要があります。全ての必要な authentication 和検証 views を含む足場が欲しい場合は、[Laravel
+> application スターターキット](/ja/php/laravel/v11.x/02-getting-started/05-starter-kits)をご覧ください。
 
 <a name="the-email-verification-handler"></a>
 
@@ -180,7 +183,7 @@ public function boot(): void
 }
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > mail notifications について詳しく学びたい場合は、[mail notification ドキュメンテーション](/ja/php/laravel/v11.x/05-digging-deeper/notifications#mail-notifications)をご参照ください。
 
 <a name="events"></a>

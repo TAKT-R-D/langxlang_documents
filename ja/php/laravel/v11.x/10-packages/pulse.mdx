@@ -46,8 +46,10 @@ org_title: "Laravel Pulse"
 
 ## Installation
 
-> [!WARNING]  
-> Pulse の初回パーティ storage 実施は現在 MySQL , MariaDB , または PostgreSQL database を必要としています。別の database エンジンを使用している場合、Pulse の data のために別途 MySQL , MariaDB , または PostgreSQL database が必要になります。
+> <LaravelNote type="warning" />
+> Pulse の初回パーティ storage 実施は現在 MySQL , MariaDB , または PostgreSQL database
+> を必要としています。別の database エンジンを使用している場合、Pulse の data のために別途
+> MySQL , MariaDB , または PostgreSQL database が必要になります。
 
 あなたは、 Composer パッケージマネージャを使用して Pulse をインストールすることができます：
 
@@ -69,8 +71,9 @@ php artisan migrate
 
 一度 Pulse の database migrations が実行されたら、`/pulse` route を通じて Pulse ダッシュボードにアクセスできます。
 
-> [!NOTE]  
-> Pulse の data をアプリケーションの primary database に保存したくない場合は、専用の database connection を[指定することができます](#using-a-different-database)。
+> <LaravelNote type="note" />
+> Pulse の data をアプリケーションの primary database に保存したくない場合は、専用の
+> database connection を[指定することができます](#using-a-different-database)。
 
 <a name="configuration"></a>
 
@@ -177,8 +180,9 @@ public function boot(): void
 }
 ```
 
-> [!NOTE]
-> 認証された user がキャプチャされ、 retrieved される方法を完全にカスタマイズすることができます。`Laravel\Pulse\Contracts\ResolvesUsers`の契約を実装し、それを Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container#binding-a-singleton)にバインドします。
+> <LaravelNote type="note" />
+> 認証された user がキャプチャされ、 retrieved される方法を完全にカスタマイズすることができます。`Laravel\Pulse\Contracts\ResolvesUsers`の契約を実装し、それを
+> Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container#binding-a-singleton)にバインドします。
 
 <a name="dashboard-cards"></a>
 
@@ -212,8 +216,10 @@ public function boot(): void
 
 Pulse が users 情報を取得し表示する方法をカスタマイズする方法については、[user の解決](#dashboard-resolving-users)に関する文書を参照してください。
 
-> [!NOTE]
-> あなたの application が多くのリクエストを受け取ったり、多くの jobs を発行する場合、[sampling](#sampling)を有効にすることを検討するかもしれません。詳細については、[user requests recorder](#user-requests-recorder)、[user jobs recorder](#user-jobs-recorder)、および[slow jobs recorder](#slow-jobs-recorder)のドキュメンテーションを参照してください。
+> <LaravelNote type="note" />
+> あなたの application が多くのリクエストを受け取ったり、多くの jobs を発行する場合、[sampling](#sampling)を有効にすることを検討するかもしれません。詳細については、[user
+> requests recorder](#user-requests-recorder)、[user jobs recorder](#user-jobs-recorder)、および[slow
+> jobs recorder](#slow-jobs-recorder)のドキュメンテーションを参照してください。
 
 <a name="exceptions-card"></a>
 
@@ -281,8 +287,9 @@ default では、エントリーはキーごとにグループ化されます。
 php artisan pulse:check
 ```
 
-> [!NOTE]
-> バックグラウンドで`pulse:check` process を常に稼働させ続けるためには、Supervisor のような process モニターを使用して、 command が停止しないことを確認するべきです。
+> <LaravelNote type="note" />
+> バックグラウンドで`pulse:check` process を常に稼働させ続けるためには、Supervisor
+> のような process モニターを使用して、 command が停止しないことを確認するべきです。
 
 `pulse:check` command は長時間稼働する process であるため、コードベースの変更を再起動しないと確認できません。application の deployment process 中に`pulse:restart` command を呼び出して、 command をスムーズに再起動するべきです。
 
@@ -290,8 +297,9 @@ php artisan pulse:check
 php artisan pulse:restart
 ```
 
-> [!NOTE]  
-> Pulse は再起動信号を保存するために[cache](/ja/php/laravel/v11.x/05-digging-deeper/cache)を使用するので、この feature を使用する前に cache driver があなたの application に適切に設定されていることを確認すべきです。
+> <LaravelNote type="note" />
+> Pulse は再起動信号を保存するために[cache](/ja/php/laravel/v11.x/05-digging-deeper/cache)を使用するので、この
+> feature を使用する前に cache driver があなたの application に適切に設定されていることを確認すべきです。
 
 <a name="recorders"></a>
 
@@ -460,8 +468,9 @@ PULSE_DB_CONNECTION=pulse
 
 ### Redis インジェスト
 
-> [!WARNING]
-> Redis Ingest は、 Redis 6.2 以上および`phpredis`または`predis`をアプリケーションが設定した Redis client driver として必要とします。
+> <LaravelNote type="warning" />
+> Redis Ingest は、 Redis 6.2 以上および`phpredis`または`predis`をアプリケーションが設定した
+> Redis client driver として必要とします。
 
 default として、Pulse は、HTTP response が client に送信された後、または job が処理された後に、エントリを直接[設定された database 接続](#using-a-different-database)に保存します。しかし、Pulse の Redis インジェスト driver を使用して、エントリを代わりに Redis ストリームに送信することもできます。これは、 `PULSE_INGEST_DRIVER` environment variables を設定することで有効にすることができます：
 
@@ -481,7 +490,9 @@ Redis の取り込みを使用するとき、ストリームを監視し、 Redi
 php artisan pulse:work
 ```
 
-> [!NOTE] > `pulse:work` process をバックグラウンドで常時実行させるためには、Supervisor のような process モニターを使用して Pulse ワーカーが停止しないようにするべきです。
+> <LaravelNote type="note" />
+> `pulse:work` process をバックグラウンドで常時実行させるためには、Supervisor のような
+> process モニターを使用して Pulse ワーカーが停止しないようにするべきです。
 
 `pulse:work` command は長寿命の process であるため、再起動せずにはコードベースの変更を認識できません。application の deployment process 中に`pulse:restart` command を呼び出して、 command を円滑に再起動すべきです：
 
@@ -489,8 +500,9 @@ php artisan pulse:work
 php artisan pulse:restart
 ```
 
-> [!NOTE]  
-> Pulse は [cache](/ja/php/laravel/v11.x/05-digging-deeper/cache) を再起動シグナルの保存に使用するため、この feature を使用する前に、あなたの application に対して cache driver が正しく設定されていることを確認する必要があります。
+> <LaravelNote type="note" />
+> Pulse は [cache](/ja/php/laravel/v11.x/05-digging-deeper/cache) を再起動シグナルの保存に使用するため、この
+> feature を使用する前に、あなたの application に対して cache driver が正しく設定されていることを確認する必要があります。
 
 <a name="sampling"></a>
 
@@ -586,8 +598,9 @@ Livewire の component やテンプレートを定義したら、[ダッシュ�
 </x-pulse>
 ```
 
-> [!NOTE]
-> あなたのカードがパッケージに含まれている場合、`Livewire::component` method を使用して Livewire で component を register する必要があります。
+> <LaravelNote type="note" />
+> あなたのカードがパッケージに含まれている場合、`Livewire::component` method を使用して
+> Livewire で component を register する必要があります。
 
 <a name="custom-card-styling"></a>
 
@@ -704,8 +717,9 @@ Pulse::record('user_sale', $user->id, $sale->amount)
 - `min`
 - `sum`
 
-> [!NOTE]
-> 現在認証されている user ID をキャプチャするカードパッケージを作成する際には、`Pulse::resolveAuthenticatedUserId()` method を使用すべきです。これにより、 application への任意の[user リゾルバーのカスタマイズ](#dashboard-resolving-users)が尊重されます。
+> <LaravelNote type="note" />
+> 現在認証されている user ID をキャプチャするカードパッケージを作成する際には、`Pulse::resolveAuthenticatedUserId()`
+> method を使用すべきです。これにより、 application への任意の[user リゾルバーのカスタマイズ](#dashboard-resolving-users)が尊重されます。
 
 <a name="custom-card-data-retrieval"></a>
 

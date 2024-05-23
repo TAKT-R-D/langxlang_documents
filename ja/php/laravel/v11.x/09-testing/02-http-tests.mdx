@@ -109,7 +109,7 @@ class ExampleTest extends TestCase
 
 一般的に、各テストは、 application に対して request を 1 つだけ行うべきです。複数のリクエストが single テスト method 内で実行されると、予期しない動作が発生する可能性があります。
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > 便宜上、テスト実行時には CSRF middleware は自動的に無効化されます。
 
 <a name="customizing-request-headers"></a>
@@ -506,8 +506,10 @@ expect($response['created'])->toBeTrue();
 $this->assertTrue($response['created']);
 ```
 
-> [!NOTE]
-> `assertJson`の method は、 response を array に変換し、`PHPUnit::assertArraySubset`を利用して、指定された array が application が返す JSON response 内に存在することを確認します。そのため、 JSON response に他のプロパティがあっても、指定された fragment が存在していれば、このテストはパスします。
+> <LaravelNote type="note" />
+> `assertJson`の method は、 response を array に変換し、`PHPUnit::assertArraySubset`を利用して、指定された
+> array が application が返す JSON response 内に存在することを確認します。そのため、
+> JSON response に他のプロパティがあっても、指定された fragment が存在していれば、このテストはパスします。
 
 <a name="verifying-exact-match"></a>
 
@@ -1248,8 +1250,10 @@ $response->assertJsonMissingExact(array $data);
 $response->assertJsonMissingValidationErrors($keys);
 ```
 
-> [!NOTE]  
-> より汎用的な[assertValid](#assert-valid) method は、response に validation errors が JSON として返されていない、**そして** errors が session storage にフラッシュされていないことを assert するために使用できます。
+> <LaravelNote type="note" />
+> より汎用的な[assertValid](#assert-valid) method は、response に validation errors
+> が JSON として返されていない、**そして** errors が session storage にフラッシュされていないことを
+> assert するために使用できます。
 
 <a name="assert-json-path"></a>
 
@@ -1376,8 +1380,10 @@ $response->assertJsonStructure([
 $response->assertJsonValidationErrors(array $data, $responseKey = 'errors');
 ```
 
-> [!NOTE]  
-> より一般的な [assertInvalid](#assert-invalid) method は、response が validation errors を JSON として返す **または** errors が session storage にフラッシュされたことを assert するために使用することができます。
+> <LaravelNote type="note" />
+> より一般的な [assertInvalid](#assert-invalid) method は、response が validation
+> errors を JSON として返す **または** errors が session storage にフラッシュされたことを
+> assert するために使用することができます。
 
 <a name="assert-json-validation-error-for"></a>
 
@@ -1682,8 +1688,10 @@ $response->assertSessionHasErrors([
 ]);
 ```
 
-> [!NOTE]  
-> より一般的な[assertInvalid](#assert-invalid) method は、response が validation errors を JSON で返すか、errors が session storage にフラッシュされたことを assert するために使用することができます。
+> <LaravelNote type="note" />
+> より一般的な[assertInvalid](#assert-invalid) method は、response が validation
+> errors を JSON で返すか、errors が session storage にフラッシュされたことを assert
+> するために使用することができます。
 
 <a name="assert-session-has-errors-in"></a>
 
@@ -1715,8 +1723,10 @@ $response->assertSessionHasNoErrors();
 $response->assertSessionDoesntHaveErrors($keys = [], $format = null, $errorBag = 'default');
 ```
 
-> [!NOTE]  
-> より一般的な[assertValid](#assert-valid) method は、response が validation errors を JSON として返さず、errors が session storage にフラッシュされないことを assert するために使用することができます。
+> <LaravelNote type="note" />
+> より一般的な[assertValid](#assert-valid) method は、response が validation errors
+> を JSON として返さず、errors が session storage にフラッシュされないことを assert
+> するために使用することができます。
 
 <a name="assert-session-missing"></a>
 

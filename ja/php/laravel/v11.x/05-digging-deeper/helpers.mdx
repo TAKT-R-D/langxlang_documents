@@ -1551,8 +1551,9 @@ $path = lang_path();
 $path = lang_path('en/messages.php');
 ```
 
-> [!NOTE]  
-> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
+> <LaravelNote type="note" />
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel
+> の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="method-mix"></a>
 
@@ -2043,8 +2044,9 @@ $env = env('APP_ENV');
 $env = env('APP_ENV', 'production');
 ```
 
-> [!WARNING]  
-> あなたが`config:cache`の command を deployment process 中に実行する場合、設定ファイルからのみ`env`関数を呼び出していることを確認してください。設定が cache されると、`.env` ファイルはロードされず、`env`関数へのすべての呼び出しは`null`を返します。
+> <LaravelNote type="warning" />
+> あなたが`config:cache`の command を deployment process 中に実行する場合、設定ファイルからのみ`env`関数を呼び出していることを確認してください。設定が
+> cache されると、`.env` ファイルはロードされず、`env`関数へのすべての呼び出しは`null`を返します。
 
 <a name="method-event"></a>
 

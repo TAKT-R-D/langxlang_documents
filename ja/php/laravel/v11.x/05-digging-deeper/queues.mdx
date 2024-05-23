@@ -76,8 +76,9 @@ Laravel queues は、[Amazon SQS](https://aws.amazon.com/sqs/)、[Redis](https:/
 
 Laravel の queue 設定 options は、アプリケーションの`config/queue.php`設定ファイルに保存されます。このファイルには、フレームワークに含まれる各 queue ドライバのための connection 設定があり、 database 、[Amazon SQS](https://aws.amazon.com/sqs/)、[Redis](https://redis.io)、および[Beanstalkd](https://beanstalkd.github.io/)ドライバ、さらには jobs を即時に実行する同期 driver (ローカル開発中に使用)が含まれています。また、キューに追加した jobs を破棄する`null` queue driver も含まれています。
 
-> [!NOTE]  
-> 今、 Laravel は Horizon を提供しています。これは、 Redis で動作する queues に対する美しいダッシュボードと設定システムです。詳細については、[Horizon documentation](/ja/php/laravel/v11.x/10-packages/horizon)をご覧ください。
+> <LaravelNote type="note" />
+> 今、 Laravel は Horizon を提供しています。これは、 Redis で動作する queues に対する美しいダッシュボードと設定システムです。詳細については、[Horizon
+> documentation](/ja/php/laravel/v11.x/10-packages/horizon)をご覧ください。
 
 <a name="connections-vs-queues"></a>
 
@@ -125,7 +126,7 @@ php artisan migrate
 
 `redis`の queue driver を使用するためには、`config/database.php` 設定ファイルで Redis database connection を設定する必要があります。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `serializer` および `compression` Redis options は、`redis` queue driver ではサポートされていません。
 
 **Redis クラスター**
@@ -160,8 +161,9 @@ Redis queue を使用する際、`block_for`設定 option を使用して、driv
 ],
 ```
 
-> [!WARNING]  
-> `block_for`を`0`に設定すると、 queue の作業者は、 job が利用可能になるまで無期限にブロックされます。これにより、次の job が処理されるまで、`SIGTERM`などのシグナルが処理されなくなります。
+> <LaravelNote type="warning" />
+> `block_for`を`0`に設定すると、 queue の作業者は、 job が利用可能になるまで無期限にブロックされます。これにより、次の
+> job が処理されるまで、`SIGTERM`などのシグナルが処理されなくなります。
 
 <a name="other-driver-prerequisites"></a>
 
@@ -193,7 +195,7 @@ php artisan make:job ProcessPodcast
 
 生成された class は `Illuminate\Contracts\Queue\ShouldQueue` インターフェースを実装します。これは Laravel に対して、 job が非同期に実行するために queue にプッシュされるべきであることを示しています。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Job スタブは [スタブの公開](/ja/php/laravel/v11.x/05-digging-deeper/artisan#stub-customization)を使用してカスタマイズすることができます。
 
 <a name="class-structure"></a>
@@ -258,8 +260,10 @@ $this->app->bindMethod([ProcessPodcast::class, 'handle'], function (ProcessPodca
 });
 ```
 
-> [!WARNING]  
-> バイナリ data、たとえば生の image の内容は、 Binary data に待機している job に渡す前に `base64_encode` 関数を通すべきです。そうでなければ、その job は queue に置かれる際に JSON に適切にシリアライズされないかもしれません。
+> <LaravelNote type="warning" />
+> バイナリ data、たとえば生の image の内容は、 Binary data に待機している job に渡す前に
+> `base64_encode` 関数を通すべきです。そうでなければ、その job は queue に置かれる際に
+> JSON に適切にシリアライズされないかもしれません。
 
 <a name="handling-relationships"></a>
 
@@ -300,8 +304,11 @@ public function __construct(
 
 ### Unique Jobs
 
-> [!WARNING]  
-> uniquejobs は、[ロック](/ja/php/laravel/v11.x/05-digging-deeper/cache#atomic-locks)をサポートする cachedrivers が必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`及び`array`cachedrivers はアトミックロックをサポートしています。また、uniquejobs の制約は batch 内の jobs には適用されません。
+> <LaravelNote type="warning" />
+> uniquejobs は、[ロック](/ja/php/laravel/v11.x/05-digging-deeper/cache#atomic-locks)をサポートする
+> cachedrivers が必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`及び`array`cachedrivers
+> はアトミックロックをサポートしています。また、uniquejobs の制約は batch 内の jobs
+> には適用されません。
 
 時々、特定の job がある時点で queue 上に一つだけ存在することを確認したい場合があります。その場合、`ShouldBeUnique`インターフェースを job class に実装することにより実現できます。このインターフェースは、あなたの class に追加のメソッドを定義する必要はありません：
 
@@ -356,8 +363,10 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 
 上記の例では、`UpdateSearchIndex` job は製品 ID によって unique です。ですから、同じ製品 ID を持つ新たな job の dispatches は、既存の job の処理が完了するまで無視されます。さらに、既存の job が 1 時間以内に処理されない場合、unique ロックは解除され、同じ uniquekey を持つ別の job が queue に dispatches することが可能になります。
 
-> [!WARNING]  
-> あなたの application が複数の web サーバーやコンテナから jobs をディスパッチしている場合、すべてのサーバーが同じ中央の cache サーバーと通信していることを確認するべきです。そうすれば Laravel が job が unique であるかどうかを正確に判断することができます。
+> <LaravelNote type="warning" />
+> あなたの application が複数の web サーバーやコンテナから jobs をディスパッチしている場合、すべてのサーバーが同じ中央の
+> cache サーバーと通信していることを確認するべきです。そうすれば Laravel が job が
+> unique であるかどうかを正確に判断することができます。
 
 <a name="keeping-jobs-unique-until-processing-begins"></a>
 
@@ -402,8 +411,9 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 }
 ```
 
-> [!NOTE]  
-> job の同時処理数を制限するだけであれば、代わりに[`WithoutOverlapping`](/ja/php/laravel/v11.x/05-digging-deeper/queues#preventing-job-overlaps) ジョブ middleware を使用してください。
+> <LaravelNote type="note" />
+> job の同時処理数を制限するだけであれば、代わりに[`WithoutOverlapping`](/ja/php/laravel/v11.x/05-digging-deeper/queues#preventing-job-overlaps)
+> ジョブ middleware を使用してください。
 
 <a name="encrypted-jobs"></a>
 
@@ -503,8 +513,9 @@ public function middleware(): array
 }
 ```
 
-> [!NOTE]  
-> Job middleware は、キュー可能な event listeners 、mailables、および notifications にも割り当てることができます。
+> <LaravelNote type="note" />
+> Job middleware は、キュー可能な event listeners 、mailables、および notifications
+> にも割り当てることができます。
 
 <a name="rate-limiting"></a>
 
@@ -569,8 +580,10 @@ public function middleware(): array
 }
 ```
 
-> [!NOTE]  
-> Redis を使用している場合、`Illuminate\Queue\Middleware\RateLimitedWithRedis` middleware を使用できます。これは Redis に最適化されており、基本的な rate limiting middleware よりも効率的です。
+> <LaravelNote type="note" />
+> Redis を使用している場合、`Illuminate\Queue\Middleware\RateLimitedWithRedis` middleware
+> を使用できます。これは Redis に最適化されており、基本的な rate limiting middleware
+> よりも効率的です。
 
 <a name="preventing-job-overlaps"></a>
 
@@ -636,8 +649,10 @@ public function middleware(): array
 }
 ```
 
-> [!WARNING]  
-> `WithoutOverlapping` middleware は、[ロック](/ja/php/laravel/v11.x/05-digging-deeper/cache#atomic-locks)をサポートする cache driver が必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、`array` の cache drivers がアトミックロックをサポートしています。
+> <LaravelNote type="warning" />
+> `WithoutOverlapping` middleware は、[ロック](/ja/php/laravel/v11.x/05-digging-deeper/cache#atomic-locks)をサポートする
+> cache driver が必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、`array`
+> の cache drivers がアトミックロックをサポートしています。
 
 <a name="sharing-lock-keys"></a>
 
@@ -778,8 +793,10 @@ public function middleware(): array
 }
 ```
 
-> [!NOTE]  
-> Redis を使用している場合、`Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis`という middleware を使用することができます。これは Redis に特化して調整されており、基本的な例外スロットリングの middleware よりも効率的です。
+> <LaravelNote type="note" />
+> Redis を使用している場合、`Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis`という
+> middleware を使用することができます。これは Redis に特化して調整されており、基本的な例外スロットリングの
+> middleware よりも効率的です。
 
 <a name="dispatching-jobs"></a>
 
@@ -862,7 +879,7 @@ class PodcastController extends Controller
 }
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > Amazon SQS の queue service の最大 delay 時間は 15 分です。
 
 <a name="dispatching-after-the-response-is-sent-to-browser"></a>
@@ -943,8 +960,10 @@ database transactions 内で dispatch jobs を行うことは全く問題あり�
 
 transaction が発生中の例外によりロールバックされた場合、その transaction 中に dispatch された jobs は破棄されます。
 
-> [!NOTE]  
-> `after_commit`設定オプションを`true`に設定すると、キューに入った event listeners 、メール、 notifications 、および broadcast events は、すべての開いている database transactions がコミットされた後に処理されます。
+> <LaravelNote type="note" />
+> `after_commit`設定オプションを`true`に設定すると、キューに入った event listeners
+> 、メール、 notifications 、および broadcast events は、すべての開いている database
+> transactions がコミットされた後に処理されます。
 
 <a name="specifying-commit-dispatch-behavior-inline"></a>
 
@@ -995,8 +1014,10 @@ Bus::chain([
 ])->dispatch();
 ```
 
-> [!WARNING]  
-> Deleting jobs を`$this->delete()`の method で job 内から削除しても、連鎖的な jobs の処理が阻止されるわけではありません。チェーンの実行が停止するのは、チェーン内の job が失敗した場合のみです。
+> <LaravelNote type="warning" />
+> Deleting jobs を`$this->delete()`の method で job 内から削除しても、連鎖的な jobs
+> の処理が阻止されるわけではありません。チェーンの実行が停止するのは、チェーン内の
+> job が失敗した場合のみです。
 
 <a name="chain-connection-queue"></a>
 
@@ -1053,7 +1074,7 @@ Bus::chain([
 })->dispatch();
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > チェーンコールバックはシリアル化され、後で Laravel queue によって実行されるため、チェーンコールバック内で`$this`変数を使用すべきではありません。
 
 <a name="customizing-the-queue-and-connection"></a>
@@ -1258,8 +1279,9 @@ public function retryUntil(): DateTime
 }
 ```
 
-> [!NOTE]  
-> また、[queue に入れられた event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events#queued-event-listeners)に対して、`tries`プロパティまたは`retryUntil` method を定義することもできます。
+> <LaravelNote type="note" />
+> また、[queue に入れられた event listeners](/ja/php/laravel/v11.x/05-digging-deeper/events#queued-event-listeners)に対して、`tries`プロパティまたは`retryUntil`
+> method を定義することもできます。
 
 <a name="max-exceptions"></a>
 
@@ -1341,8 +1363,10 @@ class ProcessPodcast implements ShouldQueue
 
 場合によっては、ソケットや発信用の HTTP 接続などの IO ブロッキングプロセスがあなたが指定した timeout を尊重しない場合があります。そのため、これらの features を使用するときは、常にそれらの API を使用して timeout を指定するように attempt するべきです。例えば、Guzzle を使用する場合は、常に connection と request timeout value を指定するべきです。
 
-> [!WARNING]  
-> `pcntl` PHP 拡張は、"job"のタイムアウトを指定するためにインストールされている必要があります。さらに、job の"timeout"value は常に、その["retry after"](#job-expiration)value よりも小さくなければなりません。 さもないと、"job"が実際に実行され終わったりタイムアウトする前に再試行される可能性があります。
+> <LaravelNote type="warning" />
+> `pcntl` PHP 拡張は、"job"のタイムアウトを指定するためにインストールされている必要があります。さらに、job
+> の"timeout"value は常に、その["retry after"](#job-expiration)value よりも小さくなければなりません。
+> さもないと、"job"が実際に実行され終わったりタイムアウトする前に再試行される可能性があります。
 
 <a name="failing-on-timeout"></a>
 
@@ -1417,7 +1441,7 @@ $this->fail($exception);
 $this->fail('Something went wrong.');
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 失敗した jobs に関する詳細情報は、[job の失敗に対処するためのドキュメンテーション](#dealing-with-failed-jobs)をご覧ください。
 
 <a name="job-batching"></a>
@@ -1505,8 +1529,10 @@ return $batch->id;
 
 batch の ID は、`$batch->id`プロパティを介してアクセスでき、dispatch 後の batch に関する情報について、[query という Laravel command バス](#inspecting-batches)を使用して問い合わせることができます。
 
-> [!WARNING]  
->  batch のコールバックはシリアル化され、後で Laravel queue によって実行されますので、コールバック内で`$this`変数を使用しないでください。さらに、バッチ化された jobs は database transactions 内でラップされているため、暗黙のコミットを実行する database ステートメントは jobs 内で実行されるべきではありません。
+> <LaravelNote type="warning" />
+> batch のコールバックはシリアル化され、後で Laravel queue によって実行されますので、コールバック内で`$this`変数を使用しないでください。さらに、バッチ化された
+> jobs は database transactions 内でラップされているため、暗黙のコミットを実行する
+> database ステートメントは jobs 内で実行されるべきではありません。
 
 <a name="naming-batches"></a>
 
@@ -1620,7 +1646,7 @@ public function handle(): void
 }
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > 同じ batch に所属する job からのみ、 jobs を batch に追加することができます。
 
 <a name="inspecting-batches"></a>
@@ -1864,7 +1890,7 @@ dispatch(function () use ($podcast) {
 });
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `catch`のコールバックはシリアル化され、後で Laravel queue によって実行されるため、`catch`コールバック内で`$this`変数を使用すべきではありません。
 
 <a name="running-the-queue-worker"></a>
@@ -1881,8 +1907,9 @@ Laravel には Artisan command が含まれており、queue 上に新しい job
 php artisan queue:work
 ```
 
-> [!NOTE]  
-> `queue:work` process をバックグラウンドで常に実行し続けるためには、 process 監視ツールである[Supervisor](#supervisor-configuration)のようなものを使用して、 queue ワーカーが実行を停止しないようにするべきです。
+> <LaravelNote type="note" />
+> `queue:work` process をバックグラウンドで常に実行し続けるためには、 process 監視ツールである[Supervisor](#supervisor-configuration)のようなものを使用して、
+> queue ワーカーが実行を停止しないようにするべきです。
 
 コマンドの output に処理済みの job ID を含めたい場合、`queue:work` command を呼び出す際に、`-v` フラグを含めることができます。
 
@@ -2013,8 +2040,9 @@ php artisan queue:restart
 
 この command は、すべての queue ワーカーに対して、現在の job の processing が終了したら、既存の jobs が失われないように、優雅に終了するように指示します。 queue ワーカーは `queue:restart` command が実行されると終了するので、 queue ワーカーを自動的に再起動するために、 [Supervisor](#supervisor-configuration) のような process マネージャーを実行している必要があります。
 
-> [!NOTE]  
-> queue は再起動シグナルを保存するために[cache](/ja/php/laravel/v11.x/05-digging-deeper/cache)を使用します。したがって、この feature を使用する前に、 application の cache driver が適切に設定されていることを確認するべきです。
+> <LaravelNote type="note" />
+> queue は再起動シグナルを保存するために[cache](/ja/php/laravel/v11.x/05-digging-deeper/cache)を使用します。したがって、この
+> feature を使用する前に、 application の cache driver が適切に設定されていることを確認するべきです。
 
 <a name="job-expirations-and-timeouts"></a>
 
@@ -2026,8 +2054,10 @@ php artisan queue:restart
 
 `config/queue.php` 設定ファイルでは、各 queue connection が `retry_after` オプションを定義しています。このオプションは、queue connection が job の再試行を行う前にどのくらいの秒数待機するかを指定します。例えば、`retry_after` の value が `90` に設定されている場合、job が 90 秒間処理され、リリースまたは削除されなかった場合、queue に再度リリースされます。通常、`retry_after` の value を、jobs が完了するのに合理的にかかる最大秒数に設定する必要があります。
 
-> [!WARNING]  
-> `retry_after` の value を持たない唯一の queue 接続は Amazon SQS です。SQS は、AWS の console 内で管理されている[Default の視認性タイムアウト](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html)に基づいて job を再試行します。
+> <LaravelNote type="warning" />
+> `retry_after` の value を持たない唯一の queue 接続は Amazon SQS です。SQS は、AWS
+> の console 内で管理されている[Default の視認性タイムアウト](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html)に基づいて
+> job を再試行します。
 
 <a name="worker-timeouts"></a>
 
@@ -2041,8 +2071,10 @@ php artisan queue:work --timeout=60
 
 `retry_after`設定オプションと`--timeout` CLI オプションは異なりますが、一緒に動作して jobs が失われないことと、 jobs が一度だけ正常に処理されることを確保します。
 
-> [!WARNING]  
-> `--timeout`の value は、常に`retry_after`の設定 value よりも少なくとも数秒短くなければなりません。これにより、固まった job を processing しているワーカーが、 job が再試行される前に常に終了することが保証されます。もし`--timeout`オプションが`retry_after`の設定 value よりも長い場合、 jobs が二度処理される可能性があります。
+> <LaravelNote type="warning" />
+> `--timeout`の value は、常に`retry_after`の設定 value よりも少なくとも数秒短くなければなりません。これにより、固まった
+> job を processing しているワーカーが、 job が再試行される前に常に終了することが保証されます。もし`--timeout`オプションが`retry_after`の設定
+> value よりも長い場合、 jobs が二度処理される可能性があります。
 
 <a name="supervisor-configuration"></a>
 
@@ -2062,8 +2094,9 @@ Supervisor は Linux オペレーティングシステムの process 監視ツ�
 sudo apt-get install supervisor
 ```
 
-> [!NOTE]  
-> Supervisor 自体の設定と管理が厳しそうだと思われる方は、[Laravel Forge](https://forge.laravel.com)の使用を検討してみてください。これにより、 production Laravel のプロジェクトに対して Supervisor が自動的にインストールおよび設定されます。
+> <LaravelNote type="note" />
+> Supervisor 自体の設定と管理が厳しそうだと思われる方は、[Laravel Forge](https://forge.laravel.com)の使用を検討してみてください。これにより、
+> production Laravel のプロジェクトに対して Supervisor が自動的にインストールおよび設定されます。
 
 <a name="configuring-supervisor"></a>
 
@@ -2088,8 +2121,9 @@ stopwaitsecs=3600
 
 この例では、`numprocs`ディレクティブは Supervisor に対し、8 つの`queue:work`プロセスを実行し、それらすべてを監視するよう指示します。それらが失敗した場合、自動的に再起動します。設定の`command`ディレクティブは、あなたが望む queue connection とワーカーの options を反映するように変更すべきです。
 
-> [!WARNING]  
-> `stopwaitsecs` の value が最長の job の実行にかかる秒数よりも大きいことを確認してください。そうでない場合、Supervisor は job が processing を終える前に殺してしまうかもしれません。
+> <LaravelNote type="warning" />
+> `stopwaitsecs` の value が最長の job の実行にかかる秒数よりも大きいことを確認してください。そうでない場合、Supervisor
+> は job が processing を終える前に殺してしまうかもしれません。
 
 <a name="starting-supervisor"></a>
 
@@ -2218,8 +2252,9 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-> [!WARNING]  
-> `failed`メソッドを呼び出す前に、新しい job のインスタンスが生成されます。したがって、`handle` method 内で発生したかもしれない class プロパティの変更は失われます。
+> <LaravelNote type="warning" />
+> `failed`メソッドを呼び出す前に、新しい job のインスタンスが生成されます。したがって、`handle`
+> method 内で発生したかもしれない class プロパティの変更は失われます。
 
 <a name="retrying-failed-jobs"></a>
 
@@ -2261,8 +2296,10 @@ php artisan queue:retry all
 php artisan queue:forget 91401d2c-0784-4f43-824c-34f94a33c24d
 ```
 
-> [!NOTE]  
-> [Horizon](/ja/php/laravel/v11.x/10-packages/horizon)を使用するとき、失敗した job を delete するためには、`queue:forget` command の代わりに`horizon:forget` command を使うべきです。
+> <LaravelNote type="note" />
+> [Horizon](/ja/php/laravel/v11.x/10-packages/horizon)を使用するとき、失敗した job
+> を delete するためには、`queue:forget` command の代わりに`horizon:forget` command
+> を使うべきです。
 
 `failed_jobs`テーブルからすべての失敗した jobs を delete するために、`queue:flush` command を使用することができます：
 
@@ -2382,8 +2419,10 @@ class AppServiceProvider extends ServiceProvider
 
 ## Clearing Jobs From Queues
 
-> [!NOTE]  
-> [Horizon](/ja/php/laravel/v11.x/10-packages/horizon) を使用するときは、jobs を queue からクリアするために `queue:clear` command の代わりに `horizon:clear` command を使用すべきです。
+> <LaravelNote type="note" />
+> [Horizon](/ja/php/laravel/v11.x/10-packages/horizon) を使用するときは、jobs を
+> queue からクリアするために `queue:clear` command の代わりに `horizon:clear` command
+> を使用すべきです。
 
 もし全ての jobs を default connection の default queue から delete したい場合、`queue:clear`の Artisan command を使用して行うことができます：
 
@@ -2397,8 +2436,10 @@ php artisan queue:clear
 php artisan queue:clear redis --queue=emails
 ```
 
-> [!WARNING]  
-> SQS、 Redis 、および database queue ドライバーのみが queues からの jobs の削除を利用できます。さらに、SQS メッセージ削除 process は最大 60 秒かかるため、 queue をクリアした後の 60 秒以内に SQS queue に送信された jobs も削除される可能性があります。
+> <LaravelNote type="warning" />
+> SQS、 Redis 、および database queue ドライバーのみが queues からの jobs の削除を利用できます。さらに、SQS
+> メッセージ削除 process は最大 60 秒かかるため、 queue をクリアした後の 60 秒以内に
+> SQS queue に送信された jobs も削除される可能性があります。
 
 <a name="monitoring-your-queues"></a>
 

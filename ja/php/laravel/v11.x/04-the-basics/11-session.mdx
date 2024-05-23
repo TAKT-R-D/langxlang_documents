@@ -53,8 +53,9 @@ session `driver`設定オプションは、各 request に対して session data
 
 </div>
 
-> [!NOTE]  
-> array driver は主に[testing](/ja/php/laravel/v11.x/09-testing/01-testing)中に使用され、保存されている data が session に永続化されるのを防ぎます。
+> <LaravelNote type="note" />
+> array driver は主に[testing](/ja/php/laravel/v11.x/09-testing/01-testing)中に使用され、保存されている
+> data が session に永続化されるのを防ぎます。
 
 <a name="driver-prerequisites"></a>
 
@@ -78,8 +79,9 @@ php artisan migrate
 
 Redissessions を Laravel で使用する前に、PECL 経由で PhpRedis PHP 拡張をインストールするか、`predis/predis`パッケージ(〜1.0)を Composer 経由でインストールする必要があります。 Redis の設定についての詳細は、Laravel の[Redis ドキュメンテーション](/ja/php/laravel/v11.x/07-database/06-redis#configuration)をご覧ください。
 
-> [!NOTE]  
-> `SESSION_CONNECTION` 環境 variables、または `session.php` 設定ファイルの `connection` option を使用して、どの Redis 接続が sessionstorage に使用されるかを指定できます。
+> <LaravelNote type="note" />
+> `SESSION_CONNECTION` 環境 variables、または `session.php` 設定ファイルの `connection`
+> option を使用して、どの Redis 接続が sessionstorage に使用されるかを指定できます。
 
 <a name="interacting-with-the-session"></a>
 
@@ -146,8 +148,9 @@ Route::get('/home', function () {
 });
 ```
 
-> [!NOTE]  
-> `HTTP request`インスタンス経由で session を使用するのと、グローバル`session`ヘルパーを使用するのとの間には実質的な違いはほとんどありません。どちらの方法も、すべてのテストケースで利用可能な `assertSessionHas` method を介して[テスト可能](/ja/php/laravel/v11.x/09-testing/01-testing)です。
+> <LaravelNote type="note" />
+> `HTTP request`インスタンス経由で session を使用するのと、グローバル`session`ヘルパーを使用するのとの間には実質的な違いはほとんどありません。どちらの方法も、すべてのテストケースで利用可能な
+> `assertSessionHas` method を介して[テスト可能](/ja/php/laravel/v11.x/09-testing/01-testing)です。
 
 <a name="retrieving-all-session-data"></a>
 
@@ -311,8 +314,10 @@ $request->session()->invalidate();
 
 ## Session Blocking
 
-> [!WARNING]  
-> session ブロッキングを利用するには、あなたの application は[atomic locks](/ja/php/laravel/v11.x/05-digging-deeper/cache#atomic-locks)をサポートする cache driver を使用している必要があります。現在、そのような cache ドライバには、`memcached`、`dynamodb`、`redis`、`database`、`file`、`array`ドライバが含まれます。さらに、`cookie`の session driver は使用できません。
+> <LaravelNote type="warning" />
+> session ブロッキングを利用するには、あなたの application は[atomic locks](/ja/php/laravel/v11.x/05-digging-deeper/cache#atomic-locks)をサポートする
+> cache driver を使用している必要があります。現在、そのような cache ドライバには、`memcached`、`dynamodb`、`redis`、`database`、`file`、`array`ドライバが含まれます。さらに、`cookie`の
+> session driver は使用できません。
 
 default で、 Laravel は同じ session を使用したリクエストが concurrently で実行されることを許可しています。したがって、例えば JavaScript HTTP library を使って二つの HTTP requests をあなたの application に対して行った場合、それらは同時に実行されます。多くのアプリケーションではこれは問題ではありませんが、 session data の損失は、異なる二つの application エンドポイントに対して同時にリクエストを行い、両方が session に data を書き込むようなアプリケーションの一部で発生する可能性があります。
 
@@ -366,7 +371,7 @@ class MongoSessionHandler implements \SessionHandlerInterface
 }
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > Laravel は、 extensions を格納するディレクトリを標準で提供していません。あなたは好きな場所にそれらを配置することができます。この例では、`MongoSessionHandler`を保存するための`Extensions`ディレクトリを作成しました。
 
 これらのメソッドの目的がすぐに理解できないため、それぞれのメソッドが何をするのかを簡単に説明しましょう：

@@ -79,8 +79,9 @@ php artisan sail:install
 ./vendor/bin/sail up
 ```
 
-> [!WARNING]  
-> Docker Desktop for Linux を使用している場合、以下の command を実行して、`default`の Docker の context を使用する必要があります：`docker context use default`。
+> <LaravelNote type="warning" />
+> Docker Desktop for Linux を使用している場合、以下の command を実行して、`default`の
+> Docker の context を使用する必要があります：`docker context use default`。
 
 <a name="adding-additional-services"></a>
 
@@ -324,8 +325,9 @@ AWS_URL=http://localhost:9000/local
 
 あなたは MinIO の console を使ってバケットを作成することができます。それは `http://localhost:8900`で利用可能です。MinIO の console の default username は`sail`で、 default password は`password`です。
 
-> [!WARNING]  
-> Generating temporary storage URLs via the `temporaryUrl` method is not supported when using MinIO.
+> <LaravelNote type="warning" />
+> Generating temporary storage URLs via the `temporaryUrl` method is not supported
+> when using MinIO.
 
 <a name="running-tests"></a>
 
@@ -513,8 +515,9 @@ sail share
 sail share --subdomain=my-sail-site
 ```
 
-> [!NOTE]  
-> `share` command は[BeyondCode](https://beyondco.de)による open source のトンネリング service である[Expose](https://github.com/beyondcode/expose)によって動かされています。
+> <LaravelNote type="note" />
+> `share` command は[BeyondCode](https://beyondco.de)による open source のトンネリング
+> service である[Expose](https://github.com/beyondcode/expose)によって動かされています。
 
 <a name="debugging-with-xdebug"></a>
 
@@ -564,8 +567,11 @@ web ブラウザーを介して application と対話しながら application �
 
 PhpStorm を使用している場合は、JetBrains のドキュメンテーションをご確認ください。[ゼロ設定の debugging](https://www.jetbrains.com/help/phpstorm/zero-configuration-debugging.html)について記載しています。
 
-> [!WARNING]  
-> Laravel Sail は `artisan serve` に依存してあなたの application を提供します。`artisan serve` command は、 Laravel versions8.53.0 から `XDEBUG_CONFIG` と `XDEBUG_MODE` variables のみを受け入れます。古い versions の Laravel (8.52.0 以下)はこれらの variables をサポートしておらず、 debug 接続を受け入れません。
+> <LaravelNote type="warning" />
+> Laravel Sail は `artisan serve` に依存してあなたの application を提供します。`artisan
+> serve` command は、 Laravel versions8.53.0 から `XDEBUG_CONFIG` と `XDEBUG_MODE`
+> variables のみを受け入れます。古い versions の Laravel (8.52.0 以下)はこれらの
+> variables をサポートしておらず、 debug 接続を受け入れません。
 
 <a name="sail-customization"></a>
 

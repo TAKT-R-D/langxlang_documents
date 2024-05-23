@@ -65,7 +65,11 @@ default で、SQLite 接続に対する外部キー制約が有効になって�
 DB_FOREIGN_KEYS=false
 ```
 
-> [!NOTE] > [Laravel インストーラ](/ja/php/laravel/v11.x/02-getting-started/01-installation#creating-a-laravel-project)を使用して Laravel アプリケーションを作成し、SQLite を database として選択すると、Laravel は自動的に`database/database.sqlite`ファイルを作成し、あなたのために default の[data ベース migration](/ja/php/laravel/v11.x/07-database/04-migrations)を実行します。
+> <LaravelNote type="note" />
+> [Laravel インストーラ](/ja/php/laravel/v11.x/02-getting-started/01-installation#creating-a-laravel-project)を使用して
+> Laravel アプリケーションを作成し、SQLite を database として選択すると、Laravel
+> は自動的に`database/database.sqlite`ファイルを作成し、あなたのために default の[data
+> ベース migration](/ja/php/laravel/v11.x/07-database/04-migrations)を実行します。
 
 <a name="mssql-configuration"></a>
 
@@ -284,8 +288,9 @@ DB::statement('drop table users');
 DB::unprepared('update users set votes = 100 where name = "Dries"');
 ```
 
-> [!WARNING]  
-> 未準備のステートメントではパラメータがバインドされないため、SQL インジェクションに対して脆弱になる可能性があります。決して user が制御する values を未準備の statement 内に許可してはなりません。
+> <LaravelNote type="warning" />
+> 未準備のステートメントではパラメータがバインドされないため、SQL インジェクションに対して脆弱になる可能性があります。決して
+> user が制御する values を未準備の statement 内に許可してはなりません。
 
 <a name="implicit-commits-in-transactions"></a>
 
@@ -450,8 +455,9 @@ DB::rollBack();
 DB::commit();
 ```
 
-> [!NOTE]  
-> `DB` ファサードの transaction メソッドは、[query builder](/ja/php/laravel/v11.x/07-database/02-queries)と[Eloquent ORM](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)の両方の transactions を制御します。
+> <LaravelNote type="note" />
+> `DB` ファサードの transaction メソッドは、[query builder](/ja/php/laravel/v11.x/07-database/02-queries)と[Eloquent
+> ORM](/ja/php/laravel/v11.x/08-eloquent-orm/01-eloquent)の両方の transactions を制御します。
 
 <a name="connecting-to-the-database-cli"></a>
 

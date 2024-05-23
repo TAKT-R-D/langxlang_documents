@@ -54,8 +54,10 @@ Laravel は、アクションの承認に 2 つの primary 方法を提供しま
 
 ### ゲートの作成
 
-> [!WARNING]  
-> ゲートは Laravel の authorization 機能の基本を学ぶのに最適な方法です。ただし、堅牢な Laravelapplications を構築する際には、[policies](#creating-policies)を使用して authorization ルールを整理することを検討すべきです。
+> <LaravelNote type="warning" />
+> ゲートは Laravel の authorization 機能の基本を学ぶのに最適な方法です。ただし、堅牢な
+> Laravelapplications を構築する際には、[policies](#creating-policies)を使用して
+> authorization ルールを整理することを検討すべきです。
 
 ゲートは単に、 user が指定された action を実行するための権限があるかどうかを決定するクロージャです。通常、ゲートは`App\Providers\AppServiceProvider` class の`boot` method 内で定義され、`Gate` facade を使用します。ゲートは常に第一引数として user インスタンスを受け取り、必要に応じて関連の Eloquent model などの追加の引数を受け取ることもできます。
 
@@ -407,7 +409,7 @@ class PostPolicy
 
 あなたが`--model`オプションを使用して、 Artisan console でポリシーを生成した場合、すでに`viewAny`、`view`、`create`、`update`、`delete`、`restore`、および`forceDelete`アクションのためのメソッドが含まれています。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > 全ての policies は、 Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を介して解決されます。これにより、ポリシーのコンストラクターに必要な依存関係をタイプヒントとして指定することで、それらが自動的に注入されます。
 
 <a name="policy-responses"></a>
@@ -560,8 +562,9 @@ public function before(User $user, string $ability): bool|null
 
 特定の user の type に対して全ての authorization チェックを拒否したい場合は、`before` method から`false`を返せば可能です。もし`null`が返された場合、 authorization チェックはポリシーの method に対してスルーされます。
 
-> [!WARNING]  
-> policy の`before`method は、チェックされる能力の名前と一致する名前の method を含まない場合、class が呼び出されません。
+> <LaravelNote type="warning" />
+> policy の`before`method は、チェックされる能力の名前と一致する名前の method を含まない場合、class
+> が呼び出されません。
 
 <a name="authorizing-actions-using-policies"></a>
 

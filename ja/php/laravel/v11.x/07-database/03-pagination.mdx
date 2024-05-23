@@ -161,8 +161,9 @@ $users = DB::table('users')->orderBy('id')->cursorPaginate(15);
 
 cursor paginator インスタンスを取得したら、通常`paginate`や`simplePaginate`メソッドを使用するときと同じように、[ページネーション結果を表示](#displaying-pagination-results)することができます。 cursor paginator が提供するインスタンスメソッドの詳細については、[cursor paginator インスタンスの method ドキュメンテーション](#cursor-paginator-instance-methods)をご参照ください。
 
-> [!WARNING]  
-> あなたの query は、 cursor pagination を活用するためには"order by"句を含める必要があります。さらに、" query "が並べ替えるカラムは、ページングしているテーブルに所属している必要があります。
+> <LaravelNote type="warning" />
+> あなたの query は、 cursor pagination を活用するためには"order by"句を含める必要があります。さらに、"
+> query "が並べ替えるカラムは、ページングしているテーブルに所属している必要があります。
 
 <a name="cursor-vs-offset-pagination"></a>
 
@@ -200,8 +201,10 @@ cursor pagination query はオフセット pagination に対して次のよう�
 
 つまり、`Paginator`は query ビルダーの`simplePaginate` method に対応し、`CursorPaginator`は`cursorPaginate` method に対応し、`LengthAwarePaginator`は`paginate` method に対応します。
 
-> [!WARNING]  
-> 手動で paginator インスタンスを作成するときは、paginator に渡す結果の array を手動で"スライス"する必要があります。 これがどのように行うかわからない場合は、 [array_slice](https://secure.php.net/manual/en/function.array-slice.php) PHP 関数を確認してください。
+> <LaravelNote type="warning" />
+> 手動で paginator インスタンスを作成するときは、paginator に渡す結果の array を手動で"スライス"する必要があります。
+> これがどのように行うかわからない場合は、 [array_slice](https://secure.php.net/manual/en/function.array-slice.php)
+> PHP 関数を確認してください。
 
 <a name="customizing-pagination-urls"></a>
 

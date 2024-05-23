@@ -78,8 +78,9 @@ Laravel Tinker は、[PsySH](https://github.com/bobthecow/psysh)パッケージ�
 composer require laravel/tinker
 ```
 
-> [!NOTE]
-> あなたの Laravel アプリケーションとのやり取り時にホットリロード、複数行の code 編集、オートコンプリートをお求めですか？ [Tinkerwell](https://tinkerwell.app) をチェックしてみてください！
+> <LaravelNote type="note" />
+> あなたの Laravel アプリケーションとのやり取り時にホットリロード、複数行の code
+> 編集、オートコンプリートをお求めですか？ [Tinkerwell](https://tinkerwell.app) をチェックしてみてください！
 
 <a name="usage"></a>
 
@@ -97,7 +98,11 @@ php artisan tinker
 php artisan vendor:publish --provider="Laravel\Tinker\TinkerServiceProvider"
 ```
 
-> [!WARNING] > `dispatch` helper 関数と `Dispatchable` class の `dispatch` method は、 job を queue に配置するために garbage collection に依存しています。したがって、tinker を使用するときは、 `Bus::dispatch` または `Queue::push` を用いて jobs を dispatch するべきです。
+> <LaravelNote type="warning" />
+> `dispatch` helper 関数と `Dispatchable` class の `dispatch` method は、 job を
+> queue に配置するために garbage collection に依存しています。したがって、tinker
+> を使用するときは、 `Bus::dispatch` または `Queue::push` を用いて jobs を dispatch
+> するべきです。
 
 <a name="command-allow-list"></a>
 
@@ -182,8 +187,10 @@ class SendEmails extends Command
 }
 ```
 
-> [!NOTE]
-> より大きな code の再利用のためには、あなたの console コマンドを軽量に保ち、それらがそのタスクを達成するために application services に委ねることが良い実践です。上記の例では、私たちは E メールの送信という"heavy lifting"を行うための service class を注入することに注意してください。
+> <LaravelNote type="note" />
+> より大きな code の再利用のためには、あなたの console コマンドを軽量に保ち、それらがそのタスクを達成するために
+> application services に委ねることが良い実践です。上記の例では、私たちは E メールの送信という"heavy
+> lifting"を行うための service class を注入することに注意してください。
 
 <a name="closure-commands"></a>
 
@@ -232,8 +239,10 @@ Artisan::command('mail:send {user}', function (string $user) {
 
 ### 分離可能なコマンド
 
-> [!WARNING]
-> この feature を利用するために、あなたの application は、`memcached`、`redis`、`dynamodb`、`database`、`file`、または`array`の cache driver を、あなたのアプリケーションの default cache driver として使用する必要があります。さらに、すべてのサーバーは同じ中央の cache サーバーと通信している必要があります。
+> <LaravelNote type="warning" />
+> この feature を利用するために、あなたの application は、`memcached`、`redis`、`dynamodb`、`database`、`file`、または`array`の
+> cache driver を、あなたのアプリケーションの default cache driver として使用する必要があります。さらに、すべてのサーバーは同じ中央の
+> cache サーバーと通信している必要があります。
 
 時には、一度に command が一つだけ実行されるように保証したいと思うかもしれません。これを達成するためには、`Illuminate\Contracts\Console\Isolatable` インターフェースをあなたの command class に実装することができます:
 
@@ -518,7 +527,7 @@ return [
 ];
 ```
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > 包括的な[Laravel Prompts](/ja/php/laravel/v11.x/10-packages/prompts)のドキュメンテーションには、利用可能なプロンプトとその使用方法に関する追加情報が含まれています。
 
 あなたが user に select したり、[options](#options)を入力するように prompt する場合、コマンドの`handle` method にプロンプトを含めることができます。しかし、欠けている引数に対して自動的にプロンプトされたときにのみ user に prompt したい場合は、`afterPromptingForMissingArguments` method を実装することができます：
@@ -582,7 +591,9 @@ $options = $this->options();
 
 ### Input の促進
 
-> [!NOTE] > [Laravel prompt](/ja/php/laravel/v11.x/10-packages/prompts)は、command ライン application に美しく user フレンドリーなフォームを追加するための PHP パッケージであり、プレースホルダーテキストや検証を含むブラウザーのような特徴があります。
+> <LaravelNote type="note" />
+> [Laravel prompt](/ja/php/laravel/v11.x/10-packages/prompts)は、command ライン application
+> に美しく user フレンドリーなフォームを追加するための PHP パッケージであり、プレースホルダーテキストや検証を含むブラウザーのような特徴があります。
 
 output を表示するだけでなく、command の実行中に user に input を提供するように求めることもできます。 `ask` method は指定された質問で user に prompt を送り、その input を受け入れてから、user の input をあなたの command に戻します。
 
@@ -761,7 +772,7 @@ foreach ($users as $user) {
 $bar->finish();
 ```
 
-> [!NOTE]
+> <LaravelNote type="note" />
 > より高度な options については、[Symfony Progress Bar component documentation](https://symfony.com/doc/7.0/components/console/helpers/progressbar.html)をご覧ください。
 
 <a name="registering-commands"></a>

@@ -239,8 +239,9 @@ Laravel に組み込まれている validation ルールはそれぞれ、あな
 
 また、このファイルを別の言語ディレクトリにコピーして、アプリケーションの言語のメッセージを翻訳することもできます。 Laravel localization について詳しく知りたい場合は、完全な[localization documentation](/ja/php/laravel/v11.x/05-digging-deeper/localization)をご覧ください。
 
-> [!WARNING]  
-> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
+> <LaravelNote type="warning" />
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel
+> の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="quick-xhr-requests-and-validation"></a>
 
@@ -365,8 +366,9 @@ public function rules(): array
 }
 ```
 
-> [!NOTE]  
-> `rules` メソッドの signature 内で必要な依存関係を型ヒントとして指定することができます。それらは自動的に Laravel の [service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を通じて解決されます。
+> <LaravelNote type="note" />
+> `rules` メソッドの signature 内で必要な依存関係を型ヒントとして指定することができます。それらは自動的に
+> Laravel の [service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を通じて解決されます。
 
 では、 validation ルールはどのように評価されますか？やることは、 controller method に request をタイプヒントするだけです。送信される form request は、 controller method が呼び出される前に検証されます。つまり、 controller を validation ロジックで混乱させる必要はありません：
 
@@ -393,8 +395,9 @@ public function store(StorePostRequest $request): RedirectResponse
 
 validation が失敗した場合、 redirect response が生成され、 user を前の位置に戻します。 errors も session にフラッシュされて表示できるようになります。 request が XHR の request だった場合、 422 の status code の HTTP response が user に返されます。これには[validation errors の JSON 表現](#validation-error-response-format)が含まれます。
 
-> [!NOTE]  
-> Inertia を駆動させる Laravel フロントエンドに、リアルタイムの form request validation を追加する必要がありますか？[Laravel Precognition](/ja/php/laravel/v11.x/10-packages/precognition)をご覧ください。
+> <LaravelNote type="note" />
+> Inertia を駆動させる Laravel フロントエンドに、リアルタイムの form request validation
+> を追加する必要がありますか？[Laravel Precognition](/ja/php/laravel/v11.x/10-packages/precognition)をご覧ください。
 
 <a name="performing-additional-validation-on-form-requests"></a>
 
@@ -534,8 +537,9 @@ public function authorize(): bool
 }
 ```
 
-> [!NOTE]  
-> `authorize`メソッドの signature 内で必要な依存関係を型ヒントとして指定することができます。それらは自動的に Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を通じて解決されます。
+> <LaravelNote type="note" />
+> `authorize`メソッドの signature 内で必要な依存関係を型ヒントとして指定することができます。それらは自動的に
+> Laravel の[service container](/ja/php/laravel/v11.x/03-architecture-concepts/02-container)を通じて解決されます。
 
 <a name="customizing-the-error-messages"></a>
 
@@ -915,8 +919,9 @@ Laravel の組み込みの validation ルールは、それぞれがあなたの
 
 また、このファイルを別の言語ディレクトリにコピーして、アプリケーションの言語のメッセージを翻訳することもできます。 Laravel localization について詳しく知るために、完全な[localization documentation](/ja/php/laravel/v11.x/05-digging-deeper/localization)をご覧ください。
 
-> [!WARNING]  
-> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
+> <LaravelNote type="warning" />
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel
+> の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="custom-messages-for-specific-attributes"></a>
 
@@ -945,8 +950,9 @@ Laravel の組み込みの error メッセージの多くには、`:attribute`�
 ],
 ```
 
-> [!WARNING]  
-> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
+> <LaravelNote type="warning" />
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel
+> の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 <a name="specifying-values-in-language-files"></a>
 
@@ -976,8 +982,9 @@ The credit card number field is required when payment type is cc.
 ],
 ```
 
-> [!WARNING]  
-> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
+> <LaravelNote type="warning" />
+> default では、Laravel application のスケルトンには`lang`ディレクトリが含まれていません。Laravel
+> の言語ファイルをカスタマイズしたい場合、 `lang:publish` Artisan command を使って公開できます。
 
 この value を定義した後、 validation ルールは次の error メッセージを生成します：
 
@@ -1318,7 +1325,7 @@ validation フィールドは email アドレスとしてフォーマットさ�
 
 `filter`validator は、PHP の`filter_var`関数を使用し、Laravel に付属しています。これは、Laravelversion5.8 より前の Laravel の default の mail 検証動作でした。
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > `dns`および`spoof`バリデーターは、PHP の`intl`拡張が必要です。
 
 <a name="rule-ends-with"></a>
@@ -1482,7 +1489,7 @@ validation の下のファイルには、リストされた extensions のいず
 'photo' => ['required', 'extensions:jpg,png'],
 ```
 
-> [!WARNING]  
+> <LaravelNote type="warning" />
 > user が割り当てた拡張子だけでファイルを検証することには決して頼るべきではありません。このルールは通常、[`mimes`](#rule-mimes)または[`mimetypes`](#rule-mimetypes)のルールと組み合わせて使用するべきです。
 
 <a name="rule-file"></a>
@@ -1570,8 +1577,11 @@ validation の下のフィールドは、*anotherfield*の values に存在し�
 
 validation の下のフィールドは integer でなければなりません。
 
-> [!WARNING]  
-> この validation ルールは、入力が"integer"variable の type であることを検証するものではなく、入力が PHP の`FILTER_VALIDATE_INT`ルールが受け付ける type であることだけを検証します。入力が数 values であることを validate する必要がある場合は、このルールを[数 values の`numeric` validation ルール](#rule-numeric)と併用してください。
+> <LaravelNote type="warning" />
+> この validation ルールは、入力が"integer"variable の type であることを検証するものではなく、入力が
+> PHP の`FILTER_VALIDATE_INT`ルールが受け付ける type であることだけを検証します。入力が数
+> values であることを validate する必要がある場合は、このルールを[数 values の`numeric`
+> validation ルール](#rule-numeric)と併用してください。
 
 <a name="rule-ip"></a>
 
@@ -1744,8 +1754,9 @@ validation の下のフィールドは、指定された正規表現と match �
 
 このルールは内部で PHP の`preg_match`関数を使用しています。指定すべきパターンは`preg_match`が required としているフォーマットに従い、有効なデリミタも含むべきです。例えば: `'email' => 'not_regex:/^.+$/i'`となります。
 
-> [!WARNING]  
-> `regex` / `not_regex` パターンを使用する際には、特に正規表現に `|` 文字が含まれている場合、`|` デリミタの代わりに array を使用して validation 規則を指定する必要があるかもしれません。
+> <LaravelNote type="warning" />
+> `regex` / `not_regex` パターンを使用する際には、特に正規表現に `|` 文字が含まれている場合、`|`
+> デリミタの代わりに array を使用して validation 規則を指定する必要があるかもしれません。
 
 <a name="rule-nullable"></a>
 
@@ -1872,8 +1883,9 @@ validation と記されたフィールドは、与えられた正規表現と ma
 
 内部的には、この規則は PHP の `preg_match` 関数を使用します。指定されるパターンは `preg_match` が required フォーマットを守る必要があり、有効な区切り記号も含める必要があります。例えば：`'email' => 'regex:/^.+@.+$/i'`。
 
-> [!WARNING]  
-> `regex` / `not_regex` パターンを使用する場合、特に正規表現に `|` 文字が含まれている場合、`|` デリミタを使用する代わりに array でルールを指定する必要がある場合があります。
+> <LaravelNote type="warning" />
+> `regex` / `not_regex` パターンを使用する場合、特に正規表現に `|` 文字が含まれている場合、`|`
+> デリミタを使用する代わりに array でルールを指定する必要がある場合があります。
 
 <a name="rule-required"></a>
 
@@ -2059,8 +2071,10 @@ Validator::make($data, [
 ]);
 ```
 
-> [!WARNING]  
-> あなたは決して、`ignore` method に、user が制御する request 入力を渡すべきではありません。代わりに、自動インクリメント ID や、Eloquent model インスタンスからの UUID のようなシステムが生成した unique な ID のみを渡すべきです。そうしないと、あなたの application は SQL インジェクション攻撃に対して脆弱となります。
+> <LaravelNote type="warning" />
+> あなたは決して、`ignore` method に、user が制御する request 入力を渡すべきではありません。代わりに、自動インクリメント
+> ID や、Eloquent model インスタンスからの UUID のようなシステムが生成した unique
+> な ID のみを渡すべきです。そうしないと、あなたの application は SQL インジェクション攻撃に対して脆弱となります。
 
 `ignore` method への model キーの value の渡す代わりに、 model の全インスタンスを渡すこともできます。 Laravel は自動的に model からキーを抽出します。
 
@@ -2164,7 +2178,7 @@ $v = Validator::make($data, [
 
 上記の例では、`email`フィールドは、`$data`の array に存在する場合にのみ検証されます。
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > もし常に存在するべきだが、空であるかもしれないフィールドを validate しようとしている場合は、[このオプションのフィールドに関するメモ](#a-note-on-optional-fields)をチェックしてください。
 
 <a name="complex-conditional-validation"></a>
@@ -2200,8 +2214,9 @@ $validator->sometimes(['reason', 'cost'], 'required', function (Fluent $input) {
 });
 ```
 
-> [!NOTE]  
-> あなたのクロージャに渡される `$input` パラメータは `Illuminate\Support\Fluent` のインスタンスとなり、 input や validation の下にあるファイルにアクセスするために使用することができます。
+> <LaravelNote type="note" />
+> あなたのクロージャに渡される `$input` パラメータは `Illuminate\Support\Fluent`
+> のインスタンスとなり、 input や validation の下にあるファイルにアクセスするために使用することができます。
 
 <a name="complex-conditional-array-validation"></a>
 
@@ -2387,7 +2402,7 @@ Validator::validate($input, [
 ]);
 ```
 
-> [!NOTE]  
+> <LaravelNote type="note" />
 > validating image の寸法に関する詳しい情報は、[dimension rule documentation](#rule-dimensions)で見つけることができます。
 
 <a name="validating-files-file-sizes"></a>
@@ -2694,5 +2709,6 @@ Validator::make($input, $rules)->passes(); // true
 php artisan make:rule Uppercase --implicit
 ```
 
-> [!WARNING]  
-> "暗黙的な" ルールは、単に attribute が required であることを*示唆している*だけです。実際に欠落しているまたは空の attribute を無効にするかどうかはあなた次第です。
+> <LaravelNote type="warning" />
+> "暗黙的な" ルールは、単に attribute が required であることを*示唆している*だけです。実際に欠落しているまたは空の
+> attribute を無効にするかどうかはあなた次第です。
