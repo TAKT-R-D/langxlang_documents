@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }) {
 }
 ```
 
-詳細については、[API Reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-report-web-vitals)をご覧ください。
+詳細については、[API Reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-report-web-vitals) をご覧ください。
 
 </PagesOnly>
 
@@ -62,13 +62,13 @@ export default function Layout({ children }) {
 
 > `useReportWebVitals` hook は `"use client"` ディレクティブを必要とするため、最もパフォーマンスの高いアプローチは root layout がインポートする別の component を作成することです。これにより、`WebVitals` component に対する client の境界を排他的に制限します。
 
-詳細については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-report-web-vitals)をご覧ください。
+詳細については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-report-web-vitals) をご覧ください。
 
 </AppOnly>
 
 ## Web Vitals
 
-[Web Vitals](https://web.dev/vitals/)は、ウェブページのユーザーエクスペリエンスを把握するための有用な指標のセットです。以下のウェブバイタルはすべて含まれています：
+[Web Vitals](https://web.dev/vitals/) は、ウェブページのユーザーエクスペリエンスを把握するための有用な指標のセットです。以下のウェブバイタルはすべて含まれています：
 
 - [最初のバイトまでの時間](https://developer.mozilla.org/docs/Glossary/Time_to_first_byte) (TTFB)
 - [First Contentful Paint](https://developer.mozilla.org/docs/Glossary/First_contentful_paint) (FCP)
@@ -177,7 +177,7 @@ export function reportWebVitals(metric) {
 }
 ```
 
-これらのメトリクスは、[User Timing API](https://caniuse.com/#feat=user-timing)をサポートするすべてのブラウザで動作します。
+これらのメトリクスは、[User Timing API](https://caniuse.com/#feat=user-timing) をサポートするすべてのブラウザで動作します。
 
 </PagesOnly>
 
@@ -199,7 +199,7 @@ useReportWebVitals((metric) => {
 });
 ```
 
-> **Good to know**: もし[Google Analytics](https://analytics.google.com/analytics/web/)を使用しているなら、この
+> **Good to know**: もし [Google Analytics](https://analytics.google.com/analytics/web/) を使用しているなら、この
 > `id` value を使うと、手動でメトリック分布を構築することができます(パーセンタイルを計算するためなどに)。
 
 > ```js

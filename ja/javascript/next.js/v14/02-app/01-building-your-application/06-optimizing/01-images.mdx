@@ -17,14 +17,14 @@ nav_title: Images
 
 </details>
 
-[Web Almanac](https://almanac.httparchive.org)によると、画像は一般的なウェブサイトの[page weight](https://almanac.httparchive.org/en/2022/page-weight#content-type-and-file-formats)の大部分を占め、あなたのウェブサイトの[LCP performance](https://almanac.httparchive.org/en/2022/performance#lcp-image-optimization)に大きな影響を与える可能性があります。
+[Web Almanac](https://almanac.httparchive.org) によると、画像は一般的なウェブサイトの [page weight](https://almanac.httparchive.org/en/2022/page-weight#content-type-and-file-formats) の大部分を占め、あなたのウェブサイトの [LCP performance](https://almanac.httparchive.org/en/2022/performance#lcp-image-optimization) に大きな影響を与える可能性があります。
 
 Next.js Image component は、HTML の`<img>`要素を自動的な image optimization 機能で拡張します：
 
 - **Size 最適化:** モダンな image formats である WebP や AVIF を使用して、各デバイスに適したサイズの画像を自動的に提供します。
-- **ビジュアル安定性：**画像が loading されているときに自動的に[layout shift](/learn/seo/web-performance/cls)を防ぎます。
-- **ページの読み込みが速くなる：** Images は、ネイティブブラウザの lazy loading を使用して、 viewport に入るときだけ読み込まれます。必要に応じて、ブラーアップのプレースホルダーが使用できます。
-- **アセットの柔軟性：** リモートサーバーに保存されている画像であっても、オンデマンドで image のリサイズが可能
+- **ビジュアル安定性:** 画像が loading されているときに自動的に [layout shift](/learn/seo/web-performance/cls) を防ぎます。
+- **ページの読み込みが速くなる:** Images は、ネイティブブラウザの lazy loading を使用して、 viewport に入るときだけ読み込まれます。必要に応じて、ブラーアップのプレースホルダーが使用できます。
+- **アセットの柔軟性:** リモートサーバーに保存されている画像であっても、オンデマンドで image のリサイズが可能
 
 > **🎥 視聴：** `next/image`の使い方について詳しく学びます → [YouTube (9 分)](https://youtu.be/IU_qq_c_lKA)。
 
@@ -34,11 +34,11 @@ Next.js Image component は、HTML の`<img>`要素を自動的な image optimiz
 import Image from "next/image";
 ```
 
-その後、image(ローケルまたはリモートのどちらか)の`src`を定義することができます。
+その後、image(ローケルまたはリモートのどちらか)の `src` を定義することができます。
 
 ### ローカル画像
 
-ローカルの image を使用するには、あなたの`.jpg`、`.png`、または`.webp`の image ファイルを`import`してください。
+ローカルの image を使用するには、あなたの`.jpg`、`.png`、または`.webp`の image ファイルを `import` してください。
 
 Next.js はインポートされたファイルに基づいて、あなたの image の`width`と`height`を[自動的に決定](#image-sizing)します。これらの値は、あなたの image が loading されている間、[累積的な Layout シフト](https://nextjs.org/learn/seo/web-performance/cls)を防ぐために使用されます。
 
@@ -90,9 +90,9 @@ export default function Page() {
 
 ### リモートイメージ
 
-リモートの image を使用するには、`src`プロパティは URL string であるべきです。
+リモートの image を使用するには、`src` プロパティは URL string であるべきです。
 
-Next.js が build プロセス中にリモートファイルにアクセスできないため、[`width`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#width)、[`height`](/docs/app/api-reference/components/image#height)、およびオプションの[`blurDataURL`](/docs/app/api-reference/components/image#blurdataurl)という props を手動で提供する必要があります。
+Next.js が build プロセス中にリモートファイルにアクセスできないため、[`width`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#width)、[`height`](/docs/app/api-reference/components/image#height)、およびオプションの[`blurDataURL`](/docs/app/api-reference/components/image#blurdataurl) という props を手動で提供する必要があります。
 
 `width`と`height`の属性は、Image の正しいアスペクト比を推定し、layout のシフトを image loading から避けるために使用されます。`width`と`height`は image ファイルの出力される size を決定しません。[image のサイズ設定](#image-sizing)について詳しく学習します。
 
@@ -111,7 +111,7 @@ export default function Page() {
 }
 ```
 
-画像の最適化を安全に許可するために、`next.config.js`でサポートされている URL パターンのリストを定義してください。悪意のある使用を防ぐために、できるだけ具体的にしてください。例えば、次の設定では、特定の AWS S3 バケットからの画像のみを許可します:
+画像の最適化を安全に許可するために、`next.config.js` でサポートされている URL パターンのリストを定義してください。悪意のある使用を防ぐために、できるだけ具体的にしてください。例えば、次の設定では、特定の AWS S3 バケットからの画像のみを許可します:
 
 ```js:next.config.js
 module.exports = {
@@ -128,7 +128,7 @@ module.exports = {
 }
 ```
 
-[`remotePatterns`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#remotepatterns)設定についてもっと学びましょう。もし image の `src` に相対 URL を使用したい場合は、[`loader`](/docs/app/api-reference/components/image#loader)を使用してください。
+[`remotePatterns`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#remotepatterns) 設定についてもっと学びましょう。もし image の `src` に相対 URL を使用したい場合は、[`loader`](/docs/app/api-reference/components/image#loader) を使用してください。
 
 ### Domains
 
@@ -136,21 +136,21 @@ module.exports = {
 
 あなたのアプリケーションを悪意のあるユーザーから保護するために、`next/image` component と共に使用する予定のリモートホスト名のリストを定義する必要があります。
 
-> [`remotePatterns`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#remotepatterns)設定について詳しく学びましょう。
+> [`remotePatterns`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#remotepatterns) 設定について詳しく学びましょう。
 
 ### Loaders
 
 [以前の例](#local-images)で注意すべき点は、一部の URL (`"/me.png"`) がローカルの image に対して提供されていたことです。これは loader アーキテクチャのおかげで可能になっています。
 
-loader は、あなたの image のための URL を生成する機能です。それは提供された `src` を変更し、異なる sizes で image を request するための複数の URL を生成します。これらの複数の URL は、自動的な[srcset](https://developer.mozilla.org/docs/Web/API/HTMLImageElement/srcset)の生成に使用され、その結果、あなたのサイトを訪れる訪問者には、彼らの viewport に適した size の image が提供されます。
+loader は、あなたの image のための URL を生成する機能です。それは提供された `src` を変更し、異なる sizes で image を request するための複数の URL を生成します。これらの複数の URL は、自動的な [srcset](https://developer.mozilla.org/docs/Web/API/HTMLImageElement/srcset) の生成に使用され、その結果、あなたのサイトを訪れる訪問者には、彼らの viewport に適した size の image が提供されます。
 
 Next.js アプリケーションの default loader は、ビルトインの Image Optimization API を使用し、ウェブ上の任意の場所から画像を最適化し、 Next.js のウェブ server から直接提供します。もし、CDN や image server から直接画像を提供したい場合は、 JavaScript の数行で独自の loader 関数を書くことができます。
 
-[`loader` prop](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#loader)を使って、画像ごとに loader を定義できます。または、[`loaderFile` configuration](/docs/app/api-reference/components/image#loaderfile)を使ってアプリケーションレベルで定義することも可能です。
+[`loader` prop](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#loader) を使って、画像ごとに loader を定義できます。または、[`loaderFile` configuration](/docs/app/api-reference/components/image#loaderfile) を使ってアプリケーションレベルで定義することも可能です。
 
 ## Priority
 
-各ページの[Largest Contentful Paint (LCP) element](https://web.dev/lcp/#what-elements-are-considered)となる image に`priority`プロパティを追加するべきです。これにより、 Next.js は loading (例えば preload タグや priority ヒントを通じて)のための image を特別に優先することができ、LCP の意義深い向上をもたらします。
+各ページの [Largest Contentful Paint (LCP) element](https://web.dev/lcp/#what-elements-are-considered) となる image に`priority`プロパティを追加するべきです。これにより、 Next.js は loading (例えば preload タグや priority ヒントを通じて)のための image を特別に優先することができ、LCP の意義深い向上をもたらします。
 
 LCP 要素は通常、ページの viewport 内で見える最大の image またはテキストブロックです。`next dev`を実行すると、LCP 要素が`priority`プロパティを持たない`<Image>`である場合、コンソール警告が表示されます。
 
@@ -197,13 +197,13 @@ export default function Page() {
 
 ## Image Sizing
 
-画像がパフォーマンスを最もよく損なう方法の一つは、*Layout shift*で、image が読み込まれるときにページ上の他の要素を押しのけます。このパフォーマンス問題は、ユーザーにとって非常に迷惑なので、それ自体が Core Web Vital と呼ばれるものを持っており、その名前は[Cumulative layout Shift](https://web.dev/cls/)です。画像ベースの layout シフトを避ける方法は、[常に size を画像に設定する](https://web.dev/optimize-cls/#images-without-dimensions)ことです。これにより、ブラウザは image が読み込まれる前に、正確に十分なスペースを予約することが可能になります。
+画像がパフォーマンスを最もよく損なう方法の一つは、*Layout shift*で、image が読み込まれるときにページ上の他の要素を押しのけます。このパフォーマンス問題は、ユーザーにとって非常に迷惑なので、それ自体が Core Web Vital と呼ばれるものを持っており、その名前は [Cumulative layout Shift](https://web.dev/cls/) です。画像ベースの layout シフトを避ける方法は、[常に size を画像に設定する](https://web.dev/optimize-cls/#images-without-dimensions)ことです。これにより、ブラウザは image が読み込まれる前に、正確に十分なスペースを予約することが可能になります。
 
 `next/image`は優れたパフォーマンス結果を保証するように設計されているため、layout シフトに寄与する方法で使用することはできず、以下の 3 つの方法のいずれかでサイズ設定する**必要があります**:
 
-1. 自動的に、[static import](#local-images)を使って
+1. 自動的に、[static import](#local-images) を使って
 2. 具体的には、[`width`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#width) と [`height`](/docs/app/api-reference/components/image#height) プロパティを含めることで
-3. 暗黙的に、親要素に対してその image''が拡大する原因となる[fill](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#fill)を使用することで。
+3. 暗黙的に、親要素に対してその image''が拡大する原因となる [fill](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#fill) を使用することで。
 
 > **画像の size がわからない場合はどうすればよいですか？**
 >
@@ -211,7 +211,7 @@ export default function Page() {
 >
 > **`fill`を使用する**
 >
-> [`fill`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#fill)プロパティーは、親要素によって image のサイズが決定されるようにします。 CSS を使用して、画像の親要素がページ上のスペースを占めるようにし、[`sizes`](/docs/app/api-reference/components/image#sizes)プロパティを用いて任意のメディア query のブレークポイントに一致させることを検討してみてください。また、[`object-fit`](https://developer.mozilla.org/docs/Web/CSS/object-fit)を`fill`、`contain`、または`cover`と共に使うことで、 image がそのスペースをどのように占めるべきかを定義することもできます。もし[`object-position`](https://developer.mozilla.org/docs/Web/CSS/object-position)も併用すれば、その場所の指定も可能です。
+> [`fill`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image#fill) プロパティーは、親要素によって image のサイズが決定されるようにします。 CSS を使用して、画像の親要素がページ上のスペースを占めるようにし、[`sizes`](/docs/app/api-reference/components/image#sizes) プロパティを用いて任意のメディア query のブレークポイントに一致させることを検討してみてください。また、[`object-fit`](https://developer.mozilla.org/docs/Web/CSS/object-fit) を`fill`、`contain`、または`cover`と共に使うことで、 image がそのスペースをどのように占めるべきかを定義することもできます。もし [`object-position`](https://developer.mozilla.org/docs/Web/CSS/object-position) も併用すれば、その場所の指定も可能です。
 >
 > **あなたの画像を正規化してください**
 >
@@ -228,9 +228,9 @@ export default function Page() {
 Image component のスタイリングは通常の`<img>`要素のスタイリングと似ていますが、頭に入れておくべきいくつかのガイドラインがあります：
 
 - `className` または `style`を使用し、`styled-jsx`は使用しないでください。
-  - ほとんどの場合、`className`プロップの使用をお勧めします。これは、インポートされた[CSS Module](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules)、[global stylesheet](/docs/app/building-your-application/styling/css-modules#global-styles)などです。
+  - ほとんどの場合、`className`プロップの使用をお勧めします。これは、インポートされた [CSS Module](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/01-css-modules)、[global stylesheet](/docs/app/building-your-application/styling/css-modules#global-styles) などです。
 - また、`style`プロパティを使用してインラインの styles を割り当てることもできます。
-  - 現在の component(あなたが style を`global`とマークしない限り)にスコープされているため、[styled-jsx](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/03-css-in-js)を使用することはできません。
+  - 現在の component(あなたが style を`global`とマークしない限り)にスコープされているため、[styled-jsx](/ja/javascript/next.js/v14/02-app/01-building-your-application/05-styling/03-css-in-js) を使用することはできません。
 - `fill`を使用する場合、親要素には`position: relative`が必要です。
   - これは、その layout モードでの image 要素の適切なレンダリングに必要です。
 - `fill`を使用する場合、親要素には`display: block`が必要です。
@@ -347,7 +347,7 @@ export default function Background() {
 
 ## Other Properties
 
-[**`next/image` component が利用可能なすべてのプロパティを表示します。**](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image)
+[`next/image` **component が利用可能なすべてのプロパティを表示します。**](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/image)
 
 ## Configuration
 

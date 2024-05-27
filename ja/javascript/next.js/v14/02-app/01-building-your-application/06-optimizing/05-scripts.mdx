@@ -120,13 +120,13 @@ export default function MyApp({ Component, pageProps }) {
 - `lazyOnload`：ブラウザのアイドル時間中にスクリプトを後で読み込みます。
 - `worker`: (実験的)ウェブ worker でスクリプトを読み込む。
 
-それぞれの strategy とその使用例について詳しく学ぶには、[`next/script`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/script#strategy)の API reference ドキュメンテーションを参照してください。
+それぞれの strategy とその使用例について詳しく学ぶには、[`next/script`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/script#strategy) の API reference ドキュメンテーションを参照してください。
 
 ### ウェブ Worker への Scripts のオフロード(実験的)
 
 > **警告:** `worker` strategy はまだ安定しておらず、[`app`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes) ディレクトリとはまだ動作しません。注意して使用してください。
 
-`worker`の strategy を使用する Scripts は、[Partytown](https://partytown.builder.io/)を使用して Web worker でオフロードして実行されます。これにより、メインの thread をアプリケーションの code の残りに専念することで、サイトのパフォーマンスが向上する場合があります。
+`worker`の strategy を使用する Scripts は、[Partytown](https://partytown.builder.io/) を使用して Web worker でオフロードして実行されます。これにより、メインの thread をアプリケーションの code の残りに専念することで、サイトのパフォーマンスが向上する場合があります。
 
 この strategy はまだ実験段階であり、`next.config.js`で`nextScriptWorkers`フラグが有効になっている場合にのみ使用できます。
 
@@ -207,7 +207,7 @@ export default function Home() {
 
 <AppOnly>
 
-これらのハンドラは、`next/script`がインポートされて[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の内部で使用され、code の最初の行として`"use client"`が定義されている場合にのみ機能します。
+これらのハンドラは、`next/script`がインポートされて [Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components) の内部で使用され、code の最初の行として`"use client"`が定義されている場合にのみ機能します。
 
 ```tsx:app/page.tsx
 'use client'
@@ -247,13 +247,13 @@ export default function Page() {
 }
 ```
 
-それぞれのイベントの handler について詳しく学び、例を見るために、[`next/script`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/script#onload)の API reference を参照してください。
+それぞれのイベントの handler について詳しく学び、例を見るために、[`next/script`](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/script#onload) の API reference を参照してください。
 
 </AppOnly>
 
 <PagesOnly>
 
-これらのハンドラは、`next/script`がインポートされて[Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)の内部で使用され、code の最初の行として`"use client"`が定義されている場合にのみ機能します。
+これらのハンドラは、`next/script`がインポートされて [Client Component](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components) の内部で使用され、code の最初の行として`"use client"`が定義されている場合にのみ機能します。
 
 ```tsx:pages/index.tsx
 import Script from 'next/script'
@@ -289,7 +289,7 @@ export default function Page() {
 }
 ```
 
-それぞれのイベントの handler や例を見るために、より詳しく学ぶには[`next/script`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/script#onload) の API reference を参照してください。
+それぞれのイベントの handler や例を見るために、より詳しく学ぶには [`next/script`](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/script#onload) の API reference を参照してください。
 
 </PagesOnly>
 

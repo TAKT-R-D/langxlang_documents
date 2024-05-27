@@ -17,7 +17,7 @@ is_empty: false
 
 あなたのアプリを計装するためには OpenTelemetry の使用をおすすめします。これはプラットフォームに依存しないアプリの計装方法で、 code を変更することなく観察可能性プロバイダを変更できます。OpenTelemetry のより詳しい情報とその仕組みについては、[公式 OpenTelemetry ドキュメンテーション](https://opentelemetry.io/docs/)を参照してください。
 
-このドキュメンテーションでは、このドキュメント全体で*Span*、_Trace_、または*Exporter*のような用語を使用しています。これらはすべて[the OpenTelemetry Observability Primer](https://opentelemetry.io/docs/concepts/observability-primer/)で見つけることができます。
+このドキュメンテーションでは、このドキュメント全体で*Span*、_Trace_、または*Exporter*のような用語を使用しています。これらはすべて [the OpenTelemetry Observability Primer](https://opentelemetry.io/docs/concepts/observability-primer/) で見つけることができます。
 
 Next.js は、OpenTelemetry の計装を標準でサポートしているため、すでに Next.js 自体が計装されています。OpenTelemetry を有効にすると、`getStaticProps`のようなすべてのコードを便利な属性を持つ*spans*で自動的にラップします。
 
@@ -35,13 +35,13 @@ npm install @vercel/otel
 
 <AppOnly>
 
-次に、プロジェクトの**root ディレクトリ**(または`src`フォルダを使用している場合はその内部)にカスタムの[`instrumentation.ts`](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/09-instrumentation)(または`.js`)ファイルを作成します。
+次に、プロジェクトの**root ディレクトリ**(または`src`フォルダを使用している場合はその内部)にカスタムの [`instrumentation.ts`](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/09-instrumentation) (または`.js`)ファイルを作成します。
 
 </AppOnly>
 
 <PagesOnly>
 
-次に、プロジェクトの**root ディレクトリー**(または `src` フォルダを使用している場合はその中)にカスタム [`instrumentation.ts`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/09-instrumentation)(または `.js`)ファイルを作成します:
+次に、プロジェクトの**root ディレクトリー**(または `src` フォルダを使用している場合はその中)にカスタム [`instrumentation.ts`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/09-instrumentation) (または `.js`)ファイルを作成します:
 
 </PagesOnly>
 
@@ -78,7 +78,7 @@ export function register() {
 > **Good to know**
 >
 > - `instrumentation` ファイルはプロジェクトのルートに置くべきであり、`app` や `pages` ディレクトリの内部には置かないでください。`src` フォルダを使用している場合は、`pages` と `app` の横に `src` 内にファイルを置いてください。
-> - [`pageExtensions` config option](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/pageExtensions)を使用してサフィックスを追加する場合、`instrumentation`のファイル名も一致するように更新する必要があります。
+> - [`pageExtensions` config option](/ja/javascript/next.js/v14/03-pages/02-api-reference/03-next-config-js/pageExtensions) を使用してサフィックスを追加する場合、`instrumentation`のファイル名も一致するように更新する必要があります。
 > - 私たちは基本的な [with-opentelemetry](https://github.com/vercel/next.js/tree/canary/examples/with-opentelemetry) 例を作成しました。あなたが利用できます。
 
 </PagesOnly>
@@ -147,7 +147,7 @@ sdk.start()
 
 ## Testing your instrumentation
 
-OpenTelemetry のトレースをローカルで test するには、互換性のあるバックエンドを持つ OpenTelemetry コレクターが必要です。私たちは、私たちの[OpenTelemetry dev 環境](https://github.com/vercel/opentelemetry-collector-dev-setup)を使用することをお勧めします。
+OpenTelemetry のトレースをローカルで test するには、互換性のあるバックエンドを持つ OpenTelemetry コレクターが必要です。私たちは、私たちの [OpenTelemetry dev 環境](https://github.com/vercel/opentelemetry-collector-dev-setup)を使用することをお勧めします。
 
 すべてが順調に機能すれば、`GET /requested/pathname`とラベル付けされた root server スパンを確認することができるはずです。その特定のトレースからの他のすべてのスパンは、それ以下にネストされます。
 
@@ -163,23 +163,23 @@ OpenTelemetry Collector を使用してデプロイする場合、`@vercel/otel`
 
 私たちは OpenTelemetry が Vercel で箱から出すだけで動作することを確認しました。
 
-[Vercel documentation](https://vercel.com/docs/concepts/observability/otel-overview/quickstart)に従って、あなたのプロジェクトを監視プロバイダーに接続してください。
+[Vercel documentation](https://vercel.com/docs/concepts/observability/otel-overview/quickstart) に従って、あなたのプロジェクトを監視プロバイダーに接続してください。
 
 #### Self-hosting
 
 他のプラットフォームへのデプロイも簡単です。あなた自身の OpenTelemetry Collector を立ち上げて、Next.js app からのテレメトリーデータを受信し処理する必要があります。
 
-これを行うには、[OpenTelemetry Collector Getting Started guide](https://opentelemetry.io/docs/collector/getting-started/)に従い、コレクターの設定と、Next.js app からのデータ受信の設定方法について説明しています。
+これを行うには、[OpenTelemetry Collector Getting Started guide](https://opentelemetry.io/docs/collector/getting-started/) に従い、コレクターの設定と、Next.js app からのデータ受信の設定方法について説明しています。
 
 あなたのコレクターが起動し稼働し始めたら、各々のデプロイメントガイドに従って、選択したプラットフォームに Next.js app を deploy できます。
 
 ### カスタムエクスポーター
 
-OpenTelemetry Collector は必要ありません。カスタムの OpenTelemetry エクスポーターを[`@vercel/otel`](#using-vercelotel) または[手動での OpenTelemetry 設定](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/10-open-telemetry#manual-opentelemetry-configuration)で使用することができます。
+OpenTelemetry Collector は必要ありません。カスタムの OpenTelemetry エクスポーターを [`@vercel/otel`](#using-vercelotel) または[手動での OpenTelemetry 設定](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/10-open-telemetry#manual-opentelemetry-configuration)で使用することができます。
 
 ## Custom Spans
 
-あなたは[OpenTelemetry APIs](https://opentelemetry.io/docs/instrumentation/js/instrumentation)でカスタムスパンを追加することができます。
+あなたは [OpenTelemetry APIs](https://opentelemetry.io/docs/instrumentation/js/instrumentation) でカスタムスパンを追加することができます。
 
 ```bash:Terminal
 npm install @opentelemetry/api
@@ -209,7 +209,7 @@ export async function fetchGithubStars() {
 
 Next.js は自動的に複数のスパンを計測して、あなたのアプリケーションのパフォーマンスについて有用な洞察を提供します。
 
-スパンの属性は[OpenTelemetry semantic conventions](https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/)に従います。また、`next`名前空間の下にいくつかのカスタム属性を追加します。
+スパンの属性は [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/) に従います。また、`next`名前空間の下にいくつかのカスタム属性を追加します。
 
 - `next.span_name` - スパン名が重複しています
 - `next.span_type` - それぞれのスパン type は一意の識別子があります

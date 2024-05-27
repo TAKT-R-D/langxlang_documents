@@ -9,7 +9,7 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-**`@next/third-parties`**は、人気のあるサードパーティライブラリをあなたの Next.js アプリケーションにロードするためのパフォーマンスと development 者体験を向上させる components とユーティリティのコレクションを提供するライブラリです。
+`@next/third-parties`は、人気のあるサードパーティライブラリをあなたの Next.js アプリケーションにロードするためのパフォーマンスと development 者体験を向上させる components とユーティリティのコレクションを提供するライブラリです。
 
 `@next/third-parties`が提供するすべてのサードパーティ統合は、パフォーマンスと使いやすさのために最適化されています。
 
@@ -88,7 +88,7 @@ export default function MyApp({ Component, pageProps }) {
 
 </PagesOnly>
 
-単一の route の Google タグマネージャーを読み込むためには、ページファイルに component を含めてください。
+単一の route の Google Tag Manager を読み込むためには、Page ファイルに component を含めてください。
 
 <AppOnly>
 
@@ -116,7 +116,7 @@ export default function Page() {
 
 #### イベントの送信
 
-`sendGTMEvent`関数は、`dataLayer`の object を使用してイベントを送信することにより、ページ上のユーザーのインタラクションを追跡するために使用することができます。この関数を動作させるためには、`<GoogleTagManager />`の component を、親の layout 、ページ、または component のいずれかに含めるか、同じファイル内に直接含める必要があります。
+`sendGTMEvent`関数は、`dataLayer` の object を使用してイベントを送信することにより、ページ上のユーザーのインタラクションを追跡することができます。この関数を動作させるためには、`<GoogleTagManager />` の component を、親の layout 、Page、または component のいずれかに含めるか、同じファイル内に直接含める必要があります。
 
 <AppOnly>
 
@@ -164,7 +164,7 @@ export function EventButton() {
 
 #### Options
 
-Google Tag Manager に渡す Options 。 options の完全なリストについては、[Google Tag Manager docs](https://developers.google.com/tag-platform/tag-manager/datalayer)をご覧ください。
+Google Tag Manager に渡す Options。 options の完全なリストについては、[Google Tag Manager docs](https://developers.google.com/tag-platform/tag-manager/datalayer)をご覧ください。
 
 | 名前            | Type       | Description                                                                         |
 | --------------- | ---------- | ----------------------------------------------------------------------------------- |
@@ -176,13 +176,9 @@ Google Tag Manager に渡す Options 。 options の完全なリストについ�
 
 ### Google Analytics
 
-`GoogleAnalytics`の component を使用すると、Google タグ(`gtag.js`)を介して、[Google Analytics 4](https://developers.google.com/analytics/devguides/collection/ga4)をページに含めることができます。 default では、ページ上でハイドレーションが発生した後に元の scripts を取得します。
+`GoogleAnalytics` の component を使用すると、Google タグ(`gtag.js`)を介して、[Google Analytics 4](https://developers.google.com/analytics/devguides/collection/ga4) をページに含めることができます。 default では、ページ上でハイドレーションが発生した後に元の scripts を取得します。
 
-> **おすすめ**: Google Tag Manager がすでにあなたのアプリケーションに含まれている場合、あなたはこれを
-> それを直接使用して Google Analytics を設定し、Google Analytics を別のものとして含めるのではなく。
-> component. 以下を参照してください
-> [documentation](https://developers.google.com/analytics/devguides/collection/ga4/tag-options#what-is-gtm)
-> Tag Manager と`gtag.js`の違いについてもっと学ぶために。
+> **推奨事項**: もし Google Tag Manager がすでにアプリケーションに含まれている場合、Google Analytics を別の component として含めるのではなく、直接 Google Tag Manager を使用して Google Analytics を設定することができます。詳細については、Tag Manager と`gtag.js`の違いに関する[ドキュメント](https://developers.google.com/analytics/devguides/collection/ga4/tag-options#what-is-gtm)を参照してください。
 
 <AppOnly>
 
@@ -239,7 +235,7 @@ export default function MyApp({ Component, pageProps }) {
 
 </PagesOnly>
 
-一つの route に Google Analytics を読み込むためには、あなたのページファイルに component を含めてください：
+一つの route に Google Analytics を読み込むためには、あなたの Page ファイルに component を含めてください：
 
 <AppOnly>
 
@@ -267,7 +263,7 @@ export default function Page() {
 
 #### イベントの送信
 
-`sendGAEvent`関数は、`dataLayer` object を使用してイベントを送信することにより、ページ上のユーザーのインタラクションを測定するために使用できます。この関数が動作するためには、`<GoogleAnalytics />` component が親 layout 、ページ、もしくは component 、または直接同じファイルに含まれていなければなりません。
+`sendGAEvent`関数は、`dataLayer` object を使用してイベントを送信することにより、ページ上のユーザーのインタラクションを測定するために使用できます。この関数が動作するためには、`<GoogleAnalytics />` component が親 layout 、Page、もしくは component 、または直接同じファイルに含まれていなければなりません。
 
 <AppOnly>
 
@@ -319,10 +315,7 @@ Google Analytics は、ブラウザの履歴の状態が変わると自動的に
 
 クライアントサイドのナビゲーションが正しく測定されていることを確認するには、管理パネルで [_Enhanced Measurement_](https://support.google.com/analytics/answer/9216061#enable_disable) プロパティが有効になっていること、及び _Page changes based on browser history events_ チェックボックスが選択されていることを確認してください。
 
-> **注記**: 手動でページビューイベントを送信することにした場合、必ず default を無効にしてください。
-> pageview 測定により、重複データを避けます。Google の Analytics を参照して developer
-> documentation](https://developers.google.com/analytics/devguides/collection/ga4/views?client_type=gtag#manual_pageviews)
-> もっと学ぶために。
+> 注意: pageview events を手動で送信することを決定した場合、重複したデータを避けるために default の pageview メジャメントを無効にしてください。詳細については、Google Analytics の[開発者ドキュメント](https://developers.google.com/analytics/devguides/collection/ga4/views?client_type=gtag#manual_pageviews)を参照してください。
 
 #### Options
 
@@ -335,7 +328,7 @@ Google Analytics は、ブラウザの履歴の状態が変わると自動的に
 
 ### Google マップ埋め込み
 
-`GoogleMapsEmbed` component は、ページに[Google Maps Embed](https://developers.google.com/maps/documentation/embed/embedding-map)を追加するために使用できます。 default では、`loading`属性を使用して、折りたたみ下にエンベッドを遅延ロードします。
+`GoogleMapsEmbed` component は、ページに[Google Maps Embed](https://developers.google.com/maps/documentation/embed/embedding-map)を追加するために使用できます。 default では、`loading` 属性を使用して、折りたたみの下にエンベッドを遅延ロードします。
 
 <AppOnly>
 
@@ -399,7 +392,7 @@ Google Maps Embed に渡す options。全ての options 一覧については、
 
 ### YouTube Embed
 
-`YouTubeEmbed`の component は、YouTube の埋め込みをロードして display するために使用できます。この component は、内部で[`lite-youtube-embed`](https://github.com/paulirish/lite-youtube-embed)を使用することにより、より速くロードします。
+`YouTubeEmbed`の component は、YouTube の埋め込みをロードして display するために使用できます。この component は、内部で [`lite-youtube-embed`](https://github.com/paulirish/lite-youtube-embed) を使用することにより、より速くロードします。
 
 <AppOnly>
 

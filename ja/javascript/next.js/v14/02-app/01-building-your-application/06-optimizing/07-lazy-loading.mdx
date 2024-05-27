@@ -15,14 +15,14 @@ is_empty: false
 
 あなたが Next.js で lazy loading を実装できる 2 つの方法があります:
 
-1. [Dynamic Imports](#nextdynamic)を`next/dynamic`で使用する
-2. [`React.lazy()`](https://react.dev/reference/react/lazy) を [Suspense](https://react.dev/reference/react/Suspense)と共に使用する
+1. [Dynamic Imports](#nextdynamic) を`next/dynamic`で使用する
+2. [`React.lazy()`](https://react.dev/reference/react/lazy) を [Suspense](https://react.dev/reference/react/Suspense) と共に使用する
 
-default では、Server Components は自動的に[code split](https://developer.mozilla.org/docs/Glossary/Code_splitting)され、[streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)を使用して UI の一部を server から client に順次送信できます。Lazy loading は、Client Components に適用されます。
+default では、Server Components は自動的に [code split](https://developer.mozilla.org/docs/Glossary/Code_splitting) され、[streaming](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming) を使用して UI の一部を server から client に順次送信できます。Lazy loading は、Client Components に適用されます。
 
 ## `next/dynamic`
 
-`next/dynamic`は[`React.lazy()`](https://react.dev/reference/react/lazy)と[Suspense](https://react.dev/reference/react/Suspense)の組み合わせです。これは`app`と`pages`ディレクトリで同じように動作し、段階的な移行を可能にします。
+`next/dynamic`は [`React.lazy()`](https://react.dev/reference/react/lazy) と [Suspense](https://react.dev/reference/react/Suspense) の組み合わせです。これは`app`と`pages`ディレクトリで同じように動作し、段階的な移行を可能にします。
 
 ## Examples
 
@@ -90,7 +90,7 @@ export default function ServerComponentExample() {
 
 ### Loading 外部ライブラリの読み込み
 
-外部ライブラリは、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import)関数を使用して必要に応じてロードすることができます。この例では、曖昧検索のための外部の library `fuse.js`を使用しています。モジュールは、ユーザーが検索入力を入力した後でのみ client 上にロードされます。
+外部ライブラリは、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import) 関数を使用して必要に応じてロードすることができます。この例では、曖昧検索のための外部の library `fuse.js`を使用しています。モジュールは、ユーザーが検索入力を入力した後でのみ client 上にロードされます。
 
 ```jsx:app/page.js
 'use client'
@@ -146,7 +146,7 @@ export default function Page() {
 
 ### 名前付き export のインポート
 
-動的に import を実行し、名前付きの export を取り込むには、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import)関数によって返される Promise からそれを返すことができます。
+動的に import を実行し、名前付きの export を取り込むには、[`import()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import) 関数によって返される Promise からそれを返すことができます。
 
 ```jsx:components/hello.js
 'use client'
@@ -186,7 +186,7 @@ export default function Home() {
 
 ## With named exports
 
-名前付きの export を動的に import するには、[`import()`](https://github.com/tc39/proposal-dynamic-import#example) によって返される[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)からそれを返すことができます：
+名前付きの export を動的に import するには、[`import()`](https://github.com/tc39/proposal-dynamic-import#example) によって返される [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) からそれを返すことができます：
 
 ```jsx:components/hello.js
 export function Hello() {

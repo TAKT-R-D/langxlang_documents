@@ -10,7 +10,7 @@ nav_title: Optimizing
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.js は、アプリケーションの速度と[Core Web Vitals](https://web.dev/vitals/)を向上させるために設計された様々な組み込みの最適化が含まれています。このガイドでは、ユーザーエクスペリエンスを高めるために活用できる最適化について説明します。
+Next.js は、アプリケーションの速度と [Core Web Vitals](https://web.dev/vitals/) を向上させるために設計された様々な組み込みの最適化が含まれています。このガイドでは、ユーザーエクスペリエンスを高めるために活用できる最適化について説明します。
 
 ## Built-in Components
 
@@ -28,16 +28,16 @@ Metadata は、検索エンジンがあなたのコンテンツをより理解�
 
 Next.js の中の Metadata API はページの`<head>`要素を修正することを許可します。 metadata には 2 つの方法で設定できます:
 
-- **Config-based Metadata**: Export a [static `metadata` object](/docs/app/api-reference/functions/generate-metadata#metadata-object) or a dynamic [`generateMetadata` function](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function) in a `layout.js` or `page.js` file.
-- **File-based Metadata**: Add static or dynamically generated special files to route segments.
+- **Config-based Metadata**: `layout.js` または `page.js` ファイルで[静的な `metadata` オブジェクト](/docs/app/api-reference/functions/generate-metadata#metadata-object) または動的な [`generateMetadata` 関数](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function) をエクスポートします。
+- **File-based Metadata**: 静的または動的に生成された特殊ファイルを route セグメントに追加します。
 
-さらに、JSX と CSS を使って[imageResponse](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response)コンストラクタを使用して dynamic Open Graph 画像を作成することができます。
+さらに、JSX と CSS を使って [imageResponse](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) コンストラクタを使用して dynamic Open Graph 画像を作成することができます。
 
 </AppOnly>
 
 <PagesOnly>
 
-Next.js の中の Head Component がページの`<head>`を変更するのを許可します。[Head Component](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/head)のドキュメンテーションで詳しく学びましょう。
+Next.js の中の Head Component がページの`<head>`を変更するのを許可します。[Head Component](/ja/javascript/next.js/v14/03-pages/02-api-reference/01-components/head) のドキュメンテーションで詳しく学びましょう。
 
 </PagesOnly>
 
@@ -47,4 +47,4 @@ Next.js の`/public`フォルダは、画像、フォント、その他のファ
 
 ## Analytics and Monitoring
 
-大規模なアプリケーションのために、Next.js は人気の Analytics と監視ツールと統合し、アプリケーションのパフォーマンスを理解するのに役立ちます。詳細は<PagesOnly>[analytics](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/08-analytics)、</PagesOnly>[OpenTelemetry](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/10-open-telemetry)<PagesOnly>、</PagesOnly>および[Instrumentation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/09-instrumentation)ガイドで学んでください。
+大規模なアプリケーションのために、Next.js は人気の Analytics と監視ツールと統合し、アプリケーションのパフォーマンスを理解するのに役立ちます。詳細は<PagesOnly> [analytics](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/08-analytics)、</PagesOnly>[OpenTelemetry](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/10-open-telemetry) <PagesOnly>、</PagesOnly>および[Instrumentation](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/09-instrumentation) ガイドで学んでください。

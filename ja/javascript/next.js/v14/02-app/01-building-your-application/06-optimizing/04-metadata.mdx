@@ -11,14 +11,14 @@ Next.js は、あなたのアプリケーションの metadata (例えば、`met
 
 アプリケーションに metadata を追加する方法は 2 つあります：
 
-- **設定ベースの Metadata **：[静的な `metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#metadata-object) または dynamic の [`generateMetadata` 関数](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function)を`layout.js`または`page.js`ファイルに Export します。
+- **設定ベースの Metadata**： [静的な `metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#metadata-object) または dynamic の [`generateMetadata` 関数](/docs/app/api-reference/functions/generate-metadata#generatemetadata-function)を`layout.js`または`page.js`ファイルに Export します。
 - **ファイルベースの Metadata **: スタティックまたは動的に生成される特別なファイルを route セグメントに追加します。
 
 これらの options、Next.js を使用すると、自動的にページに対応する`<head>`要素が生成されます。また、[`ImageResponse`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) コンストラクタを使って dynamic な OG 画像を作成することもできます。
 
 ## Static Metadata
 
-静的な metadata を定義するには、`layout.js`または静的な`page.js`ファイルから[`Metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#metadata-object)を export します。
+静的な metadata を定義するには、`layout.js`または静的な`page.js`ファイルから [`Metadata` object](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#metadata-object) を export します。
 
 ```tsx:layout.tsx
 import type { Metadata } from 'next'
@@ -40,7 +40,7 @@ export const metadata = {
 export default function Page() {}
 ```
 
-すべての利用可能な options については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata)を参照してください。
+すべての利用可能な options については、[API Reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata) を参照してください。
 
 ## Dynamic Metadata
 
@@ -106,7 +106,7 @@ export default function Page({ params, searchParams }) {}
 >
 > - 静的と dynamic metadata を通じての`generateMetadata`は、**Server Components**でのみサポートされています。
 > - `fetch`の要求は、`generateMetadata`、`generateStaticParams`、Layout、ページ、そして Server Components に跨って同じデータに対して自動的に[メモ化](/ja/javascript/next.js/v14/02-app/01-building-your-application/04-caching#request-memoization)されます。`fetch`が利用できない場合、React の[`cache`を使用することができます](/docs/app/building-your-application/caching#request-memoization)。
-> - Next.js は、UI を client に Streaming する前に、`generateMetadata`内でのデータフェッチが完了するのを待ちます。これにより、[Streaming された response](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)の最初の部分が`<head>`タグを含むことが保証されます。
+> - Next.js は、UI を client に Streaming する前に、`generateMetadata`内でのデータフェッチが完了するのを待ちます。これにより、[Streaming された response](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming) の最初の部分が`<head>`タグを含むことが保証されます。
 
 ## File-based metadata
 
@@ -119,7 +119,7 @@ export default function Page({ params, searchParams }) {}
 
 これらは静的な metadata として使用することも、code でこれらのファイルをプログラム的に生成することもできます。
 
-実装と例については、[Metadata Files](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata) API Reference および[Dynamic Image Generation](#dynamic-image-generation)を参照してください。
+実装と例については、[Metadata Files](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/01-metadata) API Reference および[Dynamic Image Generation](#dynamic-image-generation) を参照してください。
 
 ## Behavior
 
@@ -129,15 +129,15 @@ export default function Page({ params, searchParams }) {}
 
 metadata を定義しない route であっても、常に追加される二つの default `meta`タグがあります：
 
-- [meta charset tag](https://developer.mozilla.org/docs/Web/HTML/Element/meta#attr-charset)は、ウェブサイトの文字エンコーディングを設定します。
-- [meta viewport タグ](https://developer.mozilla.org/docs/Web/HTML/Viewport_meta_tag)はウェブサイトがさまざまなデバイスに対応できるように、viewport width とスケールを設定します。
+- [meta charset tag](https://developer.mozilla.org/docs/Web/HTML/Element/meta#attr-charset) は、ウェブサイトの文字エンコーディングを設定します。
+- [meta viewport tag](https://developer.mozilla.org/docs/Web/HTML/Viewport_meta_tag) はウェブサイトがさまざまなデバイスに対応できるように、viewport width とスケールを設定します。
 
 ```html
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ```
 
-> **Good to know**: default の[`viewport`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#viewport)の meta タグを上書きすることができます。
+> **Good to know**: default の [`viewport`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#viewport) の meta タグを上書きすることができます。
 
 ### Ordering
 
@@ -151,7 +151,7 @@ Metadata は、root セグメントから最終的な`page.js`セグメントに
 
 [評価順序](#ordering)に従って、同じ route 内の複数のセグメントから export された MetadataObject は、**浅く**最終的な route の metadata 出力を形成するためにマージされます。重複するキーはそれらの順序に基づいて**置換**されます。
 
-これは、以前のセグメントで定義された[`openGraph`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#opengraph)や[`robots`](/docs/app/api-reference/functions/generate-metadata#robots)などのネストされたフィールドを持つ metadata を意味します。それらは最後のセグメントで定義することにより**上書き**されます。
+これは、以前のセグメントで定義された [`openGraph`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-metadata#opengraph) や [`robots`](/docs/app/api-reference/functions/generate-metadata#robots) などのネストされたフィールドを持つ metadata を意味します。それらは最後のセグメントで定義することにより**上書き**されます。
 
 #### フィールドの上書き
 
@@ -245,7 +245,7 @@ export const metadata = {
 
 `ImageResponse`コンストラクタは、JSX と CSS を使用して dynamic な画像を生成することができます。これは、Open Graph の画像や、Twitter カードなどのソーシャルメディア画像を作成するのに便利です。
 
-`ImageResponse`は[Edge Runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#edge-runtime)を使用し、Next.js は自動的にキャッシュされた画像に適切な headers を追加し、edge でのパフォーマンスを向上させ再計算を減らします。
+`ImageResponse`は [Edge Runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#edge-runtime) を使用し、Next.js は自動的にキャッシュされた画像に適切な headers を追加し、edge でのパフォーマンスを向上させ再計算を減らします。
 
 それを使用するには、`next/og`から`ImageResponse`を import することができます。
 
@@ -280,14 +280,14 @@ export async function GET() {
 }
 ```
 
-`ImageResponse`は他の Next.js API、[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)やファイルベースの Metadata とよく統合されます。例えば、 `opengraph-image.tsx` ファイルで `ImageResponse`を使用して、 Open Graph の画像を build 時または動的に request 時に生成することができます。
+`ImageResponse`は他の Next.js API、[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) やファイルベースの Metadata とよく統合されます。例えば、 `opengraph-image.tsx` ファイルで `ImageResponse`を使用して、 Open Graph の画像を build 時または動的に request 時に生成することができます。
 
 `ImageResponse`は、フレックスボックスや絶対配置、カスタムフォント、テキストの折り返し、中央寄せ、ネストした画像など、一般的な CSS プロパティをサポートしています。[サポートされている CSS プロパティの完全なリストを見る](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response)。
 
 > **Good to know**:
 >
-> - 例は、[Vercel OG Playground](https://og-playground.vercel.app/)で利用できます。
-> - `ImageResponse`は[@vercel/og](https://vercel.com/docs/concepts/functions/edge-functions/og-image-generation)、[Satori](https://github.com/vercel/satori)、そして Resvg を使用して、HTML と CSS を PNG に変換します。
+> - 例は、[Vercel OG Playground](https://og-playground.vercel.app/) で利用できます。
+> - `ImageResponse`は [@vercel/og](https://vercel.com/docs/concepts/functions/edge-functions/og-image-generation)、[Satori](https://github.com/vercel/satori)、そして Resvg を使用して、HTML と CSS を PNG に変換します。
 > - Edge Runtime のみがサポートされます。default Node.js runtime は機能しません。
 > - Flexbox と CSS プロパティの一部のみがサポートされています。高度な Layout(例えば、`display: grid`)は機能しません。
 > - `500KB`の最大バンドル size。バンドルの size には、あなたの JSX、CSS、フォント、画像、およびその他のアセットが含まれます。これを超える場合は、任意のアセットの size を減らすか、runtime で取得することを検討してください。
@@ -295,7 +295,7 @@ export async function GET() {
 
 ## JSON-LD
 
-[JSON-LD](https://json-ld.org/)は、検索エンジンがあなたのコンテンツを理解するために使用できる構造化データのフォーマットです。例えば、それを使って人物、イベント、組織、映画、書籍、レシピなど、さまざまな種類のエンティティを説明することができます。
+[JSON-LD](https://json-ld.org/) は、検索エンジンがあなたのコンテンツを理解するために使用できる構造化データのフォーマットです。例えば、それを使って人物、イベント、組織、映画、書籍、レシピなど、さまざまな種類のエンティティを説明することができます。
 
 現在、JSON-LD に対する私たちの推奨方針は、`layout.js`または`page.js`Component で構造化データを`<script>`タグとして render することです。例えば：
 
@@ -349,7 +349,7 @@ export default async function Page({ params }) {
 }
 ```
 
-[Rich Results Test](https://search.google.com/test/rich-results)で Google の構造化データを検証し、test することができます。また、汎用の[Schema Markup Validator](https://validator.schema.org/)も利用できます。
+[Rich Results Test](https://search.google.com/test/rich-results) で Google の構造化データを検証し、test することができます。また、汎用の [Schema Markup Validator](https://validator.schema.org/) も利用できます。
 
 あなたは、[`schema-dts`](https://www.npmjs.com/package/schema-dts) のようなコミュニティパッケージを使用して、JSON-LD を TypeScript で type することができます:
 

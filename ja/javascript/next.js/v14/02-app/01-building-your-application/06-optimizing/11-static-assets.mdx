@@ -10,7 +10,7 @@ nav_title: Static Assets
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-Next.js は、`public`と呼ばれるフォルダの下で画像のような静的ファイルを提供できます。このフォルダは root ディレクトリ内にあります。`public`内のファイルは、ベース URL (`/`)から始まるあなたの code で参照されることができます。
+Next.js は、`public`と呼ばれるフォルダの下で画像のような静的ファイルを提供できます。このフォルダは root ディレクトリ内にあります。`public`内のファイルは、ベース URL (`/`) から始まるあなたの code で参照されることができます。
 
 例えば、ファイル `public/avatars/me.png` は、`/avatars/me.png` path を訪れることで閲覧することができます。その image を display するための code は次のようになるかもしれません：
 
@@ -51,4 +51,4 @@ Cache-Control: public, max-age=0
 > Good to know:
 >
 > - ディレクトリは`public`と命名する必要があります。名前は変更できず、静的アセットを提供するために使用される唯一のディレクトリです。
-> - `public`ディレクトリ内にある資産のみが、[build time](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#build)に Next.js によって提供されます。request time に追加されたファイルは利用できません。永続的なファイルストレージのために[Vercel Blob](https://vercel.com/docs/storage/vercel-blob?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)のようなサードパーティのサービスを使用することをお勧めします。
+> - `public`ディレクトリ内にある資産のみが、[build time](/ja/javascript/next.js/v14/02-app/02-api-reference/08-next-cli#build) に Next.js によって提供されます。request time に追加されたファイルは利用できません。永続的なファイルストレージのために [Vercel Blob](https://vercel.com/docs/storage/vercel-blob?utm_source=next-site&utm_medium=docs&utm_campaign=next-website) のようなサードパーティのサービスを使用することをお勧めします。

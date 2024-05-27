@@ -17,7 +17,7 @@ instrumentation を設定するには、プロジェクトの**root ディレク
 
 その後、ファイルで`register`という機能を export します。この機能は新しい Next.js server インスタンスが開始されたときに**一度だけ**呼び出されます。
 
-例えば、[OpenTelemetry](https://opentelemetry.io/)と[@vercel/otel](https://github.com/vercel/otel)を Next.js で使用するには：
+例えば、[OpenTelemetry](https://opentelemetry.io/) と [@vercel/otel](https://github.com/vercel/otel) を Next.js で使用するには：
 
 ```ts:instrumentation.ts
 import { registerOTel } from '@vercel/otel'
@@ -35,13 +35,13 @@ export function register() {
 }
 ```
 
-[Next.js with OpenTelemetry example](https://github.com/vercel/next.js/tree/canary/examples/with-opentelemetry)を参照して、完全な実装をご覧ください。
+[Next.js with OpenTelemetry example](https://github.com/vercel/next.js/tree/canary/examples/with-opentelemetry) を参照して、完全な実装をご覧ください。
 
 > **Good to know**
 >
-> - この機能は**実験的**です。これを使用するには、あなたの`next.config.js`で[`experimental.instrumentationHook = true;`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/instrumentationHook)と明示的に定義してオプトインする必要があります。
+> - この機能は**実験的**です。これを使用するには、あなたの`next.config.js`で[`experimental.instrumentationHook = true;`](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/instrumentationHook) と明示的に定義してオプトインする必要があります。
 > - `instrumentation`ファイルはプロジェクトの root にあるべきで、`app`や`pages`ディレクトリ内にはありません。`src`フォルダを使用している場合は、`src`の中に`pages`と`app`と並べてファイルを配置してください。
-> - [`pageExtensions` config option](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/pageExtensions)を使用してサフィックスを追加する場合、`instrumentation`のファイル名も合わせて更新する必要があります。
+> - [`pageExtensions` config option](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/pageExtensions) を使用してサフィックスを追加する場合、`instrumentation`のファイル名も合わせて更新する必要があります。
 
 ## Examples
 
@@ -69,7 +69,7 @@ export async function register() {
 
 ### Runtime 固有の code のインポート
 
-Next.js はすべての環境で`register`を呼び出します、したがって、特定の runtimes(例：[Edge](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#edge-runtime) や [Node.js](/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes#nodejs-runtime))をサポートしていない任意の code を条件付きで import することが重要です。現在の環境を取得するために、`NEXT_RUNTIME`環境 variable を使用することができます:
+Next.js はすべての環境で`register`を呼び出します、したがって、特定の runtimes(例：[Edge](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes#edge-runtime) や [Node.js](/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes#nodejs-runtime)) をサポートしていない任意の code を条件付きで import することが重要です。現在の環境を取得するために、`NEXT_RUNTIME`環境 variable を使用することができます:
 
 ```ts:instrumentation.ts
 export async function register() {
