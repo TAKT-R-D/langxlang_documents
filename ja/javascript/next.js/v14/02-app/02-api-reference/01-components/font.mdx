@@ -10,15 +10,15 @@ nav_title: Font
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-この API reference は、[`next/font/google`](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#google-fonts) と [`next/font/local`](/docs/app/building-your-application/optimizing/fonts#local-fonts)の使用方法を理解するのに役立ちます。機能と使用法については、[Optimizing Fonts](/docs/app/building-your-application/optimizing/fonts) ページをご覧ください。
+この API reference は、[`next/font/google`](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#google-fonts) と [`next/font/local`](/docs/app/building-your-application/optimizing/fonts#local-fonts) の使用方法を理解するのに役立ちます。機能と使用法については、[Optimizing Fonts](/docs/app/building-your-application/optimizing/fonts) ページをご覧ください。
 
 ### フォント機能の引数
 
-使用方法については、[Google Fonts](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#google-fonts)と[Local Fonts](/docs/app/building-your-application/optimizing/fonts#local-fonts)を参照してください。
+使用方法については、[Google Fonts](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#google-fonts) と [Local Fonts](/docs/app/building-your-application/optimizing/fonts#local-fonts) を参照してください。
 
-| キー                                        | `font/google`       | `font/local`        | Type                            | 必須      |
+| key                                         | `font/google`       | `font/local`        | Type                            | 必須      |
 | ------------------------------------------- | ------------------- | ------------------- | ------------------------------- | --------- |
-| [`src`](#src)                               | <Cross size={18} /> | <Check size={18} /> | String またはオブジェクトの配列 | はい      |
+| [`src`](#src)                               | <Cross size={18} /> | <Check size={18} /> | String またはオブジェクトの配列 | 必須      |
 | [`weight`](#weight)                         | <Check size={18} /> | <Check size={18} /> | String または配列               | 必須/任意 |
 | [`style`](#style)                           | <Check size={18} /> | <Check size={18} /> | String または配列               | -         |
 | [`subsets`](#subsets)                       | <Check size={18} /> | <Cross size={18} /> | 文字列の配列                    | -         |
@@ -32,41 +32,41 @@ nav_title: Font
 
 ### `src`
 
-フォントファイルの loader を string または objects の配列( type `Array<{path: string, weight?: string, style?: string}>`)として、フォントのローダー関数が呼び出されるディレクトリへの相対 path 。
+フォントファイルの loader を string または objects の配列(type `Array<{path: string, weight?: string, style?: string}>`)として、フォントのローダー関数が呼び出されるディレクトリへの相対 path 。
 
-`next/font/local`で使用される
+`next/font/local` で使用される
 
 - Required
 
 Examples:
 
-- `src:'./fonts/my-font.woff2'` ここで　`my-font.woff2`は`app`ディレクトリ内の`fonts`という名前のディレクトリに配置されています
+- `src:'./fonts/my-font.woff2'` ここで `my-font.woff2`は`app`ディレクトリ内の`fonts`という名前のディレクトリに配置されています
 - `src:[{path: './inter/Inter-Thin.ttf', weight: '100',},{path: './inter/Inter-Regular.ttf',weight: '400',},{path: './inter/Inter-Bold-Italic.ttf', weight: '700',style: 'italic',},]`
 - もし`app/page.tsx`で loader フォント関数が`src:'../styles/fonts/my-font.ttf'`を用いて呼び出された場合、それにより`my-font.ttf`はプロジェクトの root 内に存在する`styles/fonts`の中に置かれます。
 
 ### `weight`
 
-次の可能性を持つフォント[`weight`](https://fonts.google.com/knowledge/glossary/weight):
+次の可能性を持つフォント [`weight`](https://fonts.google.com/knowledge/glossary/weight):
 
-- 特定のフォント用の利用可能な重さの可能な値、または[variable](https://fonts.google.com/variablefonts)フォントの場合は値の範囲を持つ string という
-- フォントが[variable google font](https://fonts.google.com/variablefonts)でない場合の weight 値の配列です。これは`next/font/google`にのみ適用されます。
+- 特定のフォント用の利用可能な重さの可能な値、または [variable](https://fonts.google.com/variablefonts) フォントの場合は値の範囲を持つ string という
+- フォントが [variable google font](https://fonts.google.com/variablefonts) でない場合の weight 値の配列です。これは`next/font/google`にのみ適用されます。
 
 `next/font/google`と`next/font/local`で使用されます
 
-- 使用されているフォントが**not** [variable](https://fonts.google.com/variablefonts) の場合に必要です。
+- 使用されているフォントが [variable](https://fonts.google.com/variablefonts) で **ない** 場合に必要です。
 
 Examples:
 
-- `weight: '400'` : 単一の weight value のための string - フォント[`Inter`](https://fonts.google.com/specimen/Inter?query=inter)の場合、可能な値は `'100'`、`'200'`、`'300'`、`'400'`、`'500'`、`'600'`、`'700'`、`'800'`、`'900'`または`'variable'`で、`'variable'`は default です)
+- `weight: '400'` : 単一の weight value のための string - フォント [`Inter`](https://fonts.google.com/specimen/Inter?query=inter) の場合、可能な値は `'100'`、`'200'`、`'300'`、`'400'`、`'500'`、`'600'`、`'700'`、`'800'`、`'900'`または`'variable'`で、`'variable'`は default です
 - `weight: '100 900'`: variable フォントのための `100` から `900` までの範囲を示す string
 - `weight: ['100','400','900']`：非 variable フォントの 3 つの可能性のある値の配列
 
 ### `style`
 
-次の可能性を持つフォント[`style`](https://developer.mozilla.org/docs/Web/CSS/font-style)：
+次の可能性を持つフォント [`style`](https://developer.mozilla.org/docs/Web/CSS/font-style)：
 
 - default default value が`'normal'`の string [value](https://developer.mozilla.org/docs/Web/CSS/font-style#values)
-- フォントが[variablegoogle フォント](https://fonts.google.com/variablefonts)でない場合の style 値の配列です。これは `next/font/google` にのみ適用されます。
+- フォントが [variablegoogle フォント](https://fonts.google.com/variablefonts)でない場合の style 値の配列です。これは `next/font/google` にのみ適用されます。
 
 `next/font/google`と`next/font/local`で使用されます
 
@@ -80,7 +80,7 @@ Examples:
 
 ### `subsets`
 
-フォントは、事前に[ロード](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#specifying-a-subset)したい各サブセットの名前を含む string 値の配列で定義された[`subsets`](https://fonts.google.com/knowledge/glossary/subsetting)です。 `subsets`経由で指定されたフォントは、 head に link preload タグが挿入され、[`preload`](#preload)オプションが true 、つまり default の場合にそのタグが挿入されます。
+フォントは、事前に[ロード](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#specifying-a-subset)したい各サブセットの名前を含む string 値の配列で定義された [`subsets`](https://fonts.google.com/knowledge/glossary/subsetting) です。 `subsets`経由で指定されたフォントは、 head に link preload タグが挿入され、[`preload`](#preload) オプションが true 、つまり default の場合にそのタグが挿入されます。
 
 `next/font/google`で使用される
 
@@ -106,9 +106,9 @@ Examples:
 
 ### `display`
 
-[`display`](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display)というフォントは、`'auto'`、`'block'`、`'swap'`、`'fallback'`、`'optional'` の可能な string [値](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display#values)を持ち、default value は`'swap'`です。
+[`display`](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display) というフォントは、`'auto'`、`'block'`、`'swap'`、`'fallback'`、`'optional'` の可能な string [値](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display#values)を持ち、default value は`'swap'`です。
 
-`next/font/google`と`next/font/local`で使用されます
+`next/font/google` と `next/font/local`で使用されます
 
 - Optional
 
@@ -118,7 +118,7 @@ Examples:
 
 ### `preload`
 
-フォントが[preloaded](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#preloading)するべきかどうかを指定する boolean value。default は`true`です。
+フォントが [preloaded](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/03-fonts#preloading) するべきかどうかを指定する boolean value。default は`true`です。
 
 `next/font/google`と`next/font/local`で使用されます
 
@@ -142,10 +142,10 @@ Examples:
 
 ### `adjustFontFallback`
 
-- `next/font/google`について：自動的に fallback フォントを使用して[Cumulative Layout Shift](https://web.dev/cls/)を減らすかどうかを設定する boolean value。 default は`true`です。
-- `next/font/local`について：自動的な fallback フォントを使用して[Cumulative Layout Shift](https://web.dev/cls/)を軽減すべきかどうかを設定する string または boolean の`false` value。可能な値は`'Arial'`、`'Times New Roman'`または`false`です。default は`'Arial'`です。
+- `next/font/google`について：自動的に fallback フォントを使用して [Cumulative Layout Shift](https://web.dev/cls/) を減らすかどうかを設定する boolean value。 default は`true`です。
+- `next/font/local`について：自動的な fallback フォントを使用して [Cumulative Layout Shift](https://web.dev/cls/) を軽減すべきかどうかを設定する string または boolean の`false` value。可能な値は`'Arial'`、`'Times New Roman'`または`false`です。default は`'Arial'`です。
 
-`next/font/google`と`next/font/local`で使用されます
+`next/font/google` と `next/font/local`で使用されます
 
 - Optional
 
@@ -156,9 +156,9 @@ Examples:
 
 ### `variable`
 
-string value は、[CSS variable method](#css-variables)で style が適用される場合に使用する CSS variable の名前を定義するためのものです。
+string value は、[CSS variable method](#css-variables) で style が適用される場合に使用する CSS variable の名前を定義するためのものです。
 
-`next/font/google`と`next/font/local`で使用されます
+`next/font/google` と `next/font/local`で使用されます
 
 - Optional
 
@@ -170,7 +170,7 @@ Examples:
 
 生成される`@font-face`をさらに定義するフォントフェイス[記述子](https://developer.mozilla.org/docs/Web/CSS/@font-face#descriptors)のキー・バリューペアの配列。
 
-`next/font/local`で使用される
+`next/font/local` で使用される
 
 - Optional
 
@@ -196,7 +196,7 @@ Examples:
 
 ### `style`
 
-ロードされたフォントのための読み取り専用の CSS `style` object を返し、`style.fontFamily`を含む、フォントファミリー名と fallback フォントへのアクセスを HTML エレメントに渡します。
+ロードされたフォントのための読み取り専用の CSS `style` object を返し、`style.fontFamily` を含む、フォントファミリー名と fallback フォントへのアクセスを HTML エレメントに渡します。
 
 ```tsx
 <p style={inter.style}>Hello World</p>

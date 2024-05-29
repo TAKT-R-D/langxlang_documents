@@ -21,7 +21,7 @@ is_empty: false
 
 </PagesOnly>
 
-`<Link>`は、React component であり、HTML の`<a>`要素を拡張し[prefetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#2-prefetching)と Client サイドの routes 間のナビゲーションを提供します。これは Next.js で routes 間を移動する主要な方法です。
+`<Link>`は、React component であり、HTML の`<a>`要素を拡張し [prefetching](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#2-prefetching) と Client サイドの routes 間のナビゲーションを提供します。これは Next.js で routes 間を移動する主要な方法です。
 
 <AppOnly>
 
@@ -85,7 +85,7 @@ export default Home;
 
 | Prop                     | 例                  | Type                 | 必須 |
 | ------------------------ | ------------------- | -------------------- | ---- |
-| [`href`](#href-required) | `href="/dashboard"` | String または Object | はい |
+| [`href`](#href-required) | `href="/dashboard"` | String または Object | 必須 |
 | [`replace`](#replace)    | `replace={false}`   | Boolean              | -    |
 | [`scroll`](#scroll)      | `scroll={false}`    | Boolean              | -    |
 | [`prefetch`](#prefetch)  | `prefetch={false}`  | Boolean              | -    |
@@ -96,7 +96,7 @@ export default Home;
 
 | Prop                     | 例                  | Type                 | 必須 |
 | ------------------------ | ------------------- | -------------------- | ---- |
-| [`href`](#href-required) | `href="/dashboard"` | String または Object | はい |
+| [`href`](#href-required) | `href="/dashboard"` | String または Object | 必須 |
 | [`replace`](#replace)    | `replace={false}`   | Boolean              | -    |
 | [`scroll`](#scroll)      | `scroll={false}`    | Boolean              | -    |
 | [`prefetch`](#prefetch)  | `prefetch={false}`  | Boolean または null  | -    |
@@ -254,9 +254,9 @@ export default function Page() {
 
 ### `legacyBehavior`
 
-`<a>`要素は、`<Link>`の子として必要なくなりました。`legacyBehavior`のプロパティを追加して旧来の動作を使用するか、`<a>`を削除してアップグレードします。あなたの code を自動的にアップグレードするための[codemod が利用可能です](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#new-link)。
+`<a>`要素は、`<Link>`の子として必要なくなりました。`legacyBehavior`のプロパティを追加して旧来の動作を使用するか、`<a>`を削除してアップグレードします。あなたの code を自動的にアップグレードするための [codemod が利用可能です](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#new-link)。
 
-> **Good to know**: `legacyBehavior`が`true`に設定されていない場合、すべての[`anchor`](https://developer.mozilla.org/docs/Web/HTML/Element/a)タグのプロパティは、`className`、`onClick`などと共に`next/link`にも渡すことができます。
+> **Good to know**: `legacyBehavior`が`true`に設定されていない場合、すべての [`anchor`](https://developer.mozilla.org/docs/Web/HTML/Element/a) タグのプロパティは、`className`、`onClick`などと共に`next/link`にも渡すことができます。
 
 ### `passHref`
 
@@ -268,7 +268,7 @@ Scroll をナビゲーション後にページの最上部に移動します。d
 
 ### `shallow`
 
-現在のページの path を更新し、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props)を再実行せずに更新します。default は`false`です。
+現在のページの path を更新し、[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)、[`getServerSideProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/03-get-server-side-props)、[`getInitialProps`](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/get-initial-props) を再実行せずに更新します。default は`false`です。
 
 ### `locale`
 
@@ -332,13 +332,13 @@ function Page({ posts }) {
 
 <AppOnly>
 
-`Link`の子要素が`<a>`タグをラップするカスタムの component である場合、`Link`に`passHref`を追加する必要があります。これは[styled-components](https://styled-components.com/)のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなくなり、あなたのサイトのアクセシビリティが損なわれ、SEO に影響を及ぼすかもしれません。もし、[ESLint](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/02-eslint#eslint-plugin)を使用している場合は、`passHref`の正しい使用を保証するための組み込みルール`next/link-passhref`があります。
+`Link`の子要素が`<a>`タグをラップするカスタムの component である場合、`Link`に`passHref`を追加する必要があります。これは [styled-components](https://styled-components.com/) のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなくなり、あなたのサイトのアクセシビリティが損なわれ、SEO に影響を及ぼすかもしれません。もし、[ESLint](/ja/javascript/next.js/v14/02-app/01-building-your-application/07-configuring/02-eslint#eslint-plugin) を使用している場合は、`passHref`の正しい使用を保証するための組み込みルール`next/link-passhref`があります。
 
 </AppOnly>
 
 <PagesOnly>
 
-`Link`の子供が`<a>`タグをラップするカスタムの component である場合、`Link`に`passHref`を追加する必要があります。これは、[styled-components](https://styled-components.com/)のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなく、あなたのサイトのアクセシビリティが悪化し、SEO に影響を与える可能性があります。[ESLint](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/02-eslint#eslint-plugin)を使っている場合、`next/link-passhref`というビルトインルールがあるので、`passHref`の正しい使用法を確認することができます。
+`Link`の子供が`<a>`タグをラップするカスタムの component である場合、`Link`に`passHref`を追加する必要があります。これは、[styled-components](https://styled-components.com/) のようなライブラリを使用している場合に必要です。これがないと、`<a>`タグには`href`属性がなく、あなたのサイトのアクセシビリティが悪化し、SEO に影響を与える可能性があります。[ESLint](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/02-eslint#eslint-plugin) を使っている場合、`next/link-passhref`というビルトインルールがあるので、`passHref`の正しい使用法を確認することができます。
 
 </PagesOnly>
 
@@ -362,12 +362,12 @@ function NavLink({ href, name }) {
 export default NavLink;
 ```
 
-- あなたが[emotion](https://emotion.sh/)の JSX pragma 機能(`@jsx jsx`)を使用している場合、 `<a>` タグを直接使用する場合でも `passHref` を使用する必要があります。
+- あなたが [emotion](https://emotion.sh/) の JSX pragma 機能(`@jsx jsx`)を使用している場合、 `<a>` タグを直接使用する場合でも `passHref` を使用する必要があります。
 - component は、ナビゲーションを正しくトリガーするために`onClick`プロパティをサポートする必要があります
 
 ### もし子供が機能的な component である場合
 
-`Link`の子が機能的な component である場合、`passHref`と`legacyBehavior`を使用することに加えて、その component を[`React.forwardRef`](https://react.dev/reference/react/forwardRef)でラップする必要があります：
+`Link`の子が機能的な component である場合、`passHref`と`legacyBehavior`を使用することに加えて、その component を [`React.forwardRef`](https://react.dev/reference/react/forwardRef) でラップする必要があります：
 
 ```jsx
 import Link from "next/link";
@@ -459,7 +459,7 @@ export default Home;
 
 ### Middleware
 
-認証やユーザーを別のページに rewrites するその他の目的で[middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)を使用することは一般的です。 `<Link />` component が rewrites を介してリンクを適切に prefetch するためには、Next.js に対して display する URL と、prefetch するための URL の両方を伝える必要があります。これは、正しい route を prefetch するために middleware に対して不要なフェッチを回避するために必要となります。
+認証やユーザーを別のページに rewrites するその他の目的で [middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware) を使用することは一般的です。 `<Link />` component が rewrites を介してリンクを適切に prefetch するためには、Next.js に対して display する URL と、prefetch するための URL の両方を伝える必要があります。これは、正しい route を prefetch するために middleware に対して不要なフェッチを回避するために必要となります。
 
 例えば、認証済みと訪問者のビューを持つ`/dashboard` route を提供したい場合、ユーザーを正しいページに redirect するために、Middleware に以下のようなものを追加することができます。
 
@@ -495,15 +495,15 @@ export default function Page() {
 
 <PagesOnly>
 
-> **Good to know**: もし[Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)を使用しているなら、`as` と `href` props を調整する必要があります。例えば、`/dashboard/authed/[user]` のような"Dynamic Route"があり、それを"middleware" を通じて異なる形で表示したいときは、次のように記述します: `<Link href={{ pathname: '/dashboard/authed/[user]', query: { user: username } }} as="/dashboard/[user]">Profile</Link>`.
+> **Good to know**: もし [Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) を使用しているなら、`as` と `href` props を調整する必要があります。例えば、`/dashboard/authed/[user]` のような"Dynamic Route"があり、それを"middleware" を通じて異なる形で表示したいときは、次のように記述します: `<Link href={{ pathname: '/dashboard/authed/[user]', query: { user: username } }} as="/dashboard/[user]">Profile</Link>`.
 
 </PagesOnly>
 
 ## Version History
 
-| Version   | Changes                                                                                                                                                                                                                              |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `v13.0.0` | 子の`<a>`タグが必要なくなりました。[codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#remove-a-tags-from-link-components)が提供されており、あなたの Code ベースを自動的に更新します。 |
-| `v10.0.0` | `href` props は自動的に解決され、 dynamic route への指示はもはや`as`プロパティを require する必要はありません。                                                                                                                      |
-| `v8.0.0`  | プリフェッチのパフォーマンスが向上しました。                                                                                                                                                                                         |
-| `v1.0.0`  | `next/link` 導入されました。                                                                                                                                                                                                         |
+| Version   | Changes                                                                                                                                                                                                                               |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v13.0.0` | 子の`<a>`タグが必要なくなりました。[codemod](/ja/javascript/next.js/v14/02-app/01-building-your-application/11-upgrading/01-codemods#remove-a-tags-from-link-components) が提供されており、あなたの Code ベースを自動的に更新します。 |
+| `v10.0.0` | `href` props は自動的に解決され、 dynamic route への指示はもはや`as`プロパティを require する必要はありません。                                                                                                                       |
+| `v8.0.0`  | プリフェッチのパフォーマンスが向上しました。                                                                                                                                                                                          |
+| `v1.0.0`  | `next/link` 導入されました。                                                                                                                                                                                                          |

@@ -49,7 +49,7 @@ module.exports = nextConfig
 
 <PagesOnly>
 
-あなたは[`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props)と[`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)を利用して、`pages`ディレクトリ内の各ページに対する HTML ファイル(または[dynamic routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)のようなもの)を生成することができます。
+あなたは [`getStaticProps`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/01-get-static-props) と [`getStaticPaths`](/ja/javascript/next.js/v14/03-pages/01-building-your-application/03-data-fetching/02-get-static-paths)を利用して、`pages`ディレクトリ内の各ページに対する HTML ファイル(または [dynamic routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) のようなもの)を生成することができます。
 
 </PagesOnly>
 
@@ -63,7 +63,7 @@ Next.js の中心部は、静的 export をサポートするように設計さ�
 
 `next build`を実行して静的な export を生成するとき、`app`ディレクトリ内で使用される Server Components は、従来の静的サイト生成と同様に、build の間に実行されます。
 
-結果として得られる component は、初回のページ読み込みのために静的な HTML にレンダリングされ、また、client の routes 間のナビゲーション用の静的ペイロードとして機能します。静的な export を使用する際には、Server Components を変更する必要はありません。ただし、[dynamic serverfunctions](#unsupported-features)を使用する場合は例外です。
+結果として得られる component は、初回のページ読み込みのために静的な HTML にレンダリングされ、また、client の routes 間のナビゲーション用の静的ペイロードとして機能します。静的な export を使用する際には、Server Components を変更する必要はありません。ただし、[dynamic serverfunctions](#unsupported-features) を使用する場合は例外です。
 
 ```tsx:app/page.tsx
 export default async function Page() {
@@ -77,7 +77,7 @@ export default async function Page() {
 
 ### Client Components
 
-client でデータの取り出しを行いたい場合は、[SWR](https://github.com/vercel/swr)を用いた Client Component を使って Request をメモ化することができます。
+client でデータの取り出しを行いたい場合は、[SWR](https://github.com/vercel/swr) を用いた Client Component を使って Request をメモ化することができます。
 
 ```tsx:app/other/page.tsx
 'use client'
@@ -163,7 +163,7 @@ export default function Page() {
 
 静的なサイトを build するために必要な Next.js の主要な機能の大部分がサポートされています、これには以下が含まれます：
 
-- `getStaticPaths`を使用する際の[Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)
+- `getStaticPaths`を使用する際の [Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)
 - `next/link`を使ったプリフェッチ
 - Preloading JavaScript
 - [Dynamic Imports](/ja/javascript/next.js/v14/03-pages/01-building-your-application/05-optimizing/08-lazy-loading)
@@ -176,7 +176,7 @@ export default function Page() {
 
 ### Image Optimization
 
-[Image Optimization](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images)は、`next.config.js`でカスタムの image loader を定義することにより、静的な export と共に`next/image`を用いて使用できます。例えば、Cloudinary のようなサービスで画像を最適化することができます:
+[Image Optimization](/ja/javascript/next.js/v14/02-app/01-building-your-application/06-optimizing/01-images) は、`next.config.js`でカスタムの image loader を定義することにより、静的な export と共に`next/image`を用いて使用できます。例えば、Cloudinary のようなサービスで画像を最適化することができます:
 
 ```js:next.config.js
 /** @type {import('next').NextConfig} */

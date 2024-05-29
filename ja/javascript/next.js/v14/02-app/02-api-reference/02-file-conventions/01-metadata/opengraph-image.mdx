@@ -20,7 +20,7 @@ Open Graph と Twitter の画像を設定するには 2 つの方法がありま
 
 `opengraph-image`や`twitter-image`の image ファイルをセグメントの中に配置して、route セグメントの共有 image を設定するために、image ファイルを使用します。
 
-Next.js will evaluate the file and automatically add the appropriate tags to your app's `<head>` element.
+Next.js はファイルを評価し、適切なタグを自動的にアプリの `<head>` 要素に追加します。
 
 | File convention                                 | Supported file types            |
 | ----------------------------------------------- | ------------------------------- |
@@ -77,7 +77,7 @@ About Acme
 
 ## Generate images using code (.js, .ts, .tsx)
 
-[literal image files](#image-files-jpg-png-gif)を使用することに加えて、code を使用して画像をプログラムで**生成**することもできます。
+[literal image files](#image-files-jpg-png-gif) を使用することに加えて、code を使用して画像をプログラムで**生成**することもできます。
 
 `opengraph-image` または `twitter-image` の route を作成することにより、route セグメントの共有された image を生成し、それを default で export する関数にします。
 
@@ -89,9 +89,9 @@ About Acme
 > **Good to know**
 >
 > - default という設定では、生成された画像は、[**静静的に最適化**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されます(build 時に生成され、キャッシュされます)。ただし、[dynamic な関数](/docs/app/building-your-application/rendering/server-components#server-rendering-strategies#dynamic-functions)を使用するか、キャッシュされていないデータを使用する場合は除きます。
-> - あなたは[`generateImageMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-image-metadata)を使用して、同じファイル内に複数の画像を生成することができます。
+> - あなたは[`generateImageMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-image-metadata) を使用して、同じファイル内に複数の画像を生成することができます。
 
-`next/og`からの[ImageResponse](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) API を使用することが、 image を生成する最も簡単な方法です。
+`next/og`からの [ImageResponse](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) API を使用することが、 image を生成する最も簡単な方法です。
 
 ```tsx:app/about/opengraph-image.tsx
 import { ImageResponse } from 'next/og'
@@ -217,11 +217,11 @@ export default async function Image() {
 
 ### Props
 
-The default export function receives the following props:
+default のエクスポート関数は次のプロップを受け取ります:
 
 #### `params` (optional)
 
-`opengraph-image`または`twitter-image`セグメントまでの root セグメントからの[dynamic route パラメータ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) object を含む object が同位置に配置されています。
+`opengraph-image`または`twitter-image`セグメントまでの root セグメントからの [dynamic route パラメータ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) object を含む object が同位置に配置されています。
 
 ```tsx:app/shop/[slug]/opengraph-image.tsx
 export default function Image({ params }: { params: { slug: string } }) {
@@ -315,7 +315,7 @@ export default function Image() {}
 
 #### Route Segment Config
 
-`opengraph-image`と`twitter-image`は、Pages と Layouts と同じ[Route segment configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config) options を使用できる特別な[route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)です。
+`opengraph-image`と`twitter-image`は、Pages と Layouts と同じ [Route segment configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config) options を使用できる特別な [route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) です。
 
 | Option                                                                                             | Type                                                     | Default    |
 | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------- |
@@ -343,7 +343,7 @@ export default function Image() {}
 この例では、`params` object と外部データを使用して、image を生成します。
 
 > **Good to know**:
-> default では、この生成された image は[静的に最適化](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されます。この動作を変更するには、個々の`fetch` [`options`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/fetch)または route セグメント[options](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#revalidate)を設定できます。
+> default では、この生成された image は[静的に最適化](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されます。この動作を変更するには、個々の`fetch` [`options`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/fetch) または route セグメント [options](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config#revalidate) を設定できます。
 
 ```tsx:app/posts/[slug]/opengraph-image.tsx
 import { ImageResponse } from 'next/og'

@@ -14,7 +14,7 @@ is_empty: false
 app アイコンを設定するには二つの方法があります：
 
 - [image ファイル (.ico、.jpg、.png)の使用](#image-files-ico-jpg-png)
-- [コードを使用してアイコンを生成する(.js、.ts、.tsx)](#generate- icon s-using- code -js-ts-tsx)
+- [コードを使用してアイコンを生成する(.js、.ts、.tsx)](#generate-icons-using-code-js-ts-tsx)
 
 ## Image files (.ico, .jpg, .png)
 
@@ -65,7 +65,7 @@ Next.js はファイルを評価し、自動的にあなたのアプリの`<head
 > **Good to know**
 >
 > - あなたは、ファイル名に number という接尾詞を追加することで、複数のアイコンを設定することができます。例えば、`icon1.png`、`icon2.png`などです。番号付きのファイルは辞書順に並びます。
-> - Favicons は、root `/app`セグメントでのみ設定できます。もしもっと細かく設定が必要な場合は、[`icon`](#icon)を使用できます。
+> - Favicons は、root `/app`セグメントでのみ設定できます。もしもっと細かく設定が必要な場合は、[`icon`](#icon) を使用できます。
 > - 適切な`<link>`タグと属性(例えば`rel`、`href`、`type`、`sizes`)は、評価されたファイルの icon type と metadata によって決定されます。
 > - 例えば、32x32px の`.png`ファイルは、`type="image/png"`および`sizes="32x32"`の属性を持つでしょう。
 > - "`sizes="any"`は、`.ico` icon が`.svg`より優先される[ブラウザのバグ](https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs)を避けるために、`favicon.ico` の出力に追加されます。
@@ -81,7 +81,7 @@ Next.js はファイルを評価し、自動的にあなたのアプリの`<head
 | `icon`       | `.js`, `.ts`, `.tsx`            |
 | `apple-icon` | `.js`, `.ts`, `.tsx`            |
 
-最も簡単な方法で icon を生成する方法は、`next/og`からの[`ImageResponse`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) API を使用することです。
+最も簡単な方法で icon を生成する方法は、`next/og`からの [`ImageResponse`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/image-response) API を使用することです。
 
 ```tsx:app/icon.tsx
 import { ImageResponse } from 'next/og'
@@ -176,7 +176,7 @@ export default function Icon() {
 > **Good to know**
 >
 > - default では、生成されたアイコンは[**静的に最適化**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default)されています(build 時に生成され、キャッシュされます)。ただし、[dynamic な関数](/docs/app/building-your-application/rendering/server-components#server-rendering-strategies#dynamic-functions)を使用するか、キャッシュされていないデータを使用する場合を除きます。
-> - あなたは、[`generateImageMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-image-metadata)を使用して同じファイル内に複数のアイコンを生成することができます。
+> - あなたは、[`generateImageMetadata`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-image-metadata) を使用して同じファイル内に複数のアイコンを生成することができます。
 > - `favicon` icon を生成することはできません。代わりに、[`icon`](#icon) または [favicon.ico](#favicon) ファイルを使用してください。
 
 ### Props
@@ -259,7 +259,7 @@ export default function Icon() {}
 
 #### Route セグメント Config
 
-`icon`および`apple-icon`は、ページや Layout と同じ[Route segment configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config) options を使用できる専門の[route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)です。
+`icon`および`apple-icon`は、ページや Layout と同じ [Route segment configuration](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/route-segment-config) options を使用できる専門の [route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) です。
 
 | オプション                                                                                                                       | Type                                                     | Default    |
 | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------- |
