@@ -1,0 +1,162 @@
+---
+filePath:
+title: scaffdog で EntryPoints のテンプレート化
+nav_title: EndoPoints のテンプレート化
+description: scaffdog で EntryPoints のテンプレート化
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## EntryPoints のテンプレート化
+
+これが、今回の工数削減の肝になる。
+
+毎度おなじみの `scaffdog` にてテンプレート化する。
+
+```bash
+$ yarn add scaffdog --dev
+```
+
+それに際し、テンプレート化しやすいようにリファクタリングし、それをテンプレートにした: [`.scaffdog/template.md`](https://raw.githubusercontent.com/TAKT-R-D/nextts14-prisma5-api-sample/main/.scaffdog/template.md)
+リファクタリングの方針としては、API エンドポイントの実体である `route.tsx` をいじらないように、それぞれ違う部分を設定ファイルに切り出したことだ。そうすることで、Review は設定だけ見ればよくなる。また、悩んだところではあるが、できるだけファイルが分散しないように設定ファイルをまとめた。まとめたが、セキュリティを考えると、まとめない方がより安全かも知れない。
+
+実際のテンプレートは長いので、直接見ていただくとし、設定部分だけ。
+
+```md:.scaffdog/template.md
+---
+name: 'API'
+root: './'
+output: '**/*'
+ignore: []
+questions:
+  module: 'Enter module name(singular and kebab like item-category)'
+  tag: 'Enter tag name such as user'
+  isIdNumber:
+    confirm: 'Is type of id number? (if cuid, then no)'
+  isAuthRequired:
+    confirm: 'Is auth required api?'
+---
+```
+
+questions で、module 名、API 仕様書で分類される tag 名、slug パラメータの id が number 型かどうか、Auth が必要かどうかなどを聞いている。
+scaffdog では、module 名などのようなパラメータを、複数形にしたり、大文字・小文字・Pascal, Camel などなどに変換できるので、単数形だけ聞いておけば良い。
+詳細は、[scaffdog のドキュメンテーション](https://scaff.dog/docs/templates)を参照。実に色んなことができる。
+
+```json:package
+{
+    "scripts": {
+        "scaffold": "scaffdog generate"
+    },
+    ...
+}
+```
+
+```zsh
+yarn scaffold
+```
+
+で動く。
+
+```bash
+├── src
+│   ├── app/api
+│   │   └── Xxxx
+│   │       ├── [id]
+│   │       │   └── route.ts
+│   │       └── route.ts
+│   └── schemas/config
+│       ├── models
+│       │   └── XxxxSchema.ts
+│       ├── ExtendedModels.ts
+│       └── index.ts
+└── tools/openapi
+    └── EntryPoints.ts
+```
+
+が更新される。
+
+EntryPoint 新規作成の流れは、
+
+- `prisma/schema.prisma` に model を書く
+- `npx prisma migrate dev` して DB に反映する（と共に、諸々生成する）
+- `yarn scaffold` してファイルを生成/更新
+- `src/schemas/config/ExtendedModels.ts` で description, example を書く
+- `src/schemas/config/models/XxxxSchema.ts` で入出力を書く
+- `yarn openapi:generate` で `public/openapi.json` を更新する
+
+となる。
+
+## XxxxSchema.ts の中身
+
+### Prisma 部分
+
+```ts:src/schemas/config/models/XxxxSchema.ts
+
+// selected columns. if select all, leave it as {}
+export const XxxxPrismaSelect = {};
+
+// included columns
+export const XxxxPrismaInclude = {
+  posts: {
+    orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+    select: {
+      id: true,
+      title: true,
+      createdAt: true,
+    },
+  },
+  bookmarks: {
+    select: {
+      postId: true,
+      post: {
+        select: {
+          title: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              userName: true,
+              imageUrl: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  _count: {
+    select: {
+      posts: true,
+      bookmarks: true,
+    },
+  },
+};
+
+// connect etc. if no relational post/put query, just return params.
+export function formatXxxxParams(params: Partial<RequestType>) {
+  const { postId, userId, ...rest } = params;
+  let formattedParams: any = { ...rest };
+  if (postId)
+    formattedParams = {
+      ...formattedParams,
+      post: { connect: { id: +postId } },
+    };
+  if (userId)
+    formattedParams = { ...formattedParams, user: { connect: { id: userId } } };
+  return formattedParams;
+}
+```
+
+ほぼほぼ、通常の Prisma の書き方で、select するもの、include するもの、connect 等するものなどを記述するようにした。
+
+### OpenAPI 部分
+
+コードは省略するが、prisma クエリに合わせ、request, response のスキーマを記述すると共に、API ドキュメントで使う説明を追加する。また、各メソッドや slug パラメータなどの組み合わせによるパスの設定もしている。エンドポイントによっては不要なパスがあるが、その場合は不要なパスの設定を削除する。
+設定が実際にはどう使われるのかは、[src/schemas/BuildOpenApiSchema.ts](https://github.com/TAKT-R-D/nextts14-prisma5-api-sample/blob/main/src/schemas/BuildOpenApiSchema.ts) を参照。
+
+## それでも…
+
+というように、極力開発者によって工夫の余地がなくなるように設計してあるが、それでも `route.tsx` をいじってくる開発者もいるので、`route.tsx` を個別に持たせるのではなく、[Dynamic Route](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) 化してしまうのも良いかも知れない。今回それはやっていないが、工数面、メンテナンス性等を重視した設計である旨を伝え、P/R はリジェクトする。

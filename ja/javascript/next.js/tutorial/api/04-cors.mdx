@@ -1,0 +1,114 @@
+---
+filePath:
+title: CORS と Authentication
+description: CORS と Authentication
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+related:
+  - title: "Middleware"
+    path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware
+---
+
+CORS(Cross-Origin Resource Sharing) と API の認証を行う。CORS header を設定しないと、POSTMAN などでテストしてると気づかないが、ないと API がうまく機能しないし、認証がないと誰でも API が叩けちゃうので危ない。
+
+```bash
+src
+├── lib
+│   └── BearerAuth.ts
+└── middleware.ts
+```
+
+共通処理は、[`middleware`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware) で行う。API の認証は、前述の通りライブラリ化したいので、別ファイルにする。
+
+### CORS
+
+```ts:src/middleware.ts
+import { NextResponse } from 'next/server';
+
+export async function middleware(request: Request) {
+  newHeaders.set('Access-Control-Allow-Origin', '*');
+  newHeaders.set(
+    'Access-Control-Allow-Headers',
+    'GET, POST, OPTIONS, DELETE, PUT'
+  );
+  newHeaders.set('X-FRAME-OPTIONS', 'DENY');
+  newHeaders.set('Cache-Control', 'no-cache, no-store, max-age=0');
+
+  return NextResponse.next({
+    headers: newHeaders,
+    request: {
+      headers: newHeaders,
+    },
+  });
+}
+
+export const config = {
+  matcher: '/api/:path*',
+};
+
+```
+
+今回は、スマートフォンアプリなどのクライアントからのリクエストを想定して、`Access-Control-Allow-Origin: *` にしているが、アクセス元を限定する場合は、[middleware: CORS](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware#cors) にあるように、Origin を指定する。
+
+`middleware` は全てに適用されてしまうので、`matcher` を使って、適用範囲をいったん `/api/` 配下に限定する。CORS は、ブラウザが API をリクエストする際に、`preflight` リクエストを `OPTION` メソッドで送って来るので、`204` レスポンスを返す必要があるのだが、この処理は、`Next.js` がよしなにやってくれるようになったので、以前は自分で書いていたが、いまは書く必要はない。`X-FRAME-OPTIONS` はクリックジャッキング対策で、CORS とは関係ないが、セキュリティ関連、その他の共通で必要な headers は、全て `middleware` で設定してしまおう。
+
+### Authentication
+
+今回は、Bearer Auth にした。API 利用の流れとしては、
+
+- `access_token` を取得
+- `request header` に `Authorization: Bearer {access_token}`を入れて API を叩く
+
+になる。`access_token` 取得の API は `/api/auth/access_token` にする。このエンドポイントと、後で作る health check の `/api/health` には認証をかけないように処理する。
+
+```ts:src/middleware.ts
+import { NextResponse } from 'next/server';
+import { getBearerAuthStatusCode } from './lib/BearerAuth';
+import { ERROR_MAP } from './lib/ErrorMessages';
+
+export async function middleware(request: Request) {
+  ...
+  const regexAuth = new RegExp('/api/(auth|health)/*');
+  if (!regexAuth.test(request.url)) {
+    const bearerAuthStatusCode = await getBearerAuthStatusCode(request);
+    if (bearerAuthStatusCode !== 200) {
+      return NextResponse.json(
+        { error: ERROR_MAP[bearerAuthStatusCode] },
+        { status: bearerAuthStatusCode }
+      );
+    }
+  }
+  ...
+}
+
+export const config = {
+  matcher: '/api/:path*',
+}
+```
+
+`'/api/(auth|health)/*'` にマッチしない場合だけ、認証処理を行う。
+
+以下は、token の生成・検証の例になる。必要とされるセキュリティレベルに合わせてロジックを組むと良い。
+
+### `/api/auth/access_token`
+
+[/api/auth/access_token](https://github.com/TAKT-R-D/nextts14-prisma5-api-sample/blob/main/src/app/api/auth/access_token/route.ts)
+
+- POST method で受ける
+- secret を突き合わせる
+- DB から user 情報を取得する
+- 有効期限や必要なものを含めて token を生成する
+
+ということをやっている。refresh token なども必要に応じて追加すると良い。
+
+`Next.js 14` では、セキュリティの都合上、`jsonwebtoken` がうまく動かないので、`jose` を利用している。`JWT` を使うのが良いかどうかは議論の余地があるが、API の用途によって token の生成方法は変えれば良い。参照のコードでは、先走って `Zod` を使っているが、ナンノコッチャ？という場合は、一旦先へ進み、後で戻ってくれば良い。
+
+### `app/lib/BearerAuth.ts`
+
+[src/lib/BearerAuth.ts](https://github.com/TAKT-R-D/nextts14-prisma5-api-sample/blob/main/src/lib/BearerAuth.ts)
+
+これは、Authorization header から token を取り出し、検証して、その結果（ステータスコード）を返却するだけだ。

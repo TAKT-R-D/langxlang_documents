@@ -9,10 +9,10 @@ is_empty: false
 
 Next.js 内での routes 間を移動するための 4 つの方法があります：
 
-- [`<Link>` Component](#link-component) を使用して
+- [`<Link>` Component](#link-component) を使用する
 - [`useRouter` hook](#userouter-hook) を使用する ([Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components))
-- [`redirect` 関数](#redirect-function) ([Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components))を使う
-- ネイティブの[History API](#using-the-native-history-api)を使用して
+- [`redirect` 関数](#redirect-function) ([Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components))を使用する
+- ネイティブの[History API](#using-the-native-history-api)を使用する
 
 このページでは、これらの options の使用方法を紹介し、ナビゲーションの動作についてより深く掘り下げます。
 
@@ -20,7 +20,7 @@ Next.js 内での routes 間を移動するための 4 つの方法がありま�
 
 `<Link>`は、[プリフェッチ](#2-prefetching)と client サイドのナビゲーションを提供するため、HTML の`<a>`タグを拡張する組み込みの component です。これは、Next.js 内の routes 間を移動するための主要で推奨される方法です。
 
-それを`next/link`からインポートして使用し、`href`プロップを component に渡すことができます。
+それを `next/link` からインポートして使用し、`href` プロップを component に渡すことができます。
 
 ```tsx:app/page.tsx
 import Link from 'next/link'
@@ -38,13 +38,13 @@ export default function Page() {
 }
 ```
 
-他にも `<Link>` に渡すことができるオプショナルの props があります。詳しくは[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link)をご覧ください。
+他にも `<Link>` に渡すことができるオプショナルの props があります。詳しくは [API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link) をご覧ください。
 
 ### Examples
 
 #### Dynamic セグメントへのリンク
 
-[dynamic segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes)にリンクする際、[template literals and interpolation](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals)を使用してリンクのリストを生成することができます。たとえば、ブログ投稿のリストを生成するには：
+[dynamic segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) にリンクする際、[template literals and interpolation](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals) を使用してリンクのリストを生成することができます。たとえば、ブログ投稿のリストを生成するには：
 
 ```jsx:app/blog/PostList.js
 import Link from 'next/link'
@@ -64,7 +64,7 @@ export default function PostList({ posts }) {
 
 #### アクティブリンクの確認
 
-[`usePathname()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)を使用して、link がアクティブかどうかを判断できます。たとえば、アクティブな link にクラスを追加するには、現在の`pathname`が link の`href`と一致するかどうかを確認できます。
+[`usePathname()`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname) を使用して、link がアクティブかどうかを判断できます。たとえば、アクティブな link にクラスを追加するには、現在の `pathname` が link の `href` と一致するかどうかを確認できます。
 
 ```tsx:app/components/links.tsx
 'use client'
@@ -130,9 +130,9 @@ export function Links() {
 
 #### `id`まで Scroll する
 
-Next.js App Router の default の振る舞いは、新しい route のトップへ scroll するか、または前進と戻るナビゲーションの scroll 位置を維持することです。
+Next.js App Router の default の振る舞いは、新しい route のトップへ scroll するか、または前進と戻るナビゲーションの scroll 位置を維持します。
 
-特定の `id` まで scroll したい場合、`#` ハッシュの link を URL に追加することができます。または、ハッシュの link を `href` プロパティに渡すだけでも可能です。これは、`<Link>`が `<a>` 要素にレンダリングされるからです。
+特定の `id` まで scroll したい場合、`#` ハッシュの link を URL に追加することができます。または、ハッシュの link を `href` プロパティに渡すだけでも可能です。これは、`<Link>` が `<a>` 要素にレンダリングされるからです。
 
 ```jsx
 <Link href="/dashboard#settings">Settings</Link>
@@ -143,7 +143,7 @@ Next.js App Router の default の振る舞いは、新しい route のトップ
 
 #### scroll 復元の無効化
 
-default の Next.js App Router の振る舞いは、新しい route の一番上へ scroll するか、後方や前方のナビゲーションで scroll 位置を維持することです。この振る舞いを無効にしたい場合は、`scroll={false}`を`<Link>` component に、または `scroll: false`を `router.push()`または`router.replace()`へ渡すことができます。
+default の Next.js App Router の振る舞いは、新しい route の一番上へ scroll するか、後方や前方のナビゲーションで scroll 位置を維持します。この振る舞いを無効にしたい場合は、`scroll={false}` を `<Link>` component に、または `scroll: false` を `router.push()` または `router.replace()` へ渡すことができます。
 
 ```jsx
 // next/link
@@ -163,7 +163,7 @@ router.push("/dashboard", { scroll: false });
 
 ## `useRouter()` hook
 
-`useRouter` hook を使用すると、[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components)からプログラムで routes を変更することができます。
+`useRouter` hook を使用すると、[Client Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/02-client-components) からプログラムで routes を変更することができます。
 
 ```jsx:app/page.js
 'use client'
@@ -181,13 +181,13 @@ export default function Page() {
 }
 ```
 
-`useRouter`Method の完全なリストについては、[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)をご覧ください。
+`useRouter` Method の完全なリストについては、[API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router) をご覧ください。
 
-> **おすすめ:** routes 間を移動するために`<Link>` component を使用してください。ただし、`useRouter`を使用する特別な要件がある場合を除きます。
+> **おすすめ:** `useRouter` を使用する特別な要件がある場合を除き、routes 間を移動するために `<Link>` component を使用してください。
 
 ## `redirect` function
 
-[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)については、代わりに`redirect`関数を使用してください。
+[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components) については、代わりに `redirect` 関数を使用してください。
 
 ```tsx:app/team/[id]/page.tsx
 import { redirect } from 'next/navigation'
@@ -229,19 +229,19 @@ export default async function Profile({ params }) {
 
 > **Good to know**:
 >
-> - `redirect`は default では 307(一時的な Redirect)ステータスコードを返します。Server Action で使用すると、303(See Other)を返し、これは POSTrequest の結果として成功ページに Redirect するために一般的に使用されます。
-> - `redirect`は内部で error をスローするので、`try/catch`ブロックの外で呼び出すべきです。
-> - `redirect`はレンダリングのプロセス中に Client Components で呼び出すことができますが、イベントハンドラーでは呼び出せません。代わりに、[`useRouter` hook](#userouter-hook)を使用できます。
-> - `redirect`は絶対 URL も受け入れ、外部リンクに redirect するために使用することができます。
+> - `redirect` は default では 307(一時的な Redirect)ステータスコードを返します。Server Action で使用すると、303(See Other)を返し、これは POST request の結果として成功ページに Redirect するために一般的に使用されます。
+> - `redirect` は内部で error をスローするので、`try/catch`ブロックの外で呼び出すべきです。
+> - `redirect` はレンダリングのプロセス中に Client Components で呼び出すことができますが、イベントハンドラーでは呼び出せません。代わりに、[`useRouter` hook](#userouter-hook) を使用できます。
+> - `redirect` は絶対 URL も受け入れ、外部リンクに redirect するために使用することができます。
 > - もし render の過程の前に redirect したい場合は、[`next.config.js`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/06-redirecting#redirects-in-nextconfigjs) または [Middleware](/docs/app/building-your-application/routing/redirecting#nextresponseredirect-in-middleware) を使用してください。
 
 詳細については、[`redirect` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/redirect)をご覧ください。
 
 ## Using the native History API
 
-Next.js は、ページをリロードせずにブラウザの履歴 stack を更新するためのネイティブな[`window.history.pushState`](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState)と[`window.history.replaceState`](https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState)Method を使用することを許可します。
+Next.js は、ページをリロードせずにブラウザの履歴 stack を更新するためのネイティブな [`window.history.pushState`](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState) と [`window.history.replaceState`](https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState) Method を使用することを許可します。
 
-`pushState`および`replaceState`の呼び出しは、Next.js Router と統合され、[`usePathname`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname)と[`useSearchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params)との同期を可能にします。
+`pushState`および`replaceState`の呼び出しは、Next.js Router と統合され、[`usePathname`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-pathname) と [`useSearchParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-search-params) との同期を可能にします。
 
 ### `window.history.pushState`
 
@@ -345,13 +345,13 @@ export function LocaleSwitcher() {
 
 ## How Routing and Navigation Works
 
-App Router は、ルーティングとナビゲーションにハイブリッドアプローチを使用します。 server 上では、アプリケーションの”コード”が route セグメントで自動的に[code -split](#1-code-splitting)されます。そして、 client 上では、 Next.js が route セグメントを[prefetches](#2-prefetching)および[caches](#3-caching)します。つまり、ユーザーが新しい route に移動するとき、ブラウザはページを再ロードせず、変更される route のセグメントだけが再 rendering されます - ナビゲーション体験とパフォーマンスが向上します。
+App Router は、ルーティングとナビゲーションにハイブリッドアプローチを使用します。 server 上では、アプリケーションのコードが route セグメントで自動的に [code -split](#1-code-splitting) されます。そして、 client 上では、 Next.js が route セグメントを [prefetches](#2-prefetching)および [caches](#3-caching) します。つまり、ユーザーが新しい route に移動するとき、ブラウザはページを再ロードせず、変更される route のセグメントだけが再 rendering されます - ナビゲーション体験とパフォーマンスが向上します。
 
 ### 1. Code の分割
 
 Code スプリッティングにより、アプリケーションの code を小さなバンドルに分割し、ブラウザでダウンロードして実行できます。これにより、各 request で転送されるデータ量と実行時間が削減され、パフォーマンスが向上します。
 
-[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)は、アプリケーションの code が route セグメントごとに自動的にコード分割されることを可能にします。これは、現在の route に必要な code のみがナビゲーション時にロードされることを意味します。
+[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components) は、アプリケーションの code が route セグメントごとに自動的にコード分割されることを可能にします。これは、現在の route に必要な code のみがナビゲーション時にロードされることを意味します。
 
 ### 2. プリフェッチング
 
@@ -365,11 +365,11 @@ Next.js では、routes がプリフェッチされる方法は 2 つありま�
 `<Link>`のプリフェッチ動作は静的ルートと dynamic routes では異なります。
 
 - [**Static Routes**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#static-rendering-default): `prefetch`は default で`true`に設定されています。完全な route が事前に取得されキャッシュされます。
-- "[**Dynamic Routes**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering): `prefetch` を default から自動に設定します。共有された layout、レンダリングされた Component の"tree"の下部から最初の `loading.js`ファイルまでが事前に取得され、`30s`の間キャッシュされます。これにより、全体的な dynamic route の取得コストが削減され、ユーザーにより視覚的なフィードバックを提供するための、[即座に loading 状態](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#instant-loading-states)を表示することができます。
+- [**Dynamic Routes**](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components#dynamic-rendering): `prefetch` を default から自動に設定します。共有された layout、レンダリングされた Component の tree の下部から最初の `loading.js`ファイルまでが事前に取得され、`30s`の間キャッシュされます。これにより、全体的な dynamic route の取得コストが削減され、ユーザーにより視覚的なフィードバックを提供するための、[即座に loading 状態](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming#instant-loading-states)を表示することができます。
 
-`prefetch`プロップを`false`に設定することで、プリフェッチングを無効にすることができます。
+`prefetch` プロップを `false` に設定することで、プリフェッチングを無効にすることができます。
 
-詳細は[`<Link>` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link)をご覧ください。
+詳細は [`<Link>` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/01-components/link) をご覧ください。
 
 > **Good to know**:
 >
@@ -377,11 +377,11 @@ Next.js では、routes がプリフェッチされる方法は 2 つありま�
 
 ### 3. キャッシング
 
-Next.js には、[Router Cache](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#caching-data#router-cache)と呼ばれる**メモリ内 Client 側の cache**があります。ユーザーが app を回覧するとき、[prefetched](#2-prefetching)された route セグメントと訪れた routes が cache に保存されます。React Server Component のペイロードも同様です。
+Next.js には、[Router Cache](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#caching-data#router-cache) と呼ばれる**メモリ内 Client 側の cache**があります。ユーザーが app を回覧するとき、[prefetched](#2-prefetching) された route セグメントと訪れた routes が cache に保存されます。React Server Component のペイロードも同様です。
 
 これは、ナビゲーションにおいて、新たに request を server に送る代わりに、 cache が可能な限り再利用されることを意味します - number のリクエストとデータ転送量を削減することでパフォーマンスが向上します。
 
-[Router Cache](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#caching-data)の動作と設定方法について詳しく学びましょう。
+[Router Cache](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/01-fetching-caching-and-revalidating#caching-data) の動作と設定方法について詳しく学びましょう。
 
 ### 4. 部分的なレンダリング
 

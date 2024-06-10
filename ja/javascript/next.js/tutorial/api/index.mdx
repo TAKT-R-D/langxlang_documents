@@ -1,0 +1,79 @@
+---
+filePath:
+title: Next.js14, Prisma5 で作る工数が激減する RESTFull API
+nav_title: API を作る
+description: Next.js14, Prisma5 で作る工数が激減する RESTFull API
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## はじめに
+
+弊社は、ハノイの小さなソフトウェア開発会社だ。あんまり忙しいのは嫌なので、規模は拡大せず、少人数で開発を行っている。私以外は、ベトナム人エンジニアで、スキルはまちまちだ。
+
+受託案件では API を作ることが非常に多い。何度も作るので、なるべく工数がかからないように、なるべく品質が一定になるように作りたい。API に限らず、弊社では、**Agile, Assets & Automation** という 3 つの戦略で開発を行っている。Agile と Automation はその名の通りで、Assets は、簡単に言えば再利用可能なモジュール・フレームワーク郡を指す。
+
+今回は、以前作った Next.js + Prisma の RESTfull API が、Next.js で App Router が実装されたり、OpenSSL 1.0 のサポートが終了したり、古くなったので、作り直すことにした。
+
+以前作ったもの:
+
+- [Next.js(TypeScript) で Prisma を使って API を作る](https://qiita.com/kurab/items/efce37b19f4484ae39bc)
+- [Next.js + typescript + Prisma の API テンプレートを作る](https://qiita.com/kurab/items/6491961ea56347b48c00)
+
+## 先に結論
+
+https://github.com/TAKT-R-D/nextts14-prisma5-api-sample
+
+- node: 20.10.0
+- yarn: 1.22.19
+- next.js: 14.0.4
+- prisma: 5.7.1
+- zod: 3.22.4
+
+による工数が激減する RESTFull API のサンプルを作った。主要な機能は、
+
+- Bearer authentication
+- CORS
+- Type safe by Zod
+- Generate some required documents
+  - ER-Diagram
+  - DBML
+  - API Specification (OpenAPI)
+  - Licenses list of dependencies
+- Dockerized
+  - OpenSSL 3.x support
+- Testing by dredd
+
+## 何を仕組み化するか？
+
+仕組み化・自動化は、Web の高速化と似ていて、なんとなくやっても成果が出ないものだ。弊社の Assets & Automation は、以下のポリシーに従い選定している。
+
+- 頻度が高いもの
+- ボトルネックになりがちなもの
+- モチベーションが下がるもの
+
+これらを FACT ベースでやる・やらないを決める。ソフトウェアのライフサイクルは 2 年。内容によって、良しとする完成度を決める（完璧を目指さない）。
+
+まず一般論として、ソフトウェア開発では、何に時間がかかっているのかを確認する。
+
+![vmodel](/images/javascript/next.js/tutorial/api/vmodel.webp)
+
+上図は、日本における一般的なソフトウェア開発を V Model に当てはめた場合を、時間軸に載せてみたものだ。参照データは、ソフトウェア開発データ白書 2018-2019 と、少し古いのだが、それほど大きな変化はないものと思う。開発規模によって違うとか、V Model？とかウォーターフォール？とかは、いま重要ではなく、ざっくり感覚をつかめれば良い。N=1 の私の感覚的にも、全体通したらまぁだいたいこんなものだろうと感じる。
+
+この図で言えるのは、エンジニアがやって楽しいのはコード実装部分の効率化だったりしがちだが、そこだけを自動化しても、全体工数はそんなに減らないということだ。また、この図から言えるかも知れないのは、足らない IT 人材は、エンジニアではなく、優秀な PM だ。たぶん。
+
+API の場合、
+
+- 頻度が高いものは、全部になる（笑）
+- ボトルネックになりがちなのは、リーダー的な人が担当するコードレビューやドキュメンテーション
+- モチベーションが下がるのは、テストとドキュメンテーション
+
+ドキュメンテーションは、受託開発の場合、必ず納品しなければならないドキュメントがいくつかある。本来、受託かどうかは関係ないが。
+
+そんなことを念頭に、汎用的な API を設計する。
+
+なお、本チュートリアルは、ステップバイステップで説明しているが、実際に作り始めるのは、いったん全て流し読みしてからにすることをおすすめする。

@@ -1,0 +1,100 @@
+---
+filePath:
+title: Docker 化 する
+nav_title: Docker 化
+description: Docker 化 する
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## Docker 化 する
+
+```bash
+├── Docker
+│   └── Dockerfile
+├── prisma
+│   └── schema.prisma
+├── .dockerignore
+├── docker-compose.app-arm64.yml
+├── docker-compose.app.yml
+├── docker-compose.db.yml
+├── docker-compose.yml
+└── next.config.js
+```
+
+Docker 自体はそんなに気をつけることはなくて、いつも通りの手順だ。
+
+- `next.config.js` で、 `output: 'standalone'` する。
+- `schema.prisma` で、 `binaryTargets` を OpenSSL 3.0 に対応したものにする
+- `Dockerfile` では、`public` と `.next/static` を手動でコピーする
+
+くらいだ。M1/M2 などの Apple Silicon な ARM64 マシンで docker を build すると、AWS 等の AMD64 プラットフォームに Deploy しても動かないので、`docker-compose.app-arm64.yml` にて `platform: linux/amd64` を追加して、リリース用に使う。
+
+Next.js 14 は、何もしないと build 時に DB にアクセスする。API はアクセスして欲しくないので、各 `route.tsx` に `export const dynamic = 'force-dynamic';` とする。
+
+alpine を利用した Dockerfile は以下のようになる。
+
+```yaml:docker/Dockerfile
+FROM node:20.10.0-alpine3.19 AS base
+
+# install dependencies
+FROM base AS deps
+RUN apk update && apk add --no-cache libc6-compat
+
+WORKDIR /app
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found" && exit 1; \
+  fi
+
+# build application
+FROM base AS builder
+RUN apk update && apk add --no-cache openssl
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN npx prisma generate
+RUN yarn build
+
+# run application
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN apk update \
+  && apk add --no-cache openssl \
+  && addgroup -g 1001 -S nodejs \
+  && adduser -S nextjs -u 1001
+
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --chown=nextjs:nodejs prisma ./prisma/
+
+USER nextjs
+EXPOSE 3000
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+```
+
+TELEMETRY は、受託案件の Production の場合、disabled で良いのかなと思っている。そうしなくても、特別な情報が送られたりはしないが。
+
+OpenSSL 3.x に対応したいが、Prisma のバージョンが古くて（4.10.0 未満） alpine が使えない場合は、Debian の buster-slim などを使う必要があるが、素直に Prisma のバージョンを上げるのが良い。
+それは検証に時間がかかるので、至急 OpenSSL 3.x 対応したい場合は、[Next.js + Prisma の Docker を OpenSSL 3.0 対応する](https://qiita.com/kurab/items/f27b831f171e8e61f13b)を参照。
+
+デプロイは、git の該当ブランチが更新されたら、docker build して deploy するようなものでも、local で docker build してそのイメージを push すると、それが deploy されるようなものでも、好きなように pipeline を書くのが良いが、
+ローカル作業は、前述の通り、プラットフォームに注意する必要があり、ミスが起きるので、なるべく docker build までするようにしておくのが安全だ。安全だが、受託の案件では、インフラに対してどこまで権限が与えられるかがクライアントごとに変わってくるので、どちらでも対応できるようにしておくのが良い。

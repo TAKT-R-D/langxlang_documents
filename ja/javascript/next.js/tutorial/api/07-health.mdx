@@ -1,0 +1,92 @@
+---
+filePath:
+title: health チェック
+description: health チェック
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+health チェックは、システム自体が立ち上がっているかのチェックと、DB 含めシステムが機能しているかのチェックの 2 種類がある。1 つにしてしまっても良いが、前者は Deploy する AWS 等のインフラ側がたくさんアクセスするので、DB への負荷という面で、2 つに分けることにする。
+
+- `/api/health` → `200`
+- `/api/health/deep` → `200` or `503`
+
+```txt
+src
+└── app/api
+    └── health
+        ├── deep
+        │   └── route.ts
+        └── route.ts
+```
+
+health チェックの API のレスポンスは、
+
+- headers > `'Content-Type': 'application/health+json'`
+- body > `status: 'pass' or 'fail'`
+- error > `details: {}`
+
+とするのが作法のようだ。
+
+## 通常の health チェック
+
+```ts:src/app/api/health/route.ts
+export const dynamic = 'force-dynamic';
+import { NextResponse } from 'next/server';
+
+export function GET(request: Request) {
+  return NextResponse.json(
+    { status: 'pass', message: 'success to connect' },
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/health+json',
+      },
+    }
+  );
+}
+```
+
+## 深い health チェック
+
+何でも良いので、DB から値を取得するようにして、DB が立ち上がっているかのチェックを行う。
+
+```ts:src/app/api/health/deep/route.ts
+export const dynamic = 'force-dynamic';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/Prisma';
+import { handlePrismaError } from '@/lib/PrismaErrorHandler';
+
+// health check with database connection
+export async function GET(request: Request) {
+  let statusCode = 200;
+  const res = await prisma.bookmark
+    .findMany({ take: 1 })
+    .then(() => {
+      return {
+        status: 'pass',
+        message: 'success to connect database',
+      };
+    })
+    .catch((err) => {
+      const { errorObject } = handlePrismaError(err);
+      statusCode = 503;
+      return {
+        status: 'fail',
+        message: 'failed to connect database',
+        details: errorObject,
+      };
+    });
+
+  return NextResponse.json(res, {
+    status: statusCode,
+    headers: {
+      'Content-Type': 'application/health+json',
+    },
+  });
+}
+```

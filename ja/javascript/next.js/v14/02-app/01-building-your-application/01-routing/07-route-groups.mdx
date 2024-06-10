@@ -14,7 +14,7 @@ is_empty: false
 Route グループは以下の用途に役立ちます：
 
 - [サイトセクション、目的、またはチーム別などによる、 routes をグループ化する](#organize-routes-without-affecting-the-url-path)
-- 同じ route セグメントレベルで[nested layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)を有効にする:
+- 同じ route セグメントレベルで [nested layouts](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts) を有効にする:
   - [同じセグメントで複数のネストされた Layout を作成すること、複数の rootLayout を含む](#creating-multiple-root-layouts)
   - [共通セグメントの routes の一部に layout を追加する](#opting-specific-segments-into-a-layout)
 
@@ -60,7 +60,7 @@ URL に影響を与えずに routes を整理するために、関連する rout
 
 ### 複数の rootLayout を作成する
 
-複数の[roots](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required)を作成するには、トップレベルの `layout.js` ファイルを削除し、各 route グループの中に `layout.js` ファイルを追加します。これは、アプリケーションを完全に異なる UI または体験を持つセクションに分割するのに便利です。 `<html>` タグと `<body>` タグは、各 root layout に追加する必要があります。
+複数の [roots](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts#root-layout-required) を作成するには、トップレベルの `layout.js` ファイルを削除し、各 route グループの中に `layout.js` ファイルを追加します。これは、アプリケーションを完全に異なる UI または体験を持つセクションに分割するのに便利です。 `<html>` タグと `<body>` タグは、各 root layout に追加する必要があります。
 
 <Image
   alt="Route Groups with Multiple Root Layouts"

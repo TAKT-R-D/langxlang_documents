@@ -1,0 +1,141 @@
+---
+filePath:
+title: DB・Prisma の設定
+description: DB・Prisma の設定
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+今回は、DB として PostgreSQL を使うので、その設定を行う。
+
+## PostgreSQL の準備
+
+Local 開発用に Docker で PostgreSQL を立ち上げる。
+
+```yaml: docker-compose.yaml
+version: '3.8'
+
+services:
+  db:
+    image: 'postgres:16'
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    container_name: ${CONTAINER_NAME_DB}
+```
+
+```text:.env
+# database settings
+DB_NAME=sample
+DB_USER=johndoe
+DB_PASS=randompassword
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@localhost:5432/${DB_NAME}?schema=public"
+```
+
+Prisma では、環境変数として DATABASE_URL を設定する必要があるが、`.env.local` などからは読み込めないので、`.env` に設定する。それに合わせて、`docker-compose.yaml` も上記のような書き方になっている。
+
+## Prisma の設定
+
+PostgreSQL を立ち上げた状態で、インストールおよび初期化を行う。
+
+```zsh
+$ yarn add @prisma/client
+$ yarn add prisma --dev
+$ npx prisma init
+```
+
+## Prisma スキーマの設定
+
+`prisma init` で `prisma/schema.prisma` が生成されるので、内容を編集する。
+
+### 基本設定
+
+```ts: schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native",  "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+```
+
+まず、一般的な設定は上記のように設定する。prisma の default の DB は、PostgreSQL なのでいじる必要はないが、client の binaryTargets は、実行環境によって変わるので、適宜変更する。詳細は、[Prisma schema reference `binaryTargets` options](https://www.prisma.io/docs/orm/reference/prisma-schema-reference#binarytargets-options) 参照。
+
+現時点では、`binaryTargets` は、`native` だけあれば良いが、最終的には API も Docker 化するので、それ以外も指定してある。新し目の Apple silicon の Mac は ARM64 マシンなので、`linux-musl-arm64-openssl-3.0.x` が必要だが、AWS などのサーバーは AMD64 なので、`linux-musl-openssl-3.0.x` が必要になる。`linux-musl-arm64-openssl-3.0.x` がないと、ローカル（ARM64 マシン）で docker build しても動かない。`linux-musl-openssl-3.0.x` がないと、AWS 等の Production 環境等では動かない。
+
+何等かのやむを得ない理由で、サポートの切れた OpenSSL 1 系を使う場合は、それに合ったものを選択するが、セキュリティの観点から、至急アップグレードすべきである。
+
+### Model の設定
+
+`model` は必要なものを設定してする。ここではサンプルとして、`User`, `Post`, `Bookmark` などの one-to-many, many-to-many のリレーションを持つモデルを用意した。
+
+```ts: schema.prisma
+model User {
+  id        String   @id @default(cuid()) @map("userId")
+  userName  String   @unique
+  imageUrl  String?  @db.VarChar(256)
+  posts     Post[]
+  bookmarks Bookmark[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map(name: "users")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement()) @map("postId")
+  title     String
+  content   String
+  authorId  String
+  // if author is deleted, post record will be also deleted
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  bookmarks Bookmark[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map(name: "posts")
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement()) @map("bookmarkId")
+  postId    Int?
+  //if post is deleted, bookmark record will NOT be also deleted
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  userId String
+  //if user is deleted, bookmark record will be deleted
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map(name: "bookmarks")
+}
+```
+
+例えば、`@db.VarChar(256)` などの書き方は、PostgreSQL 用の書き方なので、MySQL を使いたいなどの場合は変更が必要だ。設定方法の詳細は、[Prisma schema reference](https://www.prisma.io/docs/orm/reference/prisma-schema-reference) 等を参照。
+
+## Migration の実行
+
+`prisma.schema` ができたら、Migration を実行する。
+
+```zsh
+$ npx prisma migrate:dev
+```
+
+これで、PostgreSQL に DB、Table が作成される。
+
+```zsh
+$ npx prisma studio
+```
+
+を実行すると、ブラウザから DB の中身を確認することができる。

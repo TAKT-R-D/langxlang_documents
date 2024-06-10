@@ -1,0 +1,46 @@
+---
+filePath:
+title: OpenAPI を使った Dredd によるテスト
+nav_title: Dredd によるテスト
+description: OpenAPI を使った Dredd によるテスト
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+せっかく OpenAPI を真面目に書いたので、恩恵にあずかる。
+
+```bash
+$ yarn add dredd --dev
+```
+
+```bash
+└── tests
+    ├── dredd.sh
+    └── hook.js
+```
+
+```json:package.JSON
+{
+    "scripts": {
+        ...
+        "test:dredd": "./tests/dredd.sh",
+        ...
+    },
+    ...
+}
+```
+
+```zsh
+yarn test:dredd
+```
+
+でテストが実行される。
+レコードのないテーブルがあると、テストは失敗するので、実行前に適当にいれておく。
+
+何も追加しなくても、GET（一括取得、1 件取得）だけはテストされる。POST, PUT, DELETE をテストしたい場合は、`tests/hook.js` にシナリオを追加する。詳細は、[Dredd](https://dredd.org/en/latest/) を参照。
+
+GET だけでもテストされていると、API 仕様書と GET の動作が同じになっているかは確認できるので、ないより良いし、レビューも楽になる。

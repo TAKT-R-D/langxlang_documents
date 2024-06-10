@@ -1,0 +1,284 @@
+---
+filePath:
+title: Next.js の App Router で作る API の基本型
+nav_title: API の基本形
+description: Next.js の App Router で作る API の基本型
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+related:
+  - title: Routing
+    path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routin
+  - title: Dynamic Routes
+    path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes
+  - title: Route Handlers
+    path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers
+  - title: NextRequest
+    path: /ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request
+---
+
+## エンドポイントの基本
+
+今回は `Next.js` の `14.0.4` を利用する。エンドポイントは、`/api/users`, `/api/users/{id}` などのようにする。App Router で API を作るには、以下のように `route.ts` を配置する。
+詳細は、[Routing: File Conventions](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#file-conventions)、[Dynamic Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/09-dynamic-routes) を参照。
+
+```bash
+src
+└── app/api
+    └── users
+        ├── [id]
+        │   └── route.ts
+        └── route.ts
+```
+
+`route.ts` 内は、
+
+```ts:src/app/api/users/route.ts
+import { NextResponse, type NextRequest } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  ...
+  return NextResponse.json(res, {
+    headers: {
+      'x-total-count': String(totalCount._count),
+    },
+    status: statusCode,
+  });
+}
+
+export async function POST(request: Request) {
+  ...
+  return NextResponse.json(res, { status: statusCode });
+}
+```
+
+```ts:src/app/api/users/[id]/route.ts
+import { NextResponse } from 'next/server';
+
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
+export async function GET(request: Request, { params: { id } }: Props) {...}
+export async function PUT(request: Request, { params: { id } }: Props) {...}
+export async function DELETE(request: Request, { params: { id } }: Props) {...}
+```
+
+こんな感じで書く。これで
+
+- GET `/api/users`: 一括取得
+- POST `/api/users`: 登録
+- GET `/api/users/{id}`: 1 件取得
+- PUT `/api/users/{id}`: 1 件更新
+- DELETE `/api/users/{id}`: 1 件削除
+
+ができる。一括更新、一括削除が欲しい場合は、`src/app/api/users/route.ts` に追加すれば良いがあんまり必要になることがないので、入れていない。
+
+`src/app/api/users/route.ts > GET` で `request: NextRequest` としてあるのは、クエリパラメータ（page, limit, orderby など）を簡単に取得するため。詳細は、[Route Handlers: Dynamic 関数](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers#dynamic-%E9%96%A2%E6%95%B0)、[NextRequest](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/next-request) を参照。
+
+一括取得の場合は、全部で何レコードあるかの情報がないと、使う側が不便なので `response headers` に `x-total-count` として入るようにした。`response body` に入れても良いのだが、深くなるのが嫌だし、情報の種類が違うので、headers で。cookie は、何かと取り扱いが面倒なので使わない。
+
+ところで、今回は Database に `PostgreSQL`、ORM に `Prisma 5` を利用しており、エンドポイントは、Prisma の各 Model に対応したものを基本としている。上記 `/api/users` 等は、Prisma の User model に対応している。
+
+各メソッド内で、prisma にて処理を行う
+
+- GET `/api/users`: `findMany`
+- POST `/api/users`: `create`
+- GET `/api/users/{id}`: `findUnique`
+- PUT `/api/users/{id}`: `update`
+- DELETE `/api/users/{id}`: `delete`
+
+## Prisma インスタンス
+
+例えば、一括取得の場合、Prisma でデータを取得する部分は、
+
+```ts
+const res = await prisma.user
+  .findMany(query.data)
+  .then((res) => {
+    if (!res) {
+      statusCode = 404;
+      return { error: ERROR_MAP[404] };
+    } else {
+      return res;
+    }
+  })
+  .catch((err) => {
+    const { errorCode, errorObject } = handlePrismaError(err);
+    statusCode = errorCode;
+    return { error: errorObject };
+  });
+const totalCount = await prisma.user.aggregate({ _count: true });
+```
+
+このような処理になるが、ここで使う `prisma` インスタンスは毎回 new しても良いのだが、コネクションがどんどん増えたり、毎回接続を確立するパフォーマンス面から、`app/lib/Prisma.ts` を設定し、それを読み込むようにする。必要に応じて `$dicsonnect` する必要があるが、API のような使い方の場合、毎回 `$disconnect` しない方が良いようだ。
+
+via. [Connection management](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/databases-connections/connection-management)
+
+```ts:app/lib/Prisma.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ['warn', 'error'],
+  });
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+```
+
+## Prisma で CRUD
+
+Prisma での CRUD は、基本的には、以下のようになる。
+
+### 単純な Create
+
+```ts
+let userBody: Prisma.UserCreateInput;
+userBody = {
+  userName: userName,
+  imageUrl: imageUrl ? imageUrl : "",
+};
+const resUser = await prisma.user.create({ data: userBody });
+```
+
+### Relation がある Create
+
+```ts
+let postBody: Prisma.PostCreateInput;
+postBody = {
+  title,
+  content,
+  author: { connect: { id: authorId } },
+};
+const resUser = await prisma.post.create({ data: postBody });
+```
+
+### findMany
+
+```ts
+  const resUser = await prisma.user
+    .findMany({ (条件) })
+```
+
+### findUnique
+
+```ts
+  const resUser = await prisma.user
+    .findUnique({
+      where: { (検索条件) },
+      (その他条件)
+    })
+```
+
+### orderBy
+
+```ts
+orderBy: { updatedAt: 'desc' },
+```
+
+Order Key が複数ある場合は、`[]` に入れる。
+
+```ts
+orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+```
+
+### join
+
+何も指定しないと取ってこないので、include する
+
+```ts
+include: {
+  posts: true,
+  bookmark: true,
+},
+```
+
+など。ただし、これだと全部取ってきちゃうので、必要なものだけにしたい場合、select する。
+
+```ts
+include: {
+  posts: {
+    select: {
+      id: true,
+      title: true,
+      createdAt: true,
+    },
+  },
+  bookmarks: {
+    select: { postId: true },
+  },
+}
+```
+
+など。orderBy を指定することもできる
+
+```ts
+include: {
+  posts: {
+    orderBy: [{ updatedAt: 'desc' }, {createdAt: 'desc'}],
+    select: {...},
+  },
+}
+```
+
+### count
+
+count も include で指定する。
+
+```ts
+include: {
+  _count: {
+    select: {
+      posts: true,
+      bookmarks: true,
+    },
+  },
+}
+```
+
+#### 戻り値の型を定義
+
+```ts
+import { Post } from "@prisma/client";
+
+export type PostType = Post & {
+  author: {
+    id: number;
+    userName: string;
+    imageUrl: string | null;
+  };
+  _count: {
+    bookmarks: number;
+  };
+};
+```
+
+こんな感じで元の Type に include で追加したものを追加する。
+
+### Update
+
+```ts
+const resPost = await prisma.post.update({
+  where: { id: Number(id) },
+  data: postBody,
+});
+```
+
+### Delete
+
+```ts
+const resBookmark = await prisma.bookmark.delete({ where: { id } });
+```
+
+### Transaction
+
+Prisma の transaction は、sample 作成時点では微妙だったので、ここでは省略する。

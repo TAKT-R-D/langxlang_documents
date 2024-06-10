@@ -1,0 +1,59 @@
+---
+filePath:
+title: License リストを生成する
+nav_title: License リスト
+description: License リストを生成する
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## License リストを生成する
+
+API の場合、Web 上で表示することはないが、利用している OSS の License を法務確認のために提出せよと言われることがある。セキュリティのため、package は気軽に更新したいので、自動で生成されるようにしたい。
+
+提出が必要なのは、Production で使うものだけ。依存関係まで含めると、ものすごい量になるので、直接読み込んでいるものだけで良いことが多いので、そうする。
+
+[license-checker](https://github.com/davglass/license-checker) を利用することにする。これは、API の機能には全く関係ないので、本来はアプリケーションに含めるべきではない。今回は説明のため、入れておいた。
+
+```bash
+$ yarn add license-checker --dev
+```
+
+```txt
+├── src/app
+│   └── licenses
+│       ├── licenses.json
+│       ├── licenses.module.css
+│       └── page.tsx
+└── tools
+    └── LicenseChecker.ts
+```
+
+それぞれは、特に説明するようなこともないので、直接ソースコードを参照。
+
+package.json に script を追加しておく。
+
+```json:package.json
+{
+  "scripts": {
+    ...
+    "license:generate": "ts-node tools/LicenseChecker.ts",
+    ...
+  },
+  ...
+}
+```
+
+```zsh
+yarn license:generate
+```
+
+で、`src/app/licenses/licenses.json` が更新される。一覧はブラウザ( /licenses )で確認できる。
+
+![license list](/images/javascript/next.js/tutorial/api/license.webp)
+
+必ずしも正確に生成できる訳ではないので、適宜 `licenses.json` を修正する。これで、やべーのが入ってないかも一目瞭然である。ライセンスの諸々については、[こちら](https://qiita.com/kurab/items/925a9bc3408f1554de10)を確認。

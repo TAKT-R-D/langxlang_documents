@@ -65,18 +65,18 @@ export default function Layout({ children, team, analytics }) {
 }
 ```
 
-しかし、スロットは**ない**[route segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#route-segments)であり、URL 構造に影響を及ぼしません。例えば、`/dashboard/@analytics/views`の場合、`@analytics`がスロットであるため、URL は`/dashboard/views`となります。
+しかし、スロットは [route segments](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing#route-segments) で**はなく**、URL 構造に影響を及ぼしません。例えば、`/dashboard/@analytics/views`の場合、`@analytics` がスロットであるため、URL は `/dashboard/views` となります。
 
 > **Good to know**:
 >
-> - `children`プロップは、フォルダにマッピングする必要がない暗黙のスロットです。これは、`app/page.js`が`app/@children/page.js`と同等であることを意味します。
+> - `children` プロップは、フォルダにマッピングする必要がない暗黙のスロットです。これは、`app/page.js `が `app/@children/page.js` と同等であることを意味します。
 
 ## Active state and navigation
 
 default として、Next.js は各スロットのアクティブな*状態*(またはサブページ)を追跡します。ただし、スロット内にレンダリングされる内容は type のナビゲーションに依存します：
 
-- [**ソフトナビゲーション**](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#5-soft-navigation): クライアントサイドナビゲーション中、 Next.js は[部分的な render](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering)を行い、スロット内のサブページを変更しながら、他のスロットのアクティブなサブページを保持します、たとえそれらが現在の URL と一致しなくても。
-- **難解なナビゲーション**: フルページのロード(ブラウザの refresh )後、 Next.js は現在の URL に一致しないスロットのアクティブ状態を決定できません。代わりに、一致しないスロットには [`default.js`](#defaultjs) ファイルが render されます。もし `default.js`が存在しない場合は、`404`が出力されます。
+- [**ソフトナビゲーション**](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#5-soft-navigation): クライアントサイドナビゲーション中、 Next.js は[部分的な render](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/03-linking-and-navigating#4-partial-rendering) を行い、スロット内のサブページを変更しながら、他のスロットのアクティブなサブページを保持します、たとえそれらが現在の URL と一致しなくても。
+- **難解なナビゲーション**: フルページのロード(ブラウザの refresh )後、 Next.js は現在の URL に一致しないスロットのアクティブ状態を決定できません。代わりに、一致しないスロットには [`default.js`](#defaultjs) ファイルが render されます。もし `default.js` が存在しない場合は、`404` が出力されます。
 
 > **Good to know**:
 >
@@ -96,7 +96,7 @@ default として、Next.js は各スロットのアクティブな*状態*(ま�
   height="930"
 />
 
-`/dashboard/settings`に移動すると、`@team`スロットは、`@analytics`スロットの現在アクティブなページを維持しながら`/settings`ページを render します。
+`/dashboard/settings` に移動すると、`@team` スロットは、`@analytics` スロットの現在アクティブなページを維持しながら `/settings` ページを render します。
 
 refresh により、 Next.js は `@analytics` のために `default.js` を render します。もし `default.js` が存在しない場合、代わりに `404` がレンダリングされます。
 
@@ -104,7 +104,7 @@ refresh により、 Next.js は `@analytics` のために `default.js` を rend
 
 ### `useSelectedLayoutSegment(s)`
 
-[`useSelectedLayoutSegment`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segment)と[`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments)の両方は`parallelRoutesKey`パラメータを受け入れ、これによりスロット内のアクティブな route セグメントを読み取ることができます。
+[`useSelectedLayoutSegment`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segment) と [`useSelectedLayoutSegments`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-selected-layout-segments) の両方は `parallelRoutesKey` パラメータを受け入れ、これによりスロット内のアクティブな route セグメントを読み取ることができます。
 
 ```tsx:app/layout.tsx
 'use client'
@@ -134,7 +134,7 @@ export default function Layout({ auth }) {
 
 ### 条件付き Routes
 
-ユーザーロールなどの特定の条件に基づいて条件付きで render routes を行うために、Parallel Routes を使用することができます。たとえば、`/admin`または`/user`ロールに対して、異なる dashboard ページを render する場合は次のようになります:
+ユーザーロールなどの特定の条件に基づいて条件付きで render routes を行うために、Parallel Routes を使用することができます。たとえば、`/admin` または `/user` ロールに対して、異なる dashboard ページを render する場合は次のようになります:
 
 <Image
   alt="Conditional routes diagram"
@@ -170,9 +170,9 @@ export default function Layout({ user, admin }) {
 
 ### タブグループ
 
-`layout`をスロット内に追加することで、ユーザーがスロットを独立してナビゲートすることを可能にします。これはタブの作成に便利です。
+`layout` をスロット内に追加することで、ユーザーがスロットを独立してナビゲートすることを可能にします。これはタブの作成に便利です。
 
-例えば、`@analytics` スロットには二つのサブページがあります：`/page-views`と`/visitors`。
+例えば、`@analytics` スロットには二つのサブページがあります：`/page-views` と `/visitors`。
 
 <Image
   alt="Analytics slot with two subpages and a layout"
@@ -182,7 +182,7 @@ export default function Layout({ user, admin }) {
   height="768"
 />
 
-`@analytics`内で、二つのページ間でタブを共有するための[`layout`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts)ファイルを作成します：
+`@analytics` 内で、二つのページ間でタブを共有するための [`layout`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts) ファイルを作成します：
 
 ```tsx:app/dashboard/@analytics/layout.tsx
 import Link from 'next/link'
@@ -218,7 +218,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 ### Modals
 
-Parallel Routes は[Intercepting Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes)と一緒に使用して、モーダルを作成することができます。これにより、モーダルを作成する際によくある課題を解決することができます。これらの課題には次のようなものがあります：
+Parallel Routes は [Intercepting Routes](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/11-intercepting-routes) と一緒に使用して、モーダルを作成することができます。これにより、モーダルを作成する際によくある課題を解決することができます。これらの課題には次のようなものがあります：
 
 - モーダルコンテントを URL を通じて**共有可能にする**。
 - ページがリフレッシュされたときに、モーダルを閉じる代わりに、**context を保持する**。
@@ -261,7 +261,7 @@ export default function Page() {
 }
 ```
 
-次に、`@auth`スロットの中に、`null`を返す[`default.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/default) ファイルを追加します。これにより、モーダルがアクティブでないときにはレンダリングされないことが保証されます。
+次に、`@auth`スロットの中に、`null`を返す [`default.js`](/ja/javascript/next.js/v14/02-app/02-api-reference/02-file-conventions/default) ファイルを追加します。これにより、モーダルがアクティブでないときにはレンダリングされないことが保証されます。
 
 ```tsx:app/@auth/default.tsx
 export default function Default() {
@@ -462,4 +462,4 @@ Parallel Routes は独立して Streaming できます。これにより、そ�
   height="1218"
 />
 
-詳細については、[Loading UI](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming)と[Error Handling](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling)のドキュメンテーションをご覧ください。
+詳細については、[Loading UI](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/04-loading-ui-and-streaming) と [Error Handling](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling) のドキュメンテーションをご覧ください。

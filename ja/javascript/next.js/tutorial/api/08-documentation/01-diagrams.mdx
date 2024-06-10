@@ -1,0 +1,83 @@
+---
+filePath:
+title: ER 図等のドキュメントを生成する
+nav_title: テーブル定義書・ER 図・DBML
+description: ER 図等のドキュメントを生成する
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## 必要なドキュメント
+
+- API 仕様書
+- DB のテーブル定義書
+- ER 図
+- DBML
+
+など。DBML をクライアントから提出を求められたことはないが、連携するデベロッパーがいる場合などには、あった方が親切かも知れない。
+ここでは、テーブル定義書、ER 図、DBML について記載する。
+
+## ER 図・DBML を自動生成する
+
+Prisma から以下を生成する。
+
+- ER 図
+- DBML
+
+ER 図は納品を求められるが、テーブル数が増えていくと正直見るのもしんどいし、先方も見ない。開発者的には、必要な場合には、DBML の方が見やすいのでそちらも生成する。
+
+ER 図は、[prisma-erd-generator](https://github.com/keonik/prisma-erd-generator)、DBML は、[prisma-dbml-generator](https://github.com/notiz-dev/prisma-dbml-generator) で生成する。`zod-prisma-types` 同様、`schema.prisma` に `generator` を登録する。
+
+```ts:prisma/schema.prisma
+// via. https://github.com/keonik/prisma-erd-generator
+generator erd {
+  provider     = "prisma-erd-generator"
+  output       = "../deliverables/ER-Diagram.svg"
+  disableEmoji = true
+}
+
+// via. https://github.com/notiz-dev/prisma-dbml-generator
+generator dbml {
+  provider              = "prisma-dbml-generator"
+  output                = "../deliverables"
+  outputName            = "schema.dbml"
+  projectName           = "Sample Project"
+  projectDatabaseType   = "PostgreSQL"
+  manyToMany            = false
+  includeRelationFields = false
+}
+```
+
+これで `npx prisma generate` すれば指定のディレクトリに吐き出される。 ただし、ER 図の吐き出しは、画像として吐き出そうとすると、docker で build する際に、必要ないのにエラーになってこけるので、普段は、`.env` にて `DISABLE_ERD=true` としておく必要がある。Markdown 形式で出力すればエラーにはならなさそうだが、納品時に一手間かかるので、画像にしておくことにした。
+
+ただ、ER 図は Prisma で generate しなくても良いかも知れない。
+
+## DB のテーブル定義書を作る
+
+DB 関連では、テーブル定義書の納品が求められる。作り方は色々あるが、使う DB によってやり方を変えるのもいまいちなので、[tbls](https://github.com/k1LoW/tbls) を使うことにした。docker による方法がうまく行かなかったので、今回は、ローカルマシンで生成することにした。
+
+`tbls` を使うと、見やすいとは言えないが ER 図も生成してくれる。どうせ見られないなら、これでも良い気がする。
+
+![tbls](/images/javascript/next.js/tutorial/api/tbls.webp)
+
+クライアントがドキュメントを Confluence や wiki などにまとめていて、そこに書く場合は、テーブルを Dump してそれを整形して貼り付ける、でも良いかも知れない。tbls も markdown で吐き出すので意味はないかも知れないが、小ネタとして。
+
+MySQL の場合、
+
+### Confluence 用ワンライナー
+
+```bash
+$ mysql -h (host) -u (user) -p (schema) -e 'show full columns from (table)' | sed 's/^/|/g;s/$/|/g;s/\t/ | /g;1 s/|/||/g'
+```
+
+### 普通の Markdown 用ワンライナー
+
+```bash
+$ mysql -h (host) -u (user) -p (schema) -e 'show full columns from (table)' | sed -E "s/^/\| /g;s/$/ \|/g;s/\t/ \| /g;1{h; p; s/\w+/:-:/g}"
+```
+
+詳細は、[MySQL で DUMP したテーブル定義を Confluence Wiki 記法や Markdown 記法にするワンライナー](https://qiita.com/kurab/items/9b36dd2f7eb635454bac)

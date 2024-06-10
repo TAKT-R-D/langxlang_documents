@@ -1,0 +1,82 @@
+---
+filePath:
+title: API の設計
+description: API の設計
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## API 設計方針
+
+API が兼ね備える機能は、概ね以下の通りだ。
+
+- Authentication (Bearer etc)
+- CORS etc
+- Validation (Params/Methods...)
+- Endpoints (CRUD)
+- DB Access (incl. Caching)
+- (External API Access)
+- Formatting Response
+- Error Handling
+- Logging
+
+脆弱性検査で指摘されやすいポイントとしては、
+
+- Fetch all
+- Sequentila Parameter
+- Raw Sensitive Information
+- Secret Keys Rotation
+
+あたりだ。これらのうち、案件の内容に左右されるのは、
+
+- Authentication (Bearer etc)
+- Endpoints (CRUD)
+- (External API Access)
+
+だけなので、それ以外はフレームワーク化してしまいたい。
+
+- Authentication (Bearer etc)
+
+は、有効な認証パターンがそんなにたくさんある訳ではないので、ライブラリ化して案件によって選択するようにしたい。
+
+- Endpoints (CRUD)
+
+上記ができてると、これが実装のメインになり、たくさん作ることになるので、基本的なものは、テンプレート化してしまいたい。なるべく工夫の余地をなくし、ササッとテストするだけで良いようにしたい。
+ユーザ向けの API と CMS 等で使う API は必要なものが異なるので、そのあたりも考慮して、テンプレート化したい。
+
+- (External API Access)
+
+外部 API 等へのアクセスは、何度も使うようなものは、AWS S3 へのファイルアップロードくらいなので、都度やれば良くて、メンテナンス工数を考え、仕組み化はしない。
+
+その他にも、Logging が案件によって何を/どこにログするの変わったりするが、これも仕組み化はしない。
+
+## モチベーションが下がるドキュメンテーション
+
+とにかく面倒くさくて精神が削られていくのが、
+
+- API 仕様書
+- ER 図
+
+の作成などだ。あと、DB のテーブル仕様書など。`openapi.yaml/json` をせっせと書いたり、ER 図をチマチマ書くのは、正直実装より時間がかかる。しかも ER 図などは、先方がきちんと確認してくれたことがないが、これまで納品してもらっているから、という理由で納品を求められるケースが多い。
+
+しんどい。やりたくない。
+
+なのだけど、実際、概ねこれらはコード内で定義したスキーマ設定の別表現、Visualization なだけであったりする。世の中便利なツールがあるので、それらを活用して自分ではやらなくて良いようにする。
+
+もうひとつ、使用している OSS のライセンス一覧の作成も面倒くさい。面倒くさいだけでなく、便利だけど NO LICENSE だったりするやべーの使ってないかは、あとで気づくと泣きながら修正することになる。こちらはピンとくるツールはあんまりないのだが、全部手動で調べるようなことにはならないようにする。
+
+## その他に API にあると嬉しい機能
+
+- Docker で動く
+- リリースバージョンが分かる
+- health check のエンドポイント
+
+Production へのリリースは、今どきだと、Container をリリースすることが多いので、Docker で動くことを前提とする
+
+活発に開発をしている際は、Container を push してからサーバに Deploy されるまで時間がかかったり、Deploy に失敗したことが手元では分からなかったりなど、何が動いているかを確かめる必要がある。また、検証環境が複数あって、UAT で上がってくるバグ・CR のレポートの原因を特定するにもバージョンが分かると嬉しい。
+
+health check のエンドポイントも、AWS 等の環境に Deploy するのにあった方が良い。

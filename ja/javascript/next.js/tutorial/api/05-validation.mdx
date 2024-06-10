@@ -1,0 +1,81 @@
+---
+filePath:
+title: Zod で Validation
+nav_title: Validation
+description: Zod で Validation
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+`zod` は、TypeScript 向けのスキーマ定義ライブラリで、Prisma との相性が良い。`zod` でスキーマを定義し、Prisma のスキーマから Zod オブジェクトを生成することで、API のパラメータの validation を行うことができる。
+
+まずは、`zod`, `zod-prisma-types` をインストールし、`prisma/schema.prisma` に generator を追加する
+
+```shell
+$ yarn add zod zod-prisma-types
+```
+
+```ts:prisma/schema.prisma
+...
+generator zod {
+  provider          = "zod-prisma-types"
+  output            = "../src/schemas/zod"
+  useMultipleFiles  = true
+  useTypeAssertions = true
+}
+```
+
+`useTypeAssertions = true` を指定しないと、エラーになる。その他各種オプションは、[zod-prisma-types](https://github.com/chrishoermann/zod-prisma-types) を参照。
+
+`npx prisma generate` すると、指定したディレクトリに Zod オブジェクトがドバっとできる。こんなに必要ないのだが、欲しい物だけに絞れなかったので、全部 generate しておいた。
+
+この `zod-prisma-types` を使うと、`prisma/schema.prisma` の 各 model にコメントをつけることで、Zod オブジェクトを細かく指定できる。例えば、最大値や最小値、エラーメッセージなどを指定できる。
+
+`Zod` によるパラメータの validation は、`.parse`, `.safeParse` などがあるが、エラーが起きた時に、エラーレスポンスを返したいので、`.safeParse` を使う。validation するのは、
+
+- GET `/api/users`: query
+- POST `/api/users`: request body
+- GET `/api/users/{id}`: slug
+- PUT `/api/users/{id}`: slug, request body
+- DELETE `/api/users/{id}`: slug
+
+になる。例えば、POST の場合、
+
+```ts:src/app/api/users/route.ts
+import { UserCreateInputSchema, type User as RequestType } from '@/schemas/zod';
+...
+
+export async function POST(request: Request) {
+  const requestBody: Partial<RequestType> = await request
+    .json()
+    .catch(() => {});
+
+  const query = UserCreateInputSchema.safeParse(requestBody);
+
+  if (query.success === false) {
+    const { errorCode, errorObject } = handleZodError(query.error);
+    return NextResponse.json({ error: errorObject }, { status: errorCode });
+  }
+...
+}
+```
+
+こんな感じになる。relation のある `requestBody` は、Prisma 的 `connect` などしないと、エラーになる。例えば、
+
+```ts:src/schemas/config/models/PostSchema.ts
+export function formatPostParams(params: Partial<RequestType>) {
+  const { authorId, ...rest } = params;
+  let formattedParams: any = { ...rest };
+  if (authorId) {
+    formattedParams = {
+      ...formattedParams,
+      author: { connect: { id: authorId } },
+    };
+  }
+  return formattedParams;
+}
+```

@@ -1,0 +1,167 @@
+---
+filePath:
+title: エラーを考える
+nav_title: エラー処理
+description: エラーを考える
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+related:
+  - title: Error Handling
+    path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling
+---
+
+## エラー処理の概要
+
+まず、プログラム的にエラーが発生する箇所は、
+
+- Auth error: 認証に失敗（基本`401`）
+- Zod error: Validation に失敗（基本`400`）
+- Prisma error: DB が落ちてる、一位制約違反 etc（基本`500`）
+
+などだ。Validation に失敗した場合は、どう失敗したいのかフィードバックしたいので、Zod のエラーを中心に考える。
+例えば、エラー時に返却するエラー Object は以下のようにする。必要に応じて何を表示するかを検討すると良い。
+
+```json
+{
+  "error": {
+    "message": "error message(Bad Request など)",
+    "errors": [
+      {
+        "path": "error path(どのパラメータがエラーか)",
+        "message": "error message(required など)"
+      }
+    ]
+  }
+}
+```
+
+なお、Next.js は、Production 環境では、セキュリティ面からエラー Object は `message` と `digest` しか client に返却しない。`message` や `digest` プロパティを設定する場合は、気密性の高い情報を含まないように注意する。
+
+Next.js のエラーハンドリングの詳細は、[Error Handling](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling) を参照。本 API では、`error.js/ts` は使っていない。
+
+```bash
+src
+└── lib
+    ├── PrismaErrorHandler.ts
+    └── ZodErrorHandler.ts
+```
+
+どちらも、Prisma や Zod が吐き出したエラー Object を受け取り、エラーのステータスコードと API が実際に返却するエラー Object を返却するようにする。
+
+これらを、Zod のエラーが発生するところ、Prisma のエラーが発生する箇所に埋め込む。
+例えば、先程の POST であれば、以下のような感じ。
+
+```ts:src/app/api/users
+export async function POST(request: Request) {
+  const requestBody: Partial<RequestType> = await request
+    .json()
+    .catch(() => {});
+
+  const params = formatUserParams(requestBody);
+  const query = CreateInputSchema.safeParse(params);
+
+  if (query.success === false) {
+    // Zod のエラー
+    const { errorCode, errorObject } = handleZodError(query.error);
+    return NextResponse.json({ error: errorObject }, { status: errorCode });
+  }
+
+  let statusCode = 200;
+
+  const res = await prisma.user
+    .create({
+      data: query.data,
+    })
+    .catch((err) => {
+      // Prisma のエラー
+      const { errorCode, errorObject } = handlePrismaError(err);
+      statusCode = errorCode;
+      return { error: errorObject };
+    });
+
+  return NextResponse.json(res, { status: statusCode });
+}
+```
+
+## 共通のエラーメッセージ
+
+まず、エラーのメッセージは、何度も使うので、共通化しておく。
+
+```ts:src/lib/ErrorMessages.ts
+export const ERROR_MAP: { [key: number]: { message: string } } = {
+  400: { message: 'Bad Request' },
+  401: { message: 'Unauthorized' },
+  403: { message: 'Forbidden' },
+  404: { message: 'Not Found' },
+  405: { message: 'Method Not Allowed' },
+  406: { message: 'Not Acceptable' },
+  407: { message: 'Proxy Authentication Required' },
+  ...
+};
+```
+
+[HTTP レスポンスステータスコード](https://developer.mozilla.org/ja/docs/Web/HTTP/Status) などを参考に、必要なエラーメッセージを選ぶ。
+
+## Prisma のエラー処理
+
+[src/lib/PrismaErrorHandler.ts](https://github.com/TAKT-R-D/nextts14-prisma5-api-sample/blob/main/src/lib/PrismaErrorHandler.ts)
+
+Prisma のエラーには、いくつか種類があって、内容によっては、connection を張りなおす必要があったりする。
+
+- PrismaClientKnownRequestError
+  - P1xxx: Common Errors → `500`
+  - P2xxx: Prisma Client (Query Engine) Errors → `400`
+  - P3xxx: Prisma Migrate (Schema Engine) Errors → `500`
+  - P4xxx: Prisma db pull Errors → `500`
+  - P5xxx: Data Proxy Error → `500`
+- PrismaClientUnknownRequestError → `500`, 再接続が必要
+- PrismaClientRustPanicError → `500`, 再接続もしくは再起動が必要
+- PrismaClientInitializationError → `500`
+- PrismaClientValidationError → `400`
+
+詳細は、[Prisma/Docs Error message reference](https://www.prisma.io/docs/orm/reference/error-reference) を参照。
+
+`PrismaClientUnknownRequestError` などは、Prisma が吐き出したエラー Object から判別できる。
+
+```ts
+import { Prisma } from '@prisma/client';
+
+if (error instanceof Prisma.PrismaClientUnknwonRequestError) {
+  // 処理
+} else if (...) {...}
+```
+
+こんな感じ。再起動はプログラム的には諦めるとして、再接続が必要な場合は、`prisma.$disconnect()` して、再度 `prisma` インスタンスを作成する。
+
+再接続が必要になることはあんまりないが、AWS Aurora Global Databases などで、リージョン超えの DB 構成にするとたまに発生する。これはテストするのが難しいが、ローカルの場合、今回は使っていない MySQL であれば、docker の command で `--innodb_read_only` のオプションをつけることで、一部エラーを発生させることができる。
+
+```yaml
+version: "3.8"
+services:
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      TZ: "Asia/Tokyo"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/sql:/docker-entrypoint-initdb.d
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb_read_only
+    container_name: ${CONTAINER_NAME_DB}
+```
+
+## Zod のエラー処理
+
+[src/lib/ZodErrorHandler.ts](https://github.com/TAKT-R-D/nextts14-prisma5-api-sample/blob/main/src/lib/ZodErrorHandler.ts)
+
+Zod が返すエラー Object は、割とそのまま使えるので、多少見やすくして返却する。Zod のエラーについては、[Error Hnadling in Zod](https://zod.dev/ERROR_HANDLING) を参照。

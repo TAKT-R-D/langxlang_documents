@@ -11,11 +11,11 @@ is_empty: false
 
 Middleware は、request が完了する前に code を実行できるようにします。そして、受信した request に基づいて、書き換えたり、Redirect したり、request や response headers を変更したり、直接応答したりすることで、response を変更できます。
 
-Middleware はキャッシュされたコンテンツと routes がマッチする前に実行されます。詳細は[Paths のマッチング](#matching-paths)をご覧ください。
+Middleware はキャッシュされたコンテンツと routes がマッチする前に実行されます。詳細は [Paths のマッチング](#matching-paths)をご覧ください。
 
 ## Convention
 
-あなたのプロジェクトの root で`middleware.ts`ファイル(または`.js`)を使って、Middleware を定義します。例えば、`pages`または`app`と同じレベル、または該当する場合は`src`の中にあります。
+あなたのプロジェクトの root で `middleware.ts` ファイル(または `.js`)を使って、Middleware を定義します。例えば、`pages` または `app` と同じレベル、または該当する場合は `src` の中にあります。
 
 ## Example
 
@@ -182,7 +182,7 @@ export function middleware(request) {
 
 Middleware から response を生成するために、以下のことができます:
 
-1. `rewrite` を行い、route([Page](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts) または [Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers))を生成し、response を出力します。
+1. `rewrite` を行い、route ([Page](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/02-pages-and-layouts) または [Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)) を生成し、response を出力します。
 2. `NextResponse`を直接返します。[Response の生成](#producing-a-response)を参照してください。
 
 </AppOnly>
@@ -191,7 +191,7 @@ Middleware から response を生成するために、以下のことができ�
 
 Middleware から response を生成するために、以下のことができます:
 
-1. `rewrite`を、response を生成する route([Page](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts) または [Edge API Route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes))に
+1. `rewrite`を、response を生成する route ([Page](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/01-pages-and-layouts) または [Edge API Route](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes)) に
 2. `NextResponse`を直接返します。[Response の生成](#producing-a-response)を参照してください。
 
 </PagesOnly>
@@ -413,13 +413,13 @@ export const config = {
 
 <AppOnly>
 
-> **Good to know：** 個々の routes に対して CORS headers を[Route ハンドラ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers#cors)で設定することができます。
+> **Good to know：** 個々の routes に対して CORS headers を [Route ハンドラ](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers#cors)で設定することができます。
 
 </AppOnly>
 
 ## Producing a Response
 
-`Response` または `NextResponse` インスタンスを返すことで、Middleware から直接応答することができます。(これは[Next.js v13.1.0](https://nextjs.org/blog/next-13-1#nextjs-advanced-middleware)から利用可能です)
+`Response` または `NextResponse` インスタンスを返すことで、Middleware から直接応答することができます。(これは[Next.js v13.1.0](https://nextjs.org/blog/next-13-1#nextjs-advanced-middleware) から利用可能です)
 
 ```ts:middleware.ts
 import { NextRequest } from 'next/server'
@@ -464,9 +464,9 @@ export function middleware(request) {
 
 ### `waitUntil` と `NextFetchEvent`
 
-`NextFetchEvent`object は、ネイティブの[`FetchEvent`](https://developer.mozilla.org/docs/Web/API/FetchEvent) object を拡張し、[`waitUntil()`](https://developer.mozilla.org/docs/Web/API/ExtendableEvent/waitUntil) method を含んでいます。
+`NextFetchEvent` object は、ネイティブの [`FetchEvent`](https://developer.mozilla.org/docs/Web/API/FetchEvent) object を拡張し、[`waitUntil()`](https://developer.mozilla.org/docs/Web/API/ExtendableEvent/waitUntil) method を含んでいます。
 
-`waitUntil()`の method は引数として promise を取り、promise がセトルするまでの Middleware の寿命を延ばします。これはバックグラウンドでの作業を実行するのに役立ちます。
+`waitUntil()` の method は引数として promise を取り、promise がセトルするまでの Middleware の寿命を延ばします。これはバックグラウンドでの作業を実行するのに役立ちます。
 
 ```ts:middleware.ts
 import { NextResponse } from 'next/server'
@@ -486,9 +486,9 @@ export function middleware(req: NextRequest, event: NextFetchEvent) {
 
 ## Advanced Middleware Flags
 
-`v13.1`の Next.js では、middleware 用に 2 つの追加フラグ、`skipMiddlewareUrlNormalize`と`skipTrailingSlashRedirect`が導入され、高度な使用例を処理することが可能になりました。
+`v13.1` の Next.js では、middleware 用に 2 つの追加フラグ、`skipMiddlewareUrlNormalize` と `skipTrailingSlashRedirect` が導入され、高度な使用例を処理することが可能になりました。
 
-`skipTrailingSlashRedirect`は、トレーリングスラッシュの追加や削除のための Next.js redirects を無効にします。これにより、 middleware 内でカスタム処理を許可し、一部の paths ではトレーリングスラッシュを維持し、他の一部では維持しないことが可能になります。これにより、インクリメンタルな移行が容易になります。
+`skipTrailingSlashRedirect` は、トレーリングスラッシュの追加や削除のための Next.js redirects を無効にします。これにより、 middleware 内でカスタム処理を許可し、一部の paths ではトレーリングスラッシュを維持し、他の一部では維持しないことが可能になります。これにより、インクリメンタルな移行が容易になります。
 
 ```js:next.config.js
 module.exports = {
@@ -539,14 +539,14 @@ export default async function middleware(req) {
 
 ## Runtime
 
-現在、Middleware は[Edge runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes)のみをサポートしています。Node.js runtime は使用できません。
+現在、Middleware は [Edge runtime](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/04-edge-and-nodejs-runtimes) のみをサポートしています。Node.js runtime は使用できません。
 
 ## Version History
 
 | Version   | 変更点                                                                                                     |
 | --------- | ---------------------------------------------------------------------------------------------------------- |
 | `v13.1.0` | 高度な Middleware フラグが追加されました                                                                   |
-| `v13.0.0` | Middleware は requestheaders、responsesheaders を変更し、responses を送信できます                          |
+| `v13.0.0` | Middleware は requestheaders、responses headers を変更し、responses を送信できます                         |
 | `v12.2.0` | Middleware は安定しています。[アップグレードガイド](/docs/messages/middleware-upgrade-guide)をご覧ください |
 | `v12.0.9` | 絶対 URL を Edge Runtime で強制する ([PR](https://github.com/vercel/next.js/pull/33410))                   |
 | `v12.0.0` | Middleware (ベータ版) 追加されました                                                                       |

@@ -11,13 +11,13 @@ is_empty: false
 
 <AppOnly>
 
-| API                                                             | 目的                                                 | 場所                                                  | 状態 Code                            |
-| --------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | ------------------------------------ |
-| [`redirect`](#redirect-function)                                | ミューテーションまたはイベント後に Redirect ユーザー | Server Components 、 Server Actions 、 Route ハンドラ | 307(一時)または 303( Server Action ) |
-| [`permanentRedirect`](#permanentredirect-function)              | ミューテーションまたはイベント後に Redirect ユーザー | Server Components , Server Actions , Route Handlers   | 308 ( Permanent )                    |
-| [`useRouter`](#userouter-hook)                                  | クライアントサイドのナビゲーションを実行する         | Client Components のイベントハンドラー                | N/A                                  |
-| [`next.config.js`の中の`redirects`](#redirects-in-nextconfigjs) | Redirect 入ってくる request を path に基づいて       | `next.config.js`ファイル                              | 307 (一時的) または 308( Permanent ) |
-| [`NextResponse.redirect`](#nextresponseredirect-in-middleware)  | 条件に基づいて、入ってきた request を Redirect する  | Middleware                                            | 任意                                 |
+| API                                                             | 目的                                                         | 場所                                                  | 状態 Code                            |
+| --------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------ |
+| [`redirect`](#redirect-function)                                | ミューテーションまたはイベント後にユーザーを Redirect する   | Server Components 、 Server Actions 、 Route ハンドラ | 307(一時)または 303( Server Action ) |
+| [`permanentRedirect`](#permanentredirect-function)              | ミューテーションまたはイベント後にユーザーを Redirect する   | Server Components , Server Actions , Route Handlers   | 308 ( Permanent )                    |
+| [`useRouter`](#userouter-hook)                                  | クライアントサイドのナビゲーションを実行する                 | Client Components のイベントハンドラー                | N/A                                  |
+| [`next.config.js`の中の`redirects`](#redirects-in-nextconfigjs) | Redirect 入ってくる request を path に基づいて Redirect する | `next.config.js`ファイル                              | 307 (一時的) または 308( Permanent ) |
+| [`NextResponse.redirect`](#nextresponseredirect-in-middleware)  | 条件に基づいて、入ってきた request を Redirect する          | Middleware                                            | 任意                                 |
 
 </AppOnly>
 
@@ -35,9 +35,9 @@ is_empty: false
 
 ## `redirect` function
 
-`redirect`関数は、ユーザーを別の URL に redirect することができます。 この`redirect`関数を [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Route ハンドラー](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、そして [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で呼び出すことができます。
+`redirect` 関数は、ユーザーを別の URL に redirect することができます。 この `redirect` 関数を [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Route ハンドラー](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、そして [Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations) で呼び出すことができます。
 
-`redirect`は、変異やイベントの後によく使用されます。例えば、post を作成する場合など：
+`redirect` は、変異やイベントの後によく使用されます。例えば、post を作成する場合など：
 
 ```tsx:app/actions.tsx
 'use server'
@@ -79,17 +79,17 @@ export async function createPost(id) {
 >
 > - `redirect`は default で 307（一時的 Redirect）のステータス code を返します。Server Action で使用される場合、303（他を参照）を返し、これは POST request の結果として成功ページに redirect するために一般的に使用されます。
 > - `redirect`は内部でエラーを投げるため、`try/catch`ブロックの外で呼び出すべきです。
-> - `redirect`はレンダリングプロセス中の Client Components で呼び出すことができますが、イベントハンドラーでは呼び出すことができません。代わりに[`useRouter` hook](#userouter-hook)を使用できます。
+> - `redirect`はレンダリングプロセス中の Client Components で呼び出すことができますが、イベントハンドラーでは呼び出すことができません。代わりに [`useRouter` hook](#userouter-hook) を使用できます。
 > - `redirect`は絶対 URL も受け入れ、外部リンクに redirect するために使用することができます。
-> - render プロセスの前に redirect したい場合は、[`next.config.js`](#redirects-in-nextconfigjs)または[Middleware](#nextresponseredirect-in-middleware)を使用してください。
+> - render プロセスの前に redirect したい場合は、[`next.config.js`](#redirects-in-nextconfigjs) または [Middleware](#nextresponseredirect-in-middleware) を使用してください。
 
 詳細は [`redirect` API reference](/docs/app/api-reference/functions/redirect) をご覧ください。
 
 ## `permanentRedirect` function
 
-`permanentRedirect`関数は、ユーザーを**永久に**redirect させて別の URL に移動させることができます。`permanentRedirect`は[Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、そして[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations)で呼び出す事が可能です。
+`permanentRedirect`関数は、ユーザーを**永久に**redirect させて別の URL に移動させることができます。`permanentRedirect`は [Server Components](/ja/javascript/next.js/v14/02-app/01-building-your-application/03-rendering/01-server-components)、[Route Handlers](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)、そして[Server Actions](/ja/javascript/next.js/v14/02-app/01-building-your-application/02-data-fetching/02-server-actions-and-mutations) で呼び出す事が可能です。
 
-`permanentRedirect`は、エンティティの正規の URL が変更されたミューテーションやイベントの後によく使用されます。例えば、ユーザーが自分のユーザー名を変更した後にユーザーのプロフィールの URL を更新する場合などです。
+`permanentRedirect` は、エンティティの正規の URL が変更されたミューテーションやイベントの後によく使用されます。例えば、ユーザーが自分のユーザー名を変更した後にユーザーのプロフィールの URL を更新する場合などです。
 
 ```tsx:app/actions.ts
 'use server'
@@ -129,11 +129,11 @@ export async function updateUsername(username, formData) {
 
 > **Good to know**:
 >
-> - `permanentRedirect`は、default で 308(permanent redirect)ステータスの code を返します。
-> - `permanentRedirect`は絶対 URL も受け入れ、外部リンクへの redirect にも使用できます。
-> - render プロセスの前に redirect したい場合は、[`next.config.js`](#redirects-in-nextconfigjs)または[Middleware](#nextresponseredirect-in-middleware)を使用してください。
+> - `permanentRedirect` は、default で 308(permanent redirect)ステータスの code を返します。
+> - `permanentRedirect` は絶対 URL も受け入れ、外部リンクへの redirect にも使用できます。
+> - render プロセスの前に redirect したい場合は、[`next.config.js`](#redirects-in-nextconfigjs) または [Middleware](#nextresponseredirect-in-middleware) を使用してください。
 
-詳細については、[`permanentRedirect` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect)をご覧ください。
+詳細については、[`permanentRedirect` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/permanentRedirect) をご覧ください。
 
 </AppOnly>
 
@@ -141,7 +141,7 @@ export async function updateUsername(username, formData) {
 
 <AppOnly>
 
-もしイベントハンドラ内で、Client Component にて redirect する必要がある場合、`useRouter`hook から`push`method を使用できます。例えば：
+もしイベントハンドラ内で、Client Component にて redirect する必要がある場合、`useRouter` hook から `push` method を使用できます。例えば：
 
 ```tsx:app/page.tsx
 'use client'
@@ -217,23 +217,23 @@ export default function Page() {
 
 <AppOnly>
 
-詳細については、[`useRouter` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router)をご覧ください。
+詳細については、[`useRouter` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/use-router) をご覧ください。
 
 </AppOnly>
 
 <PagesOnly>
 
-詳細については、[`useRouter` API reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router)を参照してください。
+詳細については、[`useRouter` API reference](/ja/javascript/next.js/v14/03-pages/02-api-reference/02-functions/use-router) を参照してください。
 
 </PagesOnly>
 
 ## `redirects` in `next.config.js`
 
-`next.config.js` ファイルの `redirects` オプションは、来た requestpath を別のデスティネーション path に redirects することができます。これはページの URL 構造を変更したり、事前に知られている redirects のリストがある場合に便利です。
+`next.config.js` ファイルの `redirects` オプションは、来た request path を別のデスティネーション path に redirects することができます。これはページの URL 構造を変更したり、事前に知られている redirects のリストがある場合に便利です。
 
-`redirects`は[path](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects#path-matching)、[header、cookie、そして query のマッチング](/docs/app/api-reference/next-config-js/redirects#header-cookie-and-query-matching) をサポートし、着信 request に基づいてユーザーを redirect する柔軟性を提供します。
+`redirects` は [path](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects#path-matching)、[header、cookie、そして query のマッチング](/docs/app/api-reference/next-config-js/redirects#header-cookie-and-query-matching)をサポートし、着信 request に基づいてユーザーを redirect する柔軟性を提供します。
 
-`redirects`を使用するには、オプションをあなたの`next.config.js`ファイルに追加してください:
+`redirects` を使用するには、オプションをあなたの `next.config.js` ファイルに追加してください:
 
 ```js:next.config.js
 module.exports = {
@@ -256,17 +256,17 @@ module.exports = {
 }
 ```
 
-詳細情報については、[`redirects` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects)をご覧ください。
+詳細情報については、[`redirects` API reference](/ja/javascript/next.js/v14/02-app/02-api-reference/05-next-config-js/redirects) をご覧ください。
 
 > **Good to know**:
 >
-> - `redirects`は`permanent`オプションを使用して、307(一時的な Redirect )または 308( Permanent Redirect )のステータス code を返すことができます。
-> - `redirects`はプラットフォームによっては制限があるかもしれません。例えば、Vercel では、 redirects の上限は 1,024 になります。 redirects の number (1000 以上)を管理するためには、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)を使用したカスタムソリューションを作成することを検討してください。詳細については、[大規模な redirects の管理](#managing-redirects-at-scale-advanced)を参照してください。
+> - `redirects` は `permanent` オプションを使用して、307(一時的な Redirect )または 308( Permanent Redirect )のステータス code を返すことができます。
+> - `redirects` はプラットフォームによっては制限があるかもしれません。例えば、Vercel では、 redirects の上限は 1,024 になります。 redirects の number (1000 以上) を管理するためには、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware) を使用したカスタムソリューションを作成することを検討してください。詳細については、[大規模な redirects の管理](#managing-redirects-at-scale-advanced)を参照してください。
 > - `redirects`は、Middleware の**前**に実行されます。
 
 ## `NextResponse.redirect` in Middleware
 
-Middleware は、request が完了する前に code を実行することを可能にします。それから、受け取った request に基づいて、`NextResponse.redirect`を使用して異なる URL に redirect します。これは、条件(認証、セッション管理など)に基づいてユーザーを redirect させたい場合や、[大量の redirects](#managing-redirects-at-scale-advanced)を持つ場合に便利です。
+Middleware は、request が完了する前に code を実行することを可能にします。それから、受け取った request に基づいて、 `NextResponse.redirect` を使用して異なる URL に redirect します。これは、条件(認証、セッション管理など)に基づいてユーザーを redirect させたい場合や、[大量の redirects](#managing-redirects-at-scale-advanced) を持つ場合に便利です。
 
 例えば、ユーザーが認証されていない場合、 `/login` ページに redirect すると：
 
@@ -314,13 +314,13 @@ export const config = {
 
 > **Good to know**:
 >
-> - Middleware は`next.config.js`の`redirects`**の後**に実行され、レンダリング**の前**に行われます。
+> - Middleware は `next.config.js` の `redirects` **の後**に実行され、レンダリング**の前**に行われます。
 
-詳細については、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)のドキュメンテーションを参照してください。
+詳細については、[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware) のドキュメンテーションを参照してください。
 
 ## Managing redirects at scale (advanced)
 
-大量の number の redirects(1000 以上)を管理するには、Middleware を使用してカスタムソリューションを作成することを検討してみてください。これにより、アプリケーションを再デプロイすることなく、redirects をプログラムで処理することができます。
+大量の number の redirects(1000 以上) を管理するには、Middleware を使用してカスタムソリューションを作成することを検討してみてください。これにより、アプリケーションを再デプロイすることなく、redirects をプログラムで処理することができます。
 
 これを行うためには、以下のことを考慮する必要があります：
 
@@ -348,7 +348,7 @@ redirect map は、データベース(通常はキー-バリューストア)や 
 }
 ```
 
-[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware)では、Vercel の[Edge Config](https://vercel.com/docs/storage/edge-config/get-started?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)や[Redis](https://vercel.com/docs/storage/vercel-kv?utm_source=next-site&utm_medium=docs&utm_campaign=next-website)などのデータベースから読み込み、入力された request に基づいてユーザーを redirect することができます。
+[Middleware](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/13-middleware) では、Vercel の [Edge Config](https://vercel.com/docs/storage/edge-config/get-started?utm_source=next-site&utm_medium=docs&utm_campaign=next-website) や [Redis](https://vercel.com/docs/storage/vercel-kv?utm_source=next-site&utm_medium=docs&utm_campaign=next-website) などのデータベースから読み込み、入力された request に基づいてユーザーを redirect することができます。
 
 ```tsx:middleware.ts
 import { NextResponse, NextRequest } from 'next/server'
@@ -398,11 +398,11 @@ export async function middleware(request) {
 大きなデータセットを一連の request ごとに読み込むことは、遅く、費用もかかることがあります。データルックアップのパフォーマンスを最適化するための 2 つの方法があります:
 
 - 高速な読み込みに最適化されたデータベースを使用してください。たとえば、[Vercel Edge Config](https://vercel.com/docs/storage/edge-config/get-started?utm_source=next-site&utm_medium=docs&utm_campaign=next-website) や [Redis](https://vercel.com/docs/storage/vercel-kv?utm_source=next-site&utm_medium=docs&utm_campaign=next-website) などです。
-- [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter)などの strategy を用いて、大きな redirects ファイルやデータベースを読む**前に** redirect が存在するか効率的に確認します。
+- [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) などの strategy を用いて、大きな redirects ファイルやデータベースを読む**前に** redirect が存在するか効率的に確認します。
 
 前の例を考慮に入れると、生成されたブルームフィルタファイルを Middleware に import して、その後で、入ってくる request pathname がブルームフィルタに存在するかどうかを確認できます。
 
-それがそうであれば、その request を<AppOnly>[Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers)</AppOnly> <PagesOnly>[API Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes)</PagesOnly>に転送します。これは実際のファイルをチェックし、ユーザーを適切な URL に redirect します。これにより、大規模な redirects ファイルを Middleware にインポートすることで、すべての受信 request が遅くなるのを防ぎます。
+それがそうであれば、その request を<AppOnly> [Route Handler](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/12-route-handlers) </AppOnly> <PagesOnly> [API Routes](/ja/javascript/next.js/v14/03-pages/01-building-your-application/01-routing/07-api-routes) </PagesOnly>に転送します。これは実際のファイルをチェックし、ユーザーを適切な URL に redirect します。これにより、大規模な redirects ファイルを Middleware にインポートすることで、すべての受信 request が遅くなるのを防ぎます。
 
 ```tsx:middleware.ts
 import { NextResponse, NextRequest } from 'next/server'

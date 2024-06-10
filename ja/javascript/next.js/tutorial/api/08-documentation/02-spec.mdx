@@ -1,0 +1,338 @@
+---
+filePath:
+title: API 仕様書を作る
+nav_title: API 仕様書
+description: API 仕様書を作る
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: "2024-06-04"
+sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+---
+
+## API 仕様書
+
+API 仕様書は、`openapi.json` などを出力して渡し、それを好きなツールで見てもらえれば良いと個人的には思うが、それで許してくれるクライアントは滅多にいない。`openapi.json` は提供しつつ、最初から用意しておけば文句も出ない。
+とは言え、API 仕様書を書くのは大変だ。アクティブに開発をしている段階では、逐一アップデートしていくのも大変なので、なるべく自動化したい。最終的には、それほど自動か？という程度にしかならなかったが、ひとつひとつせっせと書くのに比べれば遥かに楽、という程度になった。もっと自動化したいが、これ以上は難しいかも知れない。
+
+## API 仕様書のガワを作る
+
+まず、先にガワを作る。以前は、`@stoplight/element` を利用したが、今回は、`swagger-ui-react` を使うことにする。
+
+```bash
+$ yarn add swagger-ui-react
+$ yarn add @types/swagger-ui-react --dev
+```
+
+各種ファイルの配置は以下の通り。
+
+```bash
+├── public
+│   └── openapi.json
+└── src
+    ├── app
+    │   └── docs
+    │       ├── page.tsx
+    │       └── swagger-ui.css
+    └ globals.css
+```
+
+`/docs` でアクセスできる。(ex. http://localhost:3000/docs)
+基本的には、Production では表示しないようにするなどの処理が必要になる。アクセス制限は、サーバ側で行うことにして、ここではやらないが、念の為実装しておいても良い。
+
+`/docs/page.tsx` では、`swagger-ui-react` を読み込んで、`openapi.json` を読み込むようにする。
+
+````tsx:src/app/docs/page.tsx
+
+App Route ではページは、`page.tsx` を作成する。
+
+```tsx:src/app/docs/page.tsx
+'use client';
+import dynamic from 'next/dynamic';
+import 'swagger-ui-react/swagger-ui.css';
+import './swagger-ui.css';
+
+const DynamicSwaggerUI = dynamic(() => import('swagger-ui-react'), {
+  ssr: false,
+  loading: () => <p>Loading Component...</p>,
+});
+
+export default function APISpecification() {
+  return (
+    <>
+      <title>API Specification</title>
+      <main>
+        <DynamicSwaggerUI url="/openapi.json" />
+      </main>
+    </>
+  );
+}
+````
+
+`swagger-ui-react` では、読み込むソースは URL で指定して、ローカルファイルが読み込めないので、`public` ディレクトリに `openapi.json` を配置し、`'use client';` とする。
+`build` すると動かなくなる。container にしてサーバに Deploy したいので、`Dynamic` Component として、`ssr: false` とする必要がある。
+
+swagger-ui は見慣れてはいるが、私には眩しすぎたので、Dark モードを付け加えた。最近ご執心の[日本の伝統色](https://colors.takt.dev) をベースに、目に優しい色使いになっている！（今回 1 番の満足ポイント）
+
+![API Spec](/images/javascript/next.js/tutorial/api/apispec.webp)
+
+## openapi.json を生成する
+
+あとは、`openapi.json` を書くだけ…なのだが、正直これが 1 番面倒くさい。これをなるべく手間をかけずに生成できる必要がある。
+
+Zod を使っているので、それをうまいこと使いたいと思い、今回は [zod-to-openapi](https://github.com/asteasolutions/zod-to-openapi) を使うことにした。
+
+```bash
+$ yarn add @asteasolutions/zod-to-openapi
+```
+
+`zod-prisma-types` で生成したスキーマをそのまま使えれば良かったのだが、`openapi.json` 用には、`description` と `example` が足らないし、`response` の形やクエリパラメータなどは、こちらの実装次第。
+また、 `/api/auth/access_token`、`/api/health` など、特定の model に依存しないものは生成されないので、せっせと書くことにする。
+
+ファイルをどこに置くかは、かなり悩んだ。openapi.json の生成に関連するファイルは、サーバに Deploy する必要がないため、`src` ディレクトリ外に置いておきたいが、前述の生成された zod のスキーマと別の場所というのも整理されていない気もするし、この後 EntryPoint の作成をテンプレート化し、実装ではなく設定にしたいので…
+
+`openapi.json` で書くことは、このシステムの場合、`prisma` クエリの別表現とも言えるので、同じファイルで設定するのが迷子にならなくて良かろう。と一旦結論づけた。
+
+```bash
+├── src/app/schemas
+│   ├── config
+│   │   ├── models
+│   │   │   └── UserSchema.ts
+│   │   ├── AuthSchema.ts
+│   │   ├── Commons.ts
+│   │   ├── ExtendedModels.ts
+│   │   ├── HealthSchema.ts
+│   │   └── index.ts
+│   └── BuildOpenApiSchema.ts
+└── tools
+    ├── openapi
+    │   ├── Configs.ts
+    │   └── EntryPoints.ts
+    └ GenerateOpenAPI.ts
+```
+
+まず、`src/app/schemas/config/ExtendedModels.ts` にて、`description` と `example` を追加する。
+
+```ts:src/schemas/config/ExtendedModels.ts
+import { UserSchema } from '@/schemas/zod';
+import { Ex } from './Commons';
+
+export const UserModelSchema = UserSchema.extend({
+  id: UserSchema.shape.id.describe('user id').openapi(Ex.cuid),
+  userName: UserSchema.shape.userName
+    .describe('unique user name')
+    .openapi(Ex.name),
+  imageUrl: UserSchema.shape.imageUrl.describe('user image').openapi(Ex.image),
+  createdAt: UserSchema.shape.createdAt
+    .describe('created date')
+    .openapi(Ex.date),
+  updatedAt: UserSchema.shape.updatedAt
+    .describe('updated date')
+    .openapi(Ex.date),
+});
+```
+
+こんな感じで、`zod-prisma-types` で生成した各 model スキーマを拡張する。`example` は都度書くのが面倒なので、`src/app/schemas/config/Commons.ts` 内にまとめた。`Commons.ts` には、その他に、GET 時の共通なクエリや、エラーレスポンスに関する設定をまとめた。
+
+`src/schemas/config/models/UserSchema.ts` には、Prisma 用の設定と、OpenAPI 用の設定が含まれる。運用のイメージとしては、新しい EntryPoint を作る際に、このファイルだけをいじるようにし、実装ではなく設定させるようにしたい。そうすることでバグやレビューの手間などが減らせる。
+
+いったん、OpenAPI の部分だけをかいつまんで。
+
+```ts:src/schemas/config/models/UserSchema.ts
+import ...
+
+/**
+ * PRISMA CONFIGS
+ * *PrismaSelect: selected columns. if select all, leave it as {}
+ * *PrismaInclude: included columns
+ * format*Params: connect etc. if no relational post/put query, just return params.
+ */
+
+export const UserPrismaSelect = {};
+
+export const UserPrismaInclude = {...};
+
+export function formatUserParams(params: Partial<RequestType>) {...}
+
+/**
+ * OPENAPI CONFIGS
+ * add describe & example
+ *
+ * _requestPostSchema: request body for POST request
+ * _requestPutSchema: request body for PUT request. basically all are optional
+ * _responseSchema: response body with relations
+ */
+
+const _requestPostSchema = ModelSchema.pick({
+  userName: true,
+  imageUrl: true,
+});
+
+const _requestPutSchema = _requestPostSchema.extend({
+  userName: _requestPostSchema.shape.userName.optional(),
+  imageUrl: _requestPostSchema.shape.imageUrl.optional(),
+});
+
+const _responseSchema = ModelSchema.merge(
+  z.object({
+    posts: z.array(
+      PostModelSchema.pick({ id: true, title: true, createdAt: true })
+    ),
+    bookmarks: z.array(
+      BookmarkModelSchema.pick({ postId: true }).merge(
+        z.object({
+          post: PostModelSchema.pick({ title: true, createdAt: true }).merge(
+            z.object({
+              author: ModelSchema.pick({
+                id: true,
+                userName: true,
+                imageUrl: true,
+              }),
+            })
+          ),
+        })
+      )
+    ),
+    _count: z.object({
+      posts: z.number().int().openapi(Ex.number),
+      bookmarks: z.number().int().openapi(Ex.number),
+    }),
+  })
+);
+
+/**
+ * OPENAPI PATH CONFIG
+ * path, summary, description, tags(user/cms), etc
+ */
+
+export const UserCreateSchema = builder.getCreateSchema(...);
+export const UserFindManySchema = builder.getFindManySchema(...);
+export const UserFindUniqueSchema = builder.getFindUniqueSchema(...);
+export const UserUpdateSchema = builder.getUpdateSchema(...);
+export const UserDeleteSchema = builder.getDeleteSchema(...);
+```
+
+`_requestPostSchema` は、Create 時の request body の設定、`_requestPutSchema` は、Update 時の設定で、基本的には任意パラメータに設定する。
+
+`_responseSchema` は、GET 時の response body の設定で、`UserPrismaSelect`, `UserPrismaInclude` で設定した内容と一致するように書く。この作業は、慣れるまで結構面倒くさい。もうちょっと簡単にしたい。
+
+`UserCreateSchema` ~ `UserDeleteSchema` は、OpenAPI の `path` の設定になっている。具体的な内容は、`src/schemas/BuildOpenApiSchema.ts` 参照。これらを、`tools/openapi/EntryPoints.ts` にエントリーすると、`tools/GenerateOpenAPI.ts` が読み込んで `openapi.json` を吐き出すようになっている。
+
+```ts:tools/openapi/EntryPoints.ts
+import { type RouteConfig } from '@asteasolutions/zod-to-openapi';
+import * as schm from '@/schemas/config';
+
+type EntryType = {
+  schema: RouteConfig;
+  requireAuth: boolean;
+  isMultiLines: boolean;
+  slugIdType?: string;
+};
+
+export const entries: EntryType[] = [
+  { schema: schm.AuthSchema, requireAuth: false, isMultiLines: false },
+  { schema: schm.HealthSchema, requireAuth: false, isMultiLines: false },
+  { schema: schm.HealthDeepSchema, requireAuth: false, isMultiLines: false },
+  { schema: schm.UserCreateSchema, requireAuth: true, isMultiLines: false },
+  { schema: schm.UserFindManySchema, requireAuth: true, isMultiLines: true },
+  ...
+```
+
+`isMultiLines` は、一括取得の場合に、`x-total-count` を `header` に埋め込む判定に使う。FindMany だけ `true` にする。
+
+```ts:tools/GenerateOpenAPI.ts
+import ...
+
+const main = async () => {
+  require('dotenv').config({
+    path: path.resolve(__dirname, '../.env'),
+  });
+  const registry = new OpenAPIRegistry();
+  extendZodWithOpenApi(z);
+
+  // securityScheme
+  registry.registerComponent(...);
+
+  // headers
+  const headerVersion = registry.registerComponent(...);
+  const headerCount = registry.registerComponent(...);
+  // params
+  const IntIdSchema = registry.registerParameter(
+    'IntId',
+    z.number().openapi({
+      param: {
+        name: 'id',
+        in: 'path',
+      },
+      ...Ex.number,
+    })
+  );
+  const CuidIdSchema = registry.registerParameter(
+    'CuidId',
+    z.string().openapi({
+      param: {
+        name: 'id',
+        in: 'path',
+      },
+      ...Ex.cuid,
+    })
+  );
+
+  entries.forEach((entry) => {
+    ...
+    registry.registerPath(path);
+  });
+
+  const generator = new OpenApiGeneratorV3(registry.definitions);
+
+  let obj: any = generator.generateDocument(DocumentConfig);
+
+  if (process.env.API_VERSION) {
+    obj.info.version = process.env.API_VERSION;
+  }
+  // MEMO: manually add example on slugId schema. reconsider when dredd support 3.0.0
+  if (obj.components?.parameters && obj.components?.schemas) {
+    if (obj.components.parameters.IntId && obj.components.schemas.IntId) {
+      obj.components.parameters.IntId.example =
+        obj.components.schemas.IntId.example;
+    }
+    if (obj.components.parameters.CuidId && obj.components.schemas.CuidId) {
+      obj.components.parameters.CuidId.example =
+        obj.components.schemas.CuidId.example;
+    }
+  }
+
+  const json = JSON.stringify(obj, null, 2);
+  const file = __dirname + '/../public/openapi.json';
+  fs.writeFileSync(file, json);
+};
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+
+```
+
+こちらはそれほど特筆することはないのだが、変なことやってる点としては、slug パラメータの exapmle が OpenAPI3.0 をサーポートしていない `dredd` でうまく読み込めないので、マニュアルで追加している点と、
+API のバージョンを .env ファイルから読み込んで埋め込んでいる点。あとは、`zod-to-openapi` のドキュメントを読み込んでいただきたい。
+
+あとは、`package.json` に scripts を追加して
+
+```json:package.json
+{
+  "scripts": {
+    ...
+    "openapi:generate": "ts-node -r tsconfig-paths/register tools/GenerateOpenAPI.ts",
+    ...
+  },
+  ...
+}
+```
+
+```zsh
+yarn openapi:generate
+```
+
+とすることで、`public/openapi.json` が生成される。あんまり簡単にはなってない気がするが、前より楽になってるし、いまはいったんこれが精一杯ということでおしまい。

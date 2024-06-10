@@ -1,0 +1,91 @@
+---
+filePath:
+title: Next.js をローカルで SSL 化する
+nav_title: ローカルで SSL 化する
+description: Next.js をローカルで SSL 化する方法を紹介します。
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: '2024-06-04'
+---
+
+## 検証バージョン
+
+Next.js: ver14, 13
+
+## はじめに
+
+いま、Production が SSL 通信でないことはまずない。気にせずに開発を行い、Production に Deploy したらエラーという自体は避けたい。staging 環境などは SSL 通信をしていることが多いのだろうから、そんなことはあまりないのだが、ローカルで開発中に SSL 通信で確かめたいこともある。特に、Safari は厳しく、PC Safari は無視できても、iOS Safari は無視できない。
+
+という訳で、ローカルも普段から SSL 通信するようにセットアップする。
+
+## 手順
+
+- SSL 証明書を発行する
+- SSL 証明書を登録する
+- Next.js の設定をする
+
+## クライアント証明書を発行し、登録する
+
+> [Visual Studio Code で https で live Server を使う](https://qiita.com/niku-usagi-chan/items/5f0a62bad6459600eba9)
+
+基本、このままやれば良い。Mac の場合、証明書の登録はブラウザごとではなく、KeyChain に登録する。
+
+> [クライアント証明書の登録方法-Safari, Google Chrome (Mac OS)](https://passlogic.jp/register_cert/safari-mac-os/)
+
+しかし、この方法では、Firefox は対応していない。Firefox まで対応したい場合は、お手軽度がグっと下がるが、以下を参考にしてやると良い。
+
+> [OpenSSL で証明書を作成して MAMP のローカル環境に SSL 設定。](https://memo.ag2works.tokyo/post-3192/)
+
+いまのところ、Firefox 独自の問題が起こることは稀であるため、今回は省略する。
+
+## Next.js の設定
+
+Next.js は色々やり方があるようだが、今回は、見た中で一番おてがるそうで、問題がおこらなそうな `local-ssl-proxy` を使うことにした。
+
+なお、Page Router を使う場合、[Custom Server](/ja/javascript/next.js/v14/03-pages/01-building-your-application/06-configuring/10-custom-server) を使う方法があるが、App Router を使った方が良いと思うのと、あまりおすすめでないようなので、使わないことにする。そういう方法もあると覚えておくと何かの際に役に立つかも知れない。
+
+ではまず、`local-ssl-proxy` をインストールする。
+
+```bash
+yarn add local-ssl-proxy --dev
+```
+
+次に、`package.json` を編集する。
+
+```json:package.json
+{
+  "scripts": {
+    "dev:proxy": "next dev -p 4000 & local-ssl-proxy --key ~/{path_to_your_cert}/server.key --cert ~/{path_to_your_cert}/server.crt --source 3000 --target 4000"
+  }
+}
+```
+
+dev:proxy というコマンドを追加した。
+
+```bash
+yarn dev:proxy
+```
+
+で起動できる。
+注意点としては、`package.json` はバージョン管理されるファイルなので、ローカルの full path （例えば、/Users/kurab/cert/ など）は書きたくないので、このような書き方にした。
+
+このコマンドは、Next.js の dev サーバーを 4000 ポートで起動し、local-ssl-proxy で 3000 ポートを 4000 ポートにリダイレクトしている。私は 4000 番を滅多に使わないので、4000 番にしたが、好きなポートを使えば良い。
+
+## 起動
+
+```bash
+$ yarn dev:proxy
+yarn run v1.22.19
+$ next dev -p 4000 & local-ssl-proxy --key ~/cert/server.key --cert ~/cert/server.crt --source 3000 --target 4000
+Started proxy: https://localhost:3000 → http://localhost:4000
+  ▲ Next.js 14.2.3
+  - Local:        http://localhost:4000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+```
+
+無事に SSL 化された Next.js が起動した。
