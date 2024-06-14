@@ -2,13 +2,13 @@
 filePath:
 title: Next.js の App Router で作る API の基本型
 nav_title: API の基本形
-description: Next.js の App Router で作る API の基本型
+description:
 org_title:
 org_path:
 is_empty: false
 refuse_edit: true
-pub_date: "2024-06-04"
-sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+pub_date: '2024-06-04'
+sample_repo: 'https://github.com/TAKT-R-D/nextts14-prisma5-api-sample'
 related:
   - title: Routing
     path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routin
@@ -145,7 +145,7 @@ Prisma での CRUD は、基本的には、以下のようになる。
 let userBody: Prisma.UserCreateInput;
 userBody = {
   userName: userName,
-  imageUrl: imageUrl ? imageUrl : "",
+  imageUrl: imageUrl ? imageUrl : '',
 };
 const resUser = await prisma.user.create({ data: userBody });
 ```
@@ -248,7 +248,7 @@ include: {
 #### 戻り値の型を定義
 
 ```ts
-import { Post } from "@prisma/client";
+import { Post } from '@prisma/client';
 
 export type PostType = Post & {
   author: {

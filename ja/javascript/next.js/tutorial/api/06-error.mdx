@@ -2,13 +2,13 @@
 filePath:
 title: エラーを考える
 nav_title: エラー処理
-description: エラーを考える
+description:
 org_title:
 org_path:
 is_empty: false
 refuse_edit: true
-pub_date: "2024-06-04"
-sample_repo: "https://github.com/TAKT-R-D/nextts14-prisma5-api-sample"
+pub_date: '2024-06-04'
+sample_repo: 'https://github.com/TAKT-R-D/nextts14-prisma5-api-sample'
 related:
   - title: Error Handling
     path: /ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/05-error-handling
@@ -140,18 +140,18 @@ if (error instanceof Prisma.PrismaClientUnknwonRequestError) {
 再接続が必要になることはあんまりないが、AWS Aurora Global Databases などで、リージョン超えの DB 構成にするとたまに発生する。これはテストするのが難しいが、ローカルの場合、今回は使っていない MySQL であれば、docker の command で `--innodb_read_only` のオプションをつけることで、一部エラーを発生させることができる。
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
   db:
     image: mysql:5.7
     ports:
-      - "3306:3306"
+      - '3306:3306'
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASS}
-      TZ: "Asia/Tokyo"
+      TZ: 'Asia/Tokyo'
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf

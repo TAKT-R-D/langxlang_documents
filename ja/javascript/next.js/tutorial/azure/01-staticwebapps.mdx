@@ -1,0 +1,198 @@
+---
+filePath:
+title: Azure Static Web Apps に Next.js ver.14 をデプロイする
+nav_title: Static Web Apps にデプロイする
+description: GitHub Actions を使って、静的にビルドした Next.js アプリを Azure Static Web Apps にデプロイする方法を解説します。
+org_title:
+org_path:
+is_empty: false
+refuse_edit: true
+pub_date: '2024-06-11'
+related:
+  - title: Static Exports
+    path: /ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports
+  - title: generateStaticParams
+    path: /ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params
+---
+
+Azure Static Web Apps には、静的に build した Next.js を簡単にデプロイすることができる。Azure Portal から Static Web Apps で設定をしていくだけで、GitHub と連携して、GitHub Actions でビルドしてデプロイしてくれたりする。
+今回は、GitHub と連携して GitHub Actions でデプロイする方法（つまづきポイント）と流れを紹介する。
+
+## Next.js の設定
+
+Azure Static Web Apps は、静的な Web Application をホストするので、Next.js も静的に build する必要がある。積極的に Pages Router を利用する意味はないと思うので、App Router の前提で話を進める。
+まずは、`next.config.js` の設定を行う。詳細は、[Deploying: Static Exports](/ja/javascript/next.js/v14/02-app/01-building-your-application/10-deploying/02-static-exports) を確認。
+
+```js:next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+};
+
+module.exports = nextConfig;
+```
+
+`output: 'export'` とすると、build 時に全て Static に build されるため、うまく動かなくなる機能があるので、`yarn build` で吐き出されるエラーをひとつずつ潰していく。
+
+例えば、`<Image>` Component を利用していると、以下のようなエラーが出る。
+
+```bash
+⨯ Error: Image Optimization using the default loader is not compatible with `{ output: 'export' }`.
+  Possible solutions:
+    - Remove `{ output: 'export' }` and run "next start" to run server mode including the Image Optimization API.
+    - Configure `{ images: { unoptimized: true } }` in `next.config.js` to disable the Image Optimization API.
+  Read more: https://nextjs.org/docs/messages/export-image-api
+digest: "1027120732"
+```
+
+今回の場合、`output: 'export'` を削除するわけにはいかないので、
+
+```js:next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
+};
+
+module.exports = nextConfig;
+```
+
+こんな対応になる。
+
+## Dynamic Route の対応
+
+作る Application が Dynamic Route を全く使わないこともあまりないと思うが、Dynamic Route を静的に build するには、slug パラメータが取りうる値を設定する必要がある。
+これには、[`generateStaticParams`](/ja/javascript/next.js/v14/02-app/02-api-reference/04-functions/generate-static-params) を各 `page.jsx/tsx` に設定する必要がある。
+
+このようにして、Static/SSG build できる Next.js Application をまずは作る。
+
+## Azure の設定
+
+Microsoft のプロダクトは、ドキュメントが本当に充実していて助かる。
+[静的にレンダリングされた Next.js の Web サイトを Azure Static Web Apps にデプロイする](https://learn.microsoft.com/ja-jp/azure/static-web-apps/deploy-nextjs-static-export?tabs=github-actions) というドンピシャなドキュメントがあるので、基本的にはこの通りに設定すれば良い。
+
+GitHub Actions を使うようにすると、リポジトリに、`.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml` が作成される。
+この GitHub Actions は、指定のブランチが更新されたり、Pull Request が作成されたりしたときに、ビルドしてデプロイするという内容のものなのだが、このままでは、ほとんどのケースでエラーが発生するものと思われる。
+いくつか設定が必要だ。
+
+### Node のバージョン
+
+Next.js は Node.js 18.17 以上が必要だが、GitHub Actions は何も指定しないと、 node.js 16 系が選ばれてしまうようだ（サポートも切れたので、今は違うかも知れない）。いずれにせよ、Node.js のバージョンはしっかり指定しておいた方が良い。
+
+- [Node.js Releases](https://nodejs.org/en/about/previous-releases)
+- [GitHub Actions: node-versions/versions-manifest.json](https://github.com/actions/node-versions/blob/main/versions-manifest.json)
+
+Node.js の LTS、GitHub Actions がサポートしている Node.js のバージョンなどを眺め、使用するバージョンを決定する。というか、Deploy のために決定するのではなく、本来は、Application を作る際に決める。現時点では、20 系にしておくのが無難だろうと思うので、それを指定する。
+
+```json:package.json
+{
+    ...
+    "engines": {
+        "node": "20"
+    }
+}
+```
+
+```yml:.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml
+...
+jobs:
+  build_and_deploy_job:
+  ...
+  steps:
+  - uses: actions/checkout@v3
+    ...
+  - uses: actions/setup-node@v4
+    with:
+        node-version: '20'
+  - name: Build And Deploy
+  ...
+```
+
+`node-version: '>=20.0.0'` のようにしたり、`20.14.0` のように特定のバージョンを指定したりしても良い。GitHub Actions がサポートしていることが条件だが。
+
+### 環境変数の設定
+
+GitHub Actions 上で build するので、環境変数の設定が必要だが、.env ファイルなどは GitHub には push しないので、別途設定する必要がある。Azure Static Web Apps には、環境変数の設定があるが、GitHub Actions からうまく取得することができなかったので、別の方法を考える必要がある。(Azure が吐き出す GitHub Actions の構成ファイルでは、secrets を使っているので、取れないはずないと思うが、どこで設定しているのかよく分からなかった。詳しい人がいたら教えてほしい。)
+
+まず、`.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml` で環境変数を与える方法がある。
+
+```yml:.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      ...
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          ...
+        env:
+          NEXT_PUBLIC_XXX: 'XXX_value'
+          NEXT_PUBLIC_YYY: 'YYY_value'
+          NEXT_PUBLIC_ZZZ: 'ZZZ_value'
+```
+
+このように、build and deploy セクションに、`env` として与える。このファイルは、GitHub で管理されるファイルなので、値を直接書く場合は、 `NEXT_PUBLIC_` なものに限定すべきだ。
+
+Azure Static Web Apps で、複数環境を構築し、環境ごとに異なる環境変数を設定する必要がある場合は、GitHub Actions の変数を利用する方法があるが、ベータ版で変更される可能性があるようだ。詳細は、[GitHub Actions: 変数](https://docs.github.com/ja/actions/learn-github-actions/variables) 参照。いずれにしても、この方法は、機密性の**低い**情報に限定する必要がある。
+
+```yml:.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml
+        env:
+          NEXT_PUBLIC_XXX: ${{ vars.XXX_value }}
+          NEXT_PUBLIC_YYY: ${{ vars.YYY_value }}
+          NEXT_PUBLIC_ZZZ: ${{ vars.ZZZ_value }}
+```
+
+では、機密性の高い情報、API Secret のようなものはどうしたら良いかというと、GitHub Actions の Secrets を利用する。例えば、Next.js で Blog アプリを作成し、記事を別リポジトリで管理し、build 時に（submodule ではなく）GitHub API を利用してデータを取得するような作りの場合、GitHub API を利用するための `TOKEN` が必要になり、それは Public にしたくない。というような場合だ。secrets の設定については、[GitHub Actions でのシークレットの使用](https://docs.github.com/ja/actions/security-guides/using-secrets-in-github-actions)を参照。
+
+```yml:.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml
+        env:
+          NEXT_PUBLIC_XXX: ${{ vars.XXX_value }}
+          NEXT_PUBLIC_YYY: ${{ vars.YYY_value }}
+          NEXT_PUBLIC_ZZZ: ${{ vars.ZZZ_value }}
+          GITHUB_TOKEN: ${{ secrets.SRC_GITHUB_TOKEN }}
+```
+
+`token` や `Secret` のローテーション等、複雑なことをやりたい場合は別途考える必要がある。
+
+### Timeout の設定
+
+build のタイムアウトは、デフォルトで 15 分となっているようだ。
+
+[Azure Static Web Apps のビルド構成](https://learn.microsoft.com/ja-jp/azure/static-web-apps/build-configuration?tabs=github-actions)
+
+15 分では build が終わらない場合は、延長する必要がある。`build_timeout_in_minutes` を設定する。60 分に設定してみる。
+
+```yml:.github/workflows/azure-static-web-apps-<app-name>-<branch>.yml
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      ...
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          ...
+          build_timeout_in_minutes: 60
+```
+
+これを書くと、`Invalid action input 'build_timeout_in_minutes'` というエラーが出るし、関連する Issue（機能しないとか）が報告されているが、私が試した限りでは、ちゃんと機能したので無視して良い（と思う）。
+
+## Preview 環境
+
+Azure Static Web Apps で Preview 環境の利用を有効にすると、Preview 環境が利用できる（当たり前）。
+Preview 環境は、Deploy の対象にするブランチ(main など)に対する Pull Request を検知してスポットで作成される。
+
+![staging](/images/javascript/next.js/tutorial/azure/staging.webp)
+
+Pull Request が close されると破棄される。pull request 元が更新されると、再度 build/deploy される。非常に便利な機能なので、積極的に使っていきたい。
+
+詳細は、[運用前環境で pull request を確認する](https://learn.microsoft.com/ja-jp/azure/static-web-apps/review-publish-pull-requests)。
