@@ -9,9 +9,9 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-`@next/third-parties`は、人気のあるサードパーティライブラリをあなたの Next.js アプリケーションにロードするためのパフォーマンスと development 者体験を向上させる components とユーティリティのコレクションを提供するライブラリです。
+`@next/third-parties` は、人気のあるサードパーティライブラリをあなたの Next.js アプリケーションにロードするためのパフォーマンスと development 者体験を向上させる components とユーティリティのコレクションを提供するライブラリです。
 
-`@next/third-parties`が提供するすべてのサードパーティ統合は、パフォーマンスと使いやすさのために最適化されています。
+`@next/third-parties` が提供するすべてのサードパーティ統合は、パフォーマンスと使いやすさに最適化されています。
 
 ## Getting Started
 
@@ -23,7 +23,7 @@ npm install @next/third-parties@latest next@latest
 
 {/* To do: Remove this paragraph once package becomes stable */}
 
-`@next/third-parties`は現在、アクティブな development の下で**実験的な**library として取り組んでいます。私たちは、より多くのサードパーティ製品の統合を進めている間に、**最新版**または**canary**フラグを使用してインストールすることをお勧めします。
+`@next/third-parties` は現在、アクティブな development の下で**実験的な** library として取り組んでいます。より多くのサードパーティ製品の統合を進めている間、**最新版**または **canary** フラグを使用してインストールすることをお勧めします。
 
 ## Google Third-Parties
 
@@ -31,7 +31,7 @@ Google からのすべてのサポートされているサードパーティラ�
 
 ### Google Tag Manager
 
-`GoogleTagManager`の component は、ページに[Google Tag Manager](https://developers.google.com/tag-platform/tag-manager)の container を作成するために使用することができます。 default では、ページで hydration が発生した後に元のインラインスクリプトを取得します。
+`GoogleTagManager`の component は、ページに[Google Tag Manager](https://developers.google.com/tag-platform/tag-manager)の container を作成することができます。 default では、ページで hydration が発生した後に元のインラインスクリプトを取得します。
 
 <AppOnly>
 
@@ -160,7 +160,7 @@ export function EventButton() {
 
 </PagesOnly>
 
-関数に渡すことができるさまざまな変数とイベントについて学ぶには、タグマネージャの[開発者ドキュメンテーション](https://developers.google.com/tag-platform/tag-manager/datalayer)を参照してください。
+関数に渡すことができるさまざまな変数とイベントについては、タグマネージャの[開発者ドキュメンテーション](https://developers.google.com/tag-platform/tag-manager/datalayer)を参照してください。
 
 #### Options
 
@@ -168,7 +168,7 @@ Google Tag Manager に渡す Options。 options の完全なリストについ�
 
 | 名前            | Type       | Description                                                                         |
 | --------------- | ---------- | ----------------------------------------------------------------------------------- |
-| `gtmId`         | 必須       | あなたの GTM container ID。通常は `GTM-` から始まります。                           |
+| `gtmId`         | 必須       | GTM container ID。通常は `GTM-` から始まります。                                    |
 | `dataLayer`     | オプション | container をインスタンス化するためのデータレイヤー配列。default は empty 配列です。 |
 | `dataLayerName` | 任意       | データレイヤーの名称。default は `dataLayer` となります。                           |
 | `auth`          | 任意       | 環境スニペットの認証パラメータ(`gtm_auth`)の Value 。                               |
@@ -235,7 +235,7 @@ export default function MyApp({ Component, pageProps }) {
 
 </PagesOnly>
 
-一つの route に Google Analytics を読み込むためには、あなたの Page ファイルに component を含めてください：
+単一の route に Google Analytics を読み込むためには、あなたの Page ファイルに component を含めてください：
 
 <AppOnly>
 
@@ -321,10 +321,10 @@ Google Analytics は、ブラウザの履歴の状態が変わると自動的に
 
 `<GoogleAnalytics>` component に渡すオプション。
 
-| 名前            | Type | Description                                                                                         |
-| --------------- | ---- | --------------------------------------------------------------------------------------------------- |
-| `gaId`          | 必須 | あなたの[計測 ID](https://support.google.com/analytics/answer/12270356)。通常は`G-`から始まります。 |
-| `dataLayerName` | 任意 | データレイヤーの名前。default は `dataLayer`です。                                                  |
+| 名前            | Type | Description                                                                                 |
+| --------------- | ---- | ------------------------------------------------------------------------------------------- |
+| `gaId`          | 必須 | [計測 ID](https://support.google.com/analytics/answer/12270356)。通常は`G-`から始まります。 |
+| `dataLayerName` | 任意 | データレイヤーの名前。default は `dataLayer`です。                                          |
 
 ### Google マップ埋め込み
 
@@ -376,7 +376,7 @@ Google Maps Embed に渡す options。全ての options 一覧については、
 
 | 名前              | Type         | Description                                                                                           |
 | ----------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
-| `apiKey`          | 必須         | あなたの api キー。                                                                                   |
+| `apiKey`          | 必須         | api キー。                                                                                            |
 | `mode`            | 必須         | [Map モード](https://developers.google.com/maps/documentation/embed/embedding-map#choosing_map_modes) |
 | `height`          | 任意         | 埋め込みの Height 。default は `auto`。                                                               |
 | `width`           | オプショナル | 埋め込みの Width 。default は `auto` です。                                                           |

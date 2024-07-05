@@ -9,7 +9,7 @@ is_empty: false
 
 {/* The content of this doc is shared between the app and pages router. You can use the `<PagesOnly>Content</PagesOnly>` component to add content that is specific to the Pages Router. Any shared content should not be wrapped in a component. */}
 
-この API reference は ScriptComponent で使用可能な [props](#props) の使い方を理解するのに役立つでしょう。機能や使い方については、[OptimizingScripts](/docs/app/building-your-application/optimizing/scripts) ページをご覧ください。
+この API reference は Script Component で使用可能な [props](#props) の使い方を理解するのに役立つでしょう。機能や使い方については、[OptimizingScripts](/docs/app/building-your-application/optimizing/scripts) ページをご覧ください。
 
 ```tsx:app/dashboard/page.tsx
 import Script from 'next/script'
@@ -53,24 +53,24 @@ export default function Dashboard() {
 
 ### `src`
 
-外部スクリプトの URL を指定する path string。これは、絶対的な外部の URL であるか、または内部の path であることができます。インラインスクリプトが使用されていない限り、`src`プロパティが必須です。
+外部スクリプトの URL を指定する path string。これは、絶対的な外部の URL であるか、または内部の path であることができます。インラインスクリプトが使用されていない限り、`src` プロパティが必須です。
 
 ## Optional Props
 
-`<Script />` component は、必要なものを超えて number の追加プロパティを受け入れます。
+`<Script />` component は、必要なものを超えていくつかの追加プロパティを受け入れます。
 
 ### `strategy`
 
 スクリプトの loading strategy 。使用できる 4 つの異なるストラテジーがあります：
 
-- `beforeInteractive`: すべての Next.js code と、ページの再生が行われる前にロードします。
-- `afterInteractive`: (**default**) ページ上で一部の水分補給が行われた後に早期にロードします。
-- `lazyOnload`：ブラウザのアイドル時間中にロードします。
-- `worker`: (実験的)ウェブ worker にロードします。
+- `beforeInteractive`: すべての Next.js code と、ページの再生が行われる前にロードします
+- `afterInteractive`: (**default**) ページ上で一部のハイドレーションが行われた後に早期にロードします
+- `lazyOnload`：ブラウザのアイドル時間中にロードします
+- `worker`: (実験的)ウェブ worker にロードします
 
 ### `beforeInteractive`
 
-`beforeInteractive`という strategy でロードされる Scripts は、初期の HTML に server から注入され、どの Next.js モジュールよりも先にダウンロードされ、ページ上で何かの水分補給が行われる前に配置された順序で実行されます。
+`beforeInteractive`という strategy でロードされる Scripts は、初期の HTML に server から注入され、どの Next.js モジュールよりも先にダウンロードされ、ページ上で何かのハイドレーションが行われる前に配置された順序で実行されます。
 
 この strategy で示された Scripts は、すべてのファーストパーティの code よりも先にプリロードされ、フェッチされますが、その実行はページのハイドレーションの発生をブロックしません。
 
@@ -185,7 +185,7 @@ export default function Page() {
 
 ### `lazyOnload`
 
-`lazyOnload`を使用する Scripts は、ブラウザのアイドル時間中に HTMLclient サイドに注入され、ページ上のすべてのリソースが取得された後に読み込まれます。このストラテジーは、初期の読み込みが必要ないバックグラウンドや低優先度の Scripts に対して使用すべきです。
+`lazyOnload`を使用する Scripts は、ブラウザのアイドル時間中に HTML client サイドに注入され、ページ上のすべてのリソースが取得された後に読み込まれます。このストラテジーは、初期の読み込みが必要ないバックグラウンドや低優先度の Scripts に対して使用すべきです。
 
 `lazyOnload` scripts は、どのページや layout の中にも配置でき、そのページ(またはページのグループ)がブラウザで開かれたときだけ読み込みと実行が行われます。
 
@@ -208,7 +208,7 @@ export default function Page() {
 
 ### `worker`
 
-> **警告:** `worker` 戦略はまだ安定しておらず、[`app`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes) ディレクトリとはまだ動作しません。注意して使用してください。
+> **警告:** `worker` 戦略はまだ安定しておらず、[`app`](/ja/javascript/next.js/v14/02-app/01-building-your-application/01-routing/01-defining-routes) ディレクトリではまだ動作しません。注意して使用してください。
 
 `worker` strategy を使用する scripts は、メインのスレッドを解放し、それには重要な第一者のリソースのみが処理されるように、web worker にオフロードされます。この strategy は任意の scripts に使用できますが、すべての第三者の scripts をサポートすることが保証されているわけではない高度な使用例です。
 
@@ -250,7 +250,7 @@ export default function Home() {
 
 ### `onLoad`
 
-> **警告:** `onLoad`はまだ Server Components とは動作せず、 Client Components 内でのみ使用できます。さらに、`onLoad`は`beforeInteractive`で使用できません - 代わりに`onReady`を使用することをご検討ください。
+> **警告:** `onLoad`はまだ Server Components では動作せず、 Client Components 内でのみ使用できます。さらに、`onLoad` は `beforeInteractive` で使用できません - 代わりに `onReady` を使用することをご検討ください。
 
 いくつかのサードパーティの scripts require は、コンテンツをインスタンス化したり、関数を呼び出したりするために、スクリプトの loading strategy が終了した後に一度だけ JavaScript code を実行することをユーザーに要求します。 afterInteractive または lazyOnload を loading 戦略としてスクリプトを loading している場合、onLoad プロパティを使用して読み込みが完了した後に code を実行することができます。
 
@@ -391,7 +391,7 @@ export default function Page() {
 
 ### `onError`
 
-> **警告:** `onError`はまだ Server Components と一緒には動作せず、 Client Components でのみ使用することができます。 `onError`は `beforeInteractive` loading strategy と一緒には使用できません。
+> **警告:** `onError` はまだ Server Components と一緒には動作せず、 Client Components でのみ使用することができます。 `onError` は `beforeInteractive` loading strategy と一緒には使用できません。
 
 スクリプトのロードに失敗したときにそれをキャッチすることが役立つことがあります。これらの error は、onError プロパティで処理できます:
 
